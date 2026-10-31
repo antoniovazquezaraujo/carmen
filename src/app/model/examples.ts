@@ -1,4 +1,4 @@
-import { parseSong } from 'src/app/model/mr';
+import { applyDocumentVariables, parseSong } from 'src/app/model/mr';
 import { Song } from 'src/app/model/song';
 import { DEMO_SONG_MR } from './demo-song';
 
@@ -444,5 +444,10 @@ part Bass
 ];
 
 export function createExampleSong(example: ExampleSong): Song {
-    return parseSong(example.mr).song;
+    const document = parseSong(example.mr);
+    // Examples may declare vars (`$oct`, `$mode`...). Apply them before the
+    // song reaches the editor or the player so commands do not silently fall
+    // back to defaults and the live panel can serialize the declaration.
+    applyDocumentVariables(document);
+    return document.song;
 }

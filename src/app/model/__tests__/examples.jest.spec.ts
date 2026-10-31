@@ -1,6 +1,15 @@
+import { VariableContext } from '../variable.context';
 import { createExampleSong, EXAMPLE_SONGS } from '../examples';
 
 describe('example song library', () => {
+    beforeEach(() => {
+        VariableContext.context.clear();
+    });
+
+    afterEach(() => {
+        VariableContext.context.clear();
+    });
+
     it('contiene diez ejemplos con identificadores únicos', () => {
         expect(EXAMPLE_SONGS).toHaveLength(10);
         const ids = EXAMPLE_SONGS.map(example => example.id);
@@ -12,6 +21,22 @@ describe('example song library', () => {
             expect(() => createExampleSong(example)).not.toThrow();
             expect(createExampleSong(example).name).toBeTruthy();
         }
+    });
+
+    it('aplica las variables declaradas por el ejemplo', () => {
+        const ember = EXAMPLE_SONGS.find(example => example.id === 'ember');
+        const glass = EXAMPLE_SONGS.find(example => example.id === 'glass-orbit');
+        expect(ember).toBeDefined();
+        expect(glass).toBeDefined();
+
+        createExampleSong(ember!);
+        expect(VariableContext.getValue('oct')).toBe(1);
+        expect(VariableContext.getValue('mode')).toBe('CHORD');
+
+        createExampleSong(glass!);
+        expect(VariableContext.getValue('oct')).toBe(3);
+        expect(VariableContext.getValue('mode')).toBe('ASCENDING');
+        expect(VariableContext.getValue('scale')).toBe('BLUE');
     });
 
     it('cada ejemplo tiene título, descripción y etiquetas', () => {
