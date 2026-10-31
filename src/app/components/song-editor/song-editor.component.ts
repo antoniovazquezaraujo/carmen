@@ -47,8 +47,8 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     public metronome$: Observable<number>;
     /** Panel de Variables plegable (encima de las parts); plegado al inicio. */
     variablesExpanded: boolean = false;
-    /** Panel de Parts plegable (debajo de Variables y Blocks); abierto al inicio. */
-    partsExpanded: boolean = true;
+    /** Panel de Parts plegable (debajo de Variables y Blocks); plegado al inicio. */
+    partsExpanded: boolean = false;
     /** Panel lateral de solo lectura con el texto canónico en vivo. */
     mrTextPanelVisible: boolean = false;
     /** Panel lateral de ejemplos, junto al de texto. */

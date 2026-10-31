@@ -256,6 +256,12 @@ describe('BlockLibraryComponent · CRUD de definiciones', () => {
   });
 });
 
+describe('BlockLibraryComponent · alineación', () => {
+  it('el host es bloque para no heredar el espacio inline antes del panel', () => {
+    expect(styles).toMatch(/:host\s*\{\s*display:\s*block;\s*\}/);
+  });
+});
+
 describe('BlockLibraryComponent · template', () => {
   it('empty state claro y accionable', () => {
     expect(template).toContain('No reusable blocks yet');

@@ -3,7 +3,7 @@
  *
  * Las parts dejan de crearse desde el `+` del toolbar: viven en un panel
  * propio, siempre debajo de Variables y Blocks, con su contador y su `+` en
- * la cabecera. Abierto al inicio para no esconder el contenido principal.
+ * la cabecera. Plegado al inicio para dejar sitio al editor.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -28,8 +28,8 @@ describe('Panel de Parts', () => {
         expect(songIndex).toBeGreaterThan(partsIndex);
     });
 
-    it('está abierto por defecto y se alterna desde su cabecera', () => {
-        expect(componentSource).toContain('partsExpanded: boolean = true');
+    it('está plegado por defecto y se alterna desde su cabecera', () => {
+        expect(componentSource).toContain('partsExpanded: boolean = false');
         expect(componentSource).toContain('togglePartsPanel(): void');
         expect(componentSource).toContain('this.partsExpanded = !this.partsExpanded');
         expect(template).toContain('*ngIf="partsExpanded"');
