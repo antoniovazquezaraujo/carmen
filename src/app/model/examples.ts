@@ -110,96 +110,157 @@ part
     {
         id: 'dodecaedro',
         title: 'Dodecaedro',
-        description: 'A twelve-cycle geometric canon with decorated chords, shifting keys and mirrored odd/even groups.',
-        tags: ['Canon', '12 cycles', 'Decoration'],
+        description: 'A two-part, three-voice study built from A/B/C cells, stacked chords and decorated arpeggios.',
+        tags: ['Chords', 'Decoration', 'Two parts'],
         bpm: 120,
         mr: `song Dodecaedro
 version 1
-repeats 12
-
-vars
-  $v = "4 5 1"
-  $b = EVEN_ASC_ODD_DESC
-  $x = "3 6 2"
 
 blocks
-  block "Block 1"
+  block A
     notes
       1n:1
+      1n:2
+      1n:-3
+
+  block B
+    notes
+      1n:2
+      1n:3
+      1n:4
+
+  block C
+    notes
+      1n:7
+      1n:0
+      1n:6
 
 part
   block
 
-  use "Block 1" repeats 2
+  use A
     commands
-      DECORATION $v
-      PLAYMODE ASCENDING
-      WIDTH 4
-      OCT -1
-      GAP 3
-      SCALE PENTA
-
-  use "Block 1" repeats 2
-    commands
-      DECORATION $v
-      PLAYMODE ASCENDING
-      WIDTH 4
-      OCT -1
-      GAP 3
-      SCALE PENTA
-      KEY 2
-
-  use "Block 1" repeats 2
-    commands
-      DECORATION $v
-      PLAYMODE ASCENDING
-      WIDTH 4
-      OCT -1
-      GAP 3
-      SCALE PENTA
-      KEY 2
-
-  use "Block 1" repeats 2
-    commands
-      DECORATION $v
-      PLAYMODE ODD_ASC_EVEN_ASC
-      WIDTH 4
-      OCT 3
-      GAP 4
-      SCALE BLACK
-      KEY 6
-
-  use "Block 1" repeats 2
-    commands
-      DECORATION $x
-      PLAYMODE ODD_ASC_EVEN_ASC
-      WIDTH 4
-      OCT 2
-      GAP 4
-      SCALE BLACK
-      KEY 6
-
-  use "Block 1" repeats 2
-    commands
-      DECORATION $x
-      PLAYMODE ODD_DESC_EVEN_ASC
-      WIDTH 4
-      OCT -1
-      GAP 7
-      SCALE BLACK
-      KEY 6
-
-  use "Block 1" repeats 4
-    commands
-      DECORATION $x
       PLAYMODE CHORD
+      WIDTH 3
+      DECORATION 4n:3 8t:2
+      INV 1
+
+  use A
+    commands
+      PLAYMODE CHORD
+      WIDTH 3
+      DECORATION 4n:3 4n:2
+      INV 1
+      OCT 2
+      GAP 6
+
+  use A
+    commands
+      PLAYMODE CHORD
+      WIDTH 1
+      DECORATION 4n:2 4n:1
+      INV 2
+      OCT 2
+      GAP 5
+
+  use A
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 3
+      DECORATION 4n:4 4n:2
+      INV 1
+      OCT 2
+      GAP 7
+
+  use B
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 3
+      DECORATION 4n:3 4n:1
+      INV 1
+      OCT 2
+      GAP 7
+
+  use B
+    commands
+      PLAYMODE ASCENDING
       WIDTH 5
+      DECORATION 4n:2 4n:0
+      INV 2
+      OCT 0
+      GAP 7
+
+  use C
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 2
+      DECORATION 2n:2 1n:0
+      INV 3
       OCT 1
+      GAP 2
+
+  block
+
+part
+  block
+
+  use A
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 3
+      OCT -1
+
+  use A
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 1
+      OCT -1
+      GAP 1
+
+  use A
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 1
+      OCT -1
+      GAP 1
+
+  use A
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 1
+      OCT -1
+      GAP 1
+
+  use B
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 1
+      OCT -1
+      GAP 1
+
+  use B
+    commands
+      PLAYMODE ASCENDING
+      WIDTH 1
+      INV 1
+      OCT -1
+      GAP 1
+
+  use C
+    commands
+      PLAYMODE ASC_DESC
+      WIDTH 2
+      INV 0
+      OCT 0
       GAP 4
-      SCALE PENTA
-      KEY 4
 `
     },
+
     {
         id: 'glass-orbit',
         title: 'Glass Orbit',

@@ -29,15 +29,15 @@ describe('example song library', () => {
         expect(dodecaedro).toBeDefined();
         expect(glass).toBeDefined();
 
-        createExampleSong(dodecaedro!);
-        expect(VariableContext.getValue('v')).toBe('4 5 1');
-        expect(VariableContext.getValue('x')).toBe('3 6 2');
-        expect(VariableContext.getValue('b')).toBe('EVEN_ASC_ODD_DESC');
-
         createExampleSong(glass!);
         expect(VariableContext.getValue('oct')).toBe(3);
         expect(VariableContext.getValue('mode')).toBe('ASCENDING');
         expect(VariableContext.getValue('scale')).toBe('BLUE');
+
+        createExampleSong(dodecaedro!);
+        expect(VariableContext.getValue('oct')).toBeUndefined();
+        expect(VariableContext.getValue('mode')).toBeUndefined();
+        expect(VariableContext.getValue('scale')).toBeUndefined();
     });
 
     it('cada ejemplo tiene título, descripción y etiquetas', () => {
