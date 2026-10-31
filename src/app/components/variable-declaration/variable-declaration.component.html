@@ -18,12 +18,19 @@
         </select>
 
         <ng-container [ngSwitch]="newVariable.type">
-            <select *ngSwitchCase="'playmode'" 
-                [(ngModel)]="newVariable.value" 
+            <select *ngSwitchCase="'playmode'"
+                class="playmode-select"
+                [(ngModel)]="newVariable.value"
                 name="value"
                 autocomplete="off"
+                [pTooltip]="playModeDescription(newVariable.value)"
+                [title]="playModeDescription(newVariable.value)"
+                tooltipPosition="top"
+                [attr.aria-label]="'Play mode: ' + playModeDescription(newVariable.value)"
                 required>
-                <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
+                <option *ngFor="let mode of playModeOptions"
+                        [value]="mode.value"
+                        [title]="mode.description">{{ mode.symbol }}</option>
             </select>
 
             <ng-container *ngSwitchCase="'scale'">
@@ -65,11 +72,18 @@
             <span class="variable-name">{{variable.name}}</span>
             
             <ng-container [ngSwitch]="variable.type">
-                <select *ngSwitchCase="'playmode'" 
-                    [(ngModel)]="variable.value" 
+                <select *ngSwitchCase="'playmode'"
+                    class="playmode-select"
+                    [(ngModel)]="variable.value"
                     autocomplete="off"
+                    [pTooltip]="playModeDescription(variable.value)"
+                    [title]="playModeDescription(variable.value)"
+                    tooltipPosition="top"
+                    [attr.aria-label]="'Play mode: ' + playModeDescription(variable.value)"
                     (ngModelChange)="updateVariable(i)">
-                    <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
+                    <option *ngFor="let mode of playModeOptions"
+                            [value]="mode.value"
+                            [title]="mode.description">{{ mode.symbol }}</option>
                 </select>
 
                 <select *ngSwitchCase="'scale'" 

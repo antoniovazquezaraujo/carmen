@@ -38,10 +38,10 @@ Los tokens viven en `src/theme.css` y se cargan después de `styles.css`. La int
 
 - Barra superior con monograma, marca, tagline y enlace a la guía.
 - Pantalla de carga con tarjeta y spinner, en lugar de texto plano.
-- Panel **Examples** en la barra superior con diez canciones `.mr` completas: al pulsar un título se carga y se reproduce. Los paneles de texto y ejemplos pueden convivir y redimensionarse con splitters.
+- Panel **Examples** en la barra de canción, junto a **Source**, con diez canciones `.mr` completas: al pulsar un título se carga y se reproduce. Los paneles de texto y ejemplos pueden convivir y redimensionarse con splitters.
 - Selector claro/oscuro en la barra superior, persistido en `localStorage` y con arranque sin flash mediante un script inline en `index.html`.
 - El editor ocupa el resto de la altura sin scroll global.
-- El botón `.mr` abre un panel lateral fijo con el texto canónico en vivo; **Edit** abre el editor avanzado existente.
+- El botón **Source** (`.mr`) abre un panel lateral fijo con el texto canónico en vivo; **Edit** abre el editor avanzado existente.
 
 ### Editor
 
@@ -76,7 +76,6 @@ Los tokens viven en `src/theme.css` y se cargan después de `styles.css`. La int
 - Etiquetas `aria-label` en el botón de ayuda, cierre del panel y nombre de canción.
 - Foco visible con anillo de acento en controles.
 - El toolbar envuelve controles y pasa a columna por debajo de 960 px.
-- El estado vacío pasa a una columna en pantallas estrechas.
 - Los botones principales mantienen una altura mínima de 32–36 px.
 
 ## 6. Validación
@@ -84,4 +83,4 @@ Los tokens viven en `src/theme.css` y se cargan después de `styles.css`. La int
 - `npm test` en verde.
 - `npm run test:cov` por encima del umbral.
 - `npm run build` en verde.
-- Revisión visual con Firefox headless a 1440 px y 1024 px para editor, guía, estado vacío, pantalla de carga y temas claro/oscuro.
+- Revisión visual con Firefox headless a 1440 px y 1024 px para editor, guía, paneles laterales, pantalla de carga y temas claro/oscuro.

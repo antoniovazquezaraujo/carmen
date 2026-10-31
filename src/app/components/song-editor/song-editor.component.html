@@ -97,13 +97,15 @@
                            accept=".mr,text/plain" (change)="onMrFileSelected($event)" aria-hidden="true" tabindex="-1" />
                 </div>
 
-                <button pButton type="button" icon="pi pi-question-circle" label="Help"
+                <button type="button"
+                        class="toolbar-label-button toolbar-help-button"
                         (click)="toggleHelp()"
-                        class="toolbar-help-button"
                         pTooltip="Help and quick guide" tooltipPosition="top"
                         aria-haspopup="dialog"
                         [attr.aria-expanded]="helpVisible"
-                        aria-label="Help and quick guide"></button>
+                        aria-label="Help and quick guide">
+                    <span>Help</span><i class="pi pi-question-circle" aria-hidden="true"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -145,19 +147,6 @@
                 </p-button>
             </div>
             <div class="parts-panel-content" *ngIf="partsExpanded">
-                <div class="parts-empty-state" *ngIf="!song.parts?.length">
-                    <div class="empty-state-icon" aria-hidden="true">
-                        <i class="pi pi-volume-up"></i>
-                    </div>
-                    <div class="empty-state-copy">
-                        <h3>Start with a part</h3>
-                        <p>A part is an instrument or voice. Add one, then create a block and write your first notes.</p>
-                    </div>
-                    <div class="empty-state-actions">
-                        <button type="button" class="empty-primary" (click)="addPart()">Add a part</button>
-                        <button type="button" class="empty-secondary" (click)="loadDemoSong()">Load example</button>
-                    </div>
-                </div>
                 <app-song
                     [song]="song"
                     (removePartEvent)="removePartFromSong($event)"

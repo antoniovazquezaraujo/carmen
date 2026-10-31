@@ -37,8 +37,8 @@ describe('song-editor · toolbar uniforme', () => {
     });
 
     it('la ayuda es visible y abre la guía contextual', () => {
-        expect(template).toContain('icon="pi pi-question-circle"');
-        expect(template).toContain('label="Help"');
+        expect(template).toContain('pi pi-question-circle');
+        expect(template).toContain('<span>Help</span>');
         expect(template).toContain('pTooltip="Help and quick guide"');
         expect(template).toContain('aria-label="Help and quick guide"');
         expect(template).toContain('aria-haspopup="dialog"');
@@ -47,12 +47,9 @@ describe('song-editor · toolbar uniforme', () => {
         expect(template).toContain('(loadDemo)="loadDemoSong()"');
     });
 
-    it('el estado vacío ofrece crear una part o cargar el ejemplo', () => {
-        expect(template).toContain('class="parts-empty-state"');
-        expect(template).toContain('Start with a part');
-        expect(template).toContain('(click)="addPart()"');
-        expect(template).toContain('(click)="loadDemoSong()"');
-        expect(template).toContain('Load example');
+    it('no muestra el bloque de estado vacío de Parts', () => {
+        expect(template).not.toContain('parts-empty-state');
+        expect(template).not.toContain('Start with a part');
     });
 
     it('el botón .mr alterna el panel lateral fijo, no el diálogo', () => {

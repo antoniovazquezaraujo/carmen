@@ -108,3 +108,13 @@ select {
     min-width: 220px;
     max-width: 100%;
 }
+
+/* Los valores de playmode usan la misma notación simbólica que los comandos:
+   ○/● para los grupos par/impar y flechas para la dirección. */
+select.playmode-select {
+    min-width: 64px;
+    max-width: 160px;
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Symbols 2', 'DejaVu Sans', sans-serif;
+}

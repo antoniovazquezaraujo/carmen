@@ -16,7 +16,7 @@ import {
     playModeOptions as buildPlayModeOptions,
     playModeSymbol as playModeSymbolText,
     PlayModeOption
-} from './play-mode-display';
+} from 'src/app/model/play-mode-display';
 import { canonicalDecorationValueOrRaw } from './decoration-value';
 import {
     showCommandColon as commandColonVisible,

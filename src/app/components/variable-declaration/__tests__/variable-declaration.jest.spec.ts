@@ -155,6 +155,15 @@ describe('VariableDeclarationComponent · variables string', () => {
     expect(template).toContain('spellcheck="false"');
   });
 
+  it('los valores de playmode usan símbolos y tooltip descriptivo', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+
+    expect(template).toContain('*ngFor="let mode of playModeOptions"');
+    expect(template).toContain('{{ mode.symbol }}');
+    expect(template).toContain('playModeDescription(variable.value)');
+    expect(template).toContain('playModeDescription(newVariable.value)');
+  });
+
   it('addVariable crea una variable de texto con el valor indicado', () => {
     const component = new VariableDeclarationComponent(fakeZone(), fakeCdr() as unknown as ChangeDetectorRef);
     component.newVariable = { name: 'motivo', value: '4t:0', type: 'string' };

@@ -2,6 +2,11 @@ import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, NgZone, Chan
 import { VariableContext } from 'src/app/model/variable.context';
 import { getPlayModeNames } from 'src/app/model/play.mode';
 import { Scale } from 'src/app/model/scale';
+import {
+    playModeDescription as playModeDescriptionText,
+    playModeOptions as buildPlayModeOptions,
+    PlayModeOption
+} from 'src/app/model/play-mode-display';
 import { Subscription } from 'rxjs';
 
 interface VariableDeclaration {
@@ -29,6 +34,7 @@ export class VariableDeclarationComponent implements OnInit, OnDestroy {
 
     variables: VariableDeclaration[] = [];
     playModeNames: string[] = getPlayModeNames();
+    playModeOptions: PlayModeOption[] = buildPlayModeOptions(this.playModeNames);
     scaleNames: string[] = Scale.getScaleNames();
 
     private contextSubscription: Subscription | null = null;
@@ -54,6 +60,10 @@ export class VariableDeclarationComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.contextSubscription?.unsubscribe();
+    }
+
+    playModeDescription(value: string | number): string {
+        return playModeDescriptionText(String(value));
     }
 
     addVariable(): void {

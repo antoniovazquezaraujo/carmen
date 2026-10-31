@@ -27,8 +27,8 @@ describe('App shell · theme selector', () => {
         expect(index).toContain("prefers-color-scheme: dark");
     });
 
-    it('el modo oscuro cubre el estado vacío y los tooltips', () => {
-        expect(theme).toContain("html[data-theme='dark'] body .song-editor .parts-empty-state");
+    it('el modo oscuro cubre los tooltips y no conserva el estado vacío', () => {
+        expect(theme).not.toContain('parts-empty-state');
         expect(theme).toContain("html[data-theme='dark'] body .p-tooltip .p-tooltip-text");
         expect(theme).toContain('background: #2f2a24 !important');
     });

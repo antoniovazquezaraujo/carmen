@@ -5,7 +5,7 @@ import {
     playModeDescription,
     playModeOptions,
     playModeSymbol
-} from '../play-mode-display';
+} from 'src/app/model/play-mode-display';
 
 const template = fs.readFileSync(path.resolve(__dirname, '../block-commands.component.html'), 'utf8');
 

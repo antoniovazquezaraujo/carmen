@@ -333,7 +333,7 @@ html body .song-editor .song-eyebrow {
 }
 
 html body .song-editor .song-name-input {
-  width: clamp(180px, 24vw, 340px);
+  width: clamp(180px, 20vw, 280px);
   height: 38px !important;
   padding: 0 8px !important;
   border: 1px solid transparent !important;
@@ -464,28 +464,26 @@ html body .song-editor .playback-controls .toolbar-label-button .pi {
   color: var(--mr-muted);
 }
 
-html body .song-editor .playback-controls .p-button.toolbar-help-button {
-  width: auto !important;
-  min-width: 78px !important;
-  margin-left: auto !important;
-  padding: 0 12px !important;
-  gap: 7px;
-  border-color: var(--mr-accent-soft) !important;
-  background: var(--mr-accent-soft) !important;
-  color: var(--mr-accent-ink) !important;
-  font-size: 12px !important;
+html body .song-editor .playback-controls .toolbar-help-button {
+  flex: 0 0 auto;
+  min-width: 78px;
+  margin-left: auto;
+  padding: 0 12px;
+  border-color: var(--mr-accent-soft);
+  background: var(--mr-accent-soft);
+  color: var(--mr-accent-ink);
+  font-size: 12px;
   font-weight: 700;
-  white-space: nowrap;
-  overflow: visible !important;
 }
 
-html body .song-editor .playback-controls .p-button.toolbar-help-button:hover {
-  border-color: #c8e5df !important;
-  background: #d9ece8 !important;
+html body .song-editor .playback-controls .toolbar-help-button:hover {
+  border-color: #c8e5df;
+  background: #d9ece8;
+  color: var(--mr-accent-ink);
 }
 
-html body .song-editor .playback-controls .p-button.toolbar-help-button .p-button-label {
-  font-weight: 700;
+html body .song-editor .playback-controls .toolbar-help-button .pi {
+  color: currentColor;
 }
 
 html body .song-editor #repetitions {
@@ -871,88 +869,6 @@ html body app-block-reference .reference-header {
   min-height: 38px;
 }
 
-/* --------------------------------------------------------------------------
-   Empty state and help affordances
-   -------------------------------------------------------------------------- */
-
-html body .song-editor .parts-empty-state {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  border: 1px dashed var(--mr-border-strong);
-  border-radius: var(--mr-radius);
-  background:
-    linear-gradient(135deg, rgba(228, 242, 239, 0.7), rgba(255, 253, 248, 0.9)),
-    var(--mr-surface);
-}
-
-html body .song-editor .empty-state-icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: var(--mr-accent-soft);
-  color: var(--mr-accent);
-  font-size: 1.1rem;
-}
-
-html body .song-editor .empty-state-copy h3 {
-  margin: 0 0 2px;
-  color: var(--mr-ink);
-  font-family: var(--mr-font-display);
-  font-size: 1.15rem;
-  font-weight: 600;
-}
-
-html body .song-editor .empty-state-copy p {
-  margin: 0;
-  max-width: 48ch;
-  color: var(--mr-muted);
-  font-size: 12px;
-}
-
-html body .song-editor .empty-state-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-html body .song-editor .empty-primary,
-html body .song-editor .empty-secondary {
-  min-height: 34px;
-  padding: 0 13px;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-
-html body .song-editor .empty-primary {
-  border: 1px solid var(--mr-accent-solid);
-  background: var(--mr-accent-solid);
-  color: #ffffff;
-}
-
-html body .song-editor .empty-primary:hover {
-  border-color: var(--mr-accent-solid-hover);
-  background: var(--mr-accent-solid-hover);
-}
-
-html body .song-editor .empty-secondary {
-  border: 1px solid var(--mr-border-strong);
-  background: var(--mr-surface);
-  color: var(--mr-ink-soft);
-}
-
-html body .song-editor .empty-secondary:hover {
-  border-color: var(--mr-accent);
-  color: var(--mr-accent-ink);
-}
-
 @media (max-width: 960px) {
   html body .song-editor .song-header {
     margin: 12px 12px 0;
@@ -995,13 +911,6 @@ html body .song-editor .empty-secondary:hover {
     gap: 5px;
   }
 
-  html body .song-editor .parts-empty-state {
-    grid-template-columns: 1fr;
-  }
-
-  html body .song-editor .empty-state-actions {
-    flex-wrap: wrap;
-  }
 }
 
 /* Touch devices cannot hover: keep the contextual actions discoverable. */
@@ -1056,12 +965,6 @@ html[data-theme='dark'] .app-loading {
     radial-gradient(circle at 50% 35%, rgba(20, 61, 56, 0.8), transparent 42%),
     radial-gradient(circle at 1px 1px, rgba(167, 155, 140, 0.14) 1px, transparent 0) 0 0 / 22px 22px,
     var(--mr-bg);
-}
-
-html[data-theme='dark'] body .song-editor .parts-empty-state {
-  background:
-    linear-gradient(135deg, rgba(20, 61, 56, 0.72), rgba(30, 26, 22, 0.94)),
-    var(--mr-surface);
 }
 
 html[data-theme='dark'] .help-header {
