@@ -148,12 +148,46 @@
         </div>
     </div>
 
+    <div class="panel-splitter"
+         *ngIf="mrTextPanelVisible"
+         role="separator"
+         aria-orientation="vertical"
+         aria-label="Resize song text panel"
+         tabindex="0"
+         title="Drag to resize. Double click to reset."
+         (pointerdown)="startPanelResize('text', $event)"
+         (pointermove)="onPanelResize($event)"
+         (pointerup)="endPanelResize($event)"
+         (pointercancel)="endPanelResize($event)"
+         (dblclick)="resetPanelWidths()"
+         (keydown)="onPanelResizeKeydown('text', $event)"></div>
     <app-mr-live-panel
         *ngIf="mrTextPanelVisible"
         [song]="song"
+        [style.width.px]="mrTextPanelWidth"
         (close)="mrTextPanelVisible = false"
         (edit)="openMrTextEditor()">
     </app-mr-live-panel>
+
+    <div class="panel-splitter"
+         *ngIf="examplesVisible"
+         role="separator"
+         aria-orientation="vertical"
+         aria-label="Resize examples panel"
+         tabindex="0"
+         title="Drag to resize. Double click to reset."
+         (pointerdown)="startPanelResize('examples', $event)"
+         (pointermove)="onPanelResize($event)"
+         (pointerup)="endPanelResize($event)"
+         (pointercancel)="endPanelResize($event)"
+         (dblclick)="resetPanelWidths()"
+         (keydown)="onPanelResizeKeydown('examples', $event)"></div>
+    <app-example-library
+        *ngIf="examplesVisible"
+        [style.width.px]="examplesPanelWidth"
+        (close)="examplesVisibleChange.emit(false)"
+        (loadExample)="loadExample($event)">
+    </app-example-library>
     </div>
 
     <!-- Guía contextual para orientar al usuario sin salir del editor. -->

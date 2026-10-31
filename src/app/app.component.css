@@ -147,6 +147,12 @@
     font-family: inherit;
 }
 
+.topbar-button--active {
+    border-color: var(--mr-accent);
+    background: var(--mr-accent-soft);
+    color: var(--mr-accent-ink);
+}
+
 .topbar-link .pi-arrow-up-right {
     color: var(--mr-muted);
     font-size: 9px;

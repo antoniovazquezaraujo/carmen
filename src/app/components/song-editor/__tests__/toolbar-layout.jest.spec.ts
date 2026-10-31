@@ -54,4 +54,14 @@ describe('song-editor · toolbar uniforme', () => {
         expect(template).toContain('(edit)="openMrTextEditor()"');
         expect(template).toContain('[(visible)]="mrEditorVisible"');
     });
+
+    it('los paneles de texto y ejemplos conviven y tienen splitter', () => {
+        expect(template).toContain('*ngIf="examplesVisible"');
+        expect(template).toContain('<app-example-library');
+        expect(template).toContain('(loadExample)="loadExample($event)"');
+        expect(template).toContain('startPanelResize(\'text\', $event)');
+        expect(template).toContain('startPanelResize(\'examples\', $event)');
+        expect(template).toContain('[style.width.px]="mrTextPanelWidth"');
+        expect(template).toContain('[style.width.px]="examplesPanelWidth"');
+    });
 });

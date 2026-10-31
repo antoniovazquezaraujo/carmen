@@ -2,9 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AudioEngineService, InstrumentType } from './services/audio-engine.service';
 import { Theme, ThemeService } from './services/theme.service';
-import { SongPlayer } from './model/song.player';
-import { createExampleSong } from './model/examples';
-import type { ExampleLoadRequest } from './components/example-library/example-library.component';
 import { Song } from './model/song';
 
 @Component({
@@ -21,8 +18,7 @@ export class AppComponent implements OnInit {
  
   constructor(
     private audioEngine: AudioEngineService,
-    private themeService: ThemeService,
-    private songPlayer: SongPlayer
+    private themeService: ThemeService
   ) {
     this.theme$ = this.themeService.theme$;
   }
@@ -31,20 +27,8 @@ export class AppComponent implements OnInit {
     this.themeService.toggle();
   }
 
-  openExamples(): void {
-    this.examplesVisible = true;
-  }
-
-  onExampleLoad(request: ExampleLoadRequest): void {
-    const song: Song = createExampleSong(request.example);
-    this.songPlayer.stop();
-    this.currentSong = song;
-    this.examplesVisible = false;
-    if (request.play) {
-      void this.songPlayer.playSongFromStart(song).catch(error =>
-        console.error('[Examples] Could not start playback:', error)
-      );
-    }
+  toggleExamples(): void {
+    this.examplesVisible = !this.examplesVisible;
   }
 
   async ngOnInit(): Promise<void> {

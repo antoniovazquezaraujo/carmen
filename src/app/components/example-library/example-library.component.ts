@@ -1,14 +1,9 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import { EXAMPLE_SONGS, ExampleSong } from 'src/app/model/examples';
 
-export interface ExampleLoadRequest {
-    example: ExampleSong;
-    play: boolean;
-}
-
 /**
- * In-app gallery of complete, validated `.mr` songs. It is intentionally
- * presentational: the parent owns the song model and playback.
+ * Compact side panel with the example library. A title is enough: clicking it
+ * loads the song and starts playback immediately.
  */
 @Component({
     selector: 'app-example-library',
@@ -17,9 +12,8 @@ export interface ExampleLoadRequest {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExampleLibraryComponent {
-    @Input() visible = false;
-    @Output() visibleChange = new EventEmitter<boolean>();
-    @Output() loadExample = new EventEmitter<ExampleLoadRequest>();
+    @Output() close = new EventEmitter<void>();
+    @Output() loadExample = new EventEmitter<ExampleSong>();
 
     readonly examples = EXAMPLE_SONGS;
 
@@ -27,11 +21,7 @@ export class ExampleLibraryComponent {
         return example.id;
     }
 
-    onVisibleChange(visible: boolean): void {
-        this.visibleChange.emit(visible);
-    }
-
-    requestLoad(example: ExampleSong, play: boolean): void {
-        this.loadExample.emit({ example, play });
+    select(example: ExampleSong): void {
+        this.loadExample.emit(example);
     }
 }

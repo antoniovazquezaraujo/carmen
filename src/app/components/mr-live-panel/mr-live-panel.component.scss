@@ -1,7 +1,9 @@
 :host {
     display: flex;
-    flex: 0 0 clamp(20rem, 32vw, 34rem);
-    min-width: 0;
+    flex: 0 0 auto;
+    width: clamp(20rem, 32vw, 34rem);
+    min-width: 220px;
+    max-width: 70vw;
     min-height: 0;
     border-left: 1px solid var(--mr-border);
     background: var(--mr-surface);
@@ -155,9 +157,11 @@
     margin: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
     :host {
-        flex: 0 0 38vh;
+        flex: 0 0 34vh;
+        width: 100% !important;
+        max-width: none;
         border-top: 1px solid var(--mr-border);
         border-left: 0;
     }

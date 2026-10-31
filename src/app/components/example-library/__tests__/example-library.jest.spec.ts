@@ -23,32 +23,34 @@ import { ExampleLibraryComponent } from '../example-library.component';
 const template = fs.readFileSync(path.resolve(__dirname, '../example-library.component.html'), 'utf8');
 
 describe('ExampleLibraryComponent', () => {
-    it('lista los diez ejemplos con carga y carga + reproducción', () => {
+    it('es un panel simple con los diez títulos clicables', () => {
         const component = new ExampleLibraryComponent();
 
         expect(component.examples).toHaveLength(10);
         expect(template).toContain('*ngFor="let example of examples');
-        expect(template).toContain('requestLoad(example, false)');
-        expect(template).toContain('requestLoad(example, true)');
-        expect(template).toContain('Load &amp; play');
+        expect(template).toContain('(click)="select(example)"');
+        expect(template).toContain('{{ example.title }}');
+        expect(template).not.toContain('example.tags');
+        expect(template).not.toContain('example-bpm');
+        expect(template).not.toContain('Load &amp; play');
     });
 
-    it('emite la petición con el tema y si debe reproducirse', () => {
+    it('emite el tema seleccionado para cargarlo y reproducirlo', () => {
         const component = new ExampleLibraryComponent();
         const emit = jest.spyOn(component.loadExample, 'emit');
         const example = component.examples[0];
 
-        component.requestLoad(example, true);
+        component.select(example);
 
-        expect(emit).toHaveBeenCalledWith({ example, play: true });
+        expect(emit).toHaveBeenCalledWith(example);
     });
 
-    it('emite el cierre desde el diálogo', () => {
+    it('emite el cierre del panel', () => {
         const component = new ExampleLibraryComponent();
-        const emit = jest.spyOn(component.visibleChange, 'emit');
+        const emit = jest.spyOn(component.close, 'emit');
 
-        component.onVisibleChange(false);
+        component.close.emit();
 
-        expect(emit).toHaveBeenCalledWith(false);
+        expect(emit).toHaveBeenCalledTimes(1);
     });
 });

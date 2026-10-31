@@ -33,12 +33,11 @@ describe('App shell · theme selector', () => {
         expect(theme).toContain('background: #2f2a24 !important');
     });
 
-    it('abre la galería de ejemplos desde la barra superior', () => {
-        expect(template).toContain('(click)="openExamples()"');
-        expect(template).toContain('<app-example-library');
-        expect(template).toContain('[(visible)]="examplesVisible"');
-        expect(template).toContain('(loadExample)="onExampleLoad($event)"');
-        expect(component).toContain('onExampleLoad(request: ExampleLoadRequest)');
-        expect(component).toContain('this.songPlayer.playSongFromStart(song)');
+    it('alterna el panel de ejemplos desde la barra superior', () => {
+        expect(template).toContain('(click)="toggleExamples()"');
+        expect(template).toContain('[class.topbar-button--active]="examplesVisible"');
+        expect(template).toContain('[(examplesVisible)]="examplesVisible"');
+        expect(component).toContain('toggleExamples(): void');
+        expect(component).toContain('this.examplesVisible = !this.examplesVisible');
     });
 });
