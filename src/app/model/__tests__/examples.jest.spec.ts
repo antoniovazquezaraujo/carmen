@@ -24,14 +24,15 @@ describe('example song library', () => {
     });
 
     it('aplica las variables declaradas por el ejemplo', () => {
-        const ember = EXAMPLE_SONGS.find(example => example.id === 'ember');
+        const dodecaedro = EXAMPLE_SONGS.find(example => example.id === 'dodecaedro');
         const glass = EXAMPLE_SONGS.find(example => example.id === 'glass-orbit');
-        expect(ember).toBeDefined();
+        expect(dodecaedro).toBeDefined();
         expect(glass).toBeDefined();
 
-        createExampleSong(ember!);
-        expect(VariableContext.getValue('oct')).toBe(1);
-        expect(VariableContext.getValue('mode')).toBe('CHORD');
+        createExampleSong(dodecaedro!);
+        expect(VariableContext.getValue('v')).toBe('4 5 1');
+        expect(VariableContext.getValue('x')).toBe('3 6 2');
+        expect(VariableContext.getValue('b')).toBe('EVEN_ASC_ODD_DESC');
 
         createExampleSong(glass!);
         expect(VariableContext.getValue('oct')).toBe(3);

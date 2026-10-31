@@ -108,6 +108,99 @@ part
 `
     },
     {
+        id: 'dodecaedro',
+        title: 'Dodecaedro',
+        description: 'A twelve-cycle geometric canon with decorated chords, shifting keys and mirrored odd/even groups.',
+        tags: ['Canon', '12 cycles', 'Decoration'],
+        bpm: 120,
+        mr: `song Dodecaedro
+version 1
+repeats 12
+
+vars
+  $v = "4 5 1"
+  $b = EVEN_ASC_ODD_DESC
+  $x = "3 6 2"
+
+blocks
+  block "Block 1"
+    notes
+      1n:1
+
+part
+  block
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+      KEY 2
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+      KEY 2
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ODD_ASC_EVEN_ASC
+      WIDTH 4
+      OCT 3
+      GAP 4
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $x
+      PLAYMODE ODD_ASC_EVEN_ASC
+      WIDTH 4
+      OCT 2
+      GAP 4
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $x
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 4
+      OCT -1
+      GAP 7
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 4
+    commands
+      DECORATION $x
+      PLAYMODE CHORD
+      WIDTH 5
+      OCT 1
+      GAP 4
+      SCALE PENTA
+      KEY 4
+`
+    },
+    {
         id: 'glass-orbit',
         title: 'Glass Orbit',
         description: 'A pattern-driven orbit where variables change the mode and octave while it plays.',
@@ -394,53 +487,7 @@ part Piano
         OCT 3
 `
     },
-    {
-        id: 'ember',
-        title: 'Ember',
-        description: 'A low, slow chord cycle that grows through operations and odd/even shifts.',
-        tags: ['Chord', 'Operations', 'Low end'],
-        bpm: 76,
-        mr: `song Ember
-version 1
-repeats 3
-bpm 76
 
-vars
-  $mode = CHORD
-  $oct = 1
-
-blocks
-  block Ember
-    notes
-      2n:0
-      2n:-5
-      2n:3
-      2n:-2
-    commands
-      SCALE RED
-      OCT $oct
-      PLAYMODE $mode
-      WIDTH 4
-      GAP 2
-      INV 1
-      SHIFTSTART 0
-      SHIFTSIZE 2
-      SHIFTVALUE 1
-      DECORATION 0 -2
-    operations
-      VARY $oct 1
-      ASSIGN $mode ODD_ASC_EVEN_DESC
-
-part Piano
-  use Ember repeats 2
-
-part Bass
-  use Ember repeats 1
-    commands
-      KEY -12
-      OCT 0
-`
-    }
 ];
 
 export function createExampleSong(example: ExampleSong): Song {
