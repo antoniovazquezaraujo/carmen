@@ -28,7 +28,7 @@ All notable changes to **Mode Ranger**. Format based on
 ### Changed
 
 - **Warm Studio UI refresh**: the app now has a branded shell, a warm paper palette, editorial display type, card-based panels, consistent toolbar controls and a calmer visual hierarchy. The editor adds a contextual **Help** guide and a **Load example** song so new users can start with real content.
-- Removed the first-run Parts empty-state card; the Parts header `+` remains the way to add a part.
+- Removed the first-run Parts empty-state card and the reusable-blocks empty message; the `+` actions in each panel remain.
 - Light/dark theme selector in the top bar. The chosen theme persists in `localStorage`, follows the system preference on first visit and is applied before the first paint to avoid a flash.
 - The `.mr` toolbar button now opens a fixed live panel on the right with the canonical song text, refreshed after every model change. The advanced editor (validate/apply/revert) remains available through **Edit** in that panel.
 - PLAYMODE selectors now use compact symbols (`↑`, `↓`, `○`, `●`, `≋`, `↯`, `•`) with the full canonical name and description in the tooltip/`aria-label`.

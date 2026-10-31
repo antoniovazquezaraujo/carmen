@@ -23,11 +23,6 @@
     </div>
 
     <div class="blocks-library-content" *ngIf="expanded">
-        <!-- Empty state: claro y accionable. -->
-        <p class="blocks-library-empty" *ngIf="!song.blocks?.length">
-            No reusable blocks yet. Add one to reuse the same material across parts.
-        </p>
-
         <p class="blocks-library-warning" *ngIf="renameWarning" role="alert">
             <i class="pi pi-exclamation-triangle" aria-hidden="true"></i> {{ renameWarning }}
         </p>

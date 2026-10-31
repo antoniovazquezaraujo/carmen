@@ -263,9 +263,9 @@ describe('BlockLibraryComponent · alineación', () => {
 });
 
 describe('BlockLibraryComponent · template', () => {
-  it('empty state claro y accionable', () => {
-    expect(template).toContain('No reusable blocks yet');
-    expect(template).toContain('*ngIf="!song.blocks?.length"');
+  it('no muestra un mensaje de estado vacío para Blocks', () => {
+    expect(template).not.toContain('No reusable blocks yet');
+    expect(template).not.toContain('blocks-library-empty');
   });
 
   it('panel plegable con título, contador y acción de añadir', () => {

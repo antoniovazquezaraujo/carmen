@@ -605,7 +605,6 @@ html body .song-editor .parts-panel-content {
   padding: 16px;
 }
 
-html body app-block-library .blocks-library-empty,
 html body .song-editor .parts-panel-empty {
   margin: 0;
   color: var(--mr-muted);
