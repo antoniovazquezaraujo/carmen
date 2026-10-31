@@ -112,8 +112,7 @@
     font-size: 13px;
 }
 
-.topbar-link,
-.topbar-button {
+.topbar-link {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -130,27 +129,14 @@
     transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
 }
 
-.topbar-link:hover,
-.topbar-button:hover {
+.topbar-link:hover {
     border-color: var(--mr-accent);
     background: var(--mr-accent-soft);
     color: var(--mr-accent-ink);
 }
 
-.topbar-link .pi,
-.topbar-button .pi {
+.topbar-link .pi {
     font-size: 12px;
-}
-
-.topbar-button {
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.topbar-button--active {
-    border-color: var(--mr-accent);
-    background: var(--mr-accent-soft);
-    color: var(--mr-accent-ink);
 }
 
 .topbar-link .pi-arrow-up-right {
@@ -253,8 +239,7 @@
     }
 
     .brand-tagline,
-    .topbar-link span,
-    .topbar-button span {
+    .topbar-link span {
         display: none;
     }
 
@@ -262,8 +247,7 @@
         gap: 6px;
     }
 
-    .topbar-link,
-    .topbar-button {
+    .topbar-link {
         width: 34px;
         min-width: 34px;
         padding: 0;

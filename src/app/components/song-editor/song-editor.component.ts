@@ -41,11 +41,8 @@ import { createExampleSong, ExampleSong } from 'src/app/model/examples';
 })
 export class SongEditorComponent implements OnInit, OnDestroy {
     @Input() song!: Song;
-    /** Panel de ejemplos visible; lo controla el botón de la barra superior. */
-    @Input() examplesVisible = false;
     /** Nueva canción cuando se aplica la vista de texto `.mr`. */
     @Output() songChange = new EventEmitter<Song>();
-    @Output() examplesVisibleChange = new EventEmitter<boolean>();
     
     public metronome$: Observable<number>;
     /** Panel de Variables plegable (encima de las parts); plegado al inicio. */
@@ -54,6 +51,8 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     partsExpanded: boolean = true;
     /** Panel lateral de solo lectura con el texto canónico en vivo. */
     mrTextPanelVisible: boolean = false;
+    /** Panel lateral de ejemplos, junto al de texto. */
+    examplesVisible = false;
     /** Ancho del panel de texto; se ajusta con el splitter. */
     mrTextPanelWidth = 400;
     /** Ancho del panel de ejemplos; se ajusta con el splitter. */
@@ -117,6 +116,10 @@ export class SongEditorComponent implements OnInit, OnDestroy {
 
     toggleMrTextPanel(): void {
         this.mrTextPanelVisible = !this.mrTextPanelVisible;
+    }
+
+    toggleExamplesPanel(): void {
+        this.examplesVisible = !this.examplesVisible;
     }
 
     openMrTextEditor(): void {

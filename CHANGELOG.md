@@ -32,6 +32,7 @@ All notable changes to **Mode Ranger**. Format based on
 - The `.mr` toolbar button now opens a fixed live panel on the right with the canonical song text, refreshed after every model change. The advanced editor (validate/apply/revert) remains available through **Edit** in that panel.
 - PLAYMODE selectors now use compact symbols (`↑`, `↓`, `○`, `●`, `≋`, `↯`, `•`) with the full canonical name and description in the tooltip/`aria-label`.
 - In-app **Examples side panel** with ten complete `.mr` songs, including Karmel, a two-part miniature, pattern studies, chord/decoration pieces and a low chord cycle. Clicking a title loads it and starts playback immediately. The song-text and Examples panels can be open together and resized with draggable splitters.
+- Song toolbar actions now read **Source**, **Examples**, **Load** and **Save**, with the label before the icon; **Examples** sits next to **Source** and only **Help** stays at the right edge.
 - Loading an example now applies its declared variables (`vars`) before the song reaches the editor/player, so commands such as `OCT $oct` or `PLAYMODE $mode` no longer fall back silently to defaults.
 - Part actions now sit next to the part name instead of being pushed to the right edge of the card.
 - Block repeats stay on the same row as the block name, before duplicate/delete. Reusable block definitions no longer show a second collapsible header just to expose their repeats.

@@ -14,7 +14,6 @@ export class AppComponent implements OnInit {
   public currentSong = new Song();
   public isAudioReady = false;
   public theme$: Observable<Theme>;
-  public examplesVisible = false;
  
   constructor(
     private audioEngine: AudioEngineService,
@@ -25,10 +24,6 @@ export class AppComponent implements OnInit {
 
   toggleTheme(): void {
     this.themeService.toggle();
-  }
-
-  toggleExamples(): void {
-    this.examplesVisible = !this.examplesVisible;
   }
 
   async ngOnInit(): Promise<void> {

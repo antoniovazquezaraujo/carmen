@@ -18,12 +18,22 @@ describe('song-editor · toolbar uniforme', () => {
         expect(styles).toMatch(/\.song-header \.playback-controls \.p-button\s*\{[\s\S]*?height:\s*30px !important/);
     });
 
-    it('la vista de texto es un botón con icono de hoja y tooltip', () => {
-        expect(template).toContain('icon="pi pi-file-o"');
-        expect(template).toContain('pTooltip="Texto (.mr)"');
-        expect(template).toContain('aria-label="Texto (.mr)"');
+    it('la vista de texto es un botón Source con el icono a la derecha', () => {
+        expect(template).toContain('pi pi-file-o');
+        expect(template).toContain('class="toolbar-label-button"');
+        expect(template).toContain('<span>Source</span>');
+        expect(template).toContain('pTooltip="Source (.mr)"');
+        expect(template).toContain('aria-label="Source (.mr)"');
         expect(template).not.toContain('label=".mr"');
         expect(template).not.toContain('pi pi-code');
+    });
+
+    it('Load, Save y Examples llevan etiqueta visible junto al icono', () => {
+        expect(template).toContain('<span>Load</span>');
+        expect(template).toContain('<span>Save</span>');
+        expect(template).toContain('<span>Examples</span>');
+        expect(template).toContain('class="toolbar-label-button"');
+        expect(template).toContain('(click)="toggleExamplesPanel()"');
     });
 
     it('la ayuda es visible y abre la guía contextual', () => {
@@ -57,6 +67,7 @@ describe('song-editor · toolbar uniforme', () => {
 
     it('los paneles de texto y ejemplos conviven y tienen splitter', () => {
         expect(template).toContain('*ngIf="examplesVisible"');
+        expect(template).toContain('id="example-library-panel"');
         expect(template).toContain('<app-example-library');
         expect(template).toContain('(loadExample)="loadExample($event)"');
         expect(template).toContain('startPanelResize(\'text\', $event)');

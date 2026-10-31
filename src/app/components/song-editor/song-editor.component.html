@@ -64,15 +64,35 @@
 
                 <div class="toolbar-group toolbar-actions">
                     <!-- Vista avanzada de texto .mr (divulgación progresiva) -->
-                    <button pButton type="button" icon="pi pi-file-o" (click)="toggleMrTextPanel()"
+                    <button type="button"
+                            class="toolbar-label-button"
+                            (click)="toggleMrTextPanel()"
                             [attr.aria-expanded]="mrTextPanelVisible"
                             aria-controls="mr-live-panel"
-                            pTooltip="Texto (.mr)" tooltipPosition="top" aria-label="Texto (.mr)"></button>
+                            pTooltip="Source (.mr)" tooltipPosition="top" aria-label="Source (.mr)">
+                        <span>Source</span><i class="pi pi-file-o" aria-hidden="true"></i>
+                    </button>
+                    <button type="button"
+                            class="toolbar-label-button"
+                            (click)="toggleExamplesPanel()"
+                            [attr.aria-expanded]="examplesVisible"
+                            aria-controls="example-library-panel"
+                            pTooltip="Example songs" tooltipPosition="top" aria-label="Example songs">
+                        <span>Examples</span><i class="pi pi-star" aria-hidden="true"></i>
+                    </button>
                     <!-- Guardar/cargar el texto canónico como fichero .mr -->
-                    <button pButton type="button" icon="pi pi-download" (click)="saveMrFile()"
-                            pTooltip="Guardar .mr (texto canónico)" tooltipPosition="top" aria-label="Guardar .mr"></button>
-                    <button pButton type="button" icon="pi pi-upload" (click)="openMrFilePicker()"
-                            pTooltip="Cargar .mr" tooltipPosition="top" aria-label="Cargar .mr"></button>
+                    <button type="button"
+                            class="toolbar-label-button"
+                            (click)="openMrFilePicker()"
+                            pTooltip="Load .mr" tooltipPosition="top" aria-label="Load .mr">
+                        <span>Load</span><i class="pi pi-upload" aria-hidden="true"></i>
+                    </button>
+                    <button type="button"
+                            class="toolbar-label-button"
+                            (click)="saveMrFile()"
+                            pTooltip="Save .mr (canonical text)" tooltipPosition="top" aria-label="Save .mr">
+                        <span>Save</span><i class="pi pi-download" aria-hidden="true"></i>
+                    </button>
                     <input #mrFileInput id="mrFileInput" class="mr-file-input" type="file"
                            accept=".mr,text/plain" (change)="onMrFileSelected($event)" aria-hidden="true" tabindex="-1" />
                 </div>
@@ -184,8 +204,9 @@
          (keydown)="onPanelResizeKeydown('examples', $event)"></div>
     <app-example-library
         *ngIf="examplesVisible"
+        id="example-library-panel"
         [style.width.px]="examplesPanelWidth"
-        (close)="examplesVisibleChange.emit(false)"
+        (close)="examplesVisible = false"
         (loadExample)="loadExample($event)">
     </app-example-library>
     </div>
