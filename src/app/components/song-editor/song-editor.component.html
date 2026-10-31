@@ -121,9 +121,20 @@
                     styleClass="p-button-text p-button-sm variables-panel-toggler">
                 </p-button>
                 <span class="variables-panel-title">Variables</span>
+                <p-button
+                    class="variables-panel-add"
+                    icon="pi pi-plus"
+                    pTooltip="Add variable"
+                    tooltipPosition="top"
+                    aria-label="Add variable"
+                    (click)="$event.stopPropagation(); toggleVariableForm()">
+                </p-button>
             </div>
             <div class="variables-panel-content" *ngIf="variablesExpanded">
-                <app-variable-declaration></app-variable-declaration>
+                <app-variable-declaration
+                    [formVisible]="variableFormVisible"
+                    (variableAdded)="closeVariableForm()">
+                </app-variable-declaration>
             </div>
         </div>
         <app-block-library [song]="song" #blockLibrary></app-block-library>

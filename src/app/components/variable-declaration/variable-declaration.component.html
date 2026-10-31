@@ -1,5 +1,5 @@
 <div class="variables-container">
-    <form class="variable-form" autocomplete="off">
+    <form class="variable-form" *ngIf="formVisible" autocomplete="off">
         <input type="text"
                [(ngModel)]="newVariable.name"
                name="variableName"

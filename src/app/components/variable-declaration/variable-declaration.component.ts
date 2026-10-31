@@ -22,6 +22,8 @@ interface VariableDeclaration {
     styleUrls: ['./variable-declaration.component.scss']
 })
 export class VariableDeclarationComponent implements OnInit, OnDestroy {
+    /** El formulario se muestra solo al pulsar el + de la cabecera. */
+    @Input() formVisible = false;
     @Output() variableAdded = new EventEmitter<void>();
     @Output() variableRemoved = new EventEmitter<void>();
     @Output() variableUpdated = new EventEmitter<void>();

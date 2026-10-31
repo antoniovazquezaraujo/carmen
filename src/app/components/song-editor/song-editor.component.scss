@@ -117,6 +117,18 @@
   margin-left: 0.75rem;
 }
 
+.variables-panel-add {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.variables-panel-header:hover .variables-panel-add,
+.variables-panel-header:focus-within .variables-panel-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Panel de Parts: misma caja plegable que Variables/Blocks. Es el último de
    la pila y contiene la fila de parts. */
 .parts-panel {

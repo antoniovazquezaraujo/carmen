@@ -155,6 +155,14 @@ describe('VariableDeclarationComponent · variables string', () => {
     expect(template).toContain('spellcheck="false"');
   });
 
+  it('el formulario de alta solo existe cuando formVisible está activo', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+    const componentSource = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.ts'), 'utf8');
+
+    expect(componentSource).toContain('@Input() formVisible = false');
+    expect(template).toContain('*ngIf="formVisible"');
+  });
+
   it('los valores de playmode usan símbolos y tooltip descriptivo', () => {
     const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
 

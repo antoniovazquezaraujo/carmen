@@ -47,6 +47,8 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     public metronome$: Observable<number>;
     /** Panel de Variables plegable (encima de las parts); plegado al inicio. */
     variablesExpanded: boolean = false;
+    /** Formulario de nueva variable; solo se muestra al pulsar +. */
+    variableFormVisible = false;
     /** Panel de Parts plegable (debajo de Variables y Blocks); plegado al inicio. */
     partsExpanded: boolean = false;
     /** Panel lateral de solo lectura con el texto canónico en vivo. */
@@ -103,6 +105,17 @@ export class SongEditorComponent implements OnInit, OnDestroy {
 
     toggleVariablesPanel(): void {
         this.variablesExpanded = !this.variablesExpanded;
+        if (!this.variablesExpanded) {
+            this.variableFormVisible = false;
+        }
+    }
+
+    toggleVariableForm(): void {
+        this.variableFormVisible = !this.variableFormVisible;
+    }
+
+    closeVariableForm(): void {
+        this.variableFormVisible = false;
     }
 
     togglePartsPanel(): void {
