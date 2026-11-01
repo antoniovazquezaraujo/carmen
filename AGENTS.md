@@ -50,7 +50,7 @@ Mode Ranger es una app **Angular 21 + TypeScript 5.9** (Node 22):
 - Errores de dominio tipados (p. ej. `MrParseError` con `línea:columna`).
 
 ### Testing
-- **Framework**: Jest 29 + ts-jest; specs `*.jest.spec.ts`.
+- **Framework**: Jest 30 + ts-jest; specs `*.jest.spec.ts`.
 - **Estructura**: AAA (Arrange-Act-Assert).
 - **Cobertura**: umbral en `jest.config.js`; no debe bajar.
 - Sin `console.error/warn` inesperados en tests (los tests comprueban que no haya ruido).
