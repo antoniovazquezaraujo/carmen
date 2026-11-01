@@ -80,10 +80,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "moderanger:build:production"
+              "buildTarget": "moderanger:build:production"
             },
             "development": {
-              "browserTarget": "moderanger:build:development"
+              "buildTarget": "moderanger:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -91,7 +91,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "moderanger:build"
+            "buildTarget": "moderanger:build"
           }
         }
       }
