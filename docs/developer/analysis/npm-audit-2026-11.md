@@ -93,8 +93,9 @@ altos ni de producción.
   deben quedarse como deuda permanente.
 - `@primeng/themes` está deprecado; migrar a `@primeuix/themes` en una tarea
   separada.
-- `@angular/platform-browser-dynamic` y `@angular/animations` están
-  deprecados; entran en el follow-up de standalone/animations.
+- `@angular/platform-browser-dynamic` ya no se usa tras el bootstrap
+  standalone; `@angular/animations` sigue deprecado y queda en el follow-up de
+  animations.
 
 ## 7. Actualización posterior: application builder
 
