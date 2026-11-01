@@ -23,14 +23,14 @@ export interface KeyboardAction {
  * - Provides throttling for repeated events
  */
 @Component({
-  selector: 'app-melody-keyboard-handler',
-  template: `
+    selector: 'app-melody-keyboard-handler',
+    template: `
     <!-- This component has no visual template - it only handles keyboard events -->
     <div class="keyboard-handler-container" tabindex="0" #keyboardHandler>
       <ng-content></ng-content>
     </div>
   `,
-  styles: [`
+    styles: [`
     .keyboard-handler-container {
       width: 100%;
       outline: none;
@@ -40,7 +40,8 @@ export interface KeyboardAction {
       outline: 2px solid #2196F3;
       outline-offset: 2px;
     }
-  `]
+  `],
+    standalone: false
 })
 export class MelodyKeyboardHandlerComponent {
   @Input() selectedElementId: string | null = null;

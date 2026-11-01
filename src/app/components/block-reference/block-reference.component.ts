@@ -22,7 +22,8 @@ interface DefinitionOption {
 @Component({
     selector: 'app-block-reference',
     templateUrl: './block-reference.component.html',
-    styleUrls: ['./block-reference.component.scss']
+    styleUrls: ['./block-reference.component.scss'],
+    standalone: false
 })
 export class BlockReferenceComponent {
     @Input() reference!: BlockReference;

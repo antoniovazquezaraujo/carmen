@@ -5,9 +5,10 @@ import { Theme, ThemeService } from './services/theme.service';
 import { Song } from './model/song';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    standalone: false
 })
 export class AppComponent implements OnInit {
   title = 'moderanger';

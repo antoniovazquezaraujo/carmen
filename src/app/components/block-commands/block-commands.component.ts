@@ -42,7 +42,8 @@ export interface BlockCommandHost {
 @Component({
     selector: 'app-block-commands',
     templateUrl: './block-commands.component.html',
-    styleUrls: ['./block-commands.component.scss']
+    styleUrls: ['./block-commands.component.scss'],
+    standalone: false
 })
 export class BlockCommandsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() block: BlockCommandHost = new Block();

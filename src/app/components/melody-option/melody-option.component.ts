@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-melody-option',
-  template: `
+    selector: 'app-melody-option',
+    template: `
     <div class="melody-option">
       <span class="variable-name">{{name}}</span>
       <div class="notes-container">
@@ -13,7 +13,7 @@ import { Component, Input } from '@angular/core';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .melody-option {
       display: flex;
       flex-direction: column;
@@ -44,7 +44,8 @@ import { Component, Input } from '@angular/core';
       font-size: 8px;
       color: #666;
     }
-  `]
+  `],
+    standalone: false
 })
 export class MelodyOptionComponent {
   @Input() name: string = '';

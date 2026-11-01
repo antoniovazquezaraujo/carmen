@@ -23,8 +23,8 @@ export interface VisualElement {
  * - Provides clean event emission for parent coordination
  */
 @Component({
-  selector: 'app-melody-display',
-  template: `
+    selector: 'app-melody-display',
+    template: `
     <div class="notes-container-wrapper">
       <!-- Variable icon -->
       <div class="variable-toggle-icon" *ngIf="showVariableIcon">$</div>
@@ -79,7 +79,7 @@ export interface VisualElement {
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .notes-container-wrapper {
       position: relative;
       display: flex;
@@ -217,7 +217,8 @@ export interface VisualElement {
       font-size: 1.2em;
       color: #333;
     }
-  `]
+  `],
+    standalone: false
 })
 export class MelodyDisplayComponent implements OnChanges {
   @Input() elements: MusicElement[] = [];

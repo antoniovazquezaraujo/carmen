@@ -28,9 +28,10 @@ interface BlockTreeDropEvent {
 }
 
 @Component({
-  selector: 'app-block',
-  templateUrl: './block.component.html',
-  styleUrls: ['./block.component.scss']
+    selector: 'app-block',
+    templateUrl: './block.component.html',
+    styleUrls: ['./block.component.scss'],
+    standalone: false
 })
 export class BlockComponent implements OnInit, OnDestroy {
   private _block!: Block;
