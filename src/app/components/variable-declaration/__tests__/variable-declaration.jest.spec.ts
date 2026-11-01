@@ -146,6 +146,32 @@ describe('VariableDeclarationComponent · variables string', () => {
     expect(template).toContain('trackBy: trackByVariable');
   });
 
+  it('desactiva el autocompletado del nombre para no mostrar sugerencias del navegador', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+
+    expect(template).toContain('name="variableName"');
+    expect(template).toContain('aria-label="Variable name"');
+    expect(template).toContain('autocomplete="off"');
+    expect(template).toContain('spellcheck="false"');
+  });
+
+  it('el formulario de alta solo existe cuando formVisible está activo', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+    const componentSource = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.ts'), 'utf8');
+
+    expect(componentSource).toContain('@Input() formVisible = false');
+    expect(template).toContain('*ngIf="formVisible"');
+  });
+
+  it('los valores de playmode usan símbolos y tooltip descriptivo', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+
+    expect(template).toContain('*ngFor="let mode of playModeOptions"');
+    expect(template).toContain('{{ mode.symbol }}');
+    expect(template).toContain('playModeDescription(variable.value)');
+    expect(template).toContain('playModeDescription(newVariable.value)');
+  });
+
   it('addVariable crea una variable de texto con el valor indicado', () => {
     const component = new VariableDeclarationComponent(fakeZone(), fakeCdr() as unknown as ChangeDetectorRef);
     component.newVariable = { name: 'motivo', value: '4t:0', type: 'string' };

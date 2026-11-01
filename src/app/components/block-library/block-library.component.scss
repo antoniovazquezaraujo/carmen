@@ -1,19 +1,33 @@
+:host {
+  display: block;
+}
+
 /* Biblioteca de bloques: mismo lenguaje visual que el panel de Variables
    (borde, radio, padding y margen) y filas compactas como las parts. */
 .blocks-library-panel {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin-bottom: 10px;
-  background-color: transparent;
+  border: 1px solid var(--mr-border);
+  border-radius: var(--mr-radius);
+  padding: 0;
+  margin-bottom: 16px;
+  background-color: var(--mr-surface);
+  box-shadow: var(--mr-shadow-sm);
+  overflow: hidden;
 }
 
 .blocks-library-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 24px;
+  min-height: 52px;
+  padding: 0 16px;
+  border-bottom: 1px solid transparent;
   cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.blocks-library-header:hover {
+  border-bottom-color: var(--mr-border);
+  background-color: var(--mr-surface-soft);
 }
 
 .blocks-library-title {
@@ -49,12 +63,6 @@
 
 .blocks-library-content {
   margin-left: 0.75rem;
-}
-
-.blocks-library-empty {
-  margin: 4px 0;
-  color: #6c757d;
-  font-size: 0.9rem;
 }
 
 .blocks-library-warning {
@@ -125,6 +133,25 @@
 
 .library-usage .pi {
   font-size: 0.7rem;
+}
+
+/* Repeticiones inline: no son una acción secundaria, así que viven en la
+   misma fila que el nombre y antes de duplicar/eliminar. */
+.library-repetitions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #555;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.library-repetitions .repetitions-input {
+  width: 32px;
+  height: 20px;
+  padding: 0 1px;
+  text-align: center;
+  font-size: 11px;
 }
 
 /* Acciones al hover/foco, sin saltos de layout (mismo patrón que bloques).

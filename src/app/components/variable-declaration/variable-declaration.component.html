@@ -1,8 +1,16 @@
 <div class="variables-container">
-    <form class="variable-form">
-        <input type="text" [(ngModel)]="newVariable.name" name="name" placeholder="Variable name" required>
+    <form class="variable-form" *ngIf="formVisible" autocomplete="off">
+        <input type="text"
+               [(ngModel)]="newVariable.name"
+               name="variableName"
+               placeholder="Variable name"
+               aria-label="Variable name"
+               autocomplete="off"
+               autocapitalize="off"
+               spellcheck="false"
+               required>
         
-        <select [(ngModel)]="newVariable.type" name="type" required>
+        <select [(ngModel)]="newVariable.type" name="type" autocomplete="off" required>
             <option value="number">Number</option>
             <option value="playmode">Play Mode</option>
             <option value="scale">Scale</option>
@@ -10,15 +18,23 @@
         </select>
 
         <ng-container [ngSwitch]="newVariable.type">
-            <select *ngSwitchCase="'playmode'" 
-                [(ngModel)]="newVariable.value" 
-                name="value" 
+            <select *ngSwitchCase="'playmode'"
+                class="playmode-select"
+                [(ngModel)]="newVariable.value"
+                name="value"
+                autocomplete="off"
+                [pTooltip]="playModeDescription(newVariable.value)"
+                [title]="playModeDescription(newVariable.value)"
+                tooltipPosition="top"
+                [attr.aria-label]="'Play mode: ' + playModeDescription(newVariable.value)"
                 required>
-                <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
+                <option *ngFor="let mode of playModeOptions"
+                        [value]="mode.value"
+                        [title]="mode.description">{{ mode.symbol }}</option>
             </select>
 
             <ng-container *ngSwitchCase="'scale'">
-                <select [(ngModel)]="newVariable.value" name="value" required>
+                <select [(ngModel)]="newVariable.value" name="value" autocomplete="off" required>
                     <option *ngFor="let scale of scaleNames" [value]="scale">{{scale}}</option>
                 </select>
             </ng-container>
@@ -28,6 +44,8 @@
                 class="string-input"
                 [(ngModel)]="newVariable.value"
                 name="value"
+                autocomplete="off"
+                spellcheck="false"
                 placeholder="4t:0 4t:2 ...">
 
             <input *ngSwitchCase="'number'" 
@@ -36,6 +54,7 @@
                 style="width:45px !important; max-width:45px !important;"
                 [(ngModel)]="newVariable.value"
                 name="value"
+                autocomplete="off"
                 [min]="-999"
                 [max]="999"
                 step="1">
@@ -53,14 +72,23 @@
             <span class="variable-name">{{variable.name}}</span>
             
             <ng-container [ngSwitch]="variable.type">
-                <select *ngSwitchCase="'playmode'" 
-                    [(ngModel)]="variable.value" 
+                <select *ngSwitchCase="'playmode'"
+                    class="playmode-select"
+                    [(ngModel)]="variable.value"
+                    autocomplete="off"
+                    [pTooltip]="playModeDescription(variable.value)"
+                    [title]="playModeDescription(variable.value)"
+                    tooltipPosition="top"
+                    [attr.aria-label]="'Play mode: ' + playModeDescription(variable.value)"
                     (ngModelChange)="updateVariable(i)">
-                    <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
+                    <option *ngFor="let mode of playModeOptions"
+                            [value]="mode.value"
+                            [title]="mode.description">{{ mode.symbol }}</option>
                 </select>
 
                 <select *ngSwitchCase="'scale'" 
                     [(ngModel)]="variable.value" 
+                    autocomplete="off"
                     (ngModelChange)="updateVariable(i)">
                     <option *ngFor="let scale of scaleNames" [value]="scale">{{scale}}</option>
                 </select>
@@ -70,6 +98,8 @@
                     class="string-input"
                     [(ngModel)]="variable.value"
                     (ngModelChange)="updateVariable(i)"
+                    autocomplete="off"
+                    spellcheck="false"
                     aria-label="Valor de la variable de texto">
 
                 <input *ngSwitchCase="'number'" 
@@ -78,6 +108,7 @@
                     style="width:45px !important; max-width:45px !important;"
                     [(ngModel)]="variable.value"
                     (ngModelChange)="updateVariable(i)"
+                    autocomplete="off"
                     [min]="-999"
                     [max]="999"
                     step="1">

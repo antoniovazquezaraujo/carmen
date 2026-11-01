@@ -1,0 +1,27 @@
+<aside class="example-panel" aria-label="Example songs">
+    <header class="example-header">
+        <div>
+            <span class="example-eyebrow">Library</span>
+            <h2>Examples</h2>
+        </div>
+        <button type="button"
+                class="example-close"
+                (click)="close.emit()"
+                aria-label="Hide example songs">
+            <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+    </header>
+
+    <p class="example-hint">Click a title to load and play it.</p>
+
+    <div class="example-list">
+        <button type="button"
+                class="example-title"
+                *ngFor="let example of examples; trackBy: trackByExample"
+                (click)="select(example)"
+                [title]="example.description">
+            <span>{{ example.title }}</span>
+            <i class="pi pi-play" aria-hidden="true"></i>
+        </button>
+    </div>
+</aside>

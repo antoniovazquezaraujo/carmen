@@ -256,10 +256,16 @@ describe('BlockLibraryComponent · CRUD de definiciones', () => {
   });
 });
 
+describe('BlockLibraryComponent · alineación', () => {
+  it('el host es bloque para no heredar el espacio inline antes del panel', () => {
+    expect(styles).toMatch(/:host\s*\{\s*display:\s*block;\s*\}/);
+  });
+});
+
 describe('BlockLibraryComponent · template', () => {
-  it('empty state claro y accionable', () => {
-    expect(template).toContain('No reusable blocks yet');
-    expect(template).toContain('*ngIf="!song.blocks?.length"');
+  it('no muestra un mensaje de estado vacío para Blocks', () => {
+    expect(template).not.toContain('No reusable blocks yet');
+    expect(template).not.toContain('blocks-library-empty');
   });
 
   it('panel plegable con título, contador y acción de añadir', () => {
@@ -306,11 +312,27 @@ describe('BlockLibraryComponent · template', () => {
     expect(controls![1]).toContain('pointer-events: none');
   });
 
-  it('cada definición reutiliza el editor de bloque ocultando su nombre/acciones de raíz', () => {
+  it('cada definición reutiliza el editor de bloque ocultando su cabecera de raíz', () => {
     expect(template).toContain('<app-block');
     expect(template).toContain('[hideLabel]="true"');
     expect(template).toContain('[hideControls]="true"');
+    expect(template).toContain('[hideHeader]="true"');
+    expect(template).toContain('[forceExpanded]="true"');
     expect(template).toContain('[(ngModel)]="definition.label"');
+  });
+
+  it('las repeticiones de la definición viven en su fila, antes de duplicar/eliminar', () => {
+    const header = template.slice(
+      template.indexOf('class="library-entry-header"'),
+      template.indexOf('class="library-entry-body"')
+    );
+    const repeatsIndex = header.indexOf('class="library-repetitions"');
+    const controlsIndex = header.indexOf('class="library-entry-controls"');
+
+    expect(repeatsIndex).toBeGreaterThan(-1);
+    expect(controlsIndex).toBeGreaterThan(repeatsIndex);
+    expect(header).toContain('[(ngModel)]="definition.repeatingTimes"');
+    expect(header).toContain("'Repeats for block ' + definition.label");
   });
 
   it('muestra el contador de usos y el diálogo de borrado', () => {

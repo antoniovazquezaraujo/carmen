@@ -117,6 +117,18 @@
   margin-left: 0.75rem;
 }
 
+.variables-panel-add {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.variables-panel-header:hover .variables-panel-add,
+.variables-panel-header:focus-within .variables-panel-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Panel de Parts: misma caja plegable que Variables/Blocks. Es el último de
    la pila y contiene la fila de parts. */
 .parts-panel {
@@ -230,4 +242,67 @@
   margin: 0.5rem 0 0 0;
   color: #6c757d;
   font-size: 0.9rem;
+}
+/* ==========================================================================
+   Workspace: editor + live .mr panel
+   ========================================================================== */
+.workspace {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace > .content-section {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.panel-splitter {
+  position: relative;
+  flex: 0 0 8px;
+  align-self: stretch;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+.panel-splitter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--mr-border);
+  transition: width 120ms ease, background-color 120ms ease;
+}
+
+.panel-splitter:hover::before,
+.panel-splitter:focus-visible::before {
+  width: 2px;
+  background: var(--mr-accent);
+}
+
+.panel-splitter:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 1000px) {
+  .workspace {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .panel-splitter {
+    display: none;
+  }
+
+  .workspace app-mr-live-panel,
+  .workspace app-example-library {
+    flex: 0 0 34vh;
+    width: 100% !important;
+    max-width: none;
+  }
 }

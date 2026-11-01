@@ -30,6 +30,8 @@ import {
 } from 'src/app/model/mr';
 import { downloadTextFile, readFileAsText } from 'src/app/model/mr/mr.file.browser';
 import { BlockLibraryComponent } from '../block-library/block-library.component';
+import { createDemoSong } from 'src/app/model/demo-song';
+import { createExampleSong, ExampleSong } from 'src/app/model/examples';
 
 @Component({
     selector: 'app-song-editor',
@@ -45,9 +47,21 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     public metronome$: Observable<number>;
     /** Panel de Variables plegable (encima de las parts); plegado al inicio. */
     variablesExpanded: boolean = false;
-    /** Panel de Parts plegable (debajo de Variables y Blocks); abierto al inicio. */
-    partsExpanded: boolean = true;
-    mrTextVisible: boolean = false;
+    /** Formulario de nueva variable; solo se muestra al pulsar +. */
+    variableFormVisible = false;
+    /** Panel de Parts plegable (debajo de Variables y Blocks); plegado al inicio. */
+    partsExpanded: boolean = false;
+    /** Panel lateral de solo lectura con el texto canónico en vivo. */
+    mrTextPanelVisible: boolean = false;
+    /** Panel lateral de ejemplos, junto al de texto. */
+    examplesVisible = false;
+    /** Ancho del panel de texto; se ajusta con el splitter. */
+    mrTextPanelWidth = 400;
+    /** Ancho del panel de ejemplos; se ajusta con el splitter. */
+    examplesPanelWidth = 260;
+    /** Diálogo avanzado de edición del `.mr`. */
+    mrEditorVisible: boolean = false;
+    helpVisible: boolean = false;
     isPlaying: boolean = false;
 
     /** Diálogo de errores de guardar/cargar `.mr`. */
@@ -62,6 +76,7 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     readonly availableDurations: NoteDuration[] = ['1n', '2n', '4n', '8n', '16n', '4t', '8t'];
 
     private destroy$ = new Subject<void>();
+    private panelResize: { target: 'text' | 'examples'; startX: number; startWidth: number } | null = null;
 
     constructor(
         public songPlayer: SongPlayer,
@@ -90,6 +105,17 @@ export class SongEditorComponent implements OnInit, OnDestroy {
 
     toggleVariablesPanel(): void {
         this.variablesExpanded = !this.variablesExpanded;
+        if (!this.variablesExpanded) {
+            this.variableFormVisible = false;
+        }
+    }
+
+    toggleVariableForm(): void {
+        this.variableFormVisible = !this.variableFormVisible;
+    }
+
+    closeVariableForm(): void {
+        this.variableFormVisible = false;
     }
 
     togglePartsPanel(): void {
@@ -101,8 +127,99 @@ export class SongEditorComponent implements OnInit, OnDestroy {
         this.blockLibraryRef?.focusDefinition(label);
     }
 
-    toggleMrTextEditor(): void {
-        this.mrTextVisible = !this.mrTextVisible;
+    toggleMrTextPanel(): void {
+        this.mrTextPanelVisible = !this.mrTextPanelVisible;
+    }
+
+    toggleExamplesPanel(): void {
+        this.examplesVisible = !this.examplesVisible;
+    }
+
+    openMrTextEditor(): void {
+        this.mrEditorVisible = true;
+    }
+
+    toggleHelp(): void {
+        this.helpVisible = !this.helpVisible;
+    }
+
+    /** Carga una pieza corta válida para que el editor no arranque vacío. */
+    loadDemoSong(): void {
+        this.stopIfPlaying();
+        this.helpVisible = false;
+        this.partsExpanded = true;
+        this.songChange.emit(createDemoSong());
+        this.cdr.markForCheck();
+    }
+
+    /** Carga un tema de la galería y lo reproduce inmediatamente. */
+    loadExample(example: ExampleSong): void {
+        const song = createExampleSong(example);
+        this.stopIfPlaying();
+        this.partsExpanded = true;
+        this.songChange.emit(song);
+        this.cdr.markForCheck();
+        void this.songPlayer.playSongFromStart(song).catch(error =>
+            console.error('[Examples] Could not start playback:', error)
+        );
+    }
+
+    startPanelResize(target: 'text' | 'examples', event: PointerEvent): void {
+        event.preventDefault();
+        const width = target === 'text' ? this.mrTextPanelWidth : this.examplesPanelWidth;
+        this.panelResize = { target, startX: event.clientX, startWidth: width };
+        const splitter = event.currentTarget as HTMLElement | null;
+        splitter?.setPointerCapture?.(event.pointerId);
+    }
+
+    onPanelResize(event: PointerEvent): void {
+        if (!this.panelResize) {
+            return;
+        }
+        const delta = event.clientX - this.panelResize.startX;
+        this.setPanelWidth(this.panelResize.target, this.panelResize.startWidth - delta);
+    }
+
+    endPanelResize(event: PointerEvent): void {
+        if (!this.panelResize) {
+            return;
+        }
+        const splitter = event.currentTarget as HTMLElement | null;
+        if (splitter?.hasPointerCapture?.(event.pointerId)) {
+            splitter.releasePointerCapture(event.pointerId);
+        }
+        this.panelResize = null;
+    }
+
+    onPanelResizeKeydown(target: 'text' | 'examples', event: KeyboardEvent): void {
+        const direction = event.key === 'ArrowLeft' ? 20 : event.key === 'ArrowRight' ? -20 : 0;
+        if (direction === 0) {
+            return;
+        }
+        event.preventDefault();
+        const width = target === 'text' ? this.mrTextPanelWidth : this.examplesPanelWidth;
+        this.setPanelWidth(target, width + direction);
+    }
+
+    resetPanelWidths(): void {
+        this.mrTextPanelWidth = 400;
+        this.examplesPanelWidth = 260;
+        this.cdr.markForCheck();
+    }
+
+    private setPanelWidth(target: 'text' | 'examples', width: number): void {
+        const viewport = typeof window === 'undefined' ? 1440 : window.innerWidth;
+        const other = target === 'text'
+            ? (this.examplesVisible ? this.examplesPanelWidth : 0)
+            : (this.mrTextPanelVisible ? this.mrTextPanelWidth : 0);
+        const max = Math.max(240, viewport - 360 - other - 32);
+        const next = Math.max(200, Math.min(max, width));
+        if (target === 'text') {
+            this.mrTextPanelWidth = next;
+        } else {
+            this.examplesPanelWidth = next;
+        }
+        this.cdr.markForCheck();
     }
 
     /**
@@ -113,6 +230,7 @@ export class SongEditorComponent implements OnInit, OnDestroy {
      */
     onMrTextApplied(event: MrTextAppliedEvent): void {
         this.stopIfPlaying();
+        this.mrEditorVisible = false;
         this.songChange.emit(event.song);
     }
 

@@ -31,6 +31,15 @@ describe('Panel de Variables', () => {
         expect(template).toContain('variables-panel-title">Variables<');
     });
 
+    it('el + vive en la cabecera y el formulario queda oculto hasta pulsarlo', () => {
+        expect(template).toContain('class="variables-panel-add"');
+        expect(template).toContain('(click)="$event.stopPropagation(); toggleVariableForm()"');
+        expect(template).toContain('[formVisible]="variableFormVisible"');
+        expect(template).toContain('(variableAdded)="closeVariableForm()"');
+        expect(component).toContain('variableFormVisible = false');
+        expect(component).toContain('toggleVariableForm(): void');
+    });
+
     it('ya no hay botón `$` en el toolbar ni sidebar de variables', () => {
         expect(template).not.toContain('toggleVariablesSidebar');
         expect(template).not.toContain('variablesSidebarVisible');
