@@ -27,6 +27,7 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Changed
 
+- **Standalone bootstrap**: the root `AppComponent` is standalone and `main.ts` uses `bootstrapApplication`; application providers moved to `app.config.ts`. `EditorModule` is intentionally kept for the next standalone phase.
 - **Application builder**: migrated the Angular build from the webpack browser builder to `@angular/build:application` (esbuild/Vite). The production output now lives under `dist/moderanger/browser`; the release workflow and release docs were updated accordingly.
 - **Control flow templates**: migrated `*ngIf`, `*ngFor` and `*ngSwitch` to Angular's `@if`, `@for` and `@switch`. The rendered behavior is unchanged; template-contract tests were updated to the new syntax.
 - **Dependency audit cleanup**: removed unused `ts-prune` and `rimraf`, updated `ts-jest` and added scoped overrides for `fast-uri` and `picomatch`. The production audit is clean and the development tree has no critical or high advisories; see `docs/developer/analysis/npm-audit-2026-11.md`.

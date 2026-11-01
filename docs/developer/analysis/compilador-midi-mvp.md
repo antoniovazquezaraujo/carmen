@@ -97,7 +97,7 @@ El compilador es un núcleo puro: **no importa Angular, Tone ni el motor de audi
 
 - `InstrumentType` vive en `packages/core/src/instrument-type.ts`.
 - `Player` importa `AudioEngineService` solo como tipo.
-- `NoteGenerationService` y `NoteGenerationUnifiedService` ya no llevan `@Injectable`; la app los provee con factories en `AppModule`.
+- `NoteGenerationService` y `NoteGenerationUnifiedService` ya no llevan `@Injectable`; la app los provee con factories en `app.config.ts`.
 - El parser y la generación usan `packages/core/src/duration.ts` en vez de `Tone.Time`.
 
 ### 2.3. Precisión frente al scheduler web

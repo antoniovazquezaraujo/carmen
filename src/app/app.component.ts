@@ -1,14 +1,17 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AudioEngineService, InstrumentType } from './services/audio-engine.service';
 import { Theme, ThemeService } from './services/theme.service';
 import { Song } from './model/song';
+import { EditorModule } from './components/editor/editor.module';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [CommonModule, EditorModule]
 })
 export class AppComponent implements OnInit {
   title = 'moderanger';

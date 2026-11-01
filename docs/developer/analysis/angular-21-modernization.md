@@ -61,7 +61,7 @@ verdes en cada paso:
 ## 4. Cambios funcionales y de toolchain
 
 - `src/main.ts` usa `provideZoneChangeDetection()` en el bootstrap del
-  `AppModule`.
+  `app.config.ts`.
 - `tsconfig.json` compila a ES2022 y usa `moduleResolution: bundler`.
 - `packages/core` y `packages/compiler` fuerzan `moduleResolution: node` porque
   son CommonJS.
@@ -72,7 +72,7 @@ verdes en cada paso:
 ### PrimeNG 21
 
 - Se sustituye el tema CSS antiguo por `providePrimeNG({ theme: { preset: Aura } })`
-  en `AppModule`.
+  en `app.config.ts`.
 - Se eliminan `primeng/resources/themes/*` y `primeng.min.css` de
   `angular.json` y `styles.css`.
 - `p-sidebar` pasa a `p-drawer`; `SidebarModule` pasa a `DrawerModule`.
@@ -88,8 +88,10 @@ verdes en cada paso:
 
 ### Decisiones deliberadas
 
-- **Se mantienen NgModules.** No se hace la migración a standalone en el mismo
-  cambio.
+- **NgModules.** La migración a standalone se hace por fases. La fase 1
+  (`feature/standalone-bootstrap`) ya arranca con `bootstrapApplication` y
+  mantiene `EditorModule`; la migración completa de componentes queda como
+  follow-up.
 - **Application builder.** La migración se completó después en
   `feature/application-builder`: el build usa `@angular/build:application`
   (esbuild/Vite) y la salida de producción está en
@@ -126,7 +128,9 @@ verdes en cada paso:
 4. **Builder.** ✅ **Resuelto (2026-11-02, `feature/application-builder`):**
    migrado a `@angular/build:application`; build de ~12 s y salida en
    `dist/moderanger/browser`.
-5. **Standalone / bootstrap.** Migrar NgModules a standalone y
-   `platformBrowserDynamic` a `bootstrapApplication` es un proyecto aparte.
+5. **Standalone / bootstrap.** La fase 1 está hecha: `AppComponent` es
+   standalone, `main.ts` usa `bootstrapApplication` y los providers viven en
+   `app.config.ts`; `EditorModule` se mantiene. La migración del resto de
+   componentes queda como follow-up.
 6. **Dependencias.** Revisar `npm audit`; los avisos restantes no bloquean el
    build, pero deben evaluarse.
