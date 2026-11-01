@@ -90,8 +90,10 @@ verdes en cada paso:
 
 - **Se mantienen NgModules.** No se hace la migración a standalone en el mismo
   cambio.
-- **Se mantiene el builder webpack.** La migración opcional al application
-  builder de Angular queda como follow-up.
+- **Application builder.** La migración se completó después en
+  `feature/application-builder`: el build usa `@angular/build:application`
+  (esbuild/Vite) y la salida de producción está en
+  `dist/moderanger/browser`.
 - **Control flow.** La migración automática a `@if`/`@for` se revirtió en la
   PR de toolchain para no mezclarla con una reescritura de plantillas. Se
   completó después en `feature/control-flow`, actualizando los tests de
@@ -107,6 +109,8 @@ verdes en cada paso:
 - Smoke visual con Firefox headless: shell, toolbar, panel de Parts, árbol de
   bloques, Help en `p-drawer` y demo cargada. El árbol y el drawer se pintan
   correctamente tras migrar las clases de PrimeNG 21.
+- Application builder: `ng serve` con Vite y build de producción correctos;
+  salida en `dist/moderanger/browser`.
 - CI: pendiente de ejecutar en la PR.
 
 ## 6. Pendientes y riesgos
@@ -119,7 +123,9 @@ verdes en cada paso:
 3. **Templates legacy.** ✅ **Resuelto (2026-11-02, `feature/control-flow`):**
    las plantillas usan `@if`/`@for`/`@switch`; los tests de contrato se
    actualizaron.
-4. **Builder.** Migrar al application builder de Angular 21 y medir el bundle.
+4. **Builder.** ✅ **Resuelto (2026-11-02, `feature/application-builder`):**
+   migrado a `@angular/build:application`; build de ~12 s y salida en
+   `dist/moderanger/browser`.
 5. **Standalone / bootstrap.** Migrar NgModules a standalone y
    `platformBrowserDynamic` a `bootstrapApplication` es un proyecto aparte.
 6. **Dependencias.** Revisar `npm audit`; los avisos restantes no bloquean el

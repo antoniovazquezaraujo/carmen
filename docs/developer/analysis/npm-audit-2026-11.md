@@ -95,3 +95,11 @@ altos ni de producción.
   separada.
 - `@angular/platform-browser-dynamic` y `@angular/animations` están
   deprecados; entran en el follow-up de standalone/animations.
+
+## 7. Actualización posterior: application builder
+
+Tras migrar el build a `@angular/build:application`, la cadena de
+`webpack-dev-server`/`sockjs` desaparece del árbol. La auditoría queda en
+**34 avisos** (31 moderados, 3 bajos), sin críticos ni altos y con producción
+en 0. La causa restante es Angular CLI/pacote, Jest/ts-jest y utilidades de
+cobertura.

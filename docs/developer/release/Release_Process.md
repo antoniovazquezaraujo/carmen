@@ -55,7 +55,7 @@ git push origin v0.1.0
 ### ¿Qué ocurre entonces?
 1. GitHub crea una **Release** oficial con el **changelog automático** (notas generadas desde los commits/PRs).
 2. Compila la app (`npm ci` → tests → `ng build --base-href ./`).
-3. Empaqueta `dist/moderanger` en `moderanger-web.zip` y lo adjunta a la Release.
+3. Empaqueta `dist/moderanger/browser` en `moderanger-web.zip` y lo adjunta a la Release.
 
 ---
 
