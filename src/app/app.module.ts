@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeng/themes/aura';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
 import { EditorModule } from './components/editor/editor.module';
@@ -20,6 +22,7 @@ import { NoteGenerationUnifiedService } from './shared/services/note-generation-
         EditorModule
     ],
     providers: [
+        providePrimeNG({ theme: { preset: Aura } }),
         TreeDragDropService,
         SongPlayer,
         // Servicios puros (sin @Injectable) instanciados por factory.

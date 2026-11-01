@@ -1,7 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-@import "../node_modules/primeicons/primeicons.css";
-@import "../node_modules/primeng/resources/themes/saga-green/theme.css";
-@import "../node_modules/primeng/resources/primeng.min.css";
 
 html, body { 
   height: 100%; 
@@ -136,9 +133,10 @@ h1 { /* Add some style for the header */
   margin:0px!important;
  }
  .p-tree-node-content{
-  padding:0px!important;
-  margin:0px!important;
-  height:14px!important;
+  padding-top:0!important;
+  padding-right:0!important;
+  padding-bottom:0!important;
+  margin:0!important;
  }
 
 .p-dropdown-items .p-dropdown-item {
@@ -158,33 +156,36 @@ h1 { /* Add some style for the header */
   margin: 0px!important;
 }
 
-.p-tree-container {
+.p-tree-root-children {
   padding: 0px!important;
   margin: 0px!important;
 }
 
-.p-treenode {
+.p-tree-node {
   padding: 0px!important;
   margin: 0px!important;
   line-height: 1!important;
 }
 
-.p-treenode-content {
-  padding: 0px 0px!important;
-  margin: 0px!important;
-  min-height: 14px!important;
-}
-
-.p-tree-wrapper {
-  line-height: 1!important;
-}
-
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
-  padding: 0!important;
+.p-tree-node-content {
+  padding-top: 0!important;
+  padding-right: 0!important;
+  padding-bottom: 0!important;
   margin: 0!important;
 }
 
-.p-tree .p-tree-container .p-treenode {
+.p-tree-root {
+  line-height: 1!important;
+}
+
+.p-tree .p-tree-root-children .p-tree-node .p-tree-node-content {
+  padding-top: 0!important;
+  padding-right: 0!important;
+  padding-bottom: 0!important;
+  margin: 0!important;
+}
+
+.p-tree .p-tree-root-children .p-tree-node {
   padding: 0!important;
   margin: 0!important;
 }
@@ -194,9 +195,9 @@ h1 { /* Add some style for the header */
    corto hacia cada bloque. Trazo neutro de 2px en gris medio (contraste
    reportado como insuficiente con 1px/#d9d9d9). No alteran el layout (la
    indentación de 1rem por nivel la sigue aportando el padding de
-   `.p-treenode-children`) ni interfieren con el drag & drop
+   `.p-tree-node-children`) ni interfieren con el drag & drop
    (`pointer-events: none`, asa y droppoints intactos). */
-.p-tree .p-treenode-children {
+.p-tree .p-tree-node-children {
   position: relative;
 }
 
@@ -204,7 +205,7 @@ h1 { /* Add some style for the header */
    la franja de indentación (8px desde el borde del `ul`) y su borde derecho
    (x+9) empalma con el inicio del conector, que arranca a `1px` de la caja
    extendida del header. */
-.p-tree .p-treenode-children::before {
+.p-tree .p-tree-node-children::before {
   content: '';
   position: absolute;
   top: 0;
@@ -218,33 +219,33 @@ h1 { /* Add some style for the header */
 /* Ramal del bloque padre: cuando un bloque con asa tiene hijos, la guía de
    su lista de hijos sube desde el asa (centro del header) por delante de
    Commands/Operations hasta empalmar con la `ul`. `:has()` lo limita a
-   bloques con hijos (`+ .p-treenode-children`) y con asa (los raíces
+   bloques con hijos (`+ .p-tree-node-children`) y con asa (los raíces
    visibles no tienen): sin hijos no se pinta ninguna línea. En navegadores
    sin `:has()` el árbol conserva el aspecto anterior (mejora progresiva). */
-.p-tree .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-header {
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header {
   position: relative;
 }
 
-.p-tree .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-body {
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-body {
   position: relative;
 }
 
 /* Nodos anidados: la caja del header se extiende 14px a la izquierda
    (margen negativo del conector) y su padding de 14px devuelve el asa a
    content+6; la guía vive en content+7 → 14 + 1 = 15px desde la caja. */
-.p-tree .p-treenode-children .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-header::after {
+.p-tree .p-tree-node-children .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
   left: 15px;
 }
 
 /* Raíces de contenedor: su header no lleva extensión; la guía queda a 1px
    del borde de la caja (que arranca en content+6, como el asa). */
-.p-tree .p-tree-container > p-treenode > li.p-treenode > .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-header::after {
+.p-tree .p-tree-root-children > p-treenode > li.p-tree-node > .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
   left: 1px;
 }
 
 /* Tramo de cabecera: de la altura del asa (centro del header) al borde
    inferior; así el ramal "arranca en el icono" como los conectores. */
-.p-tree .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-header::after {
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -258,7 +259,7 @@ h1 { /* Add some style for the header */
 /* Tramo del cuerpo: el body arranca en content+6 → 1px; `top: -1px` salva
    su `margin-top` y `bottom: -4px` el hueco hasta la `ul` de hijos para que
    la línea no se corte entre header, Commands/Operations y lista. */
-.p-tree .p-treenode-content:has(+ .p-treenode-children):has(.block-drag-handle) .block-body::before {
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-body::before {
   content: '';
   position: absolute;
   left: 1px;
@@ -275,7 +276,7 @@ h1 { /* Add some style for the header */
    header tiene `overflow-x: auto` y recortaría un pseudo-elemento que
    sobresalga. `margin-left` negativo + `padding-left` y `width` compensados
    extienden su caja de pintado sin mover el contenido (misma x). */
-.p-tree .p-treenode-children .block-header {
+.p-tree .p-tree-node-children .block-header {
   box-sizing: border-box !important;
   width: calc(100% + 14px) !important;
   margin-left: -14px !important;
@@ -287,16 +288,16 @@ h1 { /* Add some style for the header */
 }
 
 /* Drag & drop de bloques: zonas de inserción amplias y visibles.
-   El `.p-treenode-droppoint` por defecto mide 4px de alto; se amplía a 12px
+   El `.p-tree-node-droppoint` por defecto mide 4px de alto; se amplía a 12px
    con una línea de acento al pasar por encima o durante el arrastre para que
    sea fácil apuntar sin ensuciar el árbol en reposo. */
-.p-tree .p-treenode-droppoint {
+.p-tree .p-tree-node-droppoint {
   position: relative;
   height: 12px !important;
   list-style-type: none;
 }
 
-.p-tree .p-treenode-droppoint::after {
+.p-tree .p-tree-node-droppoint::after {
   content: '';
   position: absolute;
   left: 4px;
@@ -309,21 +310,21 @@ h1 { /* Add some style for the header */
   transition: background-color 0.12s ease, height 0.12s ease;
 }
 
-.p-tree .p-treenode-droppoint:hover::after {
+.p-tree .p-tree-node-droppoint:hover::after {
   background-color: #c8e6c9;
 }
 
-.p-tree .p-treenode-droppoint.p-treenode-droppoint-active {
+.p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active {
   background-color: transparent !important;
 }
 
-.p-tree .p-treenode-droppoint.p-treenode-droppoint-active::after {
+.p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active::after {
   height: 4px;
   background-color: #2e7d32;
 }
 
 /* Nodo destino del drop: resaltado claro (el tema por defecto es casi gris). */
-.p-tree .p-tree-container .p-treenode .p-treenode-content.p-treenode-dragover {
+.p-tree .p-tree-root-children .p-tree-node .p-tree-node-content.p-tree-node-dragover {
   background: #e8f5e9 !important;
   box-shadow: inset 0 0 0 2px #2e7d32;
 }

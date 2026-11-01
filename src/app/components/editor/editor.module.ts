@@ -35,12 +35,10 @@ import { TreeModule } from 'primeng/tree';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { KnobModule } from 'primeng/knob';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { SplitterModule } from 'primeng/splitter';
-import { SidebarModule } from 'primeng/sidebar';
+import { DrawerModule } from 'primeng/drawer';
 import { DialogModule } from 'primeng/dialog';
 import { SharedModule } from 'primeng/api';
 
@@ -81,12 +79,10 @@ import { SharedModule } from 'primeng/api';
     ButtonModule,
     InputTextModule,
     KnobModule,
-    DropdownModule,
     InputNumberModule,
-    InputTextareaModule,
     TooltipModule,
     SplitterModule,
-    SidebarModule,
+    DrawerModule,
     DialogModule,
   ],
   exports: [
