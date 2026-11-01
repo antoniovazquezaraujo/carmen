@@ -9,6 +9,7 @@ Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para n
 - [[design/propuesta-bloques-reutilizables|Propuesta: bloques reutilizables (`blocks` + `use`)]]
 - [[design/compilador-mr-a-midi|Propuesta: compilador `.mr` → MIDI (CLI)]]
 - [[analysis/codigo-v2-sin-cablear|Inventario del código v2 sin cablear]]
+- [[analysis/angular-21-modernization|Modernización a Angular 21 y Node 22]]
 
 ## 🎯 Decisiones
 - [[adr/ADR-001-texto-canonico-y-sintaxis-mr|ADR-001: Texto canónico y sintaxis `.mr`]]

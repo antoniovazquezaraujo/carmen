@@ -37,7 +37,8 @@ import { createExampleSong, ExampleSong } from 'src/app/model/examples';
     selector: 'app-song-editor',
     templateUrl: './song-editor.component.html',
     styleUrls: ['./song-editor.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class SongEditorComponent implements OnInit, OnDestroy {
     @Input() song!: Song;

@@ -20,14 +20,14 @@ export interface SelectionAction {
  * - Coordinates visual selection updates
  */
 @Component({
-  selector: 'app-melody-selection',
-  template: `
+    selector: 'app-melody-selection',
+    template: `
     <!-- This component manages selection state but doesn't render content directly -->
     <div class="selection-manager" #selectionContainer>
       <ng-content></ng-content>
     </div>
   `,
-  styles: [`
+    styles: [`
     .selection-manager {
       width: 100%;
       position: relative;
@@ -44,7 +44,8 @@ export interface SelectionAction {
       outline: 2px solid #2196F3;
       outline-offset: 1px;
     }
-  `]
+  `],
+    standalone: false
 })
 export class MelodySelectionComponent implements OnChanges {
   @Input() visualElements: VisualElement[] = [];

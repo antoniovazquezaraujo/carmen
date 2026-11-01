@@ -274,17 +274,17 @@ html body .p-dialog .p-dialog-header .p-dialog-header-icon {
   border-radius: 9px;
 }
 
-html body .p-sidebar {
+html body .p-drawer {
   background: var(--mr-surface) !important;
   border-left: 1px solid var(--mr-border) !important;
   box-shadow: -24px 0 70px rgba(33, 29, 25, 0.16) !important;
 }
 
-html body .p-sidebar .p-sidebar-content {
+html body .p-drawer .p-drawer-content {
   padding: 0 !important;
 }
 
-html body .p-sidebar-mask {
+html body .p-drawer-mask {
   background: rgba(33, 29, 25, 0.32) !important;
   backdrop-filter: blur(2px);
 }

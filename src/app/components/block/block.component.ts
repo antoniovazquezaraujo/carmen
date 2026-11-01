@@ -11,7 +11,6 @@ import { BlockCommandsComponent } from '../block-commands/block-commands.compone
 import { parseBlockNotes } from '../../model/mr/notes.parser';
 import { NoteData } from '../../model/note';
 import { Subscription } from 'rxjs';
-import { TreeNode } from 'primeng/api';
 
 /**
  * Nodo de `p-tree`: el propio `Block` más el estado de expansión que gestiona
@@ -19,18 +18,20 @@ import { TreeNode } from 'primeng/api';
  * PrimeNG además muta `parent` al serializar el árbol (`serializeNodes`).
  */
 type BlockTreeNode = Block & { expanded?: boolean; parent?: BlockTreeNode };
+type ExpandableNode = { expanded?: boolean };
 
 /** Datos que PrimeNG emite en `onNodeDrop`. */
 interface BlockTreeDropEvent {
-  dragNode?: BlockTreeNode;
+  dragNode?: BlockTreeNode | null;
   dropNode?: BlockTreeNode | null;
   index?: number;
 }
 
 @Component({
-  selector: 'app-block',
-  templateUrl: './block.component.html',
-  styleUrls: ['./block.component.scss']
+    selector: 'app-block',
+    templateUrl: './block.component.html',
+    styleUrls: ['./block.component.scss'],
+    standalone: false
 })
 export class BlockComponent implements OnInit, OnDestroy {
   private _block!: Block;
@@ -243,12 +244,13 @@ export class BlockComponent implements OnInit, OnDestroy {
    * este evento; aquí se reconcilia el caso especial de la lista raíz
    * sintética, se expande el destino y se refresca la vista / se notifica.
    */
-  onNodeDrop(event: BlockTreeDropEvent): void {
+  onNodeDrop(event: unknown): void {
     // El drop re-renderiza el árbol antes de que llegue `dragend`: reactiva
     // el tooltip aquí para que no quede deshabilitado tras soltar.
+    const blockEvent = event as BlockTreeDropEvent;
     this.dragging = false;
-    this.reconcileRootDrop(event);
-    this.expandDropTarget(event);
+    this.reconcileRootDrop(blockEvent);
+    this.expandDropTarget(blockEvent);
     this.blockChange.emit(this._block);
     this.cdr.detectChanges();
   }
@@ -313,7 +315,7 @@ export class BlockComponent implements OnInit, OnDestroy {
   // Fix: Remove unused handleRemoveCommand method (if handled by child)
   // handleRemoveCommand(event: any) { ... }
 
-  toggleNodeExpansion(node: TreeNode): void {
+  toggleNodeExpansion(node: ExpandableNode): void {
     if (node) {
         node.expanded = !node.expanded;
     }

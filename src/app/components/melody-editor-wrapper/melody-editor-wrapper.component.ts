@@ -19,7 +19,8 @@ import { MelodyEditorService } from '../../services/melody-editor.service';
             useExisting: forwardRef(() => MelodyEditorWrapperComponent),
             multi: true
         }
-    ]
+    ],
+    standalone: false
 })
 export class MelodyEditorWrapperComponent implements ControlValueAccessor {
     @Input() notes: string = '';

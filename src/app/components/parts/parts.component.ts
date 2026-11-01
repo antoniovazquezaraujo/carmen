@@ -13,7 +13,8 @@ const AUTO_SCROLL_STEP = 16;
 @Component({
     selector: 'app-parts',
     templateUrl: './parts.component.html',
-    styleUrls: ['./parts.component.css']
+    styleUrls: ['./parts.component.css'],
+    standalone: false
 })
 export class PartsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() parts: Part[] = [];

@@ -19,7 +19,8 @@ interface VariableDeclaration {
 @Component({
     selector: 'app-variable-declaration',
     templateUrl: './variable-declaration.component.html',
-    styleUrls: ['./variable-declaration.component.scss']
+    styleUrls: ['./variable-declaration.component.scss'],
+    standalone: false
 })
 export class VariableDeclarationComponent implements OnInit, OnDestroy {
     /** El formulario se muestra solo al pulsar el + de la cabecera. */

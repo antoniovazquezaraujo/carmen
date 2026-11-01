@@ -20,7 +20,8 @@ interface DefinitionOption {
 @Component({
     selector: 'app-part',
     templateUrl: './part.component.html',
-    styleUrls: ['./part.component.scss']
+    styleUrls: ['./part.component.scss'],
+    standalone: false
 })
 export class PartComponent implements OnInit {
     treeControl = new NestedTreeControl<Block>(node => node.children);

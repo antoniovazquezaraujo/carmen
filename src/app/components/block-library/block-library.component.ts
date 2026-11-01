@@ -22,7 +22,8 @@ import {
 @Component({
     selector: 'app-block-library',
     templateUrl: './block-library.component.html',
-    styleUrls: ['./block-library.component.scss']
+    styleUrls: ['./block-library.component.scss'],
+    standalone: false
 })
 export class BlockLibraryComponent implements OnChanges {
     @Input() song!: Song;

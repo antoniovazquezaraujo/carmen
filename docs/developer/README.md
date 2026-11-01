@@ -8,7 +8,7 @@ Wiki interna para desarrollo: arquitectura, decisiones, análisis, auditorías y
 
 ## Arquitectura de un vistazo
 
-Mode Ranger es una app **Angular 13 + TypeScript** con un núcleo desacoplado:
+Mode Ranger es una app **Angular 21 + TypeScript 5.9** con un núcleo desacoplado:
 
 ```
                     ┌────────────────────────────────────────────┐
@@ -35,7 +35,7 @@ Mode Ranger es una app **Angular 13 + TypeScript** con un núcleo desacoplado:
 ## Navegación de la wiki
 
 - ✔️ **[Índice principal](Index.md)**
-- **Análisis y estado**: [`analysis/`](analysis/) — backlog, arquitectura, fases `.mr`, limpieza.
+- **Análisis y estado**: [`analysis/`](analysis/) — backlog, arquitectura, fases `.mr`, limpieza y [modernización a Angular 21](analysis/angular-21-modernization.md).
 - **Decisiones**: [`adr/`](adr/) — ADR-001 (texto canónico), ADR-002 (bloques reutilizables) y ADR-003 (compilador MIDI).
 - **Diseño**: [`design/`](design/) — propuesta de sintaxis aprobada, compilador `.mr` → MIDI y [UI refresh Warm Studio](design/ui-refresh-warm-studio.md).
 - **Auditorías**: [`audits/`](audits/) — `testing-things`, ramas pendientes.
@@ -46,7 +46,7 @@ Mode Ranger es una app **Angular 13 + TypeScript** con un núcleo desacoplado:
 ## Comandos imprescindibles
 
 ```sh
-export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"   # Node 16
+export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"   # Node 22
 
 npm ci && npm test && npm run build
 ```

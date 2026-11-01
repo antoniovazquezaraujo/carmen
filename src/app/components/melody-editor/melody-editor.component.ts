@@ -43,10 +43,11 @@ interface VisualElement {
  * y agruparlas usando corchetes.
  */
 @Component({
-  selector: 'app-melody-editor',
-  templateUrl: './melody-editor.component.html',
-  styleUrls: ['./melody-editor.component.scss'],
-  providers: [MelodyEditorService]
+    selector: 'app-melody-editor',
+    templateUrl: './melody-editor.component.html',
+    styleUrls: ['./melody-editor.component.scss'],
+    providers: [MelodyEditorService],
+    standalone: false
 })
 export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() notes: string = '';

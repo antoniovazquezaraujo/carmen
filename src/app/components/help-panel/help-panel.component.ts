@@ -11,7 +11,8 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
     selector: 'app-help-panel',
     templateUrl: './help-panel.component.html',
     styleUrls: ['./help-panel.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HelpPanelComponent {
     @Input() visible = false;

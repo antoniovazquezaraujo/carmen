@@ -28,8 +28,8 @@ import { MelodyOperationsComponent } from './melody-operations/melody-operations
  * └── 🔧 MelodyOperationsComponent - Business operations
  */
 @Component({
-  selector: 'app-melody-editor-v2',
-  template: `
+    selector: 'app-melody-editor-v2',
+    template: `
     <div class="melody-editor-v2" (click)="onEditorClick($event)">
       
       <!-- 🎯 Selection Manager (wraps everything for selection coordination) -->
@@ -74,7 +74,7 @@ import { MelodyOperationsComponent } from './melody-operations/melody-operations
       
     </div>
   `,
-  styles: [`
+    styles: [`
     .melody-editor-v2 {
       display: flex;
       flex-direction: column;
@@ -98,7 +98,8 @@ import { MelodyOperationsComponent } from './melody-operations/melody-operations
     :host ::ng-deep app-melody-display {
       width: 100%;
     }
-  `]
+  `],
+    standalone: false
 })
 export class MelodyEditorV2Component implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   // ============= EXTERNAL INTERFACE (Same as original) =============

@@ -9,11 +9,11 @@
  * contrato CSS del que dependen las guías para que `npm test` avise si
  * alguien elimina o desalinea las reglas:
  *
- * - línea vertical por nivel: `.p-tree .p-treenode-children::before`;
+ * - línea vertical por nivel: `.p-tree .p-tree-node-children::before`;
  * - conector horizontal: fondo del `.block-header` en su padding izquierdo
  *   (el header tiene `overflow-x: auto` y recortaría un pseudo-elemento);
  * - ramal del bloque padre: tramos `::after` (header) y `::before` (body)
- *   que suben hasta el asa, limitados con `:has(+ .p-treenode-children)` y
+ *   que suben hasta el asa, limitados con `:has(+ .p-tree-node-children)` y
  *   `:has(.block-drag-handle)` para no pintar líneas sueltas.
  */
 import * as fs from 'fs';
@@ -46,14 +46,14 @@ const HEADER_BOX_EXTENSION = 14;
 /** La guía vive a 7px del content (= 8px - 1px de centrado del trazo de 2px). */
 const GUIDE_X = 7;
 /** Gate del ramal: solo bloques con lista de hijos y con asa. */
-const RISE_GATE = ':has(+ .p-treenode-children):has(.block-drag-handle)';
-const BASE = '.p-tree .p-treenode-content' + RISE_GATE;
-const NESTED_HEADER = `.p-tree .p-treenode-children .p-treenode-content${RISE_GATE} .block-header`;
-const CONTAINER_HEADER = `.p-tree .p-tree-container > p-treenode > li.p-treenode > .p-treenode-content${RISE_GATE} .block-header`;
+const RISE_GATE = ':has(+ .p-tree-node-children):has(.block-drag-handle)';
+const BASE = '.p-tree .p-tree-node-content' + RISE_GATE;
+const NESTED_HEADER = `.p-tree .p-tree-node-children .p-tree-node-content${RISE_GATE} .block-header`;
+const CONTAINER_HEADER = `.p-tree .p-tree-root-children > p-treenode > li.p-tree-node > .p-tree-node-content${RISE_GATE} .block-header`;
 
 describe('guías de jerarquía del árbol de bloques (CSS)', () => {
-  it('define una línea vertical de 2px por nivel en `.p-treenode-children::before`', () => {
-    const body = ruleBody(css, '.p-tree .p-treenode-children::before');
+  it('define una línea vertical de 2px por nivel en `.p-tree-node-children::before`', () => {
+    const body = ruleBody(css, '.p-tree .p-tree-node-children::before');
 
     expect(declaration(body, 'content')).toBe("''");
     expect(declaration(body, 'position')).toBe('absolute');
@@ -66,13 +66,13 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
   });
 
   it('ancla la guía vertical a cada contenedor de hijos', () => {
-    const body = ruleBody(css, '.p-tree .p-treenode-children');
+    const body = ruleBody(css, '.p-tree .p-tree-node-children');
 
     expect(declaration(body, 'position')).toBe('relative');
   });
 
   it('pinta el conector horizontal de 2px en el padding del header sin mover el contenido', () => {
-    const body = ruleBody(css, '.p-tree .p-treenode-children .block-header');
+    const body = ruleBody(css, '.p-tree .p-tree-node-children .block-header');
     const backgroundImage = declaration(body, 'background-image');
 
     expect(backgroundImage).toContain('linear-gradient');
@@ -89,8 +89,8 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
   });
 
   it('usa el mismo trazo en ambas guías y empalma conector y línea sin hueco', () => {
-    const vertical = ruleBody(css, '.p-tree .p-treenode-children::before');
-    const header = ruleBody(css, '.p-tree .p-treenode-children .block-header');
+    const vertical = ruleBody(css, '.p-tree .p-tree-node-children::before');
+    const header = ruleBody(css, '.p-tree .p-tree-node-children .block-header');
 
     const lineLeft = parseFloat(declaration(vertical, 'left') as string);
     const lineWidth = parseFloat(declaration(vertical, 'width') as string);
@@ -145,18 +145,18 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
   it('limita el ramal a bloques con hijos y asa (sin líneas sueltas)', () => {
     // Sin el gate no debe existir ninguna regla que pinte el ramal: en un
     // bloque con Commands/Operations pero sin hijos no aparecería nada.
-    expect(ruleBody(css, '.p-tree .p-treenode-content .block-header::after')).toBe('');
-    expect(ruleBody(css, '.p-tree .p-treenode-content .block-body::before')).toBe('');
+    expect(ruleBody(css, '.p-tree .p-tree-node-content .block-header::after')).toBe('');
+    expect(ruleBody(css, '.p-tree .p-tree-node-content .block-body::before')).toBe('');
     // El gate exige lista de hijos y asa (los raíces visibles no tienen asa).
-    expect(css).toContain(`.p-treenode-content${RISE_GATE}`);
+    expect(css).toContain(`.p-tree-node-content${RISE_GATE}`);
   });
 
   it('mantiene el ramal en la misma x que la guía de la `ul` (content + 7px)', () => {
     const nestedLeft = parseFloat(declaration(ruleBody(css, `${NESTED_HEADER}::after`), 'left') as string);
     const containerLeft = parseFloat(declaration(ruleBody(css, `${CONTAINER_HEADER}::after`), 'left') as string);
     const bodyLeft = parseFloat(declaration(ruleBody(css, `${BASE} .block-body::before`), 'left') as string);
-    const ulLeft = parseFloat(declaration(ruleBody(css, '.p-tree .p-treenode-children::before'), 'left') as string);
-    const headerConnector = ruleBody(css, '.p-tree .p-treenode-children .block-header');
+    const ulLeft = parseFloat(declaration(ruleBody(css, '.p-tree .p-tree-node-children::before'), 'left') as string);
+    const headerConnector = ruleBody(css, '.p-tree .p-tree-node-children .block-header');
     const boxExtension = Math.abs(parseFloat(declaration(headerConnector, 'margin-left') as string));
 
     // Anidados: la caja del header se extiende 14px → 15 - 14 + 6 = 7.
@@ -170,12 +170,12 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
   });
 
   it('no añade guía a la lista raíz (solo a listas de hijos anidadas)', () => {
-    expect(ruleBody(css, '.p-tree .p-tree-container::before')).toBe('');
-    expect(ruleBody(css, '.p-tree .p-tree-container .block-header')).toBe('');
+    expect(ruleBody(css, '.p-tree .p-tree-root-children::before')).toBe('');
+    expect(ruleBody(css, '.p-tree .p-tree-root-children .block-header')).toBe('');
   });
 
   it('mantiene el droppoint de 12px y el header sin scroll interno (parts-resizable)', () => {
-    const droppoint = ruleBody(css, '.p-tree .p-treenode-droppoint');
+    const droppoint = ruleBody(css, '.p-tree .p-tree-node-droppoint');
     expect(declaration(droppoint, 'height')).toBe('12px !important');
 
     // El header del bloque envuelve (wrap) en vez de scrollear en horizontal:

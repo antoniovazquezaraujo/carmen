@@ -46,10 +46,11 @@ export interface MrTextAppliedEvent {
  * `GlobalStateService`: emite `applied` y el padre decide cómo integrarlo.
  */
 @Component({
-  selector: 'app-mr-text-editor',
-  templateUrl: './mr-text-editor.component.html',
-  styleUrls: ['./mr-text-editor.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-mr-text-editor',
+    templateUrl: './mr-text-editor.component.html',
+    styleUrls: ['./mr-text-editor.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class MrTextEditorComponent implements OnChanges, OnDestroy {
   @Input() song!: Song;

@@ -9,10 +9,10 @@ Status: **`.mr` language v1** (2026-10-04, `version 1`).
 
 ## Quickstart
 
-Requires **Node 16** (for example via nvm) and npm 8.
+Requires **Node 22** (for example via nvm) and npm 10.
 
 ```sh
-export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"   # Node 16 via nvm
+export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"   # Node 22 via nvm
 
 npm ci        # install dependencies
 npm start     # run the app on http://localhost:4200
@@ -20,7 +20,7 @@ npm test      # Jest suite (core, no browser)
 npm run build # production build
 ```
 
-Or just `./scripts/dev.sh`: it sets up Node 16, runs `npm ci` when `node_modules` is missing and then starts the dev server.
+Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules` is missing and then starts the dev server.
 
 ## MIDI compiler (experimental)
 
