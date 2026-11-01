@@ -7,24 +7,26 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
-    # Angular 13 is EOL: only patches are welcome until the upgrade project
-    # (tracked in the backlog) is tackled.
+    # Framework majors are coordinated upgrade projects; minor and patch
+    # updates are welcome and validated by CI.
     ignore:
       - dependency-name: "@angular/*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+        update-types: ["version-update:semver-major"]
       - dependency-name: "zone.js"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@angular-devkit/*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+        update-types: ["version-update:semver-major"]
       - dependency-name: "@angular/cdk"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+        update-types: ["version-update:semver-major"]
       - dependency-name: "primeng"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@primeng/themes"
         update-types: ["version-update:semver-major"]
       - dependency-name: "primeicons"
         update-types: ["version-update:semver-major"]
       - dependency-name: "primeflex"
         update-types: ["version-update:semver-major"]
-      # Toolchain majors are pinned to the Angular 13 / Node 16 stack.
+      # Toolchain majors are pinned to the Angular 21 / Node 22 stack.
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
       - dependency-name: "@types/node"

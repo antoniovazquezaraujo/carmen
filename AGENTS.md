@@ -31,7 +31,7 @@ docs/
 
 ## Comandos de Build/Lint/Test
 
-Mode Ranger es una app **Angular 13 + TypeScript** (Node 16):
+Mode Ranger es una app **Angular 21 + TypeScript 5.9** (Node 22):
 
 - **Instalar**: `npm ci`
 - **Desarrollo**: `npm start` (http://localhost:4200)

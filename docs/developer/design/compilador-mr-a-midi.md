@@ -55,7 +55,7 @@ Requisitos:
 
 - Sin navegador, sin red y sin interfaz gráfica.
 - Determinista: el mismo `.mr` produce el mismo `.mid` byte a byte (mismo orden de eventos y misma versión del compilador).
-- Node 16 (el mismo del proyecto).
+- Node 22 (el mismo del proyecto).
 - Sin dependencias de Angular en el núcleo del compilador.
 
 ### 2.2. No objetivos del MVP

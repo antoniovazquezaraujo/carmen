@@ -49,7 +49,7 @@ Este documento fija los estándares de código, comandos de build y flujo de tra
 
 ## Comandos de Build (⚠️ obligatorios)
 
-- **Node 16** (nvm): `export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"`.
+- **Node 22** (nvm): `export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"`.
 - **Instalar**: `npm ci` (no `npm install` salvo cambio de dependencias).
 - **Tests**: `npm test` (antes de cada PR).
 - **Cobertura**: `npm run test:cov`.

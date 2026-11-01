@@ -27,6 +27,7 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Changed
 
+- **Toolchain modernization**: Angular 13 → 21, Node 16 → 22, TypeScript 4.5 → 5.9, PrimeNG 13 → 21 (Aura theme), Jest 29 → 30, PrimeIcons 8 and PrimeFlex 4. The `.mr` language, parser, player and user-visible behavior are unchanged. NgModules, the webpack builder and the existing `*ngIf`/`*ngFor` templates are intentionally retained for a separate follow-up.
 - **Warm Studio UI refresh**: the app now has a branded shell, a warm paper palette, editorial display type, card-based panels, consistent toolbar controls and a calmer visual hierarchy. The editor adds a contextual **Help** guide and a **Load example** song so new users can start with real content.
 - Removed the first-run Parts empty-state card and the reusable-blocks empty message; the `+` actions in each panel remain.
 - Light/dark theme selector in the top bar. The chosen theme persists in `localStorage`, follows the system preference on first visit and is applied before the first paint to avoid a flash.

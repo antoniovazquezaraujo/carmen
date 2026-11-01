@@ -16,16 +16,15 @@ jobs:
 
     env:
       NPM_CONFIG_LOGLEVEL: error
-      NODE_OPTIONS: --no-deprecation
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Node 16
+      - name: Node 22
         uses: actions/setup-node@v5
         with:
-          node-version: '16'
+          node-version: '22'
           cache: npm
 
       - name: Install dependencies

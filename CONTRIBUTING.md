@@ -10,12 +10,12 @@ Thanks for your interest! This is a small project, so the process is intentional
 
 ## Requirements
 
-- **Node 16** (recommended via nvm) and npm 8.
+- **Node 22** (recommended via nvm) and npm 10.
 
 ## Build and test
 
 ```sh
-export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"   # Node 16 via nvm
+export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"   # Node 22 via nvm
 
 npm ci           # install dependencies (use `npm install` only for dependency changes)
 npm start        # app on http://localhost:4200
@@ -51,7 +51,7 @@ Run a single test: `npm test -- -t "test name"`.
 ## Coding conventions
 
 - Strict TypeScript; avoid `any` (if unavoidable, justify it).
-- Angular 13: single-responsibility components; `ChangeDetectionStrategy.OnPush` where it applies; testable logic lives outside components.
+- Angular 21: single-responsibility components; `ChangeDetectionStrategy.OnPush` where it applies; testable logic lives outside components.
 - Tests: Jest + ts-jest (`*.jest.spec.ts`), AAA pattern, descriptive names; no unexpected `console` noise.
 - Do not commit `dist/`, `node_modules/` or generated artifacts.
 

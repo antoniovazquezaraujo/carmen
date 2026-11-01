@@ -4,7 +4,7 @@ Mode Ranger can compile a `.mr` song to a **Standard MIDI File** without opening
 
 ## Requirements
 
-- Node 16 or newer.
+- Node 22 or newer.
 - The global CLI package `@moderanger/cli` (planned publication), or a clone of the repository with dependencies installed (`npm ci`).
 
 ## Install

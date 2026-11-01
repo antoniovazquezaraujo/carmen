@@ -12,10 +12,10 @@
 
 ## 0. Preparación del entorno
 
-- [ ] **0.1.** Node 16 activo:
+- [ ] **0.1.** Node 22 activo:
   ```sh
-  export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"
-  node -v    # v16.20.2
+  export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"
+  node -v    # v22.23.3
   ```
 - [ ] **0.2.** Dependencias instaladas y app arrancada en el puerto 4200:
   ```sh

@@ -15,23 +15,20 @@ concurrency:
 
 jobs:
   test-and-build:
-    name: tests + build (Node 16)
+    name: tests + build (Node 22)
     runs-on: ubuntu-latest
 
     env:
-      # Angular 13 is EOL: its transitive dependencies emit dozens of known
-      # deprecations (see BACKLOG #11). Silenced in CI; kept visible locally.
       NPM_CONFIG_LOGLEVEL: error
-      NODE_OPTIONS: --no-deprecation
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Node 16
+      - name: Node 22
         uses: actions/setup-node@v5
         with:
-          node-version: '16'
+          node-version: '22'
           cache: npm
 
       - name: Install dependencies
