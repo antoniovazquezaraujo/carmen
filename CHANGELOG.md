@@ -27,6 +27,7 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Changed
 
+- **Deprecation cleanup**: removed the unused `@angular/animations` runtime/provider and migrated the PrimeNG preset from the deprecated `@primeng/themes` to `@primeuix/themes`.
 - **Standalone components**: every component is standalone and `EditorModule` has been removed. `AppComponent` imports `SongEditorComponent` directly; each component declares its own Angular and PrimeNG dependencies.
 - **Application builder**: migrated the Angular build from the webpack browser builder to `@angular/build:application` (esbuild/Vite). The production output now lives under `dist/moderanger/browser`; the release workflow and release docs were updated accordingly.
 - **Control flow templates**: migrated `*ngIf`, `*ngFor` and `*ngSwitch` to Angular's `@if`, `@for` and `@switch`. The rendered behavior is unchanged; template-contract tests were updated to the new syntax.

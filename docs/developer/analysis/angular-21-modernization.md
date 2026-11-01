@@ -31,7 +31,7 @@ de Node también dependían de ese stack.
 | Angular / CLI | 21.2.25 / 21.2.29 |
 | TypeScript | 5.9.3 |
 | PrimeNG | 21.1.10 |
-| `@primeng/themes` | 21.0.4 |
+| `@primeuix/themes` | 2.0.3 |
 | `@angular/cdk` | 21.2.14 |
 | PrimeIcons / PrimeFlex | 8.0.2 / 4.0.0 |
 | Jest / `@types/jest` | 30.5.2 / 30.0.0 |
@@ -56,12 +56,14 @@ verdes en cada paso:
 7. Angular 19 → 20. TypeScript 5.8; `moduleResolution: bundler` en la app y
    `node` en los paquetes CommonJS (`packages/core`, `packages/compiler`).
 8. Angular 20 → 21. TypeScript 5.9, Jest 30, zone.js 0.15; PrimeNG 21,
-   `@primeng/themes` y limpieza de imports CSS antiguos.
+   `@primeuix/themes` y limpieza de imports CSS antiguos.
 
 ## 4. Cambios funcionales y de toolchain
 
 - `src/main.ts` usa `provideZoneChangeDetection()` en el bootstrap del
   `app.config.ts`.
+- Se retiró `@angular/animations`/`provideAnimations()`: la app y PrimeNG 21 no
+  lo necesitan. El tema de PrimeNG se importa de `@primeuix/themes`.
 - `tsconfig.json` compila a ES2022 y usa `moduleResolution: bundler`.
 - `packages/core` y `packages/compiler` fuerzan `moduleResolution: node` porque
   son CommonJS.
@@ -132,5 +134,9 @@ verdes en cada paso:
    `feature/standalone-components`):** todos los componentes son standalone,
    `EditorModule` se eliminó y el árbol se importa explícitamente desde cada
    componente. Los mocks de Jest cubren Angular Common/Forms y PrimeNG.
-6. **Dependencias.** Revisar `npm audit`; los avisos restantes no bloquean el
-   build, pero deben evaluarse.
+6. **Dependencias.** ✅ **Triaje hecho (2026-11-01,
+   `fix/npm-audit`):** 0 críticos, 0 altos y 0 en producción; quedan avisos
+   moderados/bajos de toolchain de desarrollo.
+7. **Deprecaciones.** ✅ **Resuelto (2026-11-02,
+   `feature/deprecation-cleanup`):** sin `@angular/animations` y con
+   `@primeuix/themes` en lugar de `@primeng/themes`.
