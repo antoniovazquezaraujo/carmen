@@ -6,26 +6,29 @@ import { MelodyNoteComponent } from '../melody-note/melody-note.component';
     selector: 'app-melody-group',
     template: `
         <div class="group-container" [class.selected]="isSelected">
-            <div class="group-header" (click)="onClick()">
-                <span class="group-type">{{ note.type }}</span>
-                <span class="group-duration" (wheel)="onWheelDuration($event)">{{ note.duration }}</span>
-                <button class="expand-button" (click)="onToggleExpand($event)">
-                    {{ isExpanded ? '▼' : '▶' }}
-                </button>
-            </div>
-            <div class="group-content" *ngIf="isExpanded">
+          <div class="group-header" (click)="onClick()">
+            <span class="group-type">{{ note.type }}</span>
+            <span class="group-duration" (wheel)="onWheelDuration($event)">{{ note.duration }}</span>
+            <button class="expand-button" (click)="onToggleExpand($event)">
+              {{ isExpanded ? '▼' : '▶' }}
+            </button>
+          </div>
+          @if (isExpanded) {
+            <div class="group-content">
+              @for (child of note.notes; track child) {
                 <app-melody-note
-                    *ngFor="let child of note.notes"
-                    [note]="child"
-                    [isSelected]="child.id === selectedNoteId"
-                    (select)="onSelectChild(child.id)"
-                    (toggleSilence)="onToggleSilence(child.id)"
-                    (changeDuration)="onChangeChildDuration(child.id, $event)"
-                    (changeValue)="onChangeChildValue(child.id, $event)">
+                  [note]="child"
+                  [isSelected]="child.id === selectedNoteId"
+                  (select)="onSelectChild(child.id)"
+                  (toggleSilence)="onToggleSilence(child.id)"
+                  (changeDuration)="onChangeChildDuration(child.id, $event)"
+                  (changeValue)="onChangeChildValue(child.id, $event)">
                 </app-melody-note>
+              }
             </div>
+          }
         </div>
-    `,
+        `,
     styles: [`
         .group-container {
             border: 1px solid #ccc;

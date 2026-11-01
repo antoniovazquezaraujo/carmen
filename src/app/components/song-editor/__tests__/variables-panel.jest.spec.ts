@@ -24,7 +24,7 @@ describe('Panel de Variables', () => {
 
     it('está plegado por defecto y se alterna desde la cabecera', () => {
         expect(component).toContain('variablesExpanded: boolean = false');
-        expect(template).toContain('*ngIf="variablesExpanded"');
+        expect(template).toContain('@if (variablesExpanded) {');
         expect(template).toContain('(click)="toggleVariablesPanel()"');
         expect(template).toContain('pi pi-chevron-down');
         expect(template).toContain('pi pi-chevron-right');

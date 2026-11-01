@@ -29,10 +29,12 @@ function declaration(body: string, property: string): string | null {
 describe('Commands/Operations en texto libre (CSS/template)', () => {
   it('usa la etiqueta capitalizada con `:` en los tipos (comandos y operaciones)', () => {
     // Las opciones no llevan `:`; el separador va en un span de la lectura.
-    expect(template).toContain('<option *ngFor="let type of commandTypeNames" [value]="type">{{typeLabel(type)}}</option>');
-    expect(template).toContain('<option *ngFor="let type of operationTypeNames" [value]="type">{{typeLabel(type)}}</option>');
-    expect(template).toContain('class="command-label-sep" *ngIf="showCommandColon(command)"');
-    expect(template).toContain('class="command-label-sep" *ngIf="showOperationColon(operation)"');
+    expect(template).toContain('@for (type of commandTypeNames; track type)');
+    expect(template).toContain('[value]="type">{{typeLabel(type)}}</option>');
+    expect(template).toContain('@for (type of operationTypeNames; track type)');
+    expect(template).toContain('@if (showCommandColon(command)) {');
+    expect(template).toContain('class="command-label-sep"');
+    expect(template).toContain('@if (showOperationColon(operation)) {');
   });
 
   it('en reposo el combo no tiene borde/fondo ni flecha (nativa o decorativa)', () => {

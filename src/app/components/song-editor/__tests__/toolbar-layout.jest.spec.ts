@@ -57,13 +57,13 @@ describe('song-editor · toolbar uniforme', () => {
         expect(template).toContain('[attr.aria-expanded]="mrTextPanelVisible"');
         expect(template).toContain('aria-controls="mr-live-panel"');
         expect(template).toContain('<app-mr-live-panel');
-        expect(template).toContain('*ngIf="mrTextPanelVisible"');
+        expect(template).toContain('@if (mrTextPanelVisible) {');
         expect(template).toContain('(edit)="openMrTextEditor()"');
         expect(template).toContain('[(visible)]="mrEditorVisible"');
     });
 
     it('los paneles de texto y ejemplos conviven y tienen splitter', () => {
-        expect(template).toContain('*ngIf="examplesVisible"');
+        expect(template).toContain('@if (examplesVisible) {');
         expect(template).toContain('id="example-library-panel"');
         expect(template).toContain('<app-example-library');
         expect(template).toContain('(loadExample)="loadExample($event)"');

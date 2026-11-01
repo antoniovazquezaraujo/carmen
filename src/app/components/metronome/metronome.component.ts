@@ -6,15 +6,16 @@ import { Subscription } from 'rxjs';
     selector: 'app-metronome',
     template: `
         <div class="metronome">
-            <!-- 16 puntos (2 compases de 8): ancho recortado en la auditoría GUI. -->
-            <div class="beat" 
-                 *ngFor="let beat of beats; let i = index" 
-                 [class.active]="beat === currentBeat"
-                 [class.downbeat]="beat % 8 === 0">
-                ●
+          <!-- 16 puntos (2 compases de 8): ancho recortado en la auditoría GUI. -->
+          @for (beat of beats; track beat; let i = $index) {
+            <div class="beat"
+              [class.active]="beat === currentBeat"
+              [class.downbeat]="beat % 8 === 0">
+              ●
             </div>
+          }
         </div>
-    `,
+        `,
     styles: [`
         /* Default styles (for potential standalone use) */
         :host {
