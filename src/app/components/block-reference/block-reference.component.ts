@@ -80,7 +80,7 @@ export class BlockReferenceComponent {
         }
         this.targetPickerOpen = !this.targetPickerOpen;
         if (this.targetPickerOpen) {
-            // El select vive dentro de un `*ngIf`: espera al render antes de
+            // El select vive dentro de un `@if`: espera al render antes de
             // enfocarlo.
             setTimeout(() => this.focusTargetSelect(), 0);
         }

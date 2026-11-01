@@ -90,7 +90,7 @@ describe('BlockReferenceComponent', () => {
     expect(template).toContain('reference.repeatingTimes');
     expect(template).toContain('reference-warning');
     expect(template).toContain('Missing block definition');
-    expect(template).toContain('*ngIf="expanded && !isOrphan"');
+    expect(template).toContain('@if (expanded && !isOrphan) {');
   });
 
   it('los controles quedan junto al ×N, sin empujarlos al borde derecho', () => {
@@ -250,7 +250,7 @@ describe('BlockReferenceComponent · cambio de bloque destino', () => {
 
   it('el template expone el icono como disparador accesible', () => {
     expect(template).toContain('#targetSelect');
-    expect(template).toContain('*ngIf="targetPickerOpen"');
+    expect(template).toContain('@if (targetPickerOpen) {');
     expect(template).toContain('(click)="toggleTargetPicker()"');
     expect(template).toContain('(ngModelChange)="onTargetSelected($event)"');
     expect(template).toContain('aria-haspopup="listbox"');

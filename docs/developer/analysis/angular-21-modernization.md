@@ -92,9 +92,10 @@ verdes en cada paso:
   cambio.
 - **Se mantiene el builder webpack.** La migración opcional al application
   builder de Angular queda como follow-up.
-- **Se mantiene `*ngIf`/`*ngFor`.** La migración automática a `@if`/`@for`
-  cambió plantillas y rompió tests que verifican contratos de template. Se
-  revirtió para que esta PR sea de toolchain, no de reescritura de templates.
+- **Control flow.** La migración automática a `@if`/`@for` se revirtió en la
+  PR de toolchain para no mezclarla con una reescritura de plantillas. Se
+  completó después en `feature/control-flow`, actualizando los tests de
+  contrato de template.
 - **No se toca `.mr` ni el parser.** El núcleo y sus 933 tests siguen igual.
 
 ## 5. Validación
@@ -115,9 +116,9 @@ verdes en cada paso:
    especialmente árbol, drawer de ayuda, diálogos, inputs y botones.
 2. **QA de audio.** El cambio de stack no debería afectar a Tone.js, pero hay
    que probar reproducción, metrónomo, BPM y parada.
-3. **Templates legacy.** `*ngIf`/`*ngFor` siguen soportados, pero conviene
-   migrarlos a control flow en una PR separada y actualizar los tests de
-   contrato de template.
+3. **Templates legacy.** ✅ **Resuelto (2026-11-02, `feature/control-flow`):**
+   las plantillas usan `@if`/`@for`/`@switch`; los tests de contrato se
+   actualizaron.
 4. **Builder.** Migrar al application builder de Angular 21 y medir el bundle.
 5. **Standalone / bootstrap.** Migrar NgModules a standalone y
    `platformBrowserDynamic` a `bootstrapApplication` es un proyecto aparte.

@@ -81,7 +81,7 @@ describe('bloque compacto (template/CSS)', () => {
   });
 
   it('la biblioteca puede ocultar la cabecera raíz y forzar su cuerpo', () => {
-    expect(template).toContain('*ngIf="!hideHeader || node !== block"');
+    expect(template).toContain('@if (!hideHeader || node !== block) {');
     expect(template).toContain('(forceExpanded && node === block) || node.expanded');
   });
 

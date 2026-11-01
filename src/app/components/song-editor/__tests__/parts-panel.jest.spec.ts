@@ -32,7 +32,7 @@ describe('Panel de Parts', () => {
         expect(componentSource).toContain('partsExpanded: boolean = false');
         expect(componentSource).toContain('togglePartsPanel(): void');
         expect(componentSource).toContain('this.partsExpanded = !this.partsExpanded');
-        expect(template).toContain('*ngIf="partsExpanded"');
+        expect(template).toContain('@if (partsExpanded) {');
         expect(template).toContain('(click)="togglePartsPanel()"');
         expect(template).toContain('pi pi-chevron-down');
         expect(template).toContain('pi pi-chevron-right');

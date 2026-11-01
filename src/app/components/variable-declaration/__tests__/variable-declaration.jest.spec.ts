@@ -143,7 +143,7 @@ describe('VariableDeclarationComponent · variables string', () => {
     const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
 
     expect(component.trackByVariable(0, { name: 'motif', value: '4t:0', type: 'string' })).toBe('motif');
-    expect(template).toContain('trackBy: trackByVariable');
+    expect(template).toContain('track trackByVariable($index, variable); let i = $index');
   });
 
   it('desactiva el autocompletado del nombre para no mostrar sugerencias del navegador', () => {
@@ -160,13 +160,13 @@ describe('VariableDeclarationComponent · variables string', () => {
     const componentSource = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.ts'), 'utf8');
 
     expect(componentSource).toContain('@Input() formVisible = false');
-    expect(template).toContain('*ngIf="formVisible"');
+    expect(template).toContain('@if (formVisible) {');
   });
 
   it('los valores de playmode usan símbolos y tooltip descriptivo', () => {
     const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
 
-    expect(template).toContain('*ngFor="let mode of playModeOptions"');
+    expect(template).toContain('@for (mode of playModeOptions; track mode)');
     expect(template).toContain('{{ mode.symbol }}');
     expect(template).toContain('playModeDescription(variable.value)');
     expect(template).toContain('playModeDescription(newVariable.value)');

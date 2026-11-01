@@ -6,13 +6,15 @@ import { Component, Input } from '@angular/core';
     <div class="melody-option">
       <span class="variable-name">{{name}}</span>
       <div class="notes-container">
-        <div *ngFor="let note of notes" class="note-item">
-          <span class="note-value">{{note}}</span>
-          <span class="note-duration">1</span>
-        </div>
+        @for (note of notes; track note) {
+          <div class="note-item">
+            <span class="note-value">{{note}}</span>
+            <span class="note-duration">1</span>
+          </div>
+        }
       </div>
     </div>
-  `,
+    `,
     styles: [`
     .melody-option {
       display: flex;

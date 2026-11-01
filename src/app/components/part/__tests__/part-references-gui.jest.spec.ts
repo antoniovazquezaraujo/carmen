@@ -245,9 +245,9 @@ describe('PartComponent · combo de añadir referencia (botón → combo → añ
 
 describe('PartComponent · template de referencias', () => {
   it('recorre part.items en orden y pinta app-block-reference', () => {
-    expect(template).toContain('*ngFor="let item of part.items; trackBy: trackByItem"');
-    expect(template).toContain('*ngIf="item.kind === \'block\'"');
-    expect(template).toContain('*ngIf="item.kind === \'reference\'"');
+    expect(template).toContain('@for (item of part.items; track trackByItem($index, item))');
+    expect(template).toContain("@if (item.kind === 'block') {");
+    expect(template).toContain("@if (item.kind === 'reference') {");
     expect(template).toContain('<app-block-reference');
     expect(template).toContain('[reference]="asReference(item)"');
   });
@@ -260,7 +260,7 @@ describe('PartComponent · template de referencias', () => {
 
   it('por defecto solo hay botón: el combo aparece al pulsarlo', () => {
     // El select está guardado por `referencePickerOpen` y se enlaza al botón.
-    expect(template).toContain('*ngIf="referencePickerOpen"');
+    expect(template).toContain('@if (referencePickerOpen) {');
     expect(template).toContain('#referenceSelect');
     expect(template).toContain('(click)="toggleReferencePicker()"');
     expect(template).toContain('(ngModelChange)="onReferenceSelected($event)"');
@@ -272,7 +272,7 @@ describe('PartComponent · template de referencias', () => {
   });
 
   it('tiene empty state cuando la parte no tiene ítems', () => {
-    expect(template).toContain('*ngIf="part.items.length === 0"');
+    expect(template).toContain('@if (part.items.length === 0) {');
     expect(template).toContain('No blocks yet.');
   });
 });

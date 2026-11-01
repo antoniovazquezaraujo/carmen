@@ -16,8 +16,8 @@ describe('BlockComponent · cabecera gestionada por la biblioteca', () => {
   });
 
   it('oculta el nombre y los controles solo en el nodo raíz', () => {
-    expect(template).toContain('*ngIf="!hideLabel || node !== block"');
-    expect(template).toContain('*ngIf="!hideControls || node !== block"');
+    expect(template).toContain('@if (!hideLabel || node !== block) {');
+    expect(template).toContain('@if (!hideControls || node !== block) {');
   });
 
   it('conserva el nombre y las acciones cuando no se ocultan (parts)', () => {

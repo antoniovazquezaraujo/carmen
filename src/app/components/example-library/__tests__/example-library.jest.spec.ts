@@ -27,7 +27,7 @@ describe('ExampleLibraryComponent', () => {
         const component = new ExampleLibraryComponent();
 
         expect(component.examples).toHaveLength(11);
-        expect(template).toContain('*ngFor="let example of examples');
+        expect(template).toContain('@for (example of examples; track trackByExample($index, example))');
         expect(template).toContain('(click)="select(example)"');
         expect(template).toContain('{{ example.title }}');
         expect(template).not.toContain('example.tags');

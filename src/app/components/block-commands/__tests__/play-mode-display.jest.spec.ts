@@ -30,7 +30,7 @@ describe('play mode display', () => {
     });
 
     it('el selector pinta símbolos y deja el nombre en title/tooltip', () => {
-        expect(template).toContain('*ngFor="let mode of playModeOptions"');
+        expect(template).toContain('@for (mode of playModeOptions; track mode)');
         expect(template).toContain('[title]="mode.description"');
         expect(template).toContain('playModeDescription(getPlayModeString(command))');
         expect(template).toContain('operationPlayModeDescription(operation.value)');

@@ -14,7 +14,7 @@ const component = fs.readFileSync(path.resolve(__dirname, '../block-commands.com
 
 const decorationBlock = (): string => {
     const start = template.indexOf('commandTypes.DECORATION');
-    const end = template.indexOf('*ngSwitchDefault');
+    const end = template.indexOf('@default {');
     expect(start).toBeGreaterThan(-1);
     expect(end).toBeGreaterThan(start);
     return template.slice(start, end);

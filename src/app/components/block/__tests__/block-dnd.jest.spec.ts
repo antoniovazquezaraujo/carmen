@@ -192,7 +192,7 @@ describe('BlockComponent · drag & drop de bloques', () => {
   it('el asa enlaza el tooltip con el estado de drag (contrato de template)', () => {
     expect(TEMPLATE).toContain('pTooltip="Drag to move block"');
     expect(TEMPLATE).toContain('[tooltipDisabled]="dragging"');
-    expect(TEMPLATE).toContain('*ngIf="canDrag(node)"');
+    expect(TEMPLATE).toContain('@if (canDrag(node)) {');
   });
 
   it('notifica el cambio y refresca la vista en onNodeDrop', () => {

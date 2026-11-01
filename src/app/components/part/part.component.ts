@@ -123,7 +123,7 @@ export class PartComponent implements OnInit {
         }
         this.referencePickerOpen = !this.referencePickerOpen;
         if (this.referencePickerOpen) {
-            // El select vive dentro de un `*ngIf`: espera al render antes de
+            // El select vive dentro de un `@if`: espera al render antes de
             // enfocarlo.
             setTimeout(() => this.focusReferenceSelect(), 0);
         }
