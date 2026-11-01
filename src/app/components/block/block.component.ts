@@ -11,6 +11,13 @@ import { BlockCommandsComponent } from '../block-commands/block-commands.compone
 import { parseBlockNotes } from '../../model/mr/notes.parser';
 import { NoteData } from '../../model/note';
 import { Subscription } from 'rxjs';
+import { Bind } from 'primeng/bind';
+import { Tree } from 'primeng/tree';
+import { PrimeTemplate } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
+import { Button } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { MelodyEditorWrapperComponent } from '../melody-editor-wrapper/melody-editor-wrapper.component';
 
 /**
  * Nodo de `p-tree`: el propio `Block` más el estado de expansión que gestiona
@@ -31,7 +38,7 @@ interface BlockTreeDropEvent {
     selector: 'app-block',
     templateUrl: './block.component.html',
     styleUrls: ['./block.component.scss'],
-    standalone: false
+    imports: [Bind, Tree, PrimeTemplate, Tooltip, Button, FormsModule, MelodyEditorWrapperComponent, BlockCommandsComponent]
 })
 export class BlockComponent implements OnInit, OnDestroy {
   private _block!: Block;

@@ -23,6 +23,10 @@ import {
     showOperationColon as operationColonVisible,
     VariableAwareCommand
 } from './command-colon';
+import { Tooltip } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { Bind } from 'primeng/bind';
+import { Button } from 'primeng/button';
 
 interface VariableOption {
     label: string;
@@ -43,7 +47,7 @@ export interface BlockCommandHost {
     selector: 'app-block-commands',
     templateUrl: './block-commands.component.html',
     styleUrls: ['./block-commands.component.scss'],
-    standalone: false
+    imports: [Tooltip, FormsModule, MelodyEditorComponent, Bind, Button]
 })
 export class BlockCommandsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() block: BlockCommandHost = new Block();

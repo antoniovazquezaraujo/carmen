@@ -26,6 +26,12 @@ import {
   validateSongText
 } from 'src/app/model/mr';
 import { Song } from 'src/app/model/song';
+import { Bind } from 'primeng/bind';
+import { Dialog } from 'primeng/dialog';
+import { ButtonDirective } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 /** Resultado de aplicar la vista de texto al modelo de la app. */
 export interface MrTextAppliedEvent {
@@ -50,7 +56,7 @@ export interface MrTextAppliedEvent {
     templateUrl: './mr-text-editor.component.html',
     styleUrls: ['./mr-text-editor.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    imports: [Bind, Dialog, ButtonDirective, Tooltip, NgClass, FormsModule]
 })
 export class MrTextEditorComponent implements OnChanges, OnDestroy {
   @Input() song!: Song;

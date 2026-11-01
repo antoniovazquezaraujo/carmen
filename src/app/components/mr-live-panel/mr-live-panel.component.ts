@@ -29,8 +29,7 @@ import { Song } from 'src/app/model/song';
     selector: 'app-mr-live-panel',
     templateUrl: './mr-live-panel.component.html',
     styleUrls: ['./mr-live-panel.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MrLivePanelComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() song!: Song;

@@ -8,6 +8,10 @@ import {
     PlayModeOption
 } from 'src/app/model/play-mode-display';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Tooltip } from 'primeng/tooltip';
+import { Bind } from 'primeng/bind';
+import { Button } from 'primeng/button';
 
 interface VariableDeclaration {
     name: string;
@@ -20,7 +24,7 @@ interface VariableDeclaration {
     selector: 'app-variable-declaration',
     templateUrl: './variable-declaration.component.html',
     styleUrls: ['./variable-declaration.component.scss'],
-    standalone: false
+    imports: [FormsModule, Tooltip, Bind, Button]
 })
 export class VariableDeclarationComponent implements OnInit, OnDestroy {
     /** El formulario se muestra solo al pulsar el + de la cabecera. */

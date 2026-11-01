@@ -9,8 +9,7 @@ import { EXAMPLE_SONGS, ExampleSong } from 'src/app/model/examples';
     selector: 'app-example-library',
     templateUrl: './example-library.component.html',
     styleUrls: ['./example-library.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExampleLibraryComponent {
     @Output() close = new EventEmitter<void>();

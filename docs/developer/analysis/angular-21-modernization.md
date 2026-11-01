@@ -88,10 +88,10 @@ verdes en cada paso:
 
 ### Decisiones deliberadas
 
-- **NgModules.** La migración a standalone se hace por fases. La fase 1
-  (`feature/standalone-bootstrap`) ya arranca con `bootstrapApplication` y
-  mantiene `EditorModule`; la migración completa de componentes queda como
-  follow-up.
+- **Standalone.** La migración se hizo en dos fases: primero el arranque
+  (`bootstrapApplication` + `app.config.ts`, manteniendo `EditorModule`) y
+  después todos los componentes. `EditorModule` se eliminó y `AppComponent`
+  importa directamente `SongEditorComponent`.
 - **Application builder.** La migración se completó después en
   `feature/application-builder`: el build usa `@angular/build:application`
   (esbuild/Vite) y la salida de producción está en
@@ -128,9 +128,9 @@ verdes en cada paso:
 4. **Builder.** ✅ **Resuelto (2026-11-02, `feature/application-builder`):**
    migrado a `@angular/build:application`; build de ~12 s y salida en
    `dist/moderanger/browser`.
-5. **Standalone / bootstrap.** La fase 1 está hecha: `AppComponent` es
-   standalone, `main.ts` usa `bootstrapApplication` y los providers viven en
-   `app.config.ts`; `EditorModule` se mantiene. La migración del resto de
-   componentes queda como follow-up.
+5. **Standalone / bootstrap.** ✅ **Resuelto (2026-11-02,
+   `feature/standalone-components`):** todos los componentes son standalone,
+   `EditorModule` se eliminó y el árbol se importa explícitamente desde cada
+   componente. Los mocks de Jest cubren Angular Common/Forms y PrimeNG.
 6. **Dependencias.** Revisar `npm audit`; los avisos restantes no bloquean el
    build, pero deben evaluarse.

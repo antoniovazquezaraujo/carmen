@@ -6,8 +6,8 @@ import { Subscription } from 'rxjs';
 import { SongPlayer } from '../../model/song.player';
 
 // Import specialized components
-import { VisualElement } from './melody-display/melody-display.component';
-import { KeyboardAction } from './melody-keyboard-handler/melody-keyboard-handler.component';
+import { VisualElement, MelodyDisplayComponent } from './melody-display/melody-display.component';
+import { KeyboardAction, MelodyKeyboardHandlerComponent } from './melody-keyboard-handler/melody-keyboard-handler.component';
 import { OperationResult } from './melody-operations/melody-operations.component';
 import { MelodySelectionComponent } from './melody-selection/melody-selection.component';
 import { MelodyOperationsComponent } from './melody-operations/melody-operations.component';
@@ -99,7 +99,7 @@ import { MelodyOperationsComponent } from './melody-operations/melody-operations
       width: 100%;
     }
   `],
-    standalone: false
+    imports: [MelodySelectionComponent, MelodyKeyboardHandlerComponent, MelodyDisplayComponent, MelodyOperationsComponent]
 })
 export class MelodyEditorV2Component implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   // ============= EXTERNAL INTERFACE (Same as original) =============

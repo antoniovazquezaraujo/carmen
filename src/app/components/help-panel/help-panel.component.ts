@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Bind } from 'primeng/bind';
+import { Drawer } from 'primeng/drawer';
 
 /**
  * Contextual guide for first-time users.
@@ -12,7 +14,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
     templateUrl: './help-panel.component.html',
     styleUrls: ['./help-panel.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    imports: [Bind, Drawer]
 })
 export class HelpPanelComponent {
     @Input() visible = false;

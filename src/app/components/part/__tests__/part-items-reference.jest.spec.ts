@@ -2,21 +2,15 @@
  * Fase 1 de bloques reutilizables en la GUI de Part: las operaciones sobre
  * bloques deben preservar las referencias `use` y su posición en `Part.items`.
  *
- * Se instancia `PartComponent` con mocks locales de `@angular/core` y
- * `@angular/cdk/tree` (sin TestBed): el comportamiento bajo prueba es el de la
- * clase sobre la unión `Block | BlockReference`.
+ * Se instancia `PartComponent` con mocks locales de `@angular/core` (sin
+ * TestBed): el comportamiento bajo prueba es el de la clase sobre la unión
+ * `Block | BlockReference`.
  */
 import type { SongPlayer } from 'src/app/model/song.player';
 import { Block } from 'src/app/model/block';
 import { BlockReference } from 'src/app/model/block-reference';
 import { Part } from 'src/app/model/part';
 import { PartComponent } from '../part.component';
-
-jest.mock('@angular/cdk/tree', () => ({
-  NestedTreeControl: class NestedTreeControlMock {
-    constructor(_getChildren: unknown) {}
-  }
-}));
 
 jest.mock('@angular/core', () => {
   const sharedMock = jest.requireActual<Record<string, unknown>>('src/__mocks__/angular-core');

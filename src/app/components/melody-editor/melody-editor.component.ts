@@ -9,6 +9,7 @@ import { MelodyNoteComponent } from '../melody-note/melody-note.component';
 import { MelodyGroupComponent } from '../melody-group/melody-group.component';
 import { SongPlayer, PlayingNoteSource } from '../../model/song.player';
 import { resolvePlayingElementIds } from './playing-path-map';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
  * Interfaz para notas en el editor de melodías
@@ -47,7 +48,7 @@ interface VisualElement {
     templateUrl: './melody-editor.component.html',
     styleUrls: ['./melody-editor.component.scss'],
     providers: [MelodyEditorService],
-    standalone: false
+    imports: [NgTemplateOutlet, MelodyNoteComponent, MelodyGroupComponent]
 })
 export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() notes: string = '';

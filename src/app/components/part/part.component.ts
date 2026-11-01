@@ -1,4 +1,3 @@
-import { NestedTreeControl } from '@angular/cdk/tree';
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
 import { Block } from 'src/app/model/block';
 import { BlockReference } from 'src/app/model/block-reference';
@@ -10,6 +9,12 @@ import { InstrumentType } from 'src/app/services/audio-engine.service';
 import { Song } from 'src/app/model/song';
 import { Player } from 'src/app/model/player';
 import { blockDefinitions, createBlockReference } from 'src/app/model/song-blocks';
+import { Bind } from 'primeng/bind';
+import { Button, ButtonDirective } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { Tooltip } from 'primeng/tooltip';
+import { BlockComponent } from '../block/block.component';
+import { BlockReferenceComponent } from '../block-reference/block-reference.component';
 
 /** Opción del selector de definiciones al añadir una referencia. */
 interface DefinitionOption {
@@ -21,10 +26,9 @@ interface DefinitionOption {
     selector: 'app-part',
     templateUrl: './part.component.html',
     styleUrls: ['./part.component.scss'],
-    standalone: false
+    imports: [Bind, Button, FormsModule, Tooltip, ButtonDirective, BlockComponent, BlockReferenceComponent]
 })
 export class PartComponent implements OnInit {
-    treeControl = new NestedTreeControl<Block>(node => node.children);
 
     @Input() part!: Part;
     @Input() song!: Song;

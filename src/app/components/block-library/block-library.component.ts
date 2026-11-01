@@ -9,6 +9,12 @@ import {
     removeBlockDefinition,
     renameBlockDefinition
 } from 'src/app/model/song-blocks';
+import { Bind } from 'primeng/bind';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { BlockComponent } from '../block/block.component';
+import { Dialog } from 'primeng/dialog';
 
 /**
  * Biblioteca de bloques reutilizables (`Song.blocks`): lista las definiciones,
@@ -23,7 +29,7 @@ import {
     selector: 'app-block-library',
     templateUrl: './block-library.component.html',
     styleUrls: ['./block-library.component.scss'],
-    standalone: false
+    imports: [Bind, Button, Tooltip, FormsModule, BlockComponent, Dialog]
 })
 export class BlockLibraryComponent implements OnChanges {
     @Input() song!: Song;

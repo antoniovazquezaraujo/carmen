@@ -60,8 +60,7 @@ import { Subscription } from 'rxjs';
         /* Styles when used with .inline-metronome class */
         /* We can put specific inline styles here if needed, 
            but adjusting the base .metronome might be enough */
-    `],
-    standalone: false
+    `]
 })
 export class MetronomeComponent implements OnInit, OnDestroy {
     beats = Array.from({length: 16}, (_, i) => i);

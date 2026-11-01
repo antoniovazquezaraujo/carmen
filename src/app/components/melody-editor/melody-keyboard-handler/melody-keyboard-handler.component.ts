@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { MusicElement, NoteDuration, GenericGroup } from '../../../model/melody';
 import { VisualElement } from '../melody-display/melody-display.component';
+import { BlockComponent } from '../../block/block.component';
 
 export interface KeyboardAction {
   type: 'move-focus' | 'increase-note' | 'decrease-note' | 'increase-duration' | 'decrease-duration' | 
@@ -41,7 +42,7 @@ export interface KeyboardAction {
       outline-offset: 2px;
     }
   `],
-    standalone: false
+    imports: [BlockComponent]
 })
 export class MelodyKeyboardHandlerComponent {
   @Input() selectedElementId: string | null = null;

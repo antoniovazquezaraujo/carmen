@@ -30,6 +30,18 @@ import {
 } from 'src/app/model/mr';
 import { downloadTextFile, readFileAsText } from 'src/app/model/mr/mr.file.browser';
 import { BlockLibraryComponent } from '../block-library/block-library.component';
+import { ExampleLibraryComponent } from '../example-library/example-library.component';
+import { HelpPanelComponent } from '../help-panel/help-panel.component';
+import { MetronomeComponent } from '../metronome/metronome.component';
+import { MrLivePanelComponent } from '../mr-live-panel/mr-live-panel.component';
+import { MrTextEditorComponent } from '../mr-text-editor/mr-text-editor.component';
+import { SongComponent } from '../song/song.component';
+import { VariableDeclarationComponent } from '../variable-declaration/variable-declaration.component';
+import { Bind } from 'primeng/bind';
+import { Button, ButtonDirective } from 'primeng/button';
+import { Dialog } from 'primeng/dialog';
+import { Tooltip } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 import { createDemoSong } from 'src/app/model/demo-song';
 import { createExampleSong, ExampleSong } from 'src/app/model/examples';
 
@@ -38,7 +50,23 @@ import { createExampleSong, ExampleSong } from 'src/app/model/examples';
     templateUrl: './song-editor.component.html',
     styleUrls: ['./song-editor.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [
+        FormsModule,
+        Bind,
+        Button,
+        ButtonDirective,
+        Dialog,
+        Tooltip,
+        BlockLibraryComponent,
+        ExampleLibraryComponent,
+        HelpPanelComponent,
+        MetronomeComponent,
+        MrLivePanelComponent,
+        MrTextEditorComponent,
+        SongComponent,
+        VariableDeclarationComponent
+    ]
 })
 export class SongEditorComponent implements OnInit, OnDestroy {
     @Input() song!: Song;
