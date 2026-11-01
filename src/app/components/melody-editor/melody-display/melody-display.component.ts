@@ -223,8 +223,7 @@ export interface VisualElement {
       font-size: 1.2em;
       color: #333;
     }
-  `],
-    standalone: false
+  `]
 })
 export class MelodyDisplayComponent implements OnChanges {
   @Input() elements: MusicElement[] = [];

@@ -30,8 +30,7 @@ export interface OperationResult {
     <div class="operations-manager" style="display: none;">
       <!-- Operations are handled programmatically -->
     </div>
-  `,
-    standalone: false
+  `
 })
 export class MelodyOperationsComponent {
   @Input() elements: MusicElement[] = [];

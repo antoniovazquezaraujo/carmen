@@ -5,12 +5,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-jest.mock('@angular/cdk/tree', () => ({
-  NestedTreeControl: class NestedTreeControlMock {
-    constructor(_getChildren: unknown) {}
-  }
-}));
-
 jest.mock('@angular/core', () => {
   const sharedMock = jest.requireActual<Record<string, unknown>>('src/__mocks__/angular-core');
 

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, forwardRef, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MelodyEditorService } from '../../services/melody-editor.service';
+import { MelodyEditorComponent } from '../melody-editor/melody-editor.component';
 
 @Component({
     selector: 'app-melody-editor-wrapper',
@@ -20,7 +21,7 @@ import { MelodyEditorService } from '../../services/melody-editor.service';
             multi: true
         }
     ],
-    standalone: false
+    imports: [MelodyEditorComponent]
 })
 export class MelodyEditorWrapperComponent implements ControlValueAccessor {
     @Input() notes: string = '';

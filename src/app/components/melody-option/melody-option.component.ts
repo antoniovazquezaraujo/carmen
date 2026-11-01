@@ -46,8 +46,7 @@ import { Component, Input } from '@angular/core';
       font-size: 8px;
       color: #666;
     }
-  `],
-    standalone: false
+  `]
 })
 export class MelodyOptionComponent {
   @Input() name: string = '';

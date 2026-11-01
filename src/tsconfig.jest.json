@@ -6,7 +6,8 @@
     "paths": {
       "@moderanger/core": ["packages/core/src/index.ts"],
       "@moderanger/core/*": ["packages/core/src/*"],
-      "@angular/cdk/tree": ["node_modules/@angular/cdk/types/tree.d.ts"]
+      "@angular/cdk/tree": ["node_modules/@angular/cdk/types/tree.d.ts"],
+      "primeng/*": ["node_modules/primeng/types/primeng-*.d.ts"]
     },
     "types": [
       "jest",

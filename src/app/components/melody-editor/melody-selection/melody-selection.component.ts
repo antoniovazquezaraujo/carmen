@@ -44,8 +44,7 @@ export interface SelectionAction {
       outline: 2px solid #2196F3;
       outline-offset: 1px;
     }
-  `],
-    standalone: false
+  `]
 })
 export class MelodySelectionComponent implements OnChanges {
   @Input() visualElements: VisualElement[] = [];

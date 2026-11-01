@@ -124,8 +124,7 @@ import { SingleNote, NoteDuration } from '../../model/melody';
             color: #7b1fa2;
             font-size: 0.9em;
         }
-    `],
-    standalone: false
+    `]
 })
 export class MelodyNoteComponent implements OnDestroy {
     @Input() note!: SingleNote;

@@ -2,6 +2,11 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@
 import { BlockReference } from 'src/app/model/block-reference';
 import { Song } from 'src/app/model/song';
 import { findBlockDefinition } from 'src/app/model/song-blocks';
+import { Bind } from 'primeng/bind';
+import { Button } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
+import { BlockCommandsComponent } from '../block-commands/block-commands.component';
 
 /** Opción del selector de definiciones (cambiar el bloque destino). */
 interface DefinitionOption {
@@ -23,7 +28,7 @@ interface DefinitionOption {
     selector: 'app-block-reference',
     templateUrl: './block-reference.component.html',
     styleUrls: ['./block-reference.component.scss'],
-    standalone: false
+    imports: [Bind, Button, Tooltip, FormsModule, BlockCommandsComponent]
 })
 export class BlockReferenceComponent {
     @Input() reference!: BlockReference;

@@ -79,7 +79,7 @@ import { MelodyNoteComponent } from '../melody-note/melody-note.component';
             flex-wrap: wrap;
         }
     `],
-    standalone: false
+    imports: [MelodyNoteComponent]
 })
 export class MelodyGroupComponent {
     @Input() note!: CompositeNote;

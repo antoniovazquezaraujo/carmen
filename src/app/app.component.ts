@@ -4,14 +4,14 @@ import { Observable } from 'rxjs';
 import { AudioEngineService, InstrumentType } from './services/audio-engine.service';
 import { Theme, ThemeService } from './services/theme.service';
 import { Song } from './model/song';
-import { EditorModule } from './components/editor/editor.module';
+import { SongEditorComponent } from './components/song-editor/song-editor.component';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
     standalone: true,
-    imports: [CommonModule, EditorModule]
+    imports: [CommonModule, SongEditorComponent]
 })
 export class AppComponent implements OnInit {
   title = 'moderanger';

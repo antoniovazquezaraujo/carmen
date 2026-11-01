@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Part } from 'src/app/model/part';
 import { Song } from 'src/app/model/song';
+import { PartsComponent } from '../parts/parts.component';
 
 @Component({
     selector: 'app-song',
     templateUrl: './song.component.html',
     styleUrls: ['./song.component.css'],
-    standalone: false
+    imports: [PartsComponent]
 })
 export class SongComponent implements OnInit {
 

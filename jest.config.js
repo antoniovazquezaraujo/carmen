@@ -30,6 +30,9 @@ module.exports = {
     // que Jest no conoce por sí solo. Necesario para specs de componentes.
     '^src/(.*)$': '<rootDir>/src/$1',
     '^tone$': '<rootDir>/src/__mocks__/tone.ts',
+    '^@angular/common$': '<rootDir>/src/__mocks__/angular-common.ts',
+    '^@angular/forms$': '<rootDir>/src/__mocks__/angular-forms.ts',
+    '^primeng/.*$': '<rootDir>/src/__mocks__/primeng.ts',
     '^@angular/core$': '<rootDir>/src/__mocks__/angular-core.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/src/jest.setup.ts'],

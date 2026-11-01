@@ -3,6 +3,7 @@ import { Part } from 'src/app/model/part';
 import { VariableContext } from 'src/app/model/variable.context';
 import { Song } from 'src/app/model/song';
 import { clampBoundary, KEYBOARD_RESIZE_STEP, MIN_PART_WIDTH } from './parts-layout';
+import { PartComponent } from '../part/part.component';
 
 /** Distancia al borde del contenedor que activa el auto-scroll durante el arrastre. */
 const AUTO_SCROLL_EDGE = 48;
@@ -14,7 +15,7 @@ const AUTO_SCROLL_STEP = 16;
     selector: 'app-parts',
     templateUrl: './parts.component.html',
     styleUrls: ['./parts.component.css'],
-    standalone: false
+    imports: [PartComponent]
 })
 export class PartsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() parts: Part[] = [];
