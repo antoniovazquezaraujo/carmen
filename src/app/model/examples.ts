@@ -300,64 +300,120 @@ part Glass
 `
     },
     {
-        id: 'harbor-lights',
-        title: 'Harbor Lights',
-        description: 'A warm chord study with nested blocks and a cello echo an octave below.',
-        tags: ['Nested blocks', 'Chords', 'Two parts'],
-        bpm: 84,
-        mr: `song "Harbor Lights"
+        id: 'ocr-blues',
+        title: 'OCR Blues',
+        description: 'A nine-cycle blues in three octave layers, built on even/odd arpeggios and shifting keys.',
+        tags: ['Blues', '9 cycles', 'Odd/even'],
+        bpm: 120,
+        mr: `song "OCR Blues"
 version 1
-repeats 1
-bpm 84
-
-vars
-  $lift = 2
+repeats 9
 
 blocks
-  block Theme
+  block A repeats 2
     notes
-      4n:0
+      4n:1
+      4n:-2
       4n:2
-      4n:4
-      2n:2
-    commands
-      SCALE WHITE
-      OCT $lift
-      PLAYMODE CHORD
-      WIDTH 2
-      GAP 2
-    operations
-      VARY $lift 1
-
-  block Echo
-    notes
-      8n:4
-      8n:2
       4n:0
     commands
-      PLAYMODE DESCENDING
-      OCT 3
-
-part Piano
-  use Theme repeats 2
-    commands
-      OCT 3
-
-  block Bridge
-    notes
-      4n:4
-      4n:2
-    commands
-      PLAYMODE ASC_DESC
+      PLAYMODE EVEN_ASC_ODD_ASC
       WIDTH 3
-      GAP 2
+      GAP 3
 
-part Cello
-  use Echo repeats 2
+  block B repeats 2
+    notes
+      4n:2
+      4n:0
+      4n:5
+      4n:-2
     commands
-      KEY -12
+      PLAYMODE EVEN_ASC_ODD_ASC
+      WIDTH 3
+      GAP 4
+
+  block C repeats 2
+    notes
+      4n:2
+      4n:0
+      4n:5
+      4n:-2
+    commands
+      PLAYMODE EVEN_ASC_ODD_ASC
+      WIDTH 3
+      GAP 4
+      KEY 2
+      SCALE BLUE
+
+  block D repeats 4
+    notes
+      4n:2
+      4n:0
+      4n:5
+      4n:-2
+    commands
+      PLAYMODE EVEN_ASC_ODD_ASC
+      WIDTH 3
+      GAP 4
+      KEY 4
+      SCALE BLUE
+      OCT 0
+
+part
+  block
+
+  use A
+    commands
+      OCT 4
+
+  use B
+    commands
+      OCT 4
+
+  use C
+    commands
+      OCT 4
+
+  use D
+    commands
+      OCT 2
+
+part
+  block
+
+  use A
+    commands
+      OCT 0
+
+  use B
+    commands
+      OCT 0
+
+  use C
+    commands
+      OCT 0
+
+part
+  block
+
+  use A
+    commands
+      OCT -1
+
+  use B
+    commands
+      OCT -1
+
+  use C
+    commands
+      OCT -1
+
+  use D
+    commands
+      OCT 4
 `
     },
+
     {
         id: 'clockwork',
         title: 'Clockwork',
