@@ -35,11 +35,11 @@ jobs:
 
       # `--base-href ./` makes the app servable from any static folder.
       - name: Production build
-        run: npm run build -- --base-href ./
+        run: npm run build:app -- --base-href ./ && npm run build:cli
 
       - name: Package web app
         run: |
-          cd dist/moderanger
+          cd dist/moderanger/browser
           zip -r ../../moderanger-web.zip .
 
       - name: Publish release (auto-generated changelog)
