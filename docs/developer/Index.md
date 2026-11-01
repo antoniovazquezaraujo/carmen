@@ -28,6 +28,7 @@ Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para n
 - [[analysis/BACKLOG|Backlog del proyecto]]
 
 ## 🧪 Calidad
+- [[analysis/npm-audit-2026-11|Auditoría de dependencias npm (2026-11)]]
 - [[testing/validacion-manual-v1|Checklist de validación manual v1]]
 - [[audits/testing-things-vs-main|Auditoría: testing-things vs main]]
 - [[audits/ramas-pendientes-vs-main|Auditoría: ramas pendientes vs main]]

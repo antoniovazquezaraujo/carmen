@@ -27,6 +27,7 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Changed
 
+- **Dependency audit cleanup**: removed unused `ts-prune` and `rimraf`, updated `ts-jest` and added scoped overrides for `fast-uri` and `picomatch`. The production audit is clean and the development tree has no critical or high advisories; see `docs/developer/analysis/npm-audit-2026-11.md`.
 - **Toolchain modernization**: Angular 13 → 21, Node 16 → 22, TypeScript 4.5 → 5.9, PrimeNG 13 → 21 (Aura theme), Jest 29 → 30, PrimeIcons 8 and PrimeFlex 4. The `.mr` language, parser, player and user-visible behavior are unchanged. NgModules, the webpack builder and the existing `*ngIf`/`*ngFor` templates are intentionally retained for a separate follow-up.
 - **Warm Studio UI refresh**: the app now has a branded shell, a warm paper palette, editorial display type, card-based panels, consistent toolbar controls and a calmer visual hierarchy. The editor adds a contextual **Help** guide and a **Load example** song so new users can start with real content.
 - Removed the first-run Parts empty-state card and the reusable-blocks empty message; the `+` actions in each panel remain.
