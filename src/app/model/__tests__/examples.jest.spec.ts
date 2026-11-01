@@ -10,8 +10,8 @@ describe('example song library', () => {
         VariableContext.context.clear();
     });
 
-    it('contiene diez ejemplos con identificadores únicos', () => {
-        expect(EXAMPLE_SONGS).toHaveLength(10);
+    it('contiene once ejemplos con identificadores únicos', () => {
+        expect(EXAMPLE_SONGS).toHaveLength(11);
         const ids = EXAMPLE_SONGS.map(example => example.id);
         expect(new Set(ids).size).toBe(ids.length);
     });

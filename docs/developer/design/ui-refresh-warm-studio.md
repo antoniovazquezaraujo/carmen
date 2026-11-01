@@ -38,7 +38,7 @@ Los tokens viven en `src/theme.css` y se cargan después de `styles.css`. La int
 
 - Barra superior con monograma, marca, tagline y enlace a la guía.
 - Pantalla de carga con tarjeta y spinner, en lugar de texto plano.
-- Panel **Examples** en la barra de canción, junto a **Source**, con diez canciones `.mr` completas: al pulsar un título se carga y se reproduce. Los paneles de texto y ejemplos pueden convivir y redimensionarse con splitters.
+- Panel **Examples** en la barra de canción, junto a **Source**, con once canciones `.mr` completas: al pulsar un título se carga y se reproduce. Los paneles de texto y ejemplos pueden convivir y redimensionarse con splitters.
 - Selector claro/oscuro en la barra superior, persistido en `localStorage` y con arranque sin flash mediante un script inline en `index.html`.
 - El editor ocupa el resto de la altura sin scroll global.
 - El botón **Source** (`.mr`) abre un panel lateral fijo con el texto canónico en vivo; **Edit** abre el editor avanzado existente.

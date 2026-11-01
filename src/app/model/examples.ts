@@ -262,6 +262,99 @@ part
     },
 
     {
+        id: 'itemaner',
+        title: 'itemaneR',
+        description: 'A twelve-cycle palindrome of decorated chords with shifting scales, keys and octaves.',
+        tags: ['Canon', '12 cycles', 'Decoration'],
+        bpm: 120,
+        mr: `song itemaneR
+version 1
+repeats 12
+
+vars
+  $v = "4 5 1"
+  $b = EVEN_ASC_ODD_DESC
+  $x = "3 6 2"
+
+blocks
+  block "Block 1"
+    notes
+      1n:1
+
+part
+  block
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+      KEY 2
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ASCENDING
+      WIDTH 4
+      OCT -1
+      GAP 3
+      SCALE PENTA
+      KEY 2
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $v
+      PLAYMODE ODD_ASC_EVEN_ASC
+      WIDTH 4
+      OCT 3
+      GAP 4
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $x
+      PLAYMODE ODD_ASC_EVEN_ASC
+      WIDTH 4
+      OCT 2
+      GAP 4
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 2
+    commands
+      DECORATION $x
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 4
+      OCT -1
+      GAP 7
+      SCALE BLACK
+      KEY 6
+
+  use "Block 1" repeats 4
+    commands
+      DECORATION $x
+      PLAYMODE CHORD
+      WIDTH 5
+      OCT 1
+      GAP 4
+      SCALE PENTA
+      KEY 4
+`
+    },
+    {
         id: 'glass-orbit',
         title: 'Glass Orbit',
         description: 'A pattern-driven orbit where variables change the mode and octave while it plays.',
