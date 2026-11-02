@@ -91,11 +91,8 @@ altos ni de producción.
   la cadena de desarrollo.
 - Revisar los overrides cuando Angular/Jest actualicen sus dependencias; no
   deben quedarse como deuda permanente.
-- `@primeng/themes` está deprecado; migrar a `@primeuix/themes` en una tarea
-  separada.
-- `@angular/platform-browser-dynamic` ya no se usa tras el bootstrap
-  standalone; `@angular/animations` sigue deprecado y queda en el follow-up de
-  animations.
+- `@primeng/themes` se sustituyó por `@primeuix/themes` y
+  `@angular/animations` se retiró; ambos avisos de deprecación están cerrados.
 
 ## 7. Actualización posterior: application builder
 
