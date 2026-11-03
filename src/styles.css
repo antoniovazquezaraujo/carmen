@@ -204,18 +204,43 @@ h1 { /* Add some style for the header */
 /* PrimeNG 21 reparte la indentación en dos capas: `1rem` de padding-left
    en la `ul` y otros `0.5rem` de padding-left en el content del hijo. El
    bloque empieza en `ul + 1rem` (su caja de header se extiende 14px a la
-   izquierda), así que la guía debe quedar pegada a ese borde: `left: 12px`
-   con `width: 2px` deja su borde derecho exactamente en `ul + 14px`, donde
-   arranca el conector horizontal. */
-.p-tree .p-tree-node-children::before {
+   izquierda), así que la guía debe quedar pegada a ese borde: el hijo
+   arranca en `ul + 14px` y su trazo de 2px se pinta en `left: -2px` del
+   `p-treenode`. La guía se dibuja por hijo, no en la `ul` completa, para
+   poder cortar la rama en el último nodo y formar una L. */
+.p-tree .p-tree-node-children > p-treenode {
+  position: relative;
+}
+
+.p-tree .p-tree-node-children > p-treenode::before {
   content: '';
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: 12px;
+  bottom: -2px;
+  left: -2px;
   width: 2px;
   background-color: #a3a3a3;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* El primer hijo empieza en el borde superior de la `ul` (padding 2px). */
+.p-tree .p-tree-node-children > p-treenode:first-of-type::before {
+  top: -2px;
+}
+
+/* Último hijo: la vertical termina en su cabecera, formando una L. El
+   tramo del `p-treenode` llega hasta el borde superior del header (1px de
+   borde + 2px de padding del content); el resto hasta el centro lo pinta
+   el propio header (ver más abajo). */
+.p-tree .p-tree-node-children > p-treenode:last-of-type::before {
+  bottom: auto;
+  height: 3px;
+}
+
+.p-tree .p-tree-node-children > p-treenode:first-of-type:last-of-type::before {
+  top: -2px;
+  height: 5px;
 }
 
 /* Ramal del bloque padre: cuando un bloque con asa tiene hijos, la guía de
@@ -304,6 +329,38 @@ h1 { /* Add some style for the header */
   width: 7px;
   height: 2px;
   transform: translateY(-50%);
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cierre en L del último hijo: tramo vertical desde el borde superior del
+   header hasta su centro, justo donde engancha el conector horizontal.
+   Los bloques usan el header normal; las referencias, la cabecera de su
+   tarjeta (x = content+30, guía = content+12 → -18px). */
+.p-tree .p-tree-node-children > p-treenode:last-of-type .block-header {
+  position: relative;
+}
+
+.p-tree .p-tree-node-children > p-treenode:last-of-type .block-header::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 50%;
+  width: 2px;
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.p-tree .p-tree-node-children > p-treenode:last-of-type .reference-header::after {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 0;
+  bottom: 50%;
+  width: 2px;
   background-color: #a3a3a3;
   pointer-events: none;
   z-index: 1;

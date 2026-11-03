@@ -121,7 +121,8 @@ Representación básica:
 - El botón de enlace de una referencia navega a la definición.
 - Las guías del árbol se recalcularon para la indentación de PrimeNG 21 y las
   referencias anidadas reciben su propio conector desde la guía hasta la
-  tarjeta.
+  tarjeta. El último hijo de cada rama remata en L, sin tramo vertical por
+  debajo.
 
 Limitaciones actuales del prototipo:
 

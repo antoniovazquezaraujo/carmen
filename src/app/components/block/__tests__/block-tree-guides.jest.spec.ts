@@ -9,14 +9,17 @@
  * contrato CSS del que dependen las guías para que `npm test` avise si
  * alguien elimina o desalinea las reglas:
  *
- * - línea vertical por nivel: `.p-tree .p-tree-node-children::before`;
+ * - línea vertical por nivel: `p-treenode::before` en cada hijo (no en la
+ *   `ul` completa, para poder formar la L del último nodo);
  * - conector horizontal de bloques: fondo del `.block-header` en su padding
  *   izquierdo (el header recortaría un pseudo-elemento que sobresalga);
  * - ramal del bloque padre: tramos `::after` (header) y `::before` (body)
  *   que suben hasta el asa, limitados con `:has(+ .p-tree-node-children)` y
  *   `:has(.block-drag-handle)` para no pintar líneas sueltas;
  * - conector de referencias `use`: no tienen `.block-header`, así que se
- *   enganchan al centro de `.reference-header` por su borde izquierdo.
+ *   enganchan al centro de `.reference-header` por su borde izquierdo;
+ * - remate en L: el último hijo corta su vertical en la cabecera y el
+ *   tramo final lo pinta el header hasta su centro.
  *
  * Desde PrimeNG 21 la indentación efectiva es `1rem` en la `ul` más `0.5rem`
  * en el content del hijo; las constantes de abajo fijan esa geometría.
@@ -52,25 +55,33 @@ const BASE = '.p-tree .p-tree-node-content' + RISE_GATE;
 const NESTED_HEADER = `.p-tree .p-tree-node-children .p-tree-node-content${RISE_GATE} .block-header`;
 const CONTAINER_HEADER = `.p-tree .p-tree-root-children > p-treenode > li.p-tree-node > .p-tree-node-content${RISE_GATE} .block-header`;
 const REFERENCE_HEADER = '.p-tree .p-tree-node-children app-block-reference .reference-header';
+const CHILD_GUIDE = '.p-tree .p-tree-node-children > p-treenode::before';
+const LAST_CHILD_GUIDE = '.p-tree .p-tree-node-children > p-treenode:last-of-type::before';
+const FIRST_LAST_CHILD_GUIDE = '.p-tree .p-tree-node-children > p-treenode:first-of-type:last-of-type::before';
+const LAST_BLOCK_HEADER = '.p-tree .p-tree-node-children > p-treenode:last-of-type .block-header';
+const LAST_REFERENCE_HEADER = '.p-tree .p-tree-node-children > p-treenode:last-of-type .reference-header';
 
 describe('guías de jerarquía del árbol de bloques (CSS)', () => {
-  it('define una línea vertical de 2px por nivel en `.p-tree-node-children::before`', () => {
-    const body = ruleBody(css, '.p-tree .p-tree-node-children::before');
+  it('pinta la guía vertical por cada hijo, no como una línea completa de la `ul`', () => {
+    const body = ruleBody(css, CHILD_GUIDE);
 
+    expect(ruleBody(css, '.p-tree .p-tree-node-children::before')).toBe('');
     expect(declaration(body, 'content')).toBe("''");
     expect(declaration(body, 'position')).toBe('absolute');
-    expect(declaration(body, 'left')).toBe(`${GUIDE_X}px`);
+    expect(declaration(body, 'left')).toBe('-2px');
     expect(declaration(body, 'top')).toBe('0');
-    expect(declaration(body, 'bottom')).toBe('0');
+    expect(declaration(body, 'bottom')).toBe('-2px');
     expect(declaration(body, 'width')).toBe(`${GUIDE_THICKNESS}px`);
     expect(declaration(body, 'background-color')).toBe(GUIDE_COLOR);
     expect(declaration(body, 'pointer-events')).toBe('none');
   });
 
-  it('ancla la guía vertical a cada contenedor de hijos', () => {
-    const body = ruleBody(css, '.p-tree .p-tree-node-children');
+  it('ancla la guía y la posición relativa del hijo', () => {
+    const ul = ruleBody(css, '.p-tree .p-tree-node-children');
+    const child = ruleBody(css, '.p-tree .p-tree-node-children > p-treenode');
 
-    expect(declaration(body, 'position')).toBe('relative');
+    expect(declaration(ul, 'position')).toBe('relative');
+    expect(declaration(child, 'position')).toBe('relative');
   });
 
   it('pinta el conector horizontal de 2px en el padding del header sin mover el contenido', () => {
@@ -91,7 +102,7 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
   });
 
   it('usa el mismo trazo en ambas guías y empalma conector y línea sin hueco', () => {
-    const vertical = ruleBody(css, '.p-tree .p-tree-node-children::before');
+    const vertical = ruleBody(css, CHILD_GUIDE);
     const header = ruleBody(css, '.p-tree .p-tree-node-children .block-header');
 
     const lineLeft = parseFloat(declaration(vertical, 'left') as string);
@@ -104,9 +115,9 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
     expect(lineWidth).toBe(GUIDE_THICKNESS);
     expect(connectorThickness).toBe(GUIDE_THICKNESS);
 
-    // La guía termina justo en el content del hijo (`ul + 14px`), que es
-    // donde arranca el fondo del `.block-header` tras su caja extendida.
-    expect(lineLeft + lineWidth).toBe(TREE_INDENT);
+    // El p-treenode vive en `ul + 14px`; su trazo ocupa `[-2, 0)` → el
+    // borde derecho queda en `ul + 14`, justo donde arranca el conector.
+    expect(TREE_INDENT + lineLeft + lineWidth).toBe(TREE_INDENT);
   });
 
   it('sube el ramal del bloque padre desde el asa por delante de Commands/Operations', () => {
@@ -145,11 +156,11 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
     expect(css).toContain(`.p-tree-node-content${RISE_GATE}`);
   });
 
-  it('mantiene el ramal en la misma x que la guía de la `ul` (content + 12px)', () => {
+  it('mantiene el ramal en la misma x que la guía de los hijos (content + 12px)', () => {
     const nestedLeft = parseFloat(declaration(ruleBody(css, `${NESTED_HEADER}::after`), 'left') as string);
     const containerLeft = parseFloat(declaration(ruleBody(css, `${CONTAINER_HEADER}::after`), 'left') as string);
     const bodyLeft = parseFloat(declaration(ruleBody(css, `${BASE} .block-body::before`), 'left') as string);
-    const ulLeft = parseFloat(declaration(ruleBody(css, '.p-tree .p-tree-node-children::before'), 'left') as string);
+    const childGuide = parseFloat(declaration(ruleBody(css, CHILD_GUIDE), 'left') as string);
 
     // Anidados: el header empieza en content-1 → -1 + 13 = content+12.
     expect(nestedLeft).toBe(13);
@@ -157,8 +168,8 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
     expect(containerLeft).toBe(-1);
     // Body: arranca en content+13 → 13 - 1 = content+12.
     expect(bodyLeft).toBe(-1);
-    // La `ul` y su `::before` son la referencia de la guía.
-    expect(ulLeft).toBe(GUIDE_X);
+    // El hijo empieza en content+14; el trazo se pinta en -2 → content+12.
+    expect(TREE_INDENT + childGuide).toBe(GUIDE_X);
   });
 
   it('conecta las referencias anidadas desde la guía hasta su tarjeta', () => {
@@ -174,6 +185,33 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
     expect(declaration(connector, 'top')).toBe('50%');
     expect(declaration(connector, 'background-color')).toBe(GUIDE_COLOR);
     expect(declaration(connector, 'pointer-events')).toBe('none');
+  });
+
+  it('remata en L el último hijo y no deja la vertical por debajo', () => {
+    const last = ruleBody(css, LAST_CHILD_GUIDE);
+    const firstLast = ruleBody(css, FIRST_LAST_CHILD_GUIDE);
+    const header = ruleBody(css, LAST_BLOCK_HEADER);
+    const headerLine = ruleBody(css, `${LAST_BLOCK_HEADER}::before`);
+    const referenceLine = ruleBody(css, `${LAST_REFERENCE_HEADER}::after`);
+
+    expect(declaration(last, 'bottom')).toBe('auto');
+    expect(declaration(last, 'height')).toBe('3px');
+    expect(declaration(firstLast, 'top')).toBe('-2px');
+    expect(declaration(firstLast, 'height')).toBe('5px');
+
+    // El último tramo vertical del bloque llega del borde superior al centro
+    // de su header; el de la referencia hace lo propio en su cabecera.
+    expect(declaration(header, 'position')).toBe('relative');
+    expect(declaration(headerLine, 'left')).toBe('-1px');
+    expect(declaration(headerLine, 'top')).toBe('0');
+    expect(declaration(headerLine, 'bottom')).toBe('50%');
+    expect(declaration(headerLine, 'width')).toBe(`${GUIDE_THICKNESS}px`);
+    expect(declaration(referenceLine, 'left')).toBe('-18px');
+    expect(declaration(referenceLine, 'top')).toBe('0');
+    expect(declaration(referenceLine, 'bottom')).toBe('50%');
+    expect(declaration(referenceLine, 'width')).toBe(`${GUIDE_THICKNESS}px`);
+    expect(declaration(headerLine, 'background-color')).toBe(GUIDE_COLOR);
+    expect(declaration(referenceLine, 'background-color')).toBe(GUIDE_COLOR);
   });
 
   it('no añade guía a la lista raíz (solo a listas de hijos anidadas)', () => {

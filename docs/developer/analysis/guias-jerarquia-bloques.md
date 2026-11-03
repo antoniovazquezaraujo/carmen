@@ -47,20 +47,28 @@ de las secciones siguientes son históricas; el contrato vigente es:
 
 - `.p-tree-node-children` tiene `padding-left: 14px` (1rem con raíz de 14px).
 - `.p-tree-node-content` añade `padding-left: 7px` (0.5rem) al content del hijo.
-- La guía vertical vive en `left: 12px` de la `ul`; con 2px de trazo su borde
-  derecho cae en `ul + 14px`, justo donde arranca el conector del bloque.
+- La guía vertical ya no es un único `ul::before`: cada `p-treenode` pinta su
+  tramo en `left: -2px` (el hijo vive en `ul + 14px`, así que el borde derecho
+  del trazo cae en `ul + 14px`). El primer hijo empieza 2px antes para cubrir
+  el padding de la `ul`; los demás se solapan 2px con el anterior.
+- El último hijo forma una **L**: su tramo vertical se corta a 3px (borde
+  superior de la cabecera) y el header pinta el resto hasta su centro. No hay
+  ninguna línea por debajo del último nodo de la rama.
+- En el caso de un único hijo, el tramo inicial empieza en `top: -2px` y mide
+  5px para cubrir el padding de la `ul` y llegar al header.
 - El `.block-header` anidado empieza 1px a la izquierda del content del hijo:
-  su ramal usa `left: 13px`. En una raíz de contenedor (sin extensión de 14px)
-  el ramal usa `left: -1px`; el `.block-body` usa `left: -1px` en ambos casos.
-- Las referencias `use` no tienen `.block-header`; su conector se pinta desde
-  `.reference-header::before`, desde la guía hasta el borde izquierdo de la
-  tarjeta (`left: -16px; width: 7px`).
+  su ramal de padre usa `left: 13px`; el remate L del último hijo usa
+  `left: -1px`. En una raíz de contenedor (sin extensión de 14px) el ramal usa
+  `left: -1px`; el `.block-body` usa `left: -1px` en ambos casos.
+- Las referencias `use` no tienen `.block-header`: su conector horizontal se
+  pinta desde `.reference-header::before` (`left: -16px; width: 7px`) y su
+  remate vertical L desde `.reference-header::after` (`left: -18px`).
 
 La verificación de píxeles se hizo con Chrome headless a 1440×1000 y con un
-árbol que combina bloques anidados, una referencia dentro de un bloque y una
-referencia hermana. Las líneas de padre, conector de bloque y conector de
-referencia quedan alineados sin huecos; las referencias siguen siendo hojas y
-no reciben drag & drop.
+árbol que combina bloques anidados, una referencia dentro de un bloque, una
+referencia como último hijo y un bloque como último hijo. Las líneas de padre,
+conectores de bloque/referencia y remates en L quedan alineados sin huecos ni
+líneas sueltas; las referencias siguen siendo hojas y no reciben drag & drop.
 
 ## 2. Implementación (solo CSS)
 
