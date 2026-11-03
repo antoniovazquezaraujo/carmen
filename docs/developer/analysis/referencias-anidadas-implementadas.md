@@ -119,6 +119,9 @@ Representación básica:
 - El panel **Blocks** reutiliza el árbol del bloque, por lo que las definiciones
   compuestas muestran sus referencias internas.
 - El botón de enlace de una referencia navega a la definición.
+- Las guías del árbol se recalcularon para la indentación de PrimeNG 21 y las
+  referencias anidadas reciben su propio conector desde la guía hasta la
+  tarjeta.
 
 Limitaciones actuales del prototipo:
 
@@ -138,7 +141,8 @@ Limitaciones actuales del prototipo:
 - Player: expansión de una definición que usa otra, ejecutada desde un bloque
   inline.
 - Helpers de biblioteca: usos, renombrado y borrado de referencias anidadas.
-- GUI: contrato de plantilla para renderizar referencias dentro del árbol.
+- GUI: contrato de plantilla para renderizar referencias dentro del árbol y
+  contrato CSS de las guías, incluido el conector de referencias.
 
 ## 9. Decisión pendiente
 

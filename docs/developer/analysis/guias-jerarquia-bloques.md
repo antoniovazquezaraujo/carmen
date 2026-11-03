@@ -3,7 +3,8 @@
 - **Fecha:** 2026-10-05
 - **Autor:** JORGE (UI/UX)
 - **Ramas:** `feat/block-tree-guides` + `fix/tree-guides-contrast` (refuerzo de contraste) + `fix/tree-guides-coverage` (ramal hasta el asa), base `develop`
-- **Entorno:** Node v16.20.2 / npm 8.19.4 / Chrome 153 headless (CDP, puertos 4302/4304)
+- **Actualización:** PrimeNG 21 / Angular 21 (2026-11-03): la indentación y los selectores cambiaron; se recalcularon las guías y se añadió el conector de referencias `use`.
+- **Entorno:** Node v16.20.2 / npm 8.19.4 / Chrome 153 headless (CDP, puertos 4302/4304); verificación actual con Node 22 / Chrome 155.
 - **Alcance:** la indentación del árbol no dejaba clara la relación padre→hijo. Se añaden **guías visuales tipo explorador de ficheros** (VS Code): una línea vertical por nivel y un conector horizontal corto hacia cada bloque, en estilo neutro y sin resaltado de rama activa. El trazo se reforzó después (2px, `#a3a3a3`) y, tras el feedback «commands y operations tapan la línea, debe verse como sube hasta el icono», la guía de los hijos sube por delante del bloque padre hasta su asa.
 - **Estado:** 33 suites / 430 tests en verde, `npm run build` exit 0, verificación funcional con captura headless, medición de píxeles y drags sintéticos sin errores de consola.
 
@@ -38,6 +39,28 @@ Hechos medidos en la app real (CDP):
 3. El borde izquierdo de cada `ul.p-treenode-children` coincide con el content de su padre; el primer hijo empieza +16px a la derecha.
 4. El `.block-header` empieza 6px a la derecha del content (padding de `.block-content`) y el asa de arrastre en su borde izquierdo.
 5. `p-tree` inserta un `.p-treenode-droppoint` de 12px antes de cada nodo (y tras el último hijo): las guías deben convivir con ellos.
+
+## 1.1. Ajuste para PrimeNG 21 / Angular 21 (2026-11-03)
+
+La migración de la app cambió el DOM y los estilos base del árbol. Las medidas
+de las secciones siguientes son históricas; el contrato vigente es:
+
+- `.p-tree-node-children` tiene `padding-left: 14px` (1rem con raíz de 14px).
+- `.p-tree-node-content` añade `padding-left: 7px` (0.5rem) al content del hijo.
+- La guía vertical vive en `left: 12px` de la `ul`; con 2px de trazo su borde
+  derecho cae en `ul + 14px`, justo donde arranca el conector del bloque.
+- El `.block-header` anidado empieza 1px a la izquierda del content del hijo:
+  su ramal usa `left: 13px`. En una raíz de contenedor (sin extensión de 14px)
+  el ramal usa `left: -1px`; el `.block-body` usa `left: -1px` en ambos casos.
+- Las referencias `use` no tienen `.block-header`; su conector se pinta desde
+  `.reference-header::before`, desde la guía hasta el borde izquierdo de la
+  tarjeta (`left: -16px; width: 7px`).
+
+La verificación de píxeles se hizo con Chrome headless a 1440×1000 y con un
+árbol que combina bloques anidados, una referencia dentro de un bloque y una
+referencia hermana. Las líneas de padre, conector de bloque y conector de
+referencia quedan alineados sin huecos; las referencias siguen siendo hojas y
+no reciben drag & drop.
 
 ## 2. Implementación (solo CSS)
 
