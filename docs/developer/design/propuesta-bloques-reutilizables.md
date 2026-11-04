@@ -2,7 +2,7 @@
 
 - **Fecha:** 2026-10-14
 - **Autor:** DANI (coordinación y arquitectura)
-- **Estado:** propuesta detallada para validación del usuario antes de implementar la fase 1. Las decisiones clave ya fueron **ratificadas en conversación (2026-10-14)**.
+- **Estado:** **Reemplazado** por [[propuesta-bibliotecas-contenido]] (2026-11-04). Se conserva como histórico; el modelo de bloques reutilizables y `use` a bloques queda descartado.
 - **Referencias:** `docs/developer/adr/ADR-002-bloques-reutilizables.md` (decisión), `docs/developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md`, `docs/developer/analysis/sintaxis-mr-implementada.md`, `docs/developer/analysis/BACKLOG.md`.
 - **Alcance:** sintaxis `.mr`, modelo de dominio, parser/serializador, round-trip, reproducción/generación de notas y plan de GUI. La fase 1 no toca GUI.
 
