@@ -800,6 +800,127 @@ part Piano
       preset AnswerAjustes
       melody Answer
 `
+    },
+    {
+        id: 'chinese-shoes',
+        title: 'Chinese shoes',
+        description: 'A seven-cycle nested-block study with three melodies, shifting octaves and odd/even arpeggios.',
+        tags: ['Nested blocks', 'Odd/even', 'Seven cycles'],
+        bpm: 120,
+        mr: `song "Chinese shoes"
+version 2
+repeats 7
+
+melodies
+  melody A
+    notes default 1n
+      1
+      6
+      -3
+      4
+      4n:1
+      0
+      4n:2
+      4n:5
+
+  melody B
+    notes
+      4n:1
+      4n:6
+      4n:-3
+      4n:4
+
+  melody C
+    notes
+      4n:2
+      4n:7
+      4n:-2
+      4n:5
+
+presets
+  preset A
+    OCT 0
+    PLAYMODE ASCENDING
+    WIDTH 3
+    INV 1
+    KEY 0
+    SCALE WHITE
+    GAP 1
+
+  preset B
+    OCT 3
+    PLAYMODE EVEN_DESC_ODD_DESC
+    WIDTH 3
+    GAP 1
+    KEY 0
+    INV 0
+
+  preset C
+    OCT 2
+    PLAYMODE EVEN_DESC_ODD_DESC
+    WIDTH 5
+    KEY 0
+    SCALE PENTA
+    GAP 3
+
+  preset D
+    OCT 1
+    PLAYMODE EVEN_DESC_ODD_DESC
+    WIDTH 5
+    KEY 3
+    SCALE PENTA
+    GAP 2
+
+part
+  block repeats 2
+    preset A
+    melody A
+
+    block
+      preset B
+      melody A
+
+      block repeats 2
+        preset C
+        melody B
+
+        block repeats 2
+          preset A
+          melody B
+
+          block
+            preset D
+            melody C
+
+      block
+        preset A
+        melody C
+
+part
+  block repeats 2
+    preset B
+    melody A
+
+    block
+      preset A
+      melody A
+
+      block repeats 2
+        preset A
+        melody B
+
+        block repeats 2
+          preset B
+          melody B
+
+          block
+            preset D
+            melody C
+
+      block
+        preset B
+        melody C
+`
     }
 ];
 
