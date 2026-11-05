@@ -38,7 +38,7 @@ describe('MrLivePanelComponent', () => {
 
         component.refresh();
         expect(component.text).toContain('song "First Light"');
-        expect(component.text).toContain('version 1');
+        expect(component.text).toContain('version 2');
 
         component.song.name = 'Second Light';
         component.refresh();

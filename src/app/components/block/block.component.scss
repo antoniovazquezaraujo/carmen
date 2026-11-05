@@ -149,6 +149,38 @@ input[type="number"]#repeatingTimes {
   font-size: 11px;
 }
 
+/* Chips de contenido en la cabecera: informan de las referencias y navegan a
+   la definición. No son nodos del árbol ni aceptan drops. */
+.block-content-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 160px;
+  margin-right: 4px;
+  padding: 1px 7px;
+  border: 1px solid #d7e0e7;
+  border-radius: 10px;
+  background-color: #f1f6f9;
+  color: #37474f;
+  font: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.block-content-chip:hover,
+.block-content-chip:focus-visible {
+  border-color: #90a4ae;
+  background-color: #e3ebf2;
+  outline: none;
+}
+
+.block-content-chip .pi {
+  font-size: 0.7rem;
+}
+
 .block-body {
   margin-top: 1px;
 }

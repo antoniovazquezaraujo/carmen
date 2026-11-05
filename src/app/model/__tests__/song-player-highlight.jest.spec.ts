@@ -10,6 +10,7 @@ import { NoteGenerationUnifiedService } from '../../shared/services/note-generat
 import { GlobalStateService } from '../../shared/services/global-state.service';
 import { Command, CommandType } from '../command';
 import { Block } from '../block';
+import { Melody, Preset } from '../content';
 import { NoteData } from '../note';
 import { Part } from '../part';
 import { Song } from '../song';
@@ -67,9 +68,16 @@ const createEngineStub = (): EngineStub => {
   };
 };
 
+const melodyWith = (notes: string): Melody => {
+  const melody = new Melody();
+  melody.label = 'Tema';
+  melody.content.notes = notes;
+  return melody;
+};
+
 const createPart = (notes: string): Part => {
   const part = new Part();
-  (part.items[0] as Block).blockContent.notes = notes;
+  part.items[0].melody = melodyWith(notes);
   return part;
 };
 
@@ -120,10 +128,13 @@ describe('SongPlayer · playingSources$ (resaltado de la nota-origen)', () => {
   it('activa el origen de un acorde generado con comandos (WIDTH/GAP)', async () => {
     const { player, stub, emissions } = setup();
     const part = createPart('4n:0');
-    (part.items[0] as Block).commands = [
+    const preset = new Preset();
+    preset.label = 'Ajustes';
+    preset.settings = [
       new Command({ type: CommandType.WIDTH, value: 1 }),
       new Command({ type: CommandType.GAP, value: 2 })
     ];
+    part.items[0].preset = preset;
     await player.playPart(part, new Song());
 
     stub.getLoopCallback()(0);

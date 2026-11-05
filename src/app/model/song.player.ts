@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Player } from "./player";
 import { Song } from "./song";
 import { NoteData } from "./note";
-import { Part, PartItem } from "./part";
+import { Part } from "./part";
 import { Block } from "./block";
-import { BlockReference } from "./block-reference";
+
 import { PlayMode, arpeggiate } from "./play.mode";
 import { Subject, Observable, BehaviorSubject } from 'rxjs';
 import { AudioEngineService } from "../services/audio-engine.service";
@@ -413,8 +413,8 @@ export class SongPlayer {
                 unit.commands.forEach((command: Command) => command.execute(state.player));
                 this._executeOperations(unit.operations);
 
-                if (unit.includeNotes && block.blockContent && block.blockContent.notes && block.blockContent.notes.trim() !== '') {
-                    const blockNotes = this.noteGenerationService.generateNotesForBlock(block, state.player);
+                if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                    const blockNotes = this.noteGenerationService.generateNotesForMelody(block.melody, state.player);
                     state.extractedNotes = state.extractedNotes.concat(blockNotes);
                 }
 
@@ -481,26 +481,16 @@ export class SongPlayer {
     }
 
     private _substituteVariablesInSong(song: Song): void {
-        const processBlock = (block: Block) => {
-             if (block.blockContent?.isVariable && block.blockContent?.variableName) {
-                  const value = VariableContext.getValue(block.blockContent.variableName);
-                  if (typeof value === 'string') {
-                      block.blockContent.notes = value;
+        // Las notas variables viven en las melodías de la biblioteca global.
+        song.melodies.forEach(melody => {
+            if (melody.content.isVariable && melody.content.variableName) {
+                const value = VariableContext.getValue(melody.content.variableName);
+                if (typeof value === 'string') {
+                    melody.content.notes = value;
                 } else {
-                      console.warn(`Variable ${block.blockContent.variableName} not found or not a string for block ${block.id}`);
-                  }
-             }
-             block.children?.forEach(processBlock);
-        };
-        // La biblioteca `blocks` alimenta las referencias: sus definiciones
-        // también resuelven `notes $var`.
-        song.blocks?.forEach(processBlock);
-        song.parts.forEach(part => {
-            part.items?.forEach((item: PartItem) => {
-                if (item.kind === 'block') {
-                    processBlock(item);
+                    console.warn(`Variable ${melody.content.variableName} not found or not a string for melody ${melody.id}`);
                 }
-            });
+            }
         });
     }
 
@@ -513,73 +503,23 @@ export class SongPlayer {
      */
     private _buildExecutionUnits(part: Part, song: Song): ExecutionUnit[] {
         const units: ExecutionUnit[] = [];
-        const library = new Map<string, Block>();
-        (song.blocks ?? []).forEach(block => library.set(block.label, block));
 
         const addBlockAndChildren = (block: Block, childLevel: number, parentBlock?: Block) => {
             for (let i = 0; i < block.repeatingTimes; i++) {
                 units.push({
                     block,
-                    commands: block.commands ?? [],
-                    operations: block.operations ?? [],
-                    includeNotes: true,
+                    commands: block.preset?.settings ?? [],
+                    operations: block.procedure?.operations ?? [],
+                    includeNotes: block.melody !== undefined,
                     repetitionIndex: i,
                     childLevel,
                     parentBlock
                 });
-                block.children?.forEach(child => addBlockAndChildren(child, childLevel + 1, block));
+                block.children.forEach(child => addBlockAndChildren(child, childLevel + 1, block));
             }
         };
 
-        const addReference = (reference: BlockReference, childLevel: number) => {
-            const definition = library.get(reference.targetLabel);
-            if (!definition) {
-                // El parser garantiza la resolución; el guardia evita un crash
-                // si el modelo se construye a mano.
-                console.warn(`[SongPlayer] La referencia '${reference.targetLabel}' no tiene definición en blocks.`);
-                return;
-            }
-            const passes = reference.repeatingTimes * definition.repeatingTimes;
-            for (let i = 0; i < passes; i++) {
-                // 1-2. commands + operations de la definición.
-                units.push({
-                    block: definition,
-                    commands: definition.commands ?? [],
-                    operations: definition.operations ?? [],
-                    includeNotes: false,
-                    repetitionIndex: i,
-                    childLevel
-                });
-                // 3-4. commands + operations de la llamada (pisan a la definición).
-                units.push({
-                    block: definition,
-                    commands: reference.commands ?? [],
-                    operations: reference.operations ?? [],
-                    includeNotes: false,
-                    repetitionIndex: i,
-                    childLevel
-                });
-                // 5. notes de la definición con el estado resultante.
-                units.push({
-                    block: definition,
-                    commands: [],
-                    operations: [],
-                    includeNotes: true,
-                    repetitionIndex: i,
-                    childLevel
-                });
-                // 6. hijos de la definición.
-                definition.children?.forEach(child => addBlockAndChildren(child, childLevel + 1, definition));
-            }
-        };
-
-        part.items?.forEach(item => {
-            if (item.kind === 'reference') {
-                addReference(item, 0);
-            } else {
-                addBlockAndChildren(item, 0);
-            }
-        });
+        part.items.forEach(item => addBlockAndChildren(item, 0));
         return units;
     }
 
@@ -625,8 +565,8 @@ export class SongPlayer {
                     this._executeOperations(unit.operations);
 
                     // Check if notes exist before calling generation
-                    if (unit.includeNotes && block.blockContent && block.blockContent.notes && block.blockContent.notes.trim() !== '') {
-                         const blockNotes = this.noteGenerationService.generateNotesForBlock(block, state.player); // Call the service
+                    if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                         const blockNotes = this.noteGenerationService.generateNotesForMelody(block.melody, state.player); // Call the service
                          state.extractedNotes = state.extractedNotes.concat(blockNotes);
                     }
 

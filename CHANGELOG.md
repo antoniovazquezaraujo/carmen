@@ -8,8 +8,9 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Added
 
+- **Content libraries (`.mr` v2)**: songs now define reusable `melodies`, `presets` (playback settings, formerly commands) and `procedures` (operations). Blocks are structural: they nest and may reference at most one melody, one preset and one procedure. Editing a library entry updates every block that uses it.
 - Unified **`moderanger` CLI** with `compile`, `check`, `version` and `help` subcommands, prepared for publication as `@moderanger/cli`; `moderanger-mid` remains a compatibility alias for `compile`.
-- Experimental **`.mr` → MIDI compiler**: `moderanger compile song.mr` (or `npm run midi -- song.mr` during development) writes a Standard MIDI File type 1 (960 PPQ, one track per part) without a browser. The compiler has a pure core (no Angular/Tone) and a precompiled CLI (`npm run build:cli`) that follows the player's musical semantics (parts, `use` references, repeats, commands, operations, `PATTERN`, chords and arpeggios). `--json` exposes the compiled event model. WAV rendering is out of scope.
+- Experimental **`.mr` → MIDI compiler**: `moderanger compile song.mr` (or `npm run midi -- song.mr` during development) writes a Standard MIDI File type 1 (960 PPQ, one track per part) without a browser. The compiler has a pure core (no Angular/Tone) and a precompiled CLI (`npm run build:cli`) that follows the player's musical semantics (parts, structural blocks, content libraries, repeats, settings, operations, `PATTERN`, chords and arpeggios). `--json` exposes the compiled event model. WAV rendering is out of scope.
 - Complete `.mr` language v1: parser, serializer, stable round-trip, `line:column` errors and `.mr` file support (Phase 1).
 - In-app `.mr` text view (Phase 2): live validation, apply/revert and per-part/block source map.
 - Save/load `.mr` from the UI (Phase 3).
@@ -23,10 +24,10 @@ All notable changes to **Mode Ranger**. Format based on
 - Inherited note duration is visible/editable with the mouse wheel (hover); cycle includes returning to "empty".
 - Block tree hierarchy guides: a subtle vertical line per nesting level and a short horizontal connector toward each block (file-explorer style, neutral and with no active-branch highlight).
 - Project infrastructure: CI (tests + coverage + build), `develop`/`main` PR workflow, releases with a web artifact and automatic user-docs publishing.
-- Reusable blocks: a song-level `blocks` library with `use` references from parts (editing a definition updates every reference; references carry their own `repeats` and call `commands`/`operations`, applied after the definition's) plus the GUI (Blocks panel, reference chips, change-target from the chip icon and orphan repair).
 
 ### Changed
 
+- **`.mr` format 2 is a clean break**: the `blocks`/`use` block library and inline block content are removed, with no compatibility reader or migration. The parser, serializer, player, MIDI compiler, GUI, examples, corpus and user manuals now use the content-library model.
 - **Deprecation cleanup**: removed the unused `@angular/animations` runtime/provider and migrated the PrimeNG preset from the deprecated `@primeng/themes` to `@primeuix/themes`.
 - **Standalone components**: every component is standalone and `EditorModule` has been removed. `AppComponent` imports `SongEditorComponent` directly; each component declares its own Angular and PrimeNG dependencies.
 - **Application builder**: migrated the Angular build from the webpack browser builder to `@angular/build:application` (esbuild/Vite). The production output now lives under `dist/moderanger/browser`; the release workflow and release docs were updated accordingly.
@@ -65,7 +66,7 @@ All notable changes to **Mode Ranger**. Format based on
 - Commands/Operations now read as free text: capitalized type labels with colon (`Inv: 0`), no borders/backgrounds or native select arrow at rest. The editable chrome (box border, control borders, own chevron, `$`/`✕` buttons) appears on hover or focus. Model and `.mr` are untouched (display-only labels).
 - Selects now auto-fit their selected option (`field-sizing: content`, progressive) with per-component clamps: command selects 44–140px, toolbar duration 40–80px, variable selects 60–160px. Browsers without support keep the previous intrinsic width.
 - GUI width trim (low-risk items from the width audit): metronome reduced from 32 to 16 dots; tighter block header (repetitions 48px, controls 70px, 6px between items); narrower song toolbar (name 120px, Repeat 32px, BPM 45px, 10px gap); part name box 88px.
-- Block tree hierarchy guides are thicker (2px) and use a darker neutral grey (`#a3a3a3`) so the parent/child lines are easier to see (user feedback after the initial 1px `#d9d9d9` release).
+- Block tree hierarchy guides are thicker (2px) and use a darker neutral grey (`#a3a3a3`) so the parent/child lines are easier to see (user feedback after the initial 1px `#d9d9d9` release). The last child of each branch now closes with an L and no longer paints a vertical line below it.
 - `Repeat` and `BPM` live in `Song` (canonical) and are applied by the player; live-tempo while playing.
 - Editor silences are rendered as `s` (previously `x`).
 - Documentation reorganized into `docs/user/` (public) and `docs/developer/` (internal).

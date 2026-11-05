@@ -6,7 +6,7 @@
 import { AudioEngineService, InstrumentType } from '../../services/audio-engine.service';
 import { NoteGenerationService } from '../note-generation.service';
 import { NoteGenerationUnifiedService } from '../../shared/services/note-generation-unified.service';
-import { Block } from '../../model/block';
+import { Melody } from '../../model/content';
 import { NoteData } from '../../model/note';
 import { Player } from '../../model/player';
 import { PlayMode } from '../../model/play.mode';
@@ -23,15 +23,16 @@ const createPlayer = (): Player =>
 const createService = (): NoteGenerationService =>
   new NoteGenerationService(new NoteGenerationUnifiedService());
 
-const blockWith = (notes: string): Block => {
-  const block = new Block();
-  block.blockContent.notes = notes;
-  return block;
+const blockWith = (notes: string): Melody => {
+  const melody = new Melody();
+  melody.label = 'Tema';
+  melody.content.notes = notes;
+  return melody;
 };
 
-const generate = (notes: string, player = createPlayer()): { block: Block; result: NoteData[] } => {
+const generate = (notes: string, player = createPlayer()): { block: Melody; result: NoteData[] } => {
   const block = blockWith(notes);
-  return { block, result: createService().generateNotesForBlock(block, player) };
+  return { block, result: createService().generateNotesForMelody(block, player) };
 };
 
 describe('NoteGenerationService · origen de los eventos (resaltado)', () => {
