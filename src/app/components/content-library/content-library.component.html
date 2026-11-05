@@ -82,22 +82,25 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
                 </span>
               </div>
               @if (isExpanded(melody)) {
-                <div class="library-entry-body">
-                  <div class="content-duration-row">
-                    <span class="content-duration-label">Default duration</span>
-                    <select class="content-duration-select" [(ngModel)]="melody.defaultDuration" aria-label="Default duration">
-                      <option [ngValue]="undefined">—</option>
-                      @for (duration of availableDurations; track duration) {
-                        <option [ngValue]="duration">{{ duration }}</option>
-                      }
-                    </select>
+                <div class="library-entry-body library-entry-body--melody">
+                  <div class="content-melody-row">
+                    <div class="content-duration-row">
+                      <span class="content-duration-label">Default duration</span>
+                      <select class="content-duration-select" [(ngModel)]="melody.defaultDuration" aria-label="Default duration">
+                        <option [ngValue]="undefined">—</option>
+                        @for (duration of availableDurations; track duration) {
+                          <option [ngValue]="duration">{{ duration }}</option>
+                        }
+                      </select>
+                    </div>
+                    <app-melody-editor-wrapper
+                      class="content-melody-editor"
+                      [id]="'library-melody-' + melody.id"
+                      [(ngModel)]="melody.notes"
+                      [blockId]="melody.id"
+                      [showVariableIcon]="true">
+                    </app-melody-editor-wrapper>
                   </div>
-                  <app-melody-editor-wrapper
-                    [id]="'library-melody-' + melody.id"
-                    [(ngModel)]="melody.notes"
-                    [blockId]="melody.id"
-                    [showVariableIcon]="true">
-                  </app-melody-editor-wrapper>
                 </div>
               }
             </div>

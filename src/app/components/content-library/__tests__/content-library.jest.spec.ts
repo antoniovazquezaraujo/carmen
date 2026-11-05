@@ -27,6 +27,9 @@ import { Song } from 'src/app/model/song';
 import { ContentLibraryComponent } from '../content-library.component';
 
 const template = fs.readFileSync(path.resolve(__dirname, '../content-library.component.html'), 'utf8');
+const styles = fs.readFileSync(path.resolve(__dirname, '../content-library.component.scss'), 'utf8');
+const presetStyles = fs.readFileSync(path.resolve(__dirname, '../../preset-editor/preset-editor.component.scss'), 'utf8');
+const procedureStyles = fs.readFileSync(path.resolve(__dirname, '../../procedure-editor/procedure-editor.component.scss'), 'utf8');
 
 function createComponent(song: Song): ContentLibraryComponent {
   const cdr = { detectChanges: jest.fn(), markForCheck: jest.fn() };
@@ -206,5 +209,17 @@ describe('ContentLibraryComponent · template', () => {
   it('el borrado en uso lista bloques y avisa de que limpia referencias', () => {
     expect(template).toContain('Delete content and references');
     expect(template).toContain('Deleting it also clears those references.');
+  });
+
+  it('mantiene duración y notas en una sola fila compacta', () => {
+    expect(template).toContain('content-melody-row');
+    expect(styles).toContain('.content-melody-row');
+    expect(styles).toContain('flex-wrap: nowrap');
+    expect(styles).toContain('min-height: 0');
+  });
+
+  it('no pinta una línea entre la cabecera y los editores de preset/procedure', () => {
+    expect(presetStyles).not.toContain('border-top: 1px solid #eee;');
+    expect(procedureStyles).not.toContain('border-top: 1px solid #eee;');
   });
 });

@@ -200,16 +200,31 @@
 
 .library-entry-body {
   margin-left: 0.75rem;
-  padding: 4px 0 8px;
+  padding: 2px 0;
+}
+
+.content-melody-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .content-duration-row {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin: 0;
   color: #555;
   font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.content-melody-editor {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .content-duration-select {
@@ -223,6 +238,29 @@
 
 .library-entry-body app-melody-editor-wrapper {
   display: block;
+}
+
+/* La melodía comparte fila con la duración por defecto y no añade altura
+   vacía debajo: el editor se compacta al alto de sus notas. */
+:host ::ng-deep .content-melody-editor {
+  .melody-editor {
+    min-height: 0;
+  }
+
+  .editor-content {
+    padding: 0;
+  }
+
+  .notes-container-wrapper {
+    padding: 0;
+  }
+
+  .notes-container {
+    min-height: 20px;
+    padding: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
 }
 
 /* Diálogo de borrado */
