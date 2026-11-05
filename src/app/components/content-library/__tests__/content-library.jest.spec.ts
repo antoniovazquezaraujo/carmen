@@ -218,8 +218,9 @@ describe('ContentLibraryComponent · template', () => {
     expect(styles).toContain('min-height: 0');
   });
 
-  it('no pinta líneas horizontales entre las entradas de contenido', () => {
+  it('no pinta líneas horizontales entre pestañas y entradas de contenido', () => {
     expect(styles).not.toContain('border-top: 1px solid #eee;');
+    expect(styles).not.toContain('border-bottom: 1px solid #eee;');
   });
 
   it('no pinta una línea entre la cabecera y los editores de preset/procedure', () => {
