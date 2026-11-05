@@ -6,15 +6,17 @@ Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para n
 - [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura del proyecto]]
 - [[design/propuesta-sintaxis-mr|Propuesta de sintaxis `.mr` (aprobada)]]
 - [[analysis/sintaxis-mr-implementada|Sintaxis `.mr` implementada y contrato de round-trip]]
-- [[design/propuesta-bloques-reutilizables|Propuesta: bloques reutilizables (`blocks` + `use`)]]
+- [[design/propuesta-bibliotecas-contenido|Propuesta: bibliotecas de contenido (melodías, presets y procedures)]]
+- [[design/propuesta-bloques-reutilizables|Propuesta histórica: bloques reutilizables (`blocks` + `use`)]] *(sustituida)*
 - [[design/compilador-mr-a-midi|Propuesta: compilador `.mr` → MIDI (CLI)]]
 - [[analysis/codigo-v2-sin-cablear|Inventario del código v2 sin cablear]]
 - [[analysis/angular-21-modernization|Modernización a Angular 21 y Node 22]]
 
 ## 🎯 Decisiones
 - [[adr/ADR-001-texto-canonico-y-sintaxis-mr|ADR-001: Texto canónico y sintaxis `.mr`]]
-- [[adr/ADR-002-bloques-reutilizables|ADR-002: Bloques reutilizables (`blocks` + `use`)]]
+- [[adr/ADR-002-bloques-reutilizables|ADR-002: Bloques reutilizables (`blocks` + `use`)]] *(sustituido)*
 - [[adr/ADR-003-compilador-midi|ADR-003: Compilador `.mr` → MIDI (MVP)]]
+- [[adr/ADR-004-bibliotecas-contenido|ADR-004: Bibliotecas de contenido y bloques estructurales]]
 
 ## ✨ Fases y estado
 - [[analysis/mr-fase2-vista-texto|Fase 2: vista de texto en la app]]

@@ -1,6 +1,7 @@
 # ADR-002: Bloques reutilizables (`blocks` + `use`)
 
-- **Estado:** Aceptado (2026-10-14). Las decisiones clave fueron ratificadas por el usuario en conversación; la propuesta detallada está en `docs/developer/design/propuesta-bloques-reutilizables.md`.
+- **Estado:** **Reemplazado** por [[ADR-004-bibliotecas-contenido]] (2026-11-04). Las decisiones clave fueron ratificadas por el usuario en conversación el 2026-10-14, pero el modelo de bloques reutilizables queda descartado. Se conserva como histórico.
+- **Propuesta original:** `docs/developer/design/propuesta-bloques-reutilizables.md`.
 - **Fecha:** 2026-10-14
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)
