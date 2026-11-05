@@ -3,9 +3,11 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnDestroy,
     OnInit,
     Output
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Bind } from 'primeng/bind';
 import { Button } from 'primeng/button';
@@ -15,6 +17,7 @@ import { Tree } from 'primeng/tree';
 import { Block } from 'src/app/model/block';
 import { ContentKind } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
+import { PlayingNoteSource, SongPlayer } from 'src/app/model/song.player';
 import {
     BlockContentLinksComponent,
     ContentEditRequest
@@ -46,7 +49,7 @@ interface BlockTreeDropEvent {
     styleUrls: ['./block.component.scss'],
     imports: [Bind, Tree, PrimeTemplate, Tooltip, Button, FormsModule, BlockContentLinksComponent]
 })
-export class BlockComponent implements OnInit {
+export class BlockComponent implements OnInit, OnDestroy {
     private _block!: Block;
 
     /**
@@ -64,6 +67,10 @@ export class BlockComponent implements OnInit {
 
     /** Desactiva el tooltip del asa durante el arrastre. */
     dragging = false;
+
+    /** Ids de bloques estructurales que están sonando. */
+    private readonly playingBlockIds = new Set<number>();
+    private playingSourcesSub?: Subscription;
 
     @Input()
     set block(value: Block) {
@@ -84,10 +91,31 @@ export class BlockComponent implements OnInit {
     @Output() onAddChild: EventEmitter<any> = new EventEmitter();
     @Output() contentEdit = new EventEmitter<ContentEditRequest>();
 
-    constructor(private readonly cdr: ChangeDetectorRef) {}
+    constructor(
+        private readonly cdr: ChangeDetectorRef,
+        private readonly songPlayer?: SongPlayer
+    ) {}
 
     ngOnInit(): void {
         this.expandRootWithChildren();
+        this.playingSourcesSub = this.songPlayer?.playingSources$.subscribe(sources => {
+            this.updatePlayingSources(sources);
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.playingSourcesSub?.unsubscribe();
+    }
+
+    private updatePlayingSources(sources: readonly PlayingNoteSource[]): void {
+        this.playingBlockIds.clear();
+        sources.forEach(source => this.playingBlockIds.add(source.blockId));
+        this.cdr.detectChanges();
+    }
+
+    /** `true` si el bloque estructural está sonando ahora mismo. */
+    isBlockPlaying(block: Block): boolean {
+        return this.playingBlockIds.has(block.id);
     }
 
     /**

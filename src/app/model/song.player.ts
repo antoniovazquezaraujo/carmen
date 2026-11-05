@@ -40,7 +40,14 @@ type PartSoundInfo = {
  * `NoteGenerationService.tagSourcePaths`). Es metadato de UI: no se serializa.
  */
 export interface PlayingNoteSource {
+    /** Bloque estructural que está sonando. */
     blockId: number;
+    /** Melodía de la que procede la nota. */
+    melodyId?: number;
+    /** Preset aplicado al bloque. */
+    presetId?: number;
+    /** Procedimiento aplicado al bloque. */
+    procedureId?: number;
     sourcePath: number[];
 }
 
@@ -284,7 +291,13 @@ export class SongPlayer {
             return;
         }
         this._activatePlayingSource(
-            { blockId: noteData.sourceBlockId, sourcePath: noteData.sourcePath },
+            {
+                blockId: noteData.sourceBlockId,
+                melodyId: noteData.sourceMelodyId,
+                presetId: noteData.sourcePresetId,
+                procedureId: noteData.sourceProcedureId,
+                sourcePath: noteData.sourcePath
+            },
             durationSeconds
         );
     }
@@ -414,7 +427,13 @@ export class SongPlayer {
                 this._executeOperations(unit.operations);
 
                 if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                    const blockNotes = this.noteGenerationService.generateNotesForMelody(block.melody, state.player);
+                    const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                        block.melody,
+                        state.player,
+                        block.id,
+                        block.preset?.id,
+                        block.procedure?.id
+                    );
                     state.extractedNotes = state.extractedNotes.concat(blockNotes);
                 }
 
@@ -566,7 +585,13 @@ export class SongPlayer {
 
                     // Check if notes exist before calling generation
                     if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                         const blockNotes = this.noteGenerationService.generateNotesForMelody(block.melody, state.player); // Call the service
+                         const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                             block.melody,
+                             state.player,
+                             block.id,
+                             block.preset?.id,
+                             block.procedure?.id
+                         ); // Call the service
                          state.extractedNotes = state.extractedNotes.concat(blockNotes);
                     }
 

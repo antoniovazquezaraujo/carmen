@@ -111,13 +111,19 @@ describe('SongPlayer · playingSources$ (resaltado de la nota-origen)', () => {
     const part = createPart('4n:0');
     await player.playPart(part, new Song());
 
+    const block = part.items[0] as Block;
+    const melodyId = block.melody?.id;
     stub.getLoopCallback()(0);
-    expect(last(emissions)).toEqual([{ blockId: (part.items[0] as Block).id, sourcePath: [0] }]);
+    expect(last(emissions)).toEqual([
+      { blockId: block.id, melodyId, presetId: undefined, procedureId: undefined, sourcePath: [0] }
+    ]);
 
     // A los 60 ms la nota ya terminó (50 ms), pero sigue visible (mínimo 100 ms).
     jest.advanceTimersByTime(60);
     stub.getLoopCallback()(0.05);
-    expect(last(emissions)).toEqual([{ blockId: (part.items[0] as Block).id, sourcePath: [0] }]);
+    expect(last(emissions)).toEqual([
+      { blockId: block.id, melodyId, presetId: undefined, procedureId: undefined, sourcePath: [0] }
+    ]);
 
     // A los 120 ms el mínimo ya venció: se apaga.
     jest.advanceTimersByTime(60);
@@ -139,7 +145,16 @@ describe('SongPlayer · playingSources$ (resaltado de la nota-origen)', () => {
 
     stub.getLoopCallback()(0);
 
-    expect(last(emissions)).toEqual([{ blockId: (part.items[0] as Block).id, sourcePath: [0] }]);
+    const block = part.items[0] as Block;
+    expect(last(emissions)).toEqual([
+      {
+        blockId: block.id,
+        melodyId: block.melody?.id,
+        presetId: preset.id,
+        procedureId: undefined,
+        sourcePath: [0]
+      }
+    ]);
   });
 
   it('al parar limpia todos los orígenes', async () => {

@@ -24,6 +24,8 @@ import { Block } from 'src/app/model/block';
 import { Melody, Preset, Procedure } from 'src/app/model/content';
 import { Part } from 'src/app/model/part';
 import { Song } from 'src/app/model/song';
+import { PlayingNoteSource, SongPlayer } from 'src/app/model/song.player';
+import { BehaviorSubject } from 'rxjs';
 import { ContentLibraryComponent } from '../content-library.component';
 
 const template = fs.readFileSync(path.resolve(__dirname, '../content-library.component.html'), 'utf8');
@@ -171,6 +173,36 @@ describe('ContentLibraryComponent · CRUD', () => {
     jest.runOnlyPendingTimers();
     expect(component.isHighlighted(preset)).toBe(false);
     jest.useRealTimers();
+  });
+
+  it('resalta la melodía, el preset y el procedimiento que están sonando', () => {
+    const song = new Song();
+    const playing = melody('Sonando');
+    const preset = new Preset();
+    preset.label = 'Ajustes';
+    const procedure = new Procedure();
+    procedure.label = 'Cambios';
+    song.melodies = [playing];
+    song.presets = [preset];
+    song.procedures = [procedure];
+    const source = new BehaviorSubject<PlayingNoteSource[]>([
+      { blockId: 1, melodyId: playing.id, presetId: preset.id, procedureId: procedure.id, sourcePath: [0] }
+    ]);
+    const cdr = { detectChanges: jest.fn(), markForCheck: jest.fn() };
+    const component = new ContentLibraryComponent(
+      cdr as unknown as ChangeDetectorRef,
+      { playingSources$: source.asObservable() } as unknown as SongPlayer
+    );
+    component.ngOnInit();
+
+    expect(component.isPlayingEntry('melody', playing)).toBe(true);
+    expect(component.isPlayingEntry('preset', preset)).toBe(true);
+    expect(component.isPlayingEntry('procedure', procedure)).toBe(true);
+
+    source.next([]);
+    expect(component.isPlayingEntry('melody', playing)).toBe(false);
+    component.ngOnDestroy();
+    source.complete();
   });
 
   it('los contadores por pestaña reflejan cada biblioteca', () => {

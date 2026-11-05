@@ -51,7 +51,7 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
       @switch (activeTab) {
         @case ('melody') {
           @for (melody of melodies; track trackByEntry($index, melody)) {
-            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(melody)">
+            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(melody)" [class.library-entry--playing]="isPlayingEntry('melody', melody)">
               <div class="library-entry-header">
                 <p-button
                   [icon]="isExpanded(melody) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
@@ -112,7 +112,7 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
 
         @case ('preset') {
           @for (preset of presets; track trackByEntry($index, preset)) {
-            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(preset)">
+            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(preset)" [class.library-entry--playing]="isPlayingEntry('preset', preset)">
               <div class="library-entry-header">
                 <p-button
                   [icon]="isExpanded(preset) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
@@ -156,7 +156,7 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
 
         @case ('procedure') {
           @for (procedure of procedures; track trackByEntry($index, procedure)) {
-            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(procedure)">
+            <div class="library-entry" [class.library-entry--highlight]="isHighlighted(procedure)" [class.library-entry--playing]="isPlayingEntry('procedure', procedure)">
               <div class="library-entry-header">
                 <p-button
                   [icon]="isExpanded(procedure) ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"

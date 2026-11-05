@@ -56,6 +56,14 @@
   margin-bottom: 2px;
 }
 
+/* Bloque que está sonando: resalta su cabecera aunque esté plegado. */
+.block-content--playing > .block-header {
+  background-color: #d7e3e8;
+  border-radius: 4px;
+  box-shadow: inset 3px 0 0 #5f7f8f;
+  transition: background-color 120ms ease;
+}
+
 .block-header {
   display: flex;
   align-items: center;

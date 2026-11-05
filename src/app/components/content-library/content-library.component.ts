@@ -3,10 +3,13 @@ import {
     Component,
     Input,
     OnChanges,
+    OnDestroy,
+    OnInit,
     SimpleChanges,
     ViewChild,
     ElementRef
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Bind } from 'primeng/bind';
 import { Button } from 'primeng/button';
@@ -15,6 +18,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { ContentKind, Melody, Preset, Procedure } from 'src/app/model/content';
 import { NoteDuration } from 'src/app/model/melody';
 import { Song } from 'src/app/model/song';
+import { PlayingNoteSource, SongPlayer } from 'src/app/model/song.player';
 import {
     ContentEntry,
     ContentUsage,
@@ -55,7 +59,7 @@ import { ProcedureEditorComponent } from '../procedure-editor/procedure-editor.c
         ProcedureEditorComponent
     ]
 })
-export class ContentLibraryComponent implements OnChanges {
+export class ContentLibraryComponent implements OnChanges, OnInit, OnDestroy {
     @Input() song!: Song;
 
     expanded = false;
@@ -88,15 +92,63 @@ export class ContentLibraryComponent implements OnChanges {
     deleteCandidate: ContentEntry | null = null;
     deleteUsages: ContentUsage[] = [];
 
+    /** Entradas de contenido que están sonando ahora mismo. */
+    private readonly playingMelodyIds = new Set<number>();
+    private readonly playingPresetIds = new Set<number>();
+    private readonly playingProcedureIds = new Set<number>();
+    private playingSourcesSub?: Subscription;
+
     @ViewChild('panelHeader') panelHeaderRef?: ElementRef<HTMLElement>;
 
-    constructor(private readonly cdr: ChangeDetectorRef) {}
+    constructor(
+        private readonly cdr: ChangeDetectorRef,
+        private readonly songPlayer?: SongPlayer
+    ) {}
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['song']) {
             this.resetState();
             this.registerLabels();
         }
+    }
+
+    ngOnInit(): void {
+        this.playingSourcesSub = this.songPlayer?.playingSources$.subscribe(sources => {
+            this.updatePlayingSources(sources);
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.playingSourcesSub?.unsubscribe();
+    }
+
+    private updatePlayingSources(sources: readonly PlayingNoteSource[]): void {
+        this.playingMelodyIds.clear();
+        this.playingPresetIds.clear();
+        this.playingProcedureIds.clear();
+        sources.forEach(source => {
+            if (source.melodyId !== undefined) {
+                this.playingMelodyIds.add(source.melodyId);
+            }
+            if (source.presetId !== undefined) {
+                this.playingPresetIds.add(source.presetId);
+            }
+            if (source.procedureId !== undefined) {
+                this.playingProcedureIds.add(source.procedureId);
+            }
+        });
+        this.cdr.detectChanges();
+    }
+
+    /** `true` si la entrada de la biblioteca está sonando ahora mismo. */
+    isPlayingEntry(kind: ContentKind, entry: ContentEntry): boolean {
+        if (kind === 'melody') {
+            return this.playingMelodyIds.has(entry.id);
+        }
+        if (kind === 'preset') {
+            return this.playingPresetIds.has(entry.id);
+        }
+        return this.playingProcedureIds.has(entry.id);
     }
 
     get melodies(): Melody[] {

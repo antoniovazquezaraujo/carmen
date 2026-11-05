@@ -15,7 +15,7 @@ en el cuerpo con `app-block-content-links`.
   (onNodeDrop)="onNodeDrop($event)"
   [style]="{'height': 'auto', 'overflow-y': 'auto'}">
   <ng-template let-node pTemplate="default">
-    <div class="block-content">
+    <div class="block-content" [class.block-content--playing]="isBlockPlaying(node)">
       <div class="block-header">
         @if (canDrag(node)) {
           <span

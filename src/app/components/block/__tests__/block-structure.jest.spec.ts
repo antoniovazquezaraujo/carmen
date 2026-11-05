@@ -40,4 +40,10 @@ describe('BlockComponent · estructura sin contenido inline', () => {
     expect(styles).toContain('.block-content-chip');
     expect(styles).toContain('cursor: pointer');
   });
+
+  it('resalta el bloque que está sonando', () => {
+    expect(template).toContain('block-content--playing');
+    expect(component).toContain('isBlockPlaying');
+    expect(styles).toContain('.block-content--playing');
+  });
 });

@@ -9,6 +9,7 @@ All notable changes to **Mode Ranger**. Format based on
 ### Added
 
 - **Content libraries (`.mr` v2)**: songs now define reusable `melodies`, `presets` (playback settings, formerly commands) and `procedures` (operations). Blocks are structural: they nest and may reference at most one melody, one preset and one procedure. Editing a library entry updates every block that uses it.
+- **Playback highlighting**: the block being played and its melody/preset/procedure rows are highlighted, including when the content rows are collapsed. The highlight uses a muted blue-grey background rather than white.
 - Unified **`moderanger` CLI** with `compile`, `check`, `version` and `help` subcommands, prepared for publication as `@moderanger/cli`; `moderanger-mid` remains a compatibility alias for `compile`.
 - Experimental **`.mr` → MIDI compiler**: `moderanger compile song.mr` (or `npm run midi -- song.mr` during development) writes a Standard MIDI File type 1 (960 PPQ, one track per part) without a browser. The compiler has a pure core (no Angular/Tone) and a precompiled CLI (`npm run build:cli`) that follows the player's musical semantics (parts, structural blocks, content libraries, repeats, settings, operations, `PATTERN`, chords and arpeggios). `--json` exposes the compiled event model. WAV rendering is out of scope.
 - Complete `.mr` language v1: parser, serializer, stable round-trip, `line:column` errors and `.mr` file support (Phase 1).
