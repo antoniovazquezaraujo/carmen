@@ -25,25 +25,25 @@ export function commandTypeLabel(type: string): string {
 
 /** Descripciones breves de los ajustes para la ayuda contextual de la GUI. */
 const COMMAND_DESCRIPTIONS: Record<string, string> = {
-    OCT: 'Octava base para interpretar los grados de la melodía.',
-    SCALE: 'Escala que convierte los grados en notas.',
-    GAP: 'Distancia entre las notas generadas del acorde.',
-    PLAYMODE: 'Cómo se generan las notas: nota, acorde, arpegio…',
-    INV: 'Inversión del acorde: mueve las primeras notas una octava.',
-    WIDTH: 'Número de notas del acorde (0 = una sola nota).',
-    KEY: 'Tonalidad: semitonos que se suman a las notas generadas.',
-    SHIFTSTART: 'Primera nota de la ventana que se desplaza de octava.',
-    SHIFTSIZE: 'Número de notas de la ventana de desplazamiento.',
-    SHIFTVALUE: 'Octavas que se suman a la ventana; puede ser negativo.',
-    PATTERN_GAP: 'Separación usada por el patrón (obsoleto; sin efecto).',
-    PATTERN: 'Melodía de patrón que sustituye la generación normal.',
-    DECORATION: 'Adornos aplicados a las notas del acorde o arpegio.',
-    SHIFT: 'Ventana de desplazamiento de octavas: Start, Size y Value juntos.'
+    OCT: 'Base octave used to interpret melody degrees.',
+    SCALE: 'Scale used to turn degrees into notes.',
+    GAP: 'Distance between generated chord notes.',
+    PLAYMODE: 'How notes are generated: single note, chord, arpeggio…',
+    INV: 'Chord inversion: moves the first notes up an octave.',
+    WIDTH: 'Number of notes in the chord (0 = one note).',
+    KEY: 'Key: semitones added to generated notes.',
+    SHIFTSTART: 'First note in the octave-shift window.',
+    SHIFTSIZE: 'Number of notes in the shift window.',
+    SHIFTVALUE: 'Octaves added to the window; may be negative.',
+    PATTERN_GAP: 'Pattern separator (deprecated; no effect).',
+    PATTERN: 'Pattern melody used instead of normal generation.',
+    DECORATION: 'Ornaments applied to chord or arpeggio notes.',
+    SHIFT: 'Octave-shift window: Start, Size and Value together.'
 };
 
 /** Descripción corta de un tipo de ajuste (incluye el grupo sintético SHIFT). */
 export function commandTypeDescription(type: string): string {
-    return COMMAND_DESCRIPTIONS[type] ?? 'Ajuste de reproducción.';
+    return COMMAND_DESCRIPTIONS[type] ?? 'Playback setting.';
 }
 
 /** Tipos que forman el grupo Shift en la GUI. */

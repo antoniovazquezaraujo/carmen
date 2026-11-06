@@ -7,10 +7,10 @@ import {
 
 describe('command-ui · descripciones y grupo Shift', () => {
   it('describe los ajustes y el grupo sintético Shift', () => {
-    expect(commandTypeDescription(CommandType.OCT)).toContain('Octava');
-    expect(commandTypeDescription(CommandType.PLAYMODE)).toContain('acorde');
-    expect(commandTypeDescription('SHIFT')).toContain('Start, Size y Value');
-    expect(commandTypeDescription('DESCONOCIDO')).toBe('Ajuste de reproducción.');
+    expect(commandTypeDescription(CommandType.OCT)).toContain('octave');
+    expect(commandTypeDescription(CommandType.PLAYMODE)).toContain('chord');
+    expect(commandTypeDescription('SHIFT')).toContain('Start, Size and Value');
+    expect(commandTypeDescription('UNKNOWN')).toBe('Playback setting.');
   });
 
   it('crea los tres ajustes Shift con valores neutros', () => {
