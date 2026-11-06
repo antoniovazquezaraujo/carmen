@@ -179,10 +179,10 @@ input[type="number"]#repeatingTimes {
   max-width: 160px;
   margin-right: 4px;
   padding: 1px 7px;
-  border: 1px solid #d7e0e7;
+  border: 1px solid #1e1e1e;
   border-radius: 10px;
-  background-color: #f1f6f9;
-  color: #37474f;
+  background-color: #1e1e1e;
+  color: #ffffff;
   font: inherit;
   font-size: 0.75rem;
   white-space: nowrap;
@@ -193,12 +193,14 @@ input[type="number"]#repeatingTimes {
 
 .block-content-chip:hover,
 .block-content-chip:focus-visible {
-  border-color: #90a4ae;
-  background-color: #e3ebf2;
+  border-color: #333333;
+  background-color: #333333;
+  color: #ffffff;
   outline: none;
 }
 
 .block-content-chip .pi {
+  color: #ffffff;
   font-size: 0.7rem;
 }
 

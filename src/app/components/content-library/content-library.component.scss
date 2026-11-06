@@ -90,10 +90,15 @@
 }
 
 .content-library-tab--active {
-  border-color: #b0bec5;
-  background-color: #e3ebf2;
-  color: #263238;
+  border-color: #1e1e1e;
+  background-color: #1e1e1e;
+  color: #ffffff;
   font-weight: bold;
+}
+
+.content-library-tab--active:hover {
+  border-color: #333333;
+  background-color: #333333;
 }
 
 .content-library-tab-count {
@@ -104,8 +109,13 @@
   height: 16px;
   padding: 0 4px;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(0, 0, 0, 0.08);
   font-size: 0.7rem;
+}
+
+.content-library-tab--active .content-library-tab-count {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 .content-library-warning {
