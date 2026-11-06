@@ -4,9 +4,15 @@
     <div class="container-wrapper commands-container">
       @for (command of preset.settings; track command) {
         <div class="command">
-          <select class="command-type" [(ngModel)]="command.type" (ngModelChange)="onCommandTypeChange(command)">
-            @for (type of commandTypeNames; track type) {
-              <option [value]="type">{{typeLabel(type)}}</option>
+          <select class="command-type"
+            [(ngModel)]="command.type"
+            (ngModelChange)="onCommandTypeChange(command)"
+            [pTooltip]="typeDescription(command.type)"
+            [title]="typeDescription(command.type)"
+            tooltipPosition="top"
+            [attr.aria-label]="'Setting type: ' + typeDescription(command.type)">
+            @for (type of typeOptions(command); track type) {
+              <option [value]="type" [title]="typeDescription(type)">{{typeLabel(type)}}</option>
             }
           </select>
           @if (showCommandColon(command)) {

@@ -30,12 +30,15 @@ import {
     buildAvailableVariables,
     buildStringVariables,
     canonicalDecorationValueOrRaw,
+    commandTypeDescription,
     commandTypeLabel,
+    createShiftCommands,
     defaultCommandValue,
     filterVariables,
     isVariableOfType,
     resolveEditorOptions,
     showCommandColon,
+    SHIFT_COMMAND_TYPES,
     VariableOption
 } from '../content-editors/command-ui';
 
@@ -54,7 +57,11 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() preset: Preset = new Preset();
 
     readonly commandTypes = CommandType;
+    readonly syntheticShift = 'SHIFT';
     commandTypeNames: string[] = Object.values(CommandType);
+    /** Tipos que se pueden elegir en una fila normal; los tres Shift se agrupan. */
+    private baseCommandTypeNames: string[] = Object.values(CommandType)
+        .filter(type => !SHIFT_COMMAND_TYPES.includes(type as CommandType));
     playModeNames: string[] = [];
     playModeOptions: PlayModeOption[] = [];
     scaleNames: string[] = [];
@@ -107,6 +114,19 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     /** Etiqueta de tipo para la vista (`INV` → `Inv`); el modelo no cambia. */
     typeLabel(type: string): string {
         return commandTypeLabel(type);
+    }
+
+    /** Lista de tipos de una fila; los Shift existentes conservan sus tipos. */
+    typeOptions(command: Command): string[] {
+        if (SHIFT_COMMAND_TYPES.includes(command.type)) {
+            return this.commandTypeNames;
+        }
+        return [...this.baseCommandTypeNames, this.syntheticShift];
+    }
+
+    /** Descripción contextual del tipo seleccionado. */
+    typeDescription(type: string): string {
+        return commandTypeDescription(type);
     }
 
     removeCommand(command: Command): void {
@@ -216,6 +236,16 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     onCommandTypeChange(command: Command): void {
+        // El tipo sintético `SHIFT` no existe en el modelo: al elegirlo se
+        // sustituye la fila por los tres ajustes que forman la ventana.
+        if (String(command.type) === this.syntheticShift) {
+            const index = this.preset.settings.indexOf(command);
+            if (index !== -1) {
+                this.preset.settings.splice(index, 1, ...createShiftCommands());
+                this.cdr.detectChanges();
+            }
+            return;
+        }
         if (command.type === CommandType.PATTERN || command.type === CommandType.DECORATION) {
             command.isVariable = false;
         }
