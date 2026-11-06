@@ -160,8 +160,9 @@
 }
 
 .library-entry--playing .library-usage {
-  background-color: rgba(255, 255, 255, 0.14);
-  color: #f5f5f5;
+  border-color: #8faebc;
+  background-color: #333333;
+  color: #ffffff;
 }
 
 .library-entry--playing .library-entry-header .p-button {
@@ -208,15 +209,17 @@
   align-items: center;
   gap: 3px;
   padding: 1px 6px;
+  border: 1px solid #2b2b2b;
   border-radius: 10px;
-  background-color: #e3ebf2;
-  color: #37474f;
+  background-color: #2b2b2b;
+  color: #ffffff;
   font-size: 0.8rem;
   white-space: nowrap;
   cursor: default;
 }
 
 .library-usage .pi {
+  color: #ffffff;
   font-size: 0.7rem;
 }
 
