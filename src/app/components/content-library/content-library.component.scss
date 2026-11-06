@@ -135,8 +135,8 @@
 /* Entrada que está sonando: se mantiene resaltada aunque esté plegada. */
 .library-entry--playing {
   border-radius: 4px;
-  background-color: #d7e3e8;
-  box-shadow: inset 3px 0 0 #5f7f8f;
+  background-color: #bcd3de;
+  box-shadow: inset 3px 0 0 #416b7d;
   transition: background-color 120ms ease;
 }
 
@@ -253,6 +253,7 @@
 :host ::ng-deep .content-melody-editor {
   .melody-editor {
     min-height: 0;
+    background-color: transparent;
   }
 
   .editor-content {

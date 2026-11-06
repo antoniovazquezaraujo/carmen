@@ -58,9 +58,9 @@
 
 /* Bloque que está sonando: resalta su cabecera aunque esté plegado. */
 .block-content--playing > .block-header {
-  background-color: #d7e3e8;
+  background-color: #bcd3de;
   border-radius: 4px;
-  box-shadow: inset 3px 0 0 #5f7f8f;
+  box-shadow: inset 3px 0 0 #416b7d;
   transition: background-color 120ms ease;
 }
 

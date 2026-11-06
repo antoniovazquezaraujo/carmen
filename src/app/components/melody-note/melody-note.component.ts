@@ -62,7 +62,7 @@ import { SingleNote, NoteDuration } from '../../model/melody';
            para no tocar el contrato de sombra del estado en reposo. */
         .note-item.playing {
             border-color: #2196F3;
-            background-color: #E3F2FD;
+            background-color: #bcd3de;
             filter: drop-shadow(0 0 3px rgba(33, 150, 243, 0.9));
             transition: filter 80ms ease-out;
         }
