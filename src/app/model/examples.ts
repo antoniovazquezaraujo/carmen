@@ -17,11 +17,11 @@ export interface ExampleSong {
  */
 export const EXAMPLE_SONGS: readonly ExampleSong[] = [
     {
-        id: 'first-light',
-        title: 'First Light',
-        description: 'A gentle two-part miniature: a singing theme over a reusable bassline.',
-        tags: ['Starter', 'Arpeggios', 'Reusable content'],
-        bpm: 96,
+        id: 'vodka',
+        title: 'Vodka',
+        description: 'A nine-cycle, three-part study built from A/B/C/D melodies and eleven shifting presets.',
+        tags: ['Nine cycles', 'Three parts', 'Odd/even'],
+        bpm: 120,
         mr: DEMO_SONG_MR
     },
     {
