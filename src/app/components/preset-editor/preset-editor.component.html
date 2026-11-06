@@ -59,6 +59,21 @@
                     <option [value]="scale">{{scale}}</option>
                   }
                 </select>
+                <button type="button"
+                  class="scale-preview-trigger"
+                  [attr.aria-label]="'Show ' + scaleName(command) + ' scale diagram'"
+                  (mouseenter)="scalePreview.show($event)"
+                  (mouseleave)="scalePreview.hide()"
+                  (focus)="scalePreview.show($event)"
+                  (blur)="scalePreview.hide()">
+                  <i class="pi pi-info-circle" aria-hidden="true"></i>
+                </button>
+                <p-popover #scalePreview
+                  [dismissable]="true"
+                  [style]="{ width: '8.5rem' }"
+                  appendTo="body">
+                  <app-scale-preview [scale]="scaleName(command)"></app-scale-preview>
+                </p-popover>
               }
             }
             @case (commandTypes.PATTERN) {

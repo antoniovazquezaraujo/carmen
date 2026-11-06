@@ -1,0 +1,39 @@
+.scale-preview {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #263238;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.scale-preview-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.scale-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 18px);
+  gap: 1px;
+  width: max-content;
+  padding: 1px;
+  border: 1px solid #90a4ae;
+  background-color: #90a4ae;
+}
+
+.scale-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: #cfd8dc;
+  color: #263238;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.scale-cell--empty {
+  background-color: #ffffff;
+}
