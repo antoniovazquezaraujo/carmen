@@ -15,10 +15,10 @@
   min-width: 58px;
   height: 20px;
   padding: 0 2px 0 4px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--mr-border);
   border-radius: 2px;
-  background-color: #ffffff;
-  color: #333333;
+  background-color: var(--mr-surface-strong);
+  color: var(--mr-ink);
   font-size: 12px;
   text-align: left;
   cursor: pointer;
@@ -26,8 +26,13 @@
 
 .scale-select-trigger:hover,
 .scale-select-trigger:focus-visible {
-  border-color: #90a4ae;
+  border-color: var(--mr-border-strong);
   outline: none;
+}
+
+.scale-select-trigger:focus-visible {
+  border-color: var(--mr-accent);
+  box-shadow: var(--mr-focus);
 }
 
 .scale-select-trigger .pi {
@@ -45,10 +50,10 @@
   flex-direction: column;
   min-width: 94px;
   padding: 2px;
-  border: 1px solid #b0bec5;
-  border-radius: 3px;
-  background-color: #ffffff;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--mr-border);
+  border-radius: var(--mr-radius-sm);
+  background-color: var(--mr-surface);
+  box-shadow: var(--mr-shadow-md);
 }
 
 .scale-option {
@@ -56,7 +61,7 @@
   border: none;
   border-radius: 2px;
   background-color: transparent;
-  color: #37474f;
+  color: var(--mr-ink-soft);
   font-size: 12px;
   text-align: left;
   cursor: pointer;
@@ -64,26 +69,27 @@
 
 .scale-option:hover,
 .scale-option:focus-visible {
-  background-color: #e3ebf2;
+  background-color: var(--mr-accent-soft);
+  color: var(--mr-accent-ink);
   outline: none;
 }
 
 .scale-option--selected {
-  background-color: #1e1e1e;
-  color: #ffffff;
+  background-color: var(--mr-accent-soft);
+  color: var(--mr-accent-ink);
   font-weight: 700;
 }
 
 .scale-option--selected:hover,
 .scale-option--selected:focus-visible {
-  background-color: #333333;
-  color: #ffffff;
+  background-color: var(--mr-accent-soft);
+  color: var(--mr-accent-ink);
 }
 
 .scale-select-preview {
   padding: 6px;
-  border: 1px solid #b0bec5;
-  border-radius: 4px;
-  background-color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--mr-border);
+  border-radius: var(--mr-radius-sm);
+  background-color: var(--mr-surface);
+  box-shadow: var(--mr-shadow-md);
 }
