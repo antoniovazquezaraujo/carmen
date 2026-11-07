@@ -2121,24 +2121,12 @@ p-inputnumber .p-inputnumber-button-group > * + * {
 }
 
 /* ====== COMMANDS/OPERATIONS COMO TEXTO LIBRE ====== */
-/* `$` y `✕`: siempre visibles, sin chrome en reposo; al hover del comando
-   (o al editar) recuperan el aspecto de botón. Conservan sus tooltips. */
+/* `$` y `✕`: viven ocultos hasta el hover del comando; el chrome (fondo,
+   borde e icono) lo define la capa de tema junto al resto de botones. */
 .command-actions .p-button,
 .command-controls .p-button {
-  border-color: transparent !important;
-  background-color: transparent !important;
-  color: #666 !important;
   margin: 0 !important;
   transition: border-color 0.12s ease, background-color 0.12s ease, color 0.12s ease;
-}
-
-.command:hover .command-actions .p-button,
-.command:focus-within .command-actions .p-button,
-.operation-item:hover .command-controls .p-button,
-.operation-item:focus-within .command-controls .p-button {
-  border-color: #ccc !important;
-  background-color: white !important;
-  color: #333 !important;
 }
 
 /* Foco de teclado claro (accesibilidad) sin ensuciar el clic con ratón. */
