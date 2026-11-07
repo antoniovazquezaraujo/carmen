@@ -1,4 +1,4 @@
-<div class="scale-select" (keydown)="onKeydown($event)">
+<div class="scale-select" [class.scale-select--open]="open" (keydown)="onKeydown($event)">
   <button type="button"
     class="scale-select-trigger"
     aria-haspopup="listbox"

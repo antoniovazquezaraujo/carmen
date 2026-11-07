@@ -2418,3 +2418,9 @@ html body app-procedure-editor .operations-row {
   outline: 2px solid rgba(0, 119, 204, 0.55) !important;
   outline-offset: 1px;
 }
+
+/* Un selector de escala abierto debe quedar por encima de las filas y
+   presets siguientes, no solo por encima de sus propios controles. */
+.commands-row:has(.scale-select--open) {
+  z-index: 20;
+}
