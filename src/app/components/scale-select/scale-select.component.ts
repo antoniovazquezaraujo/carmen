@@ -1,20 +1,41 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { ScalePreviewComponent } from '../scale-preview/scale-preview.component';
 
 /**
  * Selector de escala con miniaturas en la lista. Sustituye al `<select>` nativo
  * para poder mostrar el gráfico de cada escala al pasar por las opciones.
+ *
+ * La lista se renderiza en un overlay de CDK para que no la recorten los
+ * paneles con `overflow: hidden` ni quede debajo de los bloques siguientes.
  */
 @Component({
     selector: 'app-scale-select',
     templateUrl: './scale-select.component.html',
     styleUrls: ['./scale-select.component.scss'],
-    imports: [ScalePreviewComponent]
+    imports: [OverlayModule, ScalePreviewComponent]
 })
 export class ScaleSelectComponent {
     @Input() value = 'WHITE';
     @Input() options: readonly string[] = [];
     @Output() valueChange = new EventEmitter<string>();
+
+    readonly overlayPositions: ConnectedPosition[] = [
+        {
+            originX: 'start',
+            originY: 'bottom',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetY: 2
+        },
+        {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetY: -2
+        }
+    ];
 
     open = false;
     hovered: string | null = null;
@@ -26,16 +47,14 @@ export class ScaleSelectComponent {
         this.hovered = this.open ? this.value : null;
     }
 
-    select(scale: string, event: MouseEvent): void {
-        event.preventDefault();
-        event.stopPropagation();
+    select(scale: string, event?: Event): void {
+        event?.preventDefault();
+        event?.stopPropagation();
         this.value = scale;
         this.valueChange.emit(scale);
-        this.open = false;
-        this.hovered = null;
+        this.close();
     }
 
-    @HostListener('document:click')
     close(): void {
         this.open = false;
         this.hovered = null;
@@ -44,6 +63,15 @@ export class ScaleSelectComponent {
     onKeydown(event: KeyboardEvent): void {
         if (event.key === 'Escape') {
             this.close();
+            return;
+        }
+        if (event.key === 'Tab') {
+            this.close();
+            return;
+        }
+        if (event.key === 'Enter' && this.open && this.hovered) {
+            this.select(this.hovered);
+            event.preventDefault();
             return;
         }
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
