@@ -4,7 +4,7 @@ import { SingleNote, NoteDuration } from '../../model/melody';
 @Component({
     selector: 'app-melody-note',
     template: `
-        <div class="note-item" [class.selected]="isSelected" (click)="onClick()">
+        <div class="note-item" [class.selected]="isSelected" [class.playing]="isPlaying" (click)="onClick()">
             <!-- Duración a la izquierda del valor; oculta si es heredada.
                  Al hacer hover, la zona queda activa para cambiarla con la rueda. -->
             <div class="note-duration"
@@ -25,23 +25,30 @@ import { SingleNote, NoteDuration } from '../../model/melody';
         </div>
     `,
     styles: [`
+        /* Notas en texto libre: borde transparente reservado (misma caja) y
+           sin fondo en reposo; al hover o al seleccionar aparece el chrome
+           sin cambiar tamaño ni altura (20px, como el resto de controles). */
         .note-item {
             display: flex;
             flex-direction: row;
             align-items: center;
             /* El valor queda a la derecha; la duración aparece a su izquierda. */
             justify-content: flex-end;
-            gap: 4px;
-            margin: 0 2px;
-            padding: 2px 4px;
-            border: 1px solid #ccc;
+            gap: 2px;
+            margin: 0;
+            padding: 0 2px;
+            border: 1px solid transparent;
             border-radius: 2px;
             cursor: pointer;
-            background-color: white;
-            min-width: 40px;
+            background-color: transparent;
+            min-width: 28px;
+            height: 20px;
+            box-sizing: border-box;
+            line-height: 1;
         }
         
         .note-item:hover {
+            border-color: #ccc;
             background-color: #f0f0f0;
         }
         
@@ -49,23 +56,53 @@ import { SingleNote, NoteDuration } from '../../model/melody';
             border-color: #2196F3;
             background-color: #E3F2FD;
         }
+
+        /* Nota-origen sonando: glow azul sutil, sin mover nada del layout.
+           No pisa la selección (el borde/fondo se combinan) y usa filter
+           para no tocar el contrato de sombra del estado en reposo. */
+        .note-item.playing {
+            border-color: #8faebc;
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+            filter: drop-shadow(0 0 3px rgba(143, 174, 188, 0.8));
+            transition: filter 80ms ease-out;
+        }
+
+        .note-item.playing .note-duration,
+        .note-item.playing .duration-value,
+        .note-item.playing .note-value {
+            color: #f5f5f5;
+        }
         
         .note-visual {
+            /* Flex para centrar el valor: como span inline heredaba el
+               baseline de la línea y quedaba ~1px por debajo del centro de
+               los demás controles (inputs) de la fila. */
+            display: flex;
+            align-items: center;
             cursor: ns-resize;
             padding: 0;
-            margin-right: 4px;
+            margin-right: 0;
         }
         
         .note-duration {
-            font-size: 0.8em;
+            /* Mismo tamaño que el valor; #666 solo distingue la duración. */
+            font-size: 12px;
             color: #666;
             cursor: ns-resize;
-            padding: 0 2px;
+            padding: 0 1px;
             text-align: right;
+            line-height: 1;
             /* Oculta si la duración es heredada; aparece al hacer hover. */
             visibility: hidden;
-            min-width: 20px;
-            min-height: 18px;
+            min-width: 14px;
+            /* Ocupa todo el alto de la nota: con la duración vacía (heredada)
+               el texto mide 0 y, sin esta zona, la rueda no tendría dónde
+               apoyarse para volver a una duración explícita. */
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .note-duration.duration-explicit,
@@ -79,9 +116,11 @@ import { SingleNote, NoteDuration } from '../../model/melody';
             cursor: none;
         }
 
+        /* Mismo tamaño/peso que los comandos: las notas se leen como texto
+           seguido (12px, normal) sin cambiar la caja de 20px. */
         .note-visual .note-value {
-           font-size: 1.2em; 
-           font-weight: bold;
+           font-size: 12px;
+           font-weight: normal;
         }
         
         .note-visual .silence {
@@ -97,6 +136,8 @@ import { SingleNote, NoteDuration } from '../../model/melody';
 export class MelodyNoteComponent implements OnDestroy {
     @Input() note!: SingleNote;
     @Input() isSelected = false;
+    /** Nota-origen sonando: aplica el resaltado `playing`. */
+    @Input() isPlaying = false;
     
     @Output() select = new EventEmitter<void>();
     @Output() toggleSilence = new EventEmitter<void>();
@@ -152,9 +193,18 @@ export class MelodyNoteComponent implements OnDestroy {
         this.changeDuration.emit(event.deltaY > 0 ? 1 : -1);
     }
 
+    /**
+     * Rueda sobre el valor: sin Shift cambia el valor de la nota; con Shift
+     * cambia la duración, con la misma convención y sentido que la zona de
+     * duración (patrón del editor: Shift = duración).
+     */
     onWheelValue(event: WheelEvent): void {
         event.preventDefault();
         this.hideCursorWhileWheeling();
+        if (event.shiftKey) {
+            this.changeDuration.emit(event.deltaY > 0 ? 1 : -1);
+            return;
+        }
         this.changeValue.emit(event.deltaY > 0 ? -1 : 1);
     }
 

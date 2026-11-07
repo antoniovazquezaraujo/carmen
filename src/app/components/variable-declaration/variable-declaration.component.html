@@ -1,89 +1,135 @@
 <div class="variables-container">
-    <form class="variable-form">
-        <input type="text" [(ngModel)]="newVariable.name" name="name" placeholder="Variable name" required>
-        
-        <select [(ngModel)]="newVariable.type" name="type" required>
-            <option value="number">Number</option>
-            <option value="playmode">Play Mode</option>
-            <option value="scale">Scale</option>
-            <option value="string">Text</option>
-        </select>
-
-        <ng-container [ngSwitch]="newVariable.type">
-            <select *ngSwitchCase="'playmode'" 
-                [(ngModel)]="newVariable.value" 
-                name="value" 
-                required>
-                <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
-            </select>
-
-            <ng-container *ngSwitchCase="'scale'">
-                <select [(ngModel)]="newVariable.value" name="value" required>
-                    <option *ngFor="let scale of scaleNames" [value]="scale">{{scale}}</option>
-                </select>
-            </ng-container>
-
-            <input *ngSwitchCase="'string'"
-                type="text"
-                class="string-input"
-                [(ngModel)]="newVariable.value"
-                name="value"
-                placeholder="4t:0 4t:2 ...">
-
-            <input *ngSwitchCase="'number'" 
-                type="number" 
-                class="number-input"
-                style="width:45px !important; max-width:45px !important;"
-                [(ngModel)]="newVariable.value"
-                name="value"
-                [min]="-999"
-                [max]="999"
-                step="1">
-        </ng-container>
-
-        <p-button type="button" 
-            (click)="addVariable()" 
-            [disabled]="!newVariable.name" 
-            icon="pi pi-plus">
-        </p-button>
+  @if (formVisible) {
+    <form class="variable-form" autocomplete="off">
+      <input type="text"
+        [(ngModel)]="newVariable.name"
+        name="variableName"
+        placeholder="Variable name"
+        aria-label="Variable name"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        required>
+      <select [(ngModel)]="newVariable.type" name="type" autocomplete="off" required>
+        <option value="number">Number</option>
+        <option value="playmode">Play Mode</option>
+        <option value="scale">Scale</option>
+        <option value="string">Text</option>
+      </select>
+      @switch (newVariable.type) {
+        @case ('playmode') {
+          <select
+            class="playmode-select"
+            [(ngModel)]="newVariable.value"
+            name="value"
+            autocomplete="off"
+            [pTooltip]="playModeDescription(newVariable.value)"
+            [title]="playModeDescription(newVariable.value)"
+            tooltipPosition="top"
+            [attr.aria-label]="'Play mode: ' + playModeDescription(newVariable.value)"
+            required>
+            @for (mode of playModeOptions; track mode) {
+              <option
+                [value]="mode.value"
+              [title]="mode.description">{{ mode.symbol }}</option>
+            }
+          </select>
+        }
+        @case ('scale') {
+          <select [(ngModel)]="newVariable.value" name="value" autocomplete="off" required>
+            @for (scale of scaleNames; track scale) {
+              <option [value]="scale">{{scale}}</option>
+            }
+          </select>
+        }
+        @case ('string') {
+          <input
+            type="text"
+            class="string-input"
+            [(ngModel)]="newVariable.value"
+            name="value"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="4t:0 4t:2 ...">
+        }
+        @case ('number') {
+          <input
+            type="number"
+            class="number-input"
+            style="width:45px !important; max-width:45px !important;"
+            [(ngModel)]="newVariable.value"
+            name="value"
+            autocomplete="off"
+            [min]="-999"
+            [max]="999"
+            step="1">
+        }
+      }
+      <p-button type="button"
+        (click)="addVariable()"
+        [disabled]="!newVariable.name"
+        icon="pi pi-plus">
+      </p-button>
     </form>
+  }
 
-    <div class="variables-list">
-        <div *ngFor="let variable of variables; let i = index" class="variable-item">
-            <span class="variable-name">{{variable.name}}</span>
-            
-            <ng-container [ngSwitch]="variable.type">
-                <select *ngSwitchCase="'playmode'" 
-                    [(ngModel)]="variable.value" 
-                    (ngModelChange)="updateVariable(i)">
-                    <option *ngFor="let mode of playModeNames" [value]="mode">{{mode}}</option>
-                </select>
-
-                <select *ngSwitchCase="'scale'" 
-                    [(ngModel)]="variable.value" 
-                    (ngModelChange)="updateVariable(i)">
-                    <option *ngFor="let scale of scaleNames" [value]="scale">{{scale}}</option>
-                </select>
-
-                <input *ngSwitchCase="'string'"
-                    type="text"
-                    class="string-input"
-                    [(ngModel)]="variable.value"
-                    (ngModelChange)="updateVariable(i)"
-                    aria-label="Valor de la variable de texto">
-
-                <input *ngSwitchCase="'number'" 
-                    type="number" 
-                    class="number-input"
-                    style="width:45px !important; max-width:45px !important;"
-                    [(ngModel)]="variable.value"
-                    (ngModelChange)="updateVariable(i)"
-                    [min]="-999"
-                    [max]="999"
-                    step="1">
-            </ng-container>
-
-            <p-button (click)="removeVariable(i)" icon="pi pi-times" pTooltip="Remove Variable" tooltipPosition="top"></p-button>
-        </div>
-    </div>
+  <div class="variables-list">
+    @for (variable of variables; track trackByVariable($index, variable); let i = $index) {
+      <div class="variable-item">
+        <span class="variable-name">{{variable.name}}</span>
+        @switch (variable.type) {
+          @case ('playmode') {
+            <select
+              class="playmode-select"
+              [(ngModel)]="variable.value"
+              autocomplete="off"
+              [pTooltip]="playModeDescription(variable.value)"
+              [title]="playModeDescription(variable.value)"
+              tooltipPosition="top"
+              [attr.aria-label]="'Play mode: ' + playModeDescription(variable.value)"
+              (ngModelChange)="updateVariable(i)">
+              @for (mode of playModeOptions; track mode) {
+                <option
+                  [value]="mode.value"
+                [title]="mode.description">{{ mode.symbol }}</option>
+              }
+            </select>
+          }
+          @case ('scale') {
+            <select
+              [(ngModel)]="variable.value"
+              autocomplete="off"
+              (ngModelChange)="updateVariable(i)">
+              @for (scale of scaleNames; track scale) {
+                <option [value]="scale">{{scale}}</option>
+              }
+            </select>
+          }
+          @case ('string') {
+            <input
+              type="text"
+              class="string-input"
+              [(ngModel)]="variable.value"
+              (ngModelChange)="updateVariable(i)"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Valor de la variable de texto">
+          }
+          @case ('number') {
+            <input
+              type="number"
+              class="number-input"
+              style="width:45px !important; max-width:45px !important;"
+              [(ngModel)]="variable.value"
+              (ngModelChange)="updateVariable(i)"
+              autocomplete="off"
+              [min]="-999"
+              [max]="999"
+              step="1">
+          }
+        }
+        <p-button (click)="removeVariable(i)" icon="pi pi-times" pTooltip="Remove Variable" tooltipPosition="top"></p-button>
+      </div>
+    }
+  </div>
 </div>

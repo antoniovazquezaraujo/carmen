@@ -4,9 +4,12 @@ import { parseBlockNotesForEditor } from '../../model/mr/notes.parser';
 import { MelodyEditorService } from '../../services/melody-editor.service';
 import { MusicElement, NoteDuration, SingleNote, CompositeNote, GenericGroup } from '../../model/melody';
 import { Subscription } from 'rxjs';
+import { nextDuration, DurationDirection } from './duration-cycle';
 import { MelodyNoteComponent } from '../melody-note/melody-note.component';
 import { MelodyGroupComponent } from '../melody-group/melody-group.component';
-import { SongPlayer } from '../../model/song.player';
+import { SongPlayer, PlayingNoteSource } from '../../model/song.player';
+import { resolvePlayingElementIds } from './playing-path-map';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
  * Interfaz para notas en el editor de melodías
@@ -41,15 +44,22 @@ interface VisualElement {
  * y agruparlas usando corchetes.
  */
 @Component({
-  selector: 'app-melody-editor',
-  templateUrl: './melody-editor.component.html',
-  styleUrls: ['./melody-editor.component.scss'],
-  providers: [MelodyEditorService]
+    selector: 'app-melody-editor',
+    templateUrl: './melody-editor.component.html',
+    styleUrls: ['./melody-editor.component.scss'],
+    providers: [MelodyEditorService],
+    imports: [NgTemplateOutlet, MelodyNoteComponent, MelodyGroupComponent]
 })
 export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() notes: string = '';
   @Input() showVariableIcon: boolean = true;
   @Input() defaultDuration: NoteDuration = '4n';
+  /**
+   * Id de la melodía que edita este editor. Si coincide con la melodía que
+   * suena, el editor resalta la nota-origen (`playing`). `undefined` (p. ej.
+   * el editor de PATTERN) desactiva el resaltado.
+   */
+  @Input() playingBlockId?: number;
   @Output() notesChange = new EventEmitter<string>();
   @ViewChild('editorContainer') editorContainer!: ElementRef;
   @ViewChildren(MelodyNoteComponent) noteComponents!: QueryList<MelodyNoteComponent>;
@@ -59,8 +69,12 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
   elements: MusicElement[] = [];
   visualElements: VisualElement[] = [];
   selectedId: string | null = null;
+  /** Ids de elementos del editor que están sonando ahora mismo. */
+  playingElementIds = new Set<string>();
+  private activePlayingPaths: ReadonlyArray<readonly number[]> = [];
   private elementsSub!: Subscription;
   private selectedIdSub!: Subscription;
+  private playingSourcesSub!: Subscription;
   private lastEmittedNotesString: string | null = null;
   private globalDurationSub!: Subscription;
   expandedGroups = new Set<string>();
@@ -148,6 +162,7 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.elementsSub = this.melodyEditorService.elements$.subscribe(elements => {
       this.elements = elements;
       this.visualElements = this.flattenElements(elements);
+      this.playingElementIds = resolvePlayingElementIds(elements, this.activePlayingPaths);
 
       // Update focused element based on current selection ID
       // No longer call scrollToElement from here
@@ -171,7 +186,33 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
       // DO NOT call scrollToElement here
     });
 
+    this.playingSourcesSub = this.songPlayer.playingSources$.subscribe(sources => {
+      this.activePlayingPaths = this.collectPlayingPaths(sources);
+      this.playingElementIds = resolvePlayingElementIds(this.elements, this.activePlayingPaths);
+      this.cdr.detectChanges();
+    });
+
     this.editorContainer?.nativeElement.focus();
+  }
+
+  /** Rutas de origen que están sonando en el bloque de este editor. */
+  private collectPlayingPaths(sources: PlayingNoteSource[]): ReadonlyArray<readonly number[]> {
+    if (this.playingBlockId === undefined) {
+      return [];
+    }
+    return sources
+      .filter(source => (source.melodyId ?? source.blockId) === this.playingBlockId)
+      .map(source => source.sourcePath);
+  }
+
+  /** `true` si el elemento (o el grupo propietario de un marcador) suena. */
+  isPlaying(elementId: string): boolean {
+    if (this.playingElementIds.has(elementId)) {
+      return true;
+    }
+    // Los marcadores de grupo se pintan como `id_start`/`id_end`, pero el
+    // mapeo por path devuelve el id del grupo.
+    return this.playingElementIds.has(elementId.replace(/_(start|end)$/, ''));
   }
 
   private scrollToElement(elementId: string): void {
@@ -441,71 +482,46 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
   }
   
   private increaseDuration(elementId?: string): void {
-      const targetId = elementId ?? this.focusedElement?.id;
-      if (!targetId) return;
-      const findElementRecursive = (id: string, els: MusicElement[]): MusicElement | null => {
-          for (const el of els) {
-              if (el.id === id) return el;
-              if (el.type === 'group' && el.children) {
-                  const found = findElementRecursive(id, el.children);
-                  if (found) return found;
-              } else if ((el.type === 'arpeggio' || el.type === 'chord') && el.notes) {
-                  const found = findElementRecursive(id, el.notes);
-                  if (found) return found;
-              }
-          }
-          return null;
-      };
-      const currentElement = findElementRecursive(targetId, this.elements);
-      if (!currentElement) return;
-
-      // Ciclo con el estado "en blanco" incluido: seguir girando más allá de
-      // `1n` vuelve a dejar la nota sin duración (heredada del grupo).
-      const cycle: Array<NoteDuration | undefined> = [undefined, ...this.durations];
-      const currentDuration =
-          currentElement.duration ??
-          this.findParentGroup(targetId, this.elements)?.duration ??
-          this.defaultDuration;
-      const currentIndex = Math.max(cycle.indexOf(currentDuration), 0);
-      const newDuration = cycle[(currentIndex - 1 + cycle.length) % cycle.length];
-
-      this.melodyEditorService.updateNote(targetId, { duration: newDuration });
-      this.emitNotesChange();
+      this.stepDuration(elementId, 'longer');
   }
 
   private decreaseDuration(elementId?: string): void {
+      this.stepDuration(elementId, 'shorter');
+  }
+
+  /**
+   * Aplica un paso del anillo de duraciones a la nota indicada (o a la
+   * seleccionada). El anillo es único (7 duraciones + estado en blanco) y no
+   * reengancha por la duración del grupo ni por el `defaultDuration`: así los
+   * dos sentidos recorren siempre los mismos 8 valores.
+   */
+  private stepDuration(elementId: string | undefined, direction: DurationDirection): void {
       const targetId = elementId ?? this.focusedElement?.id;
       if (!targetId) return;
-      const findElementRecursive = (id: string, els: MusicElement[]): MusicElement | null => {
-           for (const el of els) {
-               if (el.id === id) return el;
-               if (el.type === 'group' && el.children) {
-                   const found = findElementRecursive(id, el.children);
-                   if (found) return found;
-               } else if ((el.type === 'arpeggio' || el.type === 'chord') && el.notes) {
-                   const found = findElementRecursive(id, el.notes);
-                   if (found) return found;
-               } 
-           }
-           return null;
-      };
-      const currentElement = findElementRecursive(targetId, this.elements);
+      const currentElement = this.findElement(targetId, this.elements);
       if (!currentElement) return;
 
-      // Ciclo con el estado "en blanco" incluido: seguir girando más allá de
-      // `8t` vuelve a dejar la nota sin duración (heredada del grupo).
-      const cycle: Array<NoteDuration | undefined> = [undefined, ...this.durations];
-      const currentDuration =
-          currentElement.duration ??
-          this.findParentGroup(targetId, this.elements)?.duration ??
-          this.defaultDuration;
-      const currentIndex = Math.max(cycle.indexOf(currentDuration), 0);
-      const newDuration = cycle[(currentIndex + 1) % cycle.length];
+      const newDuration = nextDuration(currentElement.duration, direction, this.durations);
 
       this.melodyEditorService.updateNote(targetId, { duration: newDuration });
       this.emitNotesChange();
   }
-  
+
+  /** Busca un elemento por id en todo el árbol (grupos, arpegios y acordes). */
+  private findElement(id: string, elements: MusicElement[]): MusicElement | null {
+      for (const el of elements) {
+          if (el.id === id) return el;
+          if (el.type === 'group' && el.children) {
+              const found = this.findElement(id, el.children);
+              if (found) return found;
+          } else if ((el.type === 'arpeggio' || el.type === 'chord') && el.notes) {
+              const found = this.findElement(id, el.notes);
+              if (found) return found;
+          }
+      }
+      return null;
+  }
+
   private emitNotesChange(): void {
     const noteData = this.melodyEditorService.toNoteData();
     const stringArray = NoteData.toStringArray(noteData);
@@ -516,6 +532,7 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
   ngOnDestroy() {
     this.elementsSub?.unsubscribe();
     this.selectedIdSub?.unsubscribe();
+    this.playingSourcesSub?.unsubscribe();
     this.globalDurationSub?.unsubscribe();
   }
 

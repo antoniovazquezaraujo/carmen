@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { Song } from '../../song';
+import { Block } from '../../block';
 import { createNodeMrFileSystem } from '../mr.file.node';
 import { hasMrExtension, MrFileError, MrFileService, MrFileSystem, normalizeMrText } from '../mr.file';
 import { serializeSong } from '../mr.serializer';
@@ -31,7 +32,7 @@ function createDocument(name: string): SongDocument {
   const song = new Song();
   song.name = name;
   song.parts = [];
-  return { song, variables: new Map(), meta: { version: 1 } };
+  return { song, variables: new Map(), meta: { version: 2 } };
 }
 
 describe('mr.file: helpers', () => {
@@ -43,7 +44,7 @@ describe('mr.file: helpers', () => {
   });
 
   it('normaliza BOM y CRLF a UTF-8/LF', () => {
-    expect(normalizeMrText('\uFEFFsong X\r\nversion 1\r\n')).toBe('song X\nversion 1\n');
+    expect(normalizeMrText('\uFEFFsong X\r\nversion 2\r\n')).toBe('song X\nversion 2\n');
     expect(normalizeMrText('a\rb')).toBe('a\nb');
   });
 });
@@ -68,13 +69,13 @@ describe('MrFileService con filesystem en memoria', () => {
 
   it('normaliza BOM/CRLF al leer', async () => {
     const fileSystem = new MemoryFileSystem();
-    await fileSystem.write('semilla.mr', '\uFEFFsong Semilla\r\nversion 1\r\npart Piano\r\n  block Origen\r\n');
+    await fileSystem.write('semilla.mr', '\uFEFFsong Semilla\r\nversion 2\r\npart Piano\r\n  block Origen\r\n');
     const service = new MrFileService(fileSystem);
 
     const document = await service.read('semilla.mr');
 
     expect(document.song.name).toBe('Semilla');
-    expect(document.song.parts[0].blocks[0].label).toBe('Origen');
+    expect((document.song.parts[0].items[0] as Block).label).toBe('Origen');
   });
 
   it('rechaza rutas sin extensión .mr', async () => {
@@ -93,7 +94,7 @@ describe('mr.file.node: integración real con disco', () => {
       const songPath = path.join(directory, 'orbita.mr');
       const document = createDocument('Órbita');
       document.song.repeats = 2;
-      document.meta = { version: 1, repeats: 2, bpm: 90 };
+      document.meta = { version: 2, repeats: 2, bpm: 90 };
 
       await service.write(songPath, document);
 
@@ -103,7 +104,7 @@ describe('mr.file.node: integración real con disco', () => {
 
       const read = await service.read(songPath);
       expect(read.song.name).toBe('Órbita');
-      expect(read.meta).toEqual({ version: 1, repeats: 2, bpm: 90 });
+      expect(read.meta).toEqual({ version: 2, repeats: 2, bpm: 90 });
       expect(serializeSong(read)).toBe(bytes);
     } finally {
       const rmSync = (fs as unknown as { rmSync?: (target: string, options: { recursive: boolean; force: boolean }) => void }).rmSync;

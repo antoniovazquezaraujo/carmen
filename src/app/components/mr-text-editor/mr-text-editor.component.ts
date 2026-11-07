@@ -26,6 +26,12 @@ import {
   validateSongText
 } from 'src/app/model/mr';
 import { Song } from 'src/app/model/song';
+import { Bind } from 'primeng/bind';
+import { Dialog } from 'primeng/dialog';
+import { ButtonDirective } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 /** Resultado de aplicar la vista de texto al modelo de la app. */
 export interface MrTextAppliedEvent {
@@ -46,10 +52,11 @@ export interface MrTextAppliedEvent {
  * `GlobalStateService`: emite `applied` y el padre decide cómo integrarlo.
  */
 @Component({
-  selector: 'app-mr-text-editor',
-  templateUrl: './mr-text-editor.component.html',
-  styleUrls: ['./mr-text-editor.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-mr-text-editor',
+    templateUrl: './mr-text-editor.component.html',
+    styleUrls: ['./mr-text-editor.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [Bind, Dialog, ButtonDirective, Tooltip, NgClass, FormsModule]
 })
 export class MrTextEditorComponent implements OnChanges, OnDestroy {
   @Input() song!: Song;
@@ -154,8 +161,8 @@ export class MrTextEditorComponent implements OnChanges, OnDestroy {
     this.text = canonical;
     this.baseline = canonical;
     // Emitir antes de tocar `VariableContext`: si el padre para el player al
-    // recibir `applied`, `SongPlayer.stop()` reinicia variables y borraría lo
-    // recién aplicado (p. ej. `$mode = RANDOM` volvería a CHORD).
+    // recibir `applied`, `SongPlayer.stop()` restaura el snapshot previo al
+    // Play y borraría lo recién aplicado (p. ej. `$mode = RANDOM`).
     this.applied.emit({ song: document.song });
     applyDocumentVariables(document);
   }

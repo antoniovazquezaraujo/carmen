@@ -1,8 +1,17 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { VariableContext } from 'src/app/model/variable.context';
 import { getPlayModeNames } from 'src/app/model/play.mode';
 import { Scale } from 'src/app/model/scale';
+import {
+    playModeDescription as playModeDescriptionText,
+    playModeOptions as buildPlayModeOptions,
+    PlayModeOption
+} from 'src/app/model/play-mode-display';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { Tooltip } from 'primeng/tooltip';
+import { Bind } from 'primeng/bind';
+import { Button } from 'primeng/button';
 
 interface VariableDeclaration {
     name: string;
@@ -14,9 +23,12 @@ interface VariableDeclaration {
 @Component({
     selector: 'app-variable-declaration',
     templateUrl: './variable-declaration.component.html',
-    styleUrls: ['./variable-declaration.component.scss']
+    styleUrls: ['./variable-declaration.component.scss'],
+    imports: [FormsModule, Tooltip, Bind, Button]
 })
 export class VariableDeclarationComponent implements OnInit, OnDestroy {
+    /** El formulario se muestra solo al pulsar el + de la cabecera. */
+    @Input() formVisible = false;
     @Output() variableAdded = new EventEmitter<void>();
     @Output() variableRemoved = new EventEmitter<void>();
     @Output() variableUpdated = new EventEmitter<void>();
@@ -29,22 +41,36 @@ export class VariableDeclarationComponent implements OnInit, OnDestroy {
 
     variables: VariableDeclaration[] = [];
     playModeNames: string[] = getPlayModeNames();
+    playModeOptions: PlayModeOption[] = buildPlayModeOptions(this.playModeNames);
     scaleNames: string[] = Scale.getScaleNames();
 
     private contextSubscription: Subscription | null = null;
 
-    constructor() {
+    constructor(private zone: NgZone, private cdr: ChangeDetectorRef) {
     }
 
     ngOnInit(): void {
        this.contextSubscription = VariableContext.onVariablesChange.subscribe(() => {
-           this.updateVariablesList();
+           // La restauración del snapshot al terminar la canción (fin natural
+           // o Stop) se emite desde un callback de Tone que corre en la zona
+           // de Angular pero sin tareas de zone.js, así que no se programa
+           // tick: `zone.run` reentra por si hiciera falta y `detectChanges`
+           // repinta el panel (el `<select>` mostraba el valor viejo hasta el
+           // siguiente ciclo de render).
+           this.zone.run(() => {
+               this.updateVariablesList();
+               this.cdr.detectChanges();
+           });
        });
         this.updateVariablesList();
     }
 
     ngOnDestroy(): void {
         this.contextSubscription?.unsubscribe();
+    }
+
+    playModeDescription(value: string | number): string {
+        return playModeDescriptionText(String(value));
     }
 
     addVariable(): void {
@@ -93,6 +119,16 @@ export class VariableDeclarationComponent implements OnInit, OnDestroy {
             VariableContext.removeValue(variable.name);
             this.variableRemoved.emit();
         }
+    }
+
+    /**
+     * `VariableContext` emite un cambio en cada tecla y el componente
+     * reconstruye `variables`. Sin `trackBy`, Angular destruye y recrea el
+     * `<input>` de la fila y se pierde el foco; el nombre es la clave estable
+     * (las variables no se pueden duplicar).
+     */
+    trackByVariable(_index: number, variable: VariableDeclaration): string {
+        return variable.name;
     }
 
     private updateVariablesList(): void {

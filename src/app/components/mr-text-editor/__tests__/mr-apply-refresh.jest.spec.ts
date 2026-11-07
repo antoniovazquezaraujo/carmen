@@ -71,24 +71,55 @@ jest.mock('@angular/core', () => {
 /** Ejemplo §6 del formato `.mr` (el mismo que reproduce el bug en la GUI). */
 const EXAMPLE = [
   'song "Prueba"',
-  'version 1',
+  'version 2',
   'repeats 2',
   'bpm 108',
   '',
   'vars',
   '  $motif = "4t:0"',
   '',
-  'part "Piano" instrument PIANO',
-  '  block "Origen" repeats 2',
+  'melodies',
+  '  melody OrigenMelody',
   '    notes default 8n',
   '      4n:0  4n:2  4n:( 0 2 )',
   '      8t:$motif  s  -7',
-  '    commands',
-  '      OCT 2',
-  '      SCALE BLACK',
-  '      PLAYMODE RANDOM',
-  '    operations',
-  '      VARY $oct 1',
+  '',
+  'presets',
+  '  preset OrigenAjustes',
+  '    OCT 2',
+  '    SCALE BLACK',
+  '    PLAYMODE RANDOM',
+  '',
+  'procedures',
+  '  procedure OrigenProc',
+  '    VARY $oct 1',
+  '',
+  'part "Piano" instrument PIANO',
+  '  block "Origen" repeats 2',
+  '    preset OrigenAjustes',
+  '    procedure OrigenProc',
+  '    melody OrigenMelody',
+  ''
+].join('\n');
+
+/** `.mr` canónico con bibliotecas de contenido y referencias de bloque. */
+const BLOCKS_EXAMPLE = [
+  'song Reutilizables',
+  'version 2',
+  '',
+  'melodies',
+  '  melody Riff',
+  '    notes',
+  '      0',
+  '',
+  'presets',
+  '  preset RiffAjustes',
+  '    OCT 4',
+  '',
+  'part Piano',
+  '  block Riff',
+  '    preset RiffAjustes',
+  '    melody Riff',
   ''
 ].join('\n');
 
@@ -156,6 +187,30 @@ describe('MrTextEditorComponent · aplicar .mr y refrescar tras la carrera de in
     expect(component.serializeError).toBeNull();
     expect(component.dirty).toBe(false);
     expect(VariableContext.getValue('motif')).toBe('4t:0');
+  });
+
+  it('aplica un .mr con bibliotecas de contenido y referencias de bloque', () => {
+    const { component } = createEditor();
+    const oldSong = new Song();
+    component.song = oldSong;
+    component.ngOnChanges({ song: change(undefined, oldSong, true) });
+    const applied: MrTextAppliedEvent[] = [];
+    component.applied.subscribe(event => applied.push(event));
+
+    component.text = BLOCKS_EXAMPLE;
+    component.apply();
+
+    expect(component.errors).toEqual([]);
+    expect(component.serializeError).toBeNull();
+    expect(applied).toHaveLength(1);
+    expect(applied[0].song.melodies.map(melody => melody.label)).toEqual(['Riff']);
+    expect(applied[0].song.presets.map(preset => preset.label)).toEqual(['RiffAjustes']);
+    expect(applied[0].song.parts[0].items[0].melody?.label).toBe('Riff');
+    expect(applied[0].song.parts[0].items[0].preset?.label).toBe('RiffAjustes');
+    // El texto se regenera canónico: la biblioteca precede a la parte.
+    expect(component.text).toContain('melodies\n  melody Riff');
+    expect(component.text).toContain('part Piano\n  block Riff');
+    expect(component.dirty).toBe(false);
   });
 
   it('no pisa ediciones sin aplicar cuando cambia la canción', () => {
@@ -257,11 +312,8 @@ describe('SongEditorComponent · onMrTextApplied', () => {
 describe('SongEditorComponent · applyLoadedDocument (.mr)', () => {
   it('para el player antes de aplicar variables, sincroniza meta y emite la canción', () => {
     const { component, songPlayer, emitted } = createSongEditor(true);
-    // `SongPlayer.stop()` llama a `VariableContext.resetAll()`: simular que la
-    // variable de playmode vuelve a CHORD para comprobar el orden stop → apply.
-    songPlayer.stop.mockImplementation(() => VariableContext.setValue('mode', 'CHORD'));
     const document = parseSong(
-      ['song "Cargada"', 'version 1', 'repeats 3', 'bpm 90', 'vars', '  $mode = RANDOM', 'part Piano', ''].join('\n')
+      ['song "Cargada"', 'version 2', 'repeats 3', 'bpm 90', 'vars', '  $mode = RANDOM', 'part Piano', ''].join('\n')
     );
 
     component.applyLoadedDocument(document);
@@ -271,12 +323,14 @@ describe('SongEditorComponent · applyLoadedDocument (.mr)', () => {
     expect(document.song.repeats).toBe(3);
     expect(document.song.bpm).toBe(90);
     expect(emitted).toEqual([document.song]);
+    // `stop()` restaura el snapshot de variables (no las machaca): la
+    // declaración aplicada queda intacta.
     expect(VariableContext.getValue('mode')).toBe('RANDOM');
   });
 
   it('no para el player si no está sonando y sustituye la canción igualmente', () => {
     const { component, songPlayer, emitted } = createSongEditor(false);
-    const document = parseSong('song "X"\nversion 1\n');
+    const document = parseSong('song "X"\nversion 2\n');
 
     component.applyLoadedDocument(document);
 

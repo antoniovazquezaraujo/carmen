@@ -1,0 +1,266 @@
+/**
+ * Drag & drop del árbol de bloques (ADR-004).
+ *
+ * `treeValue` siempre es `[block]`, así que la lista raíz es sintética en
+ * todos los casos. Se cubre: referencia estable durante el arrastre, inicio
+ * solo desde el asa y reconciliación del drop raíz en los hijos del bloque.
+ */
+jest.mock('@angular/core', () => {
+  const sharedMock = jest.requireActual<Record<string, unknown>>('src/__mocks__/angular-core');
+
+  class EventEmitter<T> {
+    private readonly listeners: Array<(value: T) => void> = [];
+
+    subscribe(listener: (value: T) => void): { unsubscribe: () => void } {
+      this.listeners.push(listener);
+      return {
+        unsubscribe: () => {
+          const index = this.listeners.indexOf(listener);
+          if (index >= 0) {
+            this.listeners.splice(index, 1);
+          }
+        }
+      };
+    }
+
+    emit(value: T): void {
+      for (const listener of [...this.listeners]) {
+        listener(value);
+      }
+    }
+  }
+
+  const propertyDecorator = (): PropertyDecorator => () => undefined;
+
+  return {
+    ...sharedMock,
+    EventEmitter,
+    Component: () => (target: unknown) => target,
+    Input: propertyDecorator,
+    Output: propertyDecorator
+  };
+});
+
+import * as fs from 'fs';
+import * as path from 'path';
+import type { ChangeDetectorRef } from '@angular/core';
+import { Block } from 'src/app/model/block';
+import { BlockComponent } from '../block.component';
+
+type BlockNode = Block & { expanded?: boolean; parent?: BlockNode };
+
+const TEMPLATE = fs.readFileSync(path.resolve(__dirname, '../block.component.html'), 'utf8');
+
+const cdr = { detectChanges: jest.fn() } as unknown as ChangeDetectorRef;
+
+function createComponent(): BlockComponent {
+  return new BlockComponent(cdr);
+}
+
+function rootWithChild(): Block {
+  const root = new Block();
+  root.label = 'Raíz';
+  const child = new Block();
+  child.label = 'Hijo';
+  root.children = [child];
+  return root;
+}
+
+function mouseDownOnHandle(): MouseEvent {
+  const target = { closest: () => ({}) } as unknown as HTMLElement;
+  return { target } as unknown as MouseEvent;
+}
+
+function mouseDownOutsideHandle(): MouseEvent {
+  const target = { closest: () => null } as unknown as HTMLElement;
+  return { target } as unknown as MouseEvent;
+}
+
+function dragStartEvent(): DragEvent {
+  return { preventDefault: jest.fn() } as unknown as DragEvent;
+}
+
+describe('BlockComponent · drag & drop de bloques', () => {
+  it('devuelve la misma referencia raíz en llamadas sucesivas', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+
+    component.block = root;
+
+    expect(component.treeValue).toBe(component.treeValue);
+    expect(component.treeValue).toEqual([root]);
+  });
+
+  it('congela la lista raíz durante el drag y la libera al terminar', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+
+    component.onTreeMouseDown(mouseDownOnHandle());
+    component.onTreeDragStart(dragStartEvent());
+    const frozen = component.treeValue;
+
+    // El modelo cambia a mitad de drag: PrimeNG debe seguir viendo la misma lista.
+    root.children = [];
+
+    expect(component.treeValue).toBe(frozen);
+
+    component.onTreeDragEnd();
+
+    expect(component.treeValue).toEqual([root]);
+  });
+
+  it('cancela el dragstart cuando no empieza en el asa', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    component.onTreeMouseDown(mouseDownOutsideHandle());
+
+    const event = dragStartEvent();
+    component.onTreeDragStart(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(component.dragging).toBe(false);
+  });
+
+  it('permite el dragstart cuando empieza en el asa', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    component.onTreeMouseDown(mouseDownOnHandle());
+
+    const event = dragStartEvent();
+    component.onTreeDragStart(event);
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(component.dragging).toBe(true);
+  });
+
+  it('desactiva el tooltip del asa durante el drag y lo reactiva al terminar', () => {
+    const component = createComponent();
+    component.block = rootWithChild();
+
+    expect(component.dragging).toBe(false);
+    component.onTreeMouseDown(mouseDownOnHandle());
+    component.onTreeDragStart(dragStartEvent());
+    expect(component.dragging).toBe(true);
+
+    component.onTreeDragEnd();
+    expect(component.dragging).toBe(false);
+  });
+
+  it('reactiva el tooltip en onNodeDrop aunque no llegue dragend', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    component.dragging = true;
+
+    component.onNodeDrop({ dragNode: root.children[0] as BlockNode, dropNode: root as BlockNode });
+
+    expect(component.dragging).toBe(false);
+  });
+
+  it('el asa enlaza el tooltip con el estado de drag (contrato de template)', () => {
+    expect(TEMPLATE).toContain('pTooltip="Drag to move block"');
+    expect(TEMPLATE).toContain('[tooltipDisabled]="dragging"');
+    expect(TEMPLATE).toContain('@if (canDrag(node)) {');
+  });
+
+  it('notifica el cambio y refresca la vista en onNodeDrop', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    const listener = jest.fn();
+    component.blockChange.subscribe(listener);
+
+    component.onNodeDrop({ dragNode: root.children[0] as BlockNode, dropNode: root as BlockNode });
+
+    expect(listener).toHaveBeenCalledWith(root);
+    expect(cdr.detectChanges).toHaveBeenCalled();
+  });
+
+  it('pasa a último hijo el nodo soltado tras el raíz visible', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    const treeValue = component.treeValue;
+    const moved = new Block();
+    moved.label = 'Movido';
+
+    // PrimeNG ya insertó el nodo en la lista raíz sintética.
+    treeValue.push(moved);
+    component.onNodeDrop({ dragNode: moved as BlockNode, dropNode: root as BlockNode });
+
+    expect(root.children.map(child => child.label)).toEqual(['Hijo', 'Movido']);
+    expect(component.treeValue).toEqual([root]);
+  });
+
+  it('pasa a primer hijo el nodo soltado antes del raíz visible', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    const treeValue = component.treeValue;
+    const moved = new Block();
+    moved.label = 'Movido';
+
+    treeValue.unshift(moved);
+    component.onNodeDrop({ dragNode: moved as BlockNode, dropNode: root as BlockNode });
+
+    expect(root.children.map(child => child.label)).toEqual(['Movido', 'Hijo']);
+    expect(component.treeValue).toEqual([root]);
+  });
+
+  it('no reconcilia drops internos (el nodo ya tiene padre)', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+    const moved = new Block();
+    moved.label = 'Movido';
+
+    root.children.push(moved);
+    (moved as BlockNode).parent = root as BlockNode;
+    component.onNodeDrop({ dragNode: moved as BlockNode, dropNode: root.children[0] as BlockNode });
+
+    expect(root.children.map(node => node.label)).toEqual(['Hijo', 'Movido']);
+  });
+
+  it('expande el nodo destino para que el bloque movido quede visible', () => {
+    const root = rootWithChild();
+    const target = root.children[0];
+    const component = createComponent();
+    component.block = root;
+    const moved = new Block();
+    moved.label = 'Movido';
+
+    target.children.push(moved);
+    component.onNodeDrop({ dragNode: moved as BlockNode, dropNode: target as BlockNode });
+
+    expect((target as BlockNode).expanded).toBe(true);
+  });
+
+  it('no expande el destino en un drop entre hermanos', () => {
+    const root = rootWithChild();
+    const first = root.children[0];
+    const second = new Block();
+    second.label = 'Segundo';
+    root.children.push(second);
+    const component = createComponent();
+    component.block = root;
+    const moved = new Block();
+    moved.label = 'Movido';
+
+    root.children.push(moved);
+    component.onNodeDrop({ dragNode: moved as BlockNode, dropNode: second as BlockNode });
+
+    expect((second as BlockNode).expanded).toBeUndefined();
+  });
+
+  it('oculta el asa del raíz visible y la muestra en los hijos', () => {
+    const root = rootWithChild();
+    const component = createComponent();
+    component.block = root;
+
+    expect(component.canDrag(root as BlockNode)).toBe(false);
+    expect(component.canDrag(root.children[0] as BlockNode)).toBe(true);
+  });
+});

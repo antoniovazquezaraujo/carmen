@@ -1,0 +1,409 @@
+# Validación manual de la v1 (`.mr` + app)
+
+> **Documento histórico.** Describe el formato v1 y no forma parte del contrato
+> del formato v2. Se conserva como registro de la validación original.
+
+- **Estado:** checklist de aceptación de la v1 congelada (2026-10-03).
+- **Objetivo:** comprobar a mano, sobre la app real, que el lenguaje `.mr`, la GUI, el guardado/carga, el tempo y las variables funcionan como describe la [guía del lenguaje](../../user/manual_es.md).
+- **Basada en:** los E2E de las fases 2 y 3 y de las rondas de pulido/consolidación (`docs/developer/analysis/mr-fase2-vista-texto.md`, `mr-fase3-guardar-cargar.md`, `pulido-bpm-variables.md`, `saneo-bloque-b.md`).
+- **Duración estimada:** 30–40 minutos.
+- **Criterio de aprobación:** todos los casos marcados, o incidencia anotada en el registro final con su reproducción.
+
+> **Convención:** los ficheros de prueba completos van en bloques `mr` (se validan además con Jest en `mr.docs-guia.jest.spec.ts`); los ejemplos inválidos van en bloques `text`.
+
+---
+
+## 0. Preparación del entorno
+
+- [ ] **0.1.** Node 22 activo:
+  ```sh
+  export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"
+  node -v    # v22.23.3
+  ```
+- [ ] **0.2.** Dependencias instaladas y app arrancada en el puerto 4200:
+  ```sh
+  npm ci
+  npm start   # http://localhost:4200
+  ```
+- [ ] **0.3.** La app carga sin errores en la consola del navegador (F12 → Console) y se ve el editor con su cabecera (nombre, *Repeat*, *BPM*, play, stop, `$`, `.mr`, ⬇, ⬆).
+- [ ] **0.4.** Fixtures creados en `/tmp/opencode/validacion-v1/`:
+  - `validacion-v1.mr` (fichero principal del [anexo A](#anexo-a--fixtures)).
+  - `anidado.mr` (bloques anidados del [anexo A](#anexo-a--fixtures)).
+  - `carga-invalida.mr` (fichero inválido del [anexo A](#anexo-a--fixtures)).
+- [ ] **0.5.** Referencia de la suite (se anota al final): `npm test` y `npm run build` en verde antes de empezar.
+
+---
+
+## 1. Caso 1 — GUI: crear parte, bloque y notas, y que suene
+
+- [ ] **1.1.** Escribe `Validación manual` en el nombre de la canción.
+- [ ] **1.2.** Pulsa `+` (añadir parte): aparece una parte nueva.
+- [ ] **1.3.** Añade un bloque y unas notas en el editor de melodía (por ejemplo, cuatro negras: grados 0, 2, 4, 2).
+- [ ] **1.4.** Pulsa **Play**: suenan las notas; **Stop** detiene la reproducción.
+- [ ] **1.5.** No hay errores nuevos en consola.
+
+## 2. Caso 2 — Vista `.mr`: ver, validar, aplicar y revertir
+
+- [ ] **2.1.** Pulsa el botón `.mr`: se abre el diálogo **Texto (.mr)** con el texto canónico de la canción, el estado **Sin cambios** y **Aplicar**/**Revertir** deshabilitados.
+- [ ] **2.2.** Cambia `version 1` por `version 9`: a los ~200 ms aparece un error con su botón `línea 2, columna 9`; **Aplicar** queda deshabilitado; al pulsar la posición, el cursor del textarea salta allí.
+- [ ] **2.3.** Corrige a `version 1`: el estado pasa a **Cambios sin aplicar** y **Aplicar** se habilita.
+- [ ] **2.4.** Pulsa **Revertir**: el texto vuelve al canónico y el estado a **Sin cambios**.
+- [ ] **2.5.** Pega el contenido de `validacion-v1.mr` y pulsa **Aplicar**: la GUI se reconstruye (nombre, 2 partes, *Repeat* 2, *BPM* 90), el panel **Variables** (despliégala; arranca plegada) muestra las 3 variables (`$oct`, `$mode` y `$motif`) y el texto queda normalizado.
+- [ ] **2.6.** Añade una línea `# prueba` y aplica; vuelve a abrir `.mr`: el comentario no se conserva (limitación documentada).
+
+## 3. Caso 3 — Guardar
+
+- [ ] **3.1.** Con la canción anterior, pulsa ⬇ (**Guardar .mr**): se descarga un fichero `.mr` con el nombre saneado (`Validación v1.mr`).
+- [ ] **3.2.** Ábrelo con un editor de texto: es texto canónico, empieza por `song "Validación v1"` y `version 1`, incluye `repeats 2`, `bpm 90`, la sección `vars` con `$motif` y el bloque `notes $motif`; termina en un único salto de línea.
+- [ ] **3.3.** Vacía el nombre de la canción y guarda: el fichero se llama `cancion.mr` y contiene `song ""`.
+- [ ] **3.4.** Con la misma canción, pulsa guardar dos veces sin tocar nada: los dos ficheros son idénticos (texto estable).
+
+## 4. Caso 4 — Cargar (válido e inválido)
+
+- [ ] **4.1.** Pulsa ⬆ (**Cargar .mr**) y elige `validacion-v1.mr`: la GUI se reconstruye (nombre, 2 partes, *Repeat* 2, *BPM* 90), el panel **Variables** muestra `$oct`, `$mode` y `$motif` (esta última como texto editable) y en el editor de melodía se ve el token `$motif`.
+- [ ] **4.2.** Pulsa ⬆ y elige `carga-invalida.mr`: aparece el diálogo con `carga-invalida.mr:3:5  error: 'bpm' debe estar entre 30 y 240 (recibido 20)`, el aviso **La canción actual no se ha modificado** y la canción sigue intacta.
+- [ ] **4.3.** Carga `src/app/model/mr/__tests__/corpus/semilla.mr` (sin `vars`): el panel **Variables** queda vacío (las variables que ya no están se eliminan).
+- [ ] **4.4.** Carga de nuevo `validacion-v1.mr`, pulsa Play (para que el player mute variables), para, y vuelve a cargar `semilla.mr`: no queda ninguna variable de la canción anterior.
+
+## 5. Caso 5 — BPM y live-tempo
+
+- [ ] **5.1.** Carga `validacion-v1.mr`; el input **BPM** muestra 90.
+- [ ] **5.2.** Play y, en la consola del navegador, lee el transporte:
+  ```js
+  const editor = window.ng.getComponent(document.querySelector('app-song-editor'));
+  editor.songPlayer.audioEngine.getTransportBpm();   // → 90
+  ```
+- [ ] **5.3.** Con la reproducción en curso, cambia el input BPM a 100: el transporte pasa a 100 **al momento** y la reproducción continúa.
+  ```js
+  editor.songPlayer.audioEngine.getTransportBpm();   // → 100
+  ```
+- [ ] **5.4.** Stop y Play de nuevo: arranca a 100.
+- [ ] **5.5.** Guarda: el `.mr` contiene `bpm 100`.
+
+## 6. Caso 6 — Repeticiones
+
+- [ ] **6.1.** Con `validacion-v1.mr`, el input **Repeat** muestra 2; al pulsar Play, la canción se repite dos veces.
+- [ ] **6.2.** Con la reproducción en curso, cambia *Repeat* a 3: la secuencia actual no se re-programa (se aplica en el siguiente Play), tal y como documenta la guía.
+- [ ] **6.3.** Para, Play: ahora suena tres veces.
+- [ ] **6.4.** Guarda: el fichero contiene `repeats 3`.
+- [ ] **6.5.** Pon *Repeat* a 1 y guarda: la línea `repeats` desaparece (el valor por defecto se omite).
+
+## 7. Caso 7 — Variables y operaciones
+
+- [ ] **7.1.** Carga `validacion-v1.mr`: el panel **Variables** (despliégalo; arranca plegado) muestra `$oct = 2`, `$mode = ASCENDING` y `$motif` con su texto.
+- [ ] **7.2.** En el editor de melodía del bloque `Origen`, el evento `8t:$motif` se pinta como token `$motif` (sin error de consola).
+- [ ] **7.3.** Play: el bloque `Origen` suena con un silencio en el evento `$motif` (sin mensajes `[NoteGenSvc]` en consola) y el bloque `Eco` (`notes $motif`) suena con el patrón completo.
+- [ ] **7.4.** Durante el Play (antes de parar), comprueba en el panel **Variables** que las operaciones del bloque `Origen` se ejecutan en cada repetición: `$oct` aumenta (2 → 3 tras la primera vuelta → 4 al terminar) y `$mode` cambia a RANDOM.
+- [ ] **7.5.** Pulsa Stop: **todas** las variables vuelven al estado previo al Play (`$oct` vuelve a 2 y `$mode` a ASCENDING; la mutación a RANDOM del Play no se conserva). Las operaciones no se acumulan entre reproducciones (segundo Play parte otra vez de 2/ASCENDING).
+- [ ] **7.6.** Caso límite de nota variable: sustituye `8t:$motif` por `8t:2` en el bloque `Origen`, aplica y Play; el bloque suena completo.
+
+## 8. Caso 8 — Bloques anidados raíz → hijo
+
+- [ ] **8.1.** Carga `anidado.mr` (anexo A): el bloque raíz `Raiz` aparece **expandido**, con su contenido (`notes default 16n`) y el bloque hijo `Hijo` visible en el árbol.
+- [ ] **8.2.** El bloque sin nombre con solo `notes default 16n` se muestra como fila propia (tiene contenido propio).
+- [ ] **8.3.** En consola, cada parte se renderiza una sola vez:
+  ```js
+  document.querySelectorAll('app-part').length;            // → 2
+  document.querySelectorAll('.p-accordion').length;        // → 0
+  ```
+- [ ] **8.4.** Guarda y vuelve a cargar `anidado.mr`: la estructura raíz→hijo se conserva.
+
+## 9. Caso 9 — NeoVim (`ftdetect` y `syntax`)
+
+- [ ] **9.1.** Abre un `.mr` con el plugin opt-in:
+  ```sh
+  nvim --clean --cmd 'set runtimepath+=/ruta/a/moderanger/editors/nvim' /tmp/opencode/validacion-v1/validacion-v1.mr
+  ```
+- [ ] **9.2.** `:set filetype?` → `filetype=mr`; `:set shiftwidth?` → `shiftwidth=2`; `:set expandtab?` → `expandtab`; `:set commentstring?` → `commentstring=# %s`.
+- [ ] **9.3.** `:syntax list mrCommand` (y `mrSection`, `mrVariable`, `mrDuration`, `mrEnum`) listan grupos de resaltado.
+- [ ] **9.4.** Los ficheros `*.mr` siguen detectándose como `mr` aunque el contenido empiece por un comentario (fuerza el filetype en `ftdetect`).
+
+## 10. Caso 10 — Drag & drop de bloques (fix/block-dnd, 2026-10-05)
+
+- [ ] **10.1.** Partiendo de `anidado.mr` (o de bloques con hijos), comprueba que **solo los bloques hijos** muestran el asa `⋮⋮` a la izquierda del desplegable; el bloque raíz del árbol no la muestra.
+- [ ] **10.2.** Arrastra un bloque **desde el asa** y suéltalo entre dos líneas del mismo padre: se reordena y, al guardar el `.mr`, el nuevo orden persiste.
+- [ ] **10.3.** Arrástralo y suéltalo **sobre la cabecera de otro bloque**: se anida en él y el destino se expande para mostrar el bloque movido.
+- [ ] **10.4.** Suéltalo en la línea **superior/inferior** del árbol de un bloque con contenido: pasa a ser el primer/último hijo (no desaparece) y persiste al guardar.
+- [ ] **10.5.** Durante el arrastre, las líneas de inserción se ven gruesas y verdes al apuntarlas, y el bloque bajo el cursor se resalta con fondo y borde verdes.
+- [ ] **10.6.** Intenta arrastrar seleccionando texto del nombre, las repeticiones o las notas del editor de melodía: no debe iniciarse ningún drag ni moverse ningún bloque.
+- [ ] **10.7.** Arrastra un bloque y **suéltalo sobre sí mismo**: no ocurre nada (el drop se ignora).
+- [ ] **10.8.** Deja el ratón sobre el asa `⋮⋮` hasta que aparezca el tooltip **Drag to move block**. Inicia el drag desde el asa, suéltalo (reordena o cambia de árbol) y aleja el ratón **sin volver a pasar por el asa**: el tooltip **no** debe quedar visible. Repite con un drag cancelado (soltar fuera de una zona válida o pulsar `Esc`).
+- [ ] **10.9.** Comprueba que el tooltip vuelve a aparecer al hacer hover normal en el asa y desaparece al salir; los tooltips de los botones (`Add Block`, `Remove Block`, `Duplicate Block`) siguen funcionando.
+- [ ] **10.10.** No aparecen errores nuevos en la consola del navegador durante las pruebas.
+
+## 11. Caso 11 — Guías de jerarquía del árbol (feat/block-tree-guides, 2026-10-05)
+
+- [ ] **11.1.** Carga un `.mr` con al menos **tres niveles** de anidación (p. ej. `Piano > Nivel1 > Nivel2 > Nivel3`) y expande hasta el último nivel.
+- [ ] **11.2.** Cada nivel muestra una **línea vertical gris tenue** (continúa por toda la lista de hijos, sin invadir cabeceras) y cada bloque anidado recibe un **conector horizontal corto** desde esa línea hacia su asa de arrastre, con ~1px de separación.
+- [ ] **11.3.** Los bloques **raíz** (tanto de un bloque con contenido propio como de un contenedor clásico) **no** tienen conector: la guía solo cuelga de los padres anidados.
+- [ ] **11.4.** Las guías no generan *layout shift*: las asas, nombres y editores de melodía conservan su posición; el droppoint de 12px y el asa `⋮⋮` del fix #79 siguen igual (ver caso 10).
+- [ ] **11.5.** Pasa el ratón y haz clic sobre las líneas: no seleccionan ni bloquean nada; el drag & drop sigue funcionando (reordenar, anidar y soltar de nuevo con los casos 10.2–10.4).
+- [ ] **11.6.** No aparecen errores nuevos en la consola del navegador.
+
+## 12. Caso 12 — Ramal de la guía hasta el asa (fix/tree-guides-coverage, 2026-10-05)
+
+- [ ] **12.1.** Carga `ramal.mr` (anexo A): `Raiz > Block4` con Commands (`OCT`, `SCALE`) y Operations (`VARY`) pobladas y cuatro hijos (`Block5`, `Block6`, `Block7`, `Block9`); `Block10` con Commands/Operations pero **sin** hijos; `Block11 > Block12`; y la parte `Bajo` con `SueltoA` (Commands/Operations + hijo `NietoA`) y `SueltoB`.
+- [ ] **12.2.** La guía de los hijos de `Block4` **sube hasta su asa** `≡`: arranca a la altura del icono y baja continua por delante de Commands y Operations hasta la lista de hijos (sin cortes en los bordes de las filas).
+- [ ] **12.3.** Lo mismo en la raíz de contenedor `SueltoA` (su header no lleva el conector de los nodos anidados, pero el ramal llega igualmente al asa).
+- [ ] **12.4.** `Block10` (Commands/Operations sin hijos) **no** muestra ninguna línea suelta; la raíz `Raiz` (sin asa) tampoco recibe ramal.
+- [ ] **12.5.** El ramal no genera *layout shift*: asas, nombres, controles y editores conservan su posición, y el conector horizontal del bloque superior sigue presente.
+- [ ] **12.6.** Repite los drags del caso 10 (reordenar y soltar entre árboles): siguen funcionando y no aparecen errores nuevos en consola.
+
+## 13. Caso 13 — Recortes de anchura de la GUI (style/trim-gui-widths, 2026-10-05)
+
+- [ ] **13.1.** Metrónomo del toolbar: muestra **16 puntos** (2 compases de 8, ~168px), el punto activo avanza al reproducir y se mantiene el downbeat cada 8.
+- [ ] **13.2.** Header de bloque más compacto: repeticiones 48px, controles 70px (3 botones) y 6px entre items, sin solapes entre asa, toggler, nombre, botones, `×1` y notas.
+- [ ] **13.3.** Toolbar de canción: nombre 120px, *Repeat* 32px, *BPM* 45px y 10px entre título y controles; a **1024×768** los botones `$`, `.mr`, guardar y cargar siguen visibles y no aparece scroll horizontal.
+- [ ] **13.4.** `.part-info` a 88px: el nombre de la parte se sigue viendo y editando con comodidad.
+- [ ] **13.5.** Las guías del árbol siguen alineadas (la guía sube hasta el asa y el conector empalma con ella) y el DnD (#79) y el tooltip del asa (#83) funcionan igual.
+- [ ] **13.6.** No aparecen errores nuevos en la consola del navegador.
+- [ ] **13.7.** Combos auto-fit (`field-sizing`): el select de tipo de comando mide ~59px con `OCT` y crece con opciones largas (`PLAYMODE` ~95px, `PATTERN_GAP` ~111px) sin pasar de 140px; el combo de duración por defecto se mueve entre 40 y 80px; los selects de variables quedan entre 60 y 160px. La flecha nativa y el texto se ven en los casos normales; por encima del máximo el texto se recorta sin elipsis (limitación aceptada).
+
+## 14. Caso 14 — Commands/Operations en texto libre (style/commands-free-text, 2026-10-06)
+
+- [ ] **14.1.** En reposo, cada comando se lee como texto con la etiqueta capitalizada y `:` (`Oct: oct (2) $ ✕, Scale: WHITE $ ✕, Pattern: 4n 1, 2n 3, 2n 6 + $ ✕`); sin bordes, fondos ni flecha nativa. El `.mr` no cambia: al guardar sigue `OCT`, `VARY`, etc.
+- [ ] **14.2.** Los iconos `$` y `✕` están siempre visibles sin chrome de botón; al pasar el ratón por el comando (o al editar) aparecen el borde de la caja, los bordes/fondos de los controles y un chevron propio en el combo; al salir vuelven al reposo.
+- [ ] **14.3.** PATTERN con melodía literal: las notas llevan comas entre ellas (`4n 1, 2n 3`) y el botón `+` de añadir nota sigue funcionando; en reposo no tiene borde.
+- [ ] **14.4.** Operaciones con el mismo tratamiento (`Vary: …`, `Assign: …`), comas entre items y sin caja en reposo.
+- [ ] **14.5.** Con teclado, `:focus-visible` marca el control enfocado; el foco dentro de un comando muestra su chrome editable.
+- [ ] **14.6.** Los tooltips de `$`, `✕` y del asa siguen funcionando; no queda ningún `.p-tooltip` tras un drag.
+- [ ] **14.7.** Sin scroll horizontal nuevo ni errores en consola; las guías y el DnD siguen igual.
+- [ ] **14.8.** Notas compactas y uniformes: en el header de un bloque con 4 notas (`4n 1, 4n -2, 4n 1, 4n -5`) todas miden **20px** de alto, sin borde/fondo en reposo y con coma entre ellas; al seleccionar o pasar el ratón solo cambian borde/fondo (sin `scale` ni sombra, misma altura). El `+` de añadir nota conserva su borde discontinuo.
+- [ ] **14.9.** Commands/Operations compactos: los huecos entre tipo→valor→`$`→`✕` son ~3px, la caja queda con padding 1×2px y los inputs numéricos se ajustan al contenido (`1` ≈ 27px, max 64) sin tocar `#repetitions` (32px), `#bpm` (45px) ni los inputs de variables.
+- [ ] **14.10.** Alturas uniformes: selects, inputs, botones y notas de estas filas comparten un único alto de **20px**, y enfocar no cambia la caja.
+- [ ] **14.11.** Métrica única en Commands/Operations (fila `Scale WHITE, Gap -3, Width 3, Playmode EVEN_ASC_ODD_ASC, Oct 0`): **todos** los controles (selects, inputs, coma y `+`) muestran **12px** de fuente y **20px** de alto, con el mismo centro vertical; los superíndices `$`/`✕` usan 10px/16px (por diseño). El toolbar (`#repetitions` 32px, `#bpm` 45px) y los inputs de variables quedan intactos.
+- [ ] **14.12.** Acciones como superíndices: en reposo `$` y `✕` no se ven y el comando se lee limpio (`Oct: 0, Scale: WHITE, …`); al pasar el ratón por un comando (o al enfocar con Tab cualquiera de sus controles) aparecen como chips pequeños (16px) en la esquina superior derecha, sin mover el texto ni cambiar el ancho de la fila (medir antes/durante hover: idénticos). Clic real en `$` activa el modo variable y en `✕` borra el comando; sus tooltips siguen. En Operaciones igual (`Vary: 1` + `✕`).
+- [ ] **14.13.** Pulido de chips/colones: los chips quedan **anclados a la izquierda de la caja** (`left:0`, `top: calc(-12px - 2mm)` ≈ −19.6px) y flotan **sobre el select de tipo** (`Scale:`), no sobre el valor: medido, chips x = caja+1 y su borde derecho queda dentro de la zona del tipo; no pisan el texto (borde inferior 4.5px **por encima** del control) y no tapan las notas de la sección Notes de encima (16.5px de holgura; cruzan el borde de sección, tolerable). Con wrap, `row-gap: calc(12px + 2mm)` deja 6px de aire. **Los combos no muestran flecha**: sin chevron SVG y con `appearance:none` (el desplegable sigue abriéndose al clic), padding simétrico `0 2px` y el `:` pegado a la etiqueta (1px medido). Toolbar de duración y selects de variables conservan su flecha nativa (candidatos a pedir después). Los colones **no** aparecen en la lista de opciones y sí en la lectura; se ocultan si el select de valor muestra placeholder (`Select … variable`). El modelo y el `.mr` no cambian.
+- [ ] **14.14.** Bloque compacto: en reposo la fila muestra solo `[≡ asa][> toggler][nombre]` (sin botones, repeats ni notas); al pasar el ratón o enfocar el header aparecen `+`, `✕`, `⧉` y `×N` junto al nombre **sin mover nada** (mismo x en reposo/hover). Desplegado, el cuerpo tiene tres secciones con **columna de iconos** a la izquierda — Notes `♫`, Commands `⚙`, Operations `≚` (con tooltip, aria-label y fallback `Segoe UI Symbol, Noto Sans Symbols, DejaVu Sans`) — cada icono alineado con su sección y **justo a la derecha de la línea del árbol**; los tres contenidos empiezan en la misma x (medido: línea x=59, iconos x=62, contenidos x=82). Colapsado no se ve ni cuerpo ni columna. Altura del header 66 → 24px. Funciona en bloques con hijos y hojas.
+- [ ] **14.15.** Part al hover: el header de cada part muestra solo toggler + nombre en reposo; los botones (`+` add child, `✕`, `⧉`, `▶`, `■`) se ocultan (`opacity:0`, `pointer-events:none`) y aparecen al hover del header o al enfocar (mismo x en reposo/hover: toggler 25, nombre 54, controles 154). En reposo el punto del botón deja pasar el clic (`elementFromPoint` → `.part-header`); al acercarse el ratón se revelan y el clic real funciona (duplicar: 2→3 parts). Tooltips y comportamiento intactos; `:focus-visible` en los botones.
+- [ ] **14.16.** Ningún combo muestra flecha: además de Commands/Operations, el combo de duración del toolbar (`#defaultDurationSelect`) y **todos** los selects de variables (formulario tipo/playmode/scale y filas) usan `appearance: none` y se siguen abriendo al clic (verificado con clic real: `document.activeElement` = select y `elementFromPoint` = select). Sin padding reservado a la flecha (4px simétricos) y auto-fit con clamp (40–80px duración; 60–160px variables).
+- [ ] **14.17.** Rueda de duración: anillo único de 8 estados (7 duraciones + vacío) y sin bloqueo en vacío. Con la nota **vacía** (heredada) la zona sigue siendo ruedable (medido 14×18px al hover; hit en `.note-duration`/`duration-value`, nunca en `.note-item`) y cada giro cambia el modelo. Los dos sentidos recorren **los mismos 8 estados**, uno al revés del otro: hacia largo `8t → 4t → 16n → 8n → 4n → 2n → 1n → vacío → 8t` y hacia corto `1n → 2n → 4n → 8n → 16n → 4t → 8t → vacío → 1n`; desde vacío se entra por `8t` (largo) o `1n` (corto). El grupo/`defaultDuration` ya no deciden el índice (hija de grupo `4n` desde vacío hacia largo → `8t`, no `2n`; misma traza que una nota suelta) y el PATTERN embebido recorre el mismo anillo. Verificado sin pasos muertos, con ids estables y consola sin errores ni avisos.
+
+- [ ] **14.18.** Parts en fila redimensionables: las parts se ven una al lado de otra (mismo orden que la canción) con un splitter de 10px entre cada par (`cursor: col-resize`, línea de 2px que pasa a 4px azul al hover/foco/arrastre). Arrastrar el splitter mueve **solo** las dos parts vecinas: medido con 2 parts y `+180px` → `700|700 → 880|520` (muestreo a mitad `790|610`); el borde topa en **260px** por part (`260|1140`); las flechas ←/→ con foco en el separador (`role="separator"`, `aria-orientation="vertical"`) mueven 20px por pulsación; doble clic vuelve al reparto igual (`700|700`). Con anchos fijados, un contenedor de 800px hace scroll horizontal de la fila (clientW 755 vs scrollW 994). Al estrechar una part a 260px **ningún** contenedor interno desborda (`scrollWidth <= clientWidth` en header de part, header de bloque, notes, commands, operations, `command` y `part-content`: 54 contenedores medidos, 0 violaciones). Sin regresión: hover de part 0→1, chips de comando 0→1, guías 2px `rgb(163,163,163)`, DnD dentro de la part (`[Eco, Canon] → [Canon, Eco]`) y consola sin errores.
+
+- [ ] **14.19.** Shift+rueda sobre una nota cambia la **duración** desde cualquier zona (valor o duración), con el anillo de 14.17; sin Shift se mantiene lo actual (zona valor → valor; zona duración → duración). Medido con rueda real (CDP): nota `4n:1` con Shift sobre el valor → `2n → 1n → vacío → 8t → vacío → 1n` (el valor `1` no cambia en ningún paso); sin Shift sobre el valor → `1 → 0 → -1 → 0` (la duración `1n` no cambia); Shift sobre la duración recorre el mismo anillo (no-op adicional); en el PATTERN embebido igual (`2n:1 → 1n:1 → 1 → 8t:1` con Shift y `8t:1 → 8t:0` sin Shift). Consola sin errores ni avisos.
+
+- [ ] **14.20.** Notas como texto seguido: valor, duración y símbolos de grupo comparten la tipografía de comandos (12px/400). Medido antes → después: `.note-value` 19.2px/700 → **12px/400**; `.note-duration` y `.duration-value` 12.8px → **12px/400** (color `#666` se mantiene); `.group-duration` 12.8px monospace → **12px/400 Segoe UI**; `.group-bracket` 16px/700 → **12px/400**; botón `+` 19.2px/700 → **12px/400**. Sin layout shift de alto: nota 20px y grupo 36px idénticos; los anchos se adaptan al texto (nota 34.9→30px, editor Notes 461→420px, PATTERN 227→157px). Regresión: rueda sin Shift (valor `1→0`, duración intacta `4n`), con Shift sobre el valor (`4n→2n`; duración), hover (borde `#2196F3`/fondo `#E3F2FD`) y selección con clic real, chips `0→1`, combos `appearance:none` + colón, guías 2px, DnD `[Eco, Canon]→[Canon, Eco]`, highlight `playing` en reproducción real (aparece con ▶ y se apaga con ■) y consola 0 errores/avisos.
+
+- [ ] **14.21.** Parts crecen sin tope (feat/parts-grow-past-container): mientras la vecina no tope el par mantiene la suma; cuando la que se encoge llega a **260px**, la que crece sigue 1:1 sin tope y la fila se ensancha (crece el scroll). Medido con 2 parts: `700|700 → 3240|260` (izquierda ≈ 2,3× el contenedor de 1410), scroll 0→1824. Auto-scroll al acercar el puntero a <48px de un borde (ambos sentidos): durante el hold ancho y scroll crecen en lockstep (`1752|260 [336] → 3240|260 [1824]`, Δ208px por muestra) con el borde clavado bajo el puntero y sin deadlock al llegar al máximo. Encoger de vuelta funciona (`2840|660`) y el doble clic resetea (`700|700`); teclado: 30×→ `1300|260`, 30×← `700|860`. Con 4 parts solo cambian los dos vecinos (`345|345|345|345 → 3192|260|345|345`). Wrap intacto en la part de 260 (0 violaciones de `scrollWidth > clientWidth`), sin regresión (hover de part 0→1, chips 0→1, guías 2px, DnD `[Eco, Canon]→[Canon, Eco]`, `playing` con ▶/■) y consola 0 errores.
+
+- [ ] **14.22.** Alineación del PATTERN: en una fila mixta (`Oct: 0`, `Width: 2`, `Pattern: 4n 1, 2n 3`, `Pattern: $motif`) los cuatro valores comparten y-centro: medido, el PATTERN literal pasa de **266.5 → 255.5** y el resto queda en 255.5 (diff **0.0px** ≤ 0.5). La cadena embebida queda a 20px (antes 40/36/32/24) y la caja del comando no cambia (24px). Con la fila envuelta (viewport 700) el PATTERN queda en 275.5 = resto. PATTERN largo multi-línea a 420px: la caja del comando crece a 67px (`height: auto` + min 24) sin desbordar y el editor de 42px queda dentro. Regresión: rueda valor/duración/Shift, chips `0→1`, colón, `appearance:none`, guías 2px, droppoint 12px, splitter, highlight `playing`, consola 0 errores.
+
+- [ ] **14.23.** Panel de Variables plegable: el toolbar ya **no** tiene el botón `$` (0 botones con texto `$`, 0 `p-sidebar`) y las variables viven en un panel encima de la fila de parts: colapsado al cargar (caja de 34px, chevron →, título "Variables"), a 1440 medido con el panel en `top 105 / bottom 139` y las parts en `top 149` (gap de 10px); al pulsar la cabecera se despliega (chevron ↓, formulario + lista, panel de 212px, parts bajan a `top 327`). Editar la variable string `motif` actualiza el valor (`4t:0 4t:2 4t:5`). Debajo, las parts siguen funcionando: resize con el splitter `700|700 → 850|550`; el scroll interno de la canción scrollea con el panel fijo (`scrollTop 0→23`, panel en `top 105`). Un segundo clic pliega. Consola sin errores.
+
+## 15. Caso 15 — Resaltado de la nota-origen (feat/note-highlight-playback, 2026-10-11)
+
+- [ ] **15.1.** Carga una canción con un bloque expandido (p. ej. `panel-de-control.mr` o `semilla.mr`) y pulsa **Play**: en la sección Notes, la **nota-origen** que está sonando se enciende con un glow azul aunque suene como acorde/arpegio (`WIDTH`/`GAP`/`INV`/`SHIFT`) o expandida por `PATTERN`.
+- [ ] **15.2.** La nota-origen se apaga al terminar el evento, con un **mínimo visible ~100 ms**: en pasajes rápidos (16n a BPM alto) las notas no parpadean.
+- [ ] **15.3.** Al pulsar **Stop** (o al terminar la última repetición) todas las notas se apagan de inmediato; no queda ninguna encendida.
+- [ ] **15.4.** Si el bloque que suena no está visible o está colapsado, no pasa nada: no hay auto-scroll ni errores.
+- [ ] **15.5.** Los bloques que **no** suenan no se encienden, y el editor de `PATTERN` (comandos) no se ilumina aunque el bloque suene.
+- [ ] **15.6.** Los silencios no encienden ninguna nota.
+- [ ] **15.7.** El `.mr` no cambia: guardar después de reproducir produce el mismo texto (el origen es metadato interno).
+- [ ] **15.8.** Reproduce con el metrónomo a la vista: sin errores nuevos en consola y sin saltos de layout al encenderse/apagarse el glow.
+
+## 16. Caso 16 — Variables restauradas al Stop (fix/stop-variable-reset, 2026-10-12)
+
+- [ ] **16.1.** Declara `$mode = RANDOM` y `$oct = 2`; reproduce y pulsa **Stop**: `$mode` sigue siendo **RANDOM** (no se convierte en CHORD) y `$oct` vuelve a 2 aunque las operaciones lo hayan subido.
+- [ ] **16.2.** Con una operación `VARY $oct 1`: tras Play → Stop, un segundo Play vuelve a empezar desde 2 (no desde 3): las operaciones no se acumulan entre reproducciones.
+- [ ] **16.3.** Con una operación `ASSIGN $nueva 5` (variable no declarada): durante el Play aparece en el panel; al parar desaparece del contexto.
+- [ ] **16.4.** Deja que la canción termine sola (fin natural, sin Stop manual): las variables vuelven al estado previo al Play.
+- [ ] **16.5.** Pulsa Stop sin haber reproducido: las variables del panel no cambian.
+- [ ] **16.6.** El panel de variables no parpadea ni pierde la declaración al aplicar un `.mr` con el player en marcha (Stop → aplicar → declaración vigente).
+- [ ] **16.7.** Sin errores nuevos en consola.
+
+## 17. Cierre: suite, build y registro
+
+- [ ] **17.1.** `npm test` en verde: **61 suites / 683 tests** (cifra a 2026-10-12).
+- [ ] **17.2.** `npm run build` termina con exit 0.
+- [ ] **17.3.** Registro de resultados:
+
+| Caso | Resultado | Notas |
+|---|---|---|
+| 1. GUI + sonido | ☐ OK ☐ Falla | |
+| 2. Vista `.mr` | ☐ OK ☐ Falla | |
+| 3. Guardar | ☐ OK ☐ Falla | |
+| 4. Cargar | ☐ OK ☐ Falla | |
+| 5. BPM live | ☐ OK ☐ Falla | |
+| 6. Repeticiones | ☐ OK ☐ Falla | |
+| 7. Variables | ☐ OK ☐ Falla | |
+| 8. Anidados | ☐ OK ☐ Falla | |
+| 9. NeoVim | ☐ OK ☐ Falla | |
+| 10. Drag & drop de bloques | ☐ OK ☐ Falla | |
+| 11. Guías de jerarquía | ☐ OK ☐ Falla | |
+| 12. Ramal de la guía | ☐ OK ☐ Falla | |
+| 13. Recortes de anchura | ☐ OK ☐ Falla | |
+| 14. Commands/Operations en texto libre | ☐ OK ☐ Falla | |
+| 15. Resaltado de la nota-origen | ☐ OK ☐ Falla | |
+| 16. Variables restauradas al Stop | ☐ OK ☐ Falla | |
+| 17. Suite + build | ☐ OK ☐ Falla | |
+
+- [ ] **17.4.** Incidencias encontradas (con fichero `.mr`, pasos y captura/consola):
+
+```text
+- …
+```
+
+---
+
+## Anexo A — Fixtures
+
+### `validacion-v1.mr`
+
+```mr
+song "Validación v1"
+version 1
+repeats 2
+bpm 90
+
+vars
+  $oct = 2
+  $mode = ASCENDING
+  $motif = "4t:0 4t:2 4t:-1"
+
+part Piano
+  block Origen repeats 2
+    notes default 8n
+      4n:0
+      4n:2
+      8t:$motif
+      s
+      4n:( 0 2 )
+    commands
+      OCT $oct
+      SCALE WHITE
+      PLAYMODE ASCENDING
+    operations
+      VARY $oct 1
+      ASSIGN $mode RANDOM
+
+    block Eco
+      notes $motif
+      commands
+        OCT 1
+
+part Bajo
+  block Bajo
+    notes
+      2n:-7
+      2n:-5
+      s
+    commands
+      OCT 0
+      GAP 2
+      PLAYMODE CHORD
+```
+
+### `anidado.mr`
+
+```mr
+song Anidado
+version 1
+
+part Piano
+  block Raiz
+    notes default 16n
+      0
+      2
+      s
+
+    block Hijo
+      notes
+        4n:5
+
+  block
+    notes default 16n
+```
+
+### `ramal.mr`
+
+```mr
+song "Ramal de guías"
+version 1
+bpm 100
+
+vars
+  $oct = 2
+
+part Piano
+  block Raiz
+    notes default 16n
+      0
+      2
+
+    block Block4
+      notes default 16n
+        4
+        7
+      commands
+        OCT $oct
+        SCALE WHITE
+      operations
+        VARY $oct 1
+
+      block Block5
+        notes
+          4n:0
+
+      block Block6
+        notes
+          4n:2
+
+      block Block7
+        notes
+          4n:4
+
+      block Block9
+        notes
+          4n:7
+
+    block Block10
+      notes
+        4n:9
+      commands
+        OCT 1
+      operations
+        VARY $oct 2
+
+part Bajo
+  block
+    block SueltoA
+      notes
+        4n:1
+      commands
+        OCT 1
+      operations
+        VARY $oct 1
+
+      block NietoA
+        notes
+          4n:2
+
+    block SueltoB
+      notes
+        4n:3
+```
+
+### `carga-invalida.mr` (ejemplo de error esperado)
+
+```text
+song "Carga inválida"
+version 1
+bpm 20
+
+part Piano
+  block Roto
+    notes
+      4n:0
+```
+
+Salida esperada en el diálogo de carga:
+
+```text
+carga-invalida.mr:3:5  error: 'bpm' debe estar entre 30 y 240 (recibido 20)
+```
+
+### Otros ejemplos reutilizables
+
+- Corpus canónico: `src/app/model/mr/__tests__/corpus/` (`semilla.mr`, `canon-de-particulas.mr`, `orbita.mr`, `laboratorio.mr`, `panel-de-control.mr`, `patrones.mr`, `estructura.mr`, `vacio.mr`).
+- Ejemplos de la guía: [`lenguaje-mr.md`](../../user/manual_es.md) (§11).

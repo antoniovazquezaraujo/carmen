@@ -24,8 +24,8 @@ export interface OperationResult {
  * - Maintains business rules and validation
  */
 @Component({
-  selector: 'app-melody-operations',
-  template: `
+    selector: 'app-melody-operations',
+    template: `
     <!-- This component handles operations but has no visual template -->
     <div class="operations-manager" style="display: none;">
       <!-- Operations are handled programmatically -->

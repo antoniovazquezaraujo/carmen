@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { MusicElement, NoteDuration, GenericGroup } from '../../../model/melody';
 import { VisualElement } from '../melody-display/melody-display.component';
+import { BlockComponent } from '../../block/block.component';
 
 export interface KeyboardAction {
   type: 'move-focus' | 'increase-note' | 'decrease-note' | 'increase-duration' | 'decrease-duration' | 
@@ -23,14 +24,14 @@ export interface KeyboardAction {
  * - Provides throttling for repeated events
  */
 @Component({
-  selector: 'app-melody-keyboard-handler',
-  template: `
+    selector: 'app-melody-keyboard-handler',
+    template: `
     <!-- This component has no visual template - it only handles keyboard events -->
     <div class="keyboard-handler-container" tabindex="0" #keyboardHandler>
       <ng-content></ng-content>
     </div>
   `,
-  styles: [`
+    styles: [`
     .keyboard-handler-container {
       width: 100%;
       outline: none;
@@ -40,7 +41,8 @@ export interface KeyboardAction {
       outline: 2px solid #2196F3;
       outline-offset: 2px;
     }
-  `]
+  `],
+    imports: [BlockComponent]
 })
 export class MelodyKeyboardHandlerComponent {
   @Input() selectedElementId: string | null = null;

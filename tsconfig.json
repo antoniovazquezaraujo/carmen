@@ -2,9 +2,26 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-      "types": ["jest", "jasmine", "node"],
-      "typeRoots": ["../node_modules/@types","./src/types", "./types"],
+    "types": [
+      "jest",
+      "jasmine",
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types",
+      "./types"
+    ],
     "baseUrl": "./",
+    "esModuleInterop": true,
+    "paths": {
+      "@moderanger/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@moderanger/core/*": [
+        "packages/core/src/*"
+      ]
+    },
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -14,16 +31,12 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
-    "target": "es2017",
+    "target": "ES2022",
     "module": "es2020",
-    "lib": [
-      "es2020",
-      "dom"
-    ]
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

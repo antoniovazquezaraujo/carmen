@@ -1,58 +1,106 @@
 # Mode Ranger
 
-Editor de armonía con GUI de componentes (partes, bloques, editor de melodía) y un formato de texto canónico, **`.mr`**, para guardar y cargar canciones. El texto es la representación canónica de la canción; la GUI es su vista guiada.
+Harmony studio with a component-based GUI (parts, structural blocks, content libraries and a melody editor) and a canonical text format, **`.mr`**, to save and load songs. The text is the canonical representation of a song; the GUI is its guided view.
 
-Estado: **lenguaje `.mr` v1 congelado** (2026-10-03, `version 1`).
+[![CI](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/moderanger/)
+
+Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
 
 ## Quickstart
 
-Requiere **Node 16** (por ejemplo con nvm) y npm 8.
+Requires **Node 22** (for example via nvm) and npm 10.
 
 ```sh
-export PATH="$HOME/.nvm/versions/node/v16.20.2/bin:$PATH"   # Node 16 vía nvm
+export PATH="$HOME/.nvm/versions/node/v22.23.3/bin:$PATH"   # Node 22 via nvm
 
-npm ci        # instala dependencias
-npm start     # arranca la app en http://localhost:4200
-npm test      # suite Jest (núcleo, sin navegador)
-npm run build # build de producción
+npm ci        # install dependencies
+npm start     # run the app on http://localhost:4200
+npm test      # Jest suite (core, no browser)
+npm run build # production build
 ```
 
-## El lenguaje `.mr`
+Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules` is missing and then starts the dev server.
 
-Una canción mínima:
+## MIDI compiler (experimental)
+
+The repository ships a browser-free CLI, `moderanger`, that compiles a `.mr` song to a Standard MIDI File. The package metadata is prepared for publication as `@moderanger/cli`; once published, the global command will be:
+
+```sh
+npm install -g @moderanger/cli
+
+moderanger compile cancion.mr              # writes cancion.mid
+moderanger compile cancion.mr -o salida.mid
+moderanger compile cancion.mr --json       # inspect the compiled events
+moderanger check cancion.mr                # validate without generating output
+moderanger version
+```
+
+Until the package is published, build and run it from a clone:
+
+```sh
+npm run build:cli
+node packages/compiler/dist/cli/main.js compile cancion.mr
+node packages/compiler/dist/cli/main.js check cancion.mr
+node packages/compiler/dist/cli/main.js version
+cat cancion.mr | node packages/compiler/dist/cli/main.js compile - -o salida.mid
+```
+
+`npm run midi -- cancion.mr` remains a development shortcut (it builds the CLI first). `moderanger-mid` is kept as a compatibility alias for `moderanger compile`. The compiler uses the same playback semantics as the app (parts, structural blocks, content libraries, repeats, settings, operations, patterns, chords and arpeggios). MIDI is not audio: open the `.mid` in a DAW or render it with a synthesizer such as FluidSynth. See [`docs/developer/analysis/compilador-midi-mvp.md`](docs/developer/analysis/compilador-midi-mvp.md) for the current limitations.
+
+## The `.mr` language
+
+A minimal song:
 
 ```mr
 song Semilla
-version 1
+version 2
 
-part Piano
-  block Origen
+melodies
+  melody Origen
     notes
       4n:0
       4n:2
       4n:4
       4n:2
+
+part Piano
+  block Origen
+    melody Origen
 ```
 
-Se edita en la GUI, en la vista avanzada de texto (botón `.mr`) o con cualquier editor; se guarda y se carga como fichero `.mr` (UTF-8/LF, sin ids volátiles, apto para diffs de git). Los ejemplos completos de la guía se validan en cada `npm test`.
+Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor; songs are saved and loaded as `.mr` files (UTF-8/LF, no volatile ids, git-diff friendly). Every complete example in the manual is validated on each `npm test`.
 
-## Documentación
+## Documentation
 
-- **[Guía del lenguaje `.mr` v1](docs/guia/lenguaje-mr.md)** — referencia de usuario: estructura, notas, comandos, operaciones, variables, reproducción, guardar/cargar y limitaciones.
-- **[Validación manual v1](docs/guia/validacion-manual-v1.md)** — checklist paso a paso (GUI, vista `.mr`, fichero, BPM live, repeats, variables, anidados, NeoVim).
-- **[ADR-001: texto canónico y sintaxis `.mr`](docs/adr/ADR-001-texto-canonico-y-sintaxis-mr.md)** — decisión y consecuencias.
-- **[Propuesta de sintaxis](docs/diseno/propuesta-sintaxis-mr.md)** — especificación detallada aprobada.
-- **[Sintaxis implementada y round-trip](docs/analisis/sintaxis-mr-implementada.md)** — contrato del parser/serializador y corpus.
-- **[Backlog](docs/analisis/BACKLOG.md)** — prioridades abiertas y estado del proyecto.
-- **[Soporte (Neo)Vim](editors/nvim/README.md)** — `ftdetect`, `syntax` y `ftplugin` para `.mr`.
-- **[Guía de arquitectura](docs/analisis/MODERANGER-ARCHITECTURE-GUIDE.md)** — visión técnica del proyecto.
+- 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/moderanger/)** — language manual, syntax cheatsheet and usage guide.
+- 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
+- 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
+- ✅ **[Manual validation v1](docs/developer/testing/validacion-manual-v1.md)** — step-by-step checklist.
+- 🗒️ **[Changelog](CHANGELOG.md)** — changes per version.
+- 🤝 **[Contributing](CONTRIBUTING.md)** — branch workflow, PRs and conventions.
+- 💚 **(Neo)Vim support](editors/nvim/README.md)** — `ftdetect`, `syntax` and `ftplugin` for `.mr`.
 
-## Estructura rápida
+## Workflow (summary)
 
-| Ruta | Contenido |
+- `develop` is the integration branch (protected): work happens in `feature/...` or `fix/...` branches and **PRs**.
+- `main` reflects released versions; deployments are triggered with a `v*` tag (see [`docs/developer/release/Release_Process.md`](docs/developer/release/Release_Process.md)).
+- CI (`tests + build`) is required on every PR and coverage has its own threshold.
+- User documentation is published automatically on every push to `develop`.
+
+## Project layout
+
+| Path | Content |
 |---|---|
-| `src/app/model/mr/` | Parser, serializador, errores, fichero y contrato del `.mr`. |
-| `src/app/model/mr/__tests__/corpus/` | Canciones `.mr` canónicas usadas por los tests. |
-| `src/app/components/` | GUI (song-editor, parts, blocks, melody-editor, vista `.mr`). |
-| `docs/` | Guías, ADR, análisis, diseño y auditorías. |
-| `editors/nvim/` | Plugin opt-in de resaltado/indentación para `.mr`. |
+| `packages/core/src/mr/` | Parser, serializer, errors and the `.mr` contract. |
+| `src/app/model/mr/__tests__/corpus/` | Canonical `.mr` songs used by the tests. |
+| `packages/core/` | Pure model, `.mr` parser/serializer and note generation (no Angular/Tone). |
+| `packages/compiler/src/` | Browser-free `.mr` → MIDI compiler and CLI. |
+| `src/app/components/` | GUI (song editor, parts, blocks, content library, melody editor, `.mr` view). |
+| `docs/user/` | Public documentation (published to GitHub Pages). |
+| `docs/developer/` | Internal wiki: ADR, analysis, audits, design, release (Spanish). |
+| `editors/nvim/` | Opt-in syntax/indent plugin for `.mr`. |
+
+## License
+
+[Apache-2.0](LICENSE).

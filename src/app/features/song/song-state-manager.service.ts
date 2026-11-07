@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { Song } from '../../model/song';
 import { Part } from '../../model/part';
 import { Block } from '../../model/block';
-import { VariableContext } from '../../model/variable.context';
+import { VariableContext, VariableValue } from '../../model/variable.context';
 import { PlayMode } from '../../model/play.mode';
 import { NoteData } from '../../model/note';
 import { NoteDuration } from '../../model/melody';
@@ -30,6 +30,9 @@ export class SongStateManagerService {
   readonly currentPattern$: Observable<NoteData[]>;
   readonly playMode$: Observable<PlayMode>;
   readonly globalDefaultDuration$: Observable<NoteDuration>;
+
+  /** Variables previas al Play (ver `captureVariablesSnapshot`). */
+  private variablesSnapshot: Map<string, VariableValue> | null = null;
 
   constructor(private globalState: GlobalStateService) {
     // Delegate all observables to the global state service
@@ -157,13 +160,9 @@ export class SongStateManagerService {
   substituteVariablesInSong(song: Song): void {
     
     const processBlock = (block: Block) => {
-      // Process commands and operations in the block
-      for (const command of block.commands) {
-        // Variable substitution logic would go here
-        // This is extracted from the original SongPlayer
-      }
-      
-      // Process child blocks
+      // La sustitución de variables se resolverá desde los presets y
+      // procedimientos de la biblioteca; de momento el servicio v2 sigue sin
+      // cablear y solo recorre el árbol estructural.
       for (const child of block.children) {
         processBlock(child);
       }
@@ -171,8 +170,8 @@ export class SongStateManagerService {
 
     // Process all parts
     for (const part of song.parts) {
-      for (const block of part.blocks) {
-        processBlock(block);
+      for (const item of part.items) {
+        processBlock(item);
       }
     }
     
@@ -182,7 +181,16 @@ export class SongStateManagerService {
    * Reset all variables to initial state
    */
   resetVariables(): void {
-    VariableContext.resetAll();
+    VariableContext.restore(this.variablesSnapshot);
+    this.variablesSnapshot = null;
+  }
+
+  /**
+   * Captura el estado actual de las variables antes de empezar a reproducir;
+   * `resetVariables()` lo restaura al parar (mismo modelo que `SongPlayer`).
+   */
+  captureVariablesSnapshot(): void {
+    this.variablesSnapshot = VariableContext.snapshot();
   }
 
   /**

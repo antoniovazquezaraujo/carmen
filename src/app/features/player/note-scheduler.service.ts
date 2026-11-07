@@ -124,8 +124,8 @@ export class NoteSchedulerService {
         };
 
         // Process all blocks in the part
-        for (const block of part.blocks) {
-          addBlockAndChildren(block);
+        for (const item of part.items) {
+          addBlockAndChildren(item);
         }
 
         const partState: PartExecutionState = {
@@ -261,18 +261,12 @@ export class NoteSchedulerService {
     const notes: NoteData[] = [];
     
     try {
-      // Execute block commands to update player state
-      for (const command of block.commands) {
-        command.execute(player);
+      // Apply the reusable preset and procedure, then generate the melody.
+      block.preset?.settings.forEach(setting => setting.execute(player));
+      block.procedure?.operations.forEach(operation => operation.execute());
+      if (block.melody) {
+        notes.push(...this.generateNotesFromMelody(block.melody, player));
       }
-
-      // Generate notes based on block content and player state
-      if (block.blockContent) {
-        // Extract notes from block content
-        // This would use the existing note generation logic
-        notes.push(...this.generateNotesFromBlockContent(block, player));
-      }
-
     } catch (error) {
       console.error('[NoteScheduler] Error extracting notes from block:', error);
     }
@@ -280,9 +274,11 @@ export class NoteSchedulerService {
     return notes;
   }
 
-  private generateNotesFromBlockContent(block: Block, player: Player): NoteData[] {
-    // This would implement the actual note generation logic
-    // For now, return empty array as placeholder
+  private generateNotesFromMelody(melody: { notes: string }, player: Player): NoteData[] {
+    // Servicio v2 sin cablear: la generación real vive en NoteGenerationService.
+    // Se mantiene el punto de extensión con la firma del modelo nuevo.
+    void player;
+    void melody;
     return [];
   }
 

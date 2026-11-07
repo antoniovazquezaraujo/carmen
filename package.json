@@ -4,42 +4,59 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run build:app && npm run build:cli",
+    "build:app": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "midi": "npm run build:cli --silent && node packages/compiler/dist/cli/main.js compile",
+    "build:core": "tsc -p packages/core/tsconfig.build.json",
+    "build:compiler": "tsc -p packages/compiler/tsconfig.build.json",
+    "build:cli": "npm run build:core && npm run build:compiler"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~13.1.0",
-    "@angular/cdk": "^13.3.3",
-    "@angular/common": "~13.1.0",
-    "@angular/compiler": "~13.1.0",
-    "@angular/core": "~13.1.0",
-    "@angular/forms": "~13.1.0",
-    "@angular/platform-browser": "~13.1.0",
-    "@angular/platform-browser-dynamic": "~13.1.0",
-    "@angular/router": "~13.1.0",
-    "flatted": "^3.2.5",
-    "primeflex": "^3.1.3",
-    "primeicons": "^5.0.0",
-    "primeng": "^13.3.3",
-    "rxjs": "~7.4.0",
+    "@angular/cdk": "^21.2.14",
+    "@angular/common": "^21.2.25",
+    "@angular/compiler": "^21.2.25",
+    "@angular/core": "^21.2.25",
+    "@angular/forms": "^21.2.25",
+    "@angular/platform-browser": "^21.2.25",
+    "@angular/router": "^21.2.25",
+    "@primeuix/themes": "^2.0.3",
+    "flatted": "^3.4.4",
+    "primeflex": "^4.0.0",
+    "primeicons": "^8.0.2",
+    "primeng": "^21.1.10",
+    "rxjs": "~7.8.2",
     "tone": "^14.8.26",
-    "tslib": "^2.3.0",
-    "zone.js": "~0.11.4"
+    "tslib": "^2.8.1",
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^13.1.2",
-    "@angular/cli": "~13.1.2",
-    "@angular/compiler-cli": "~13.1.0",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^12.20.55",
-    "jest": "^29.7.0",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^29.2.5",
-    "ts-prune": "^0.10.3",
-    "typescript": "^4.5.5"
+    "@angular/build": "^21.2.29",
+    "@angular/cli": "^21.2.29",
+    "@angular/compiler-cli": "^21.2.25",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.20.5",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15",
+    "typescript": "^5.9.3"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "overrides": {
+    "fast-uri": "3.1.9",
+    "micromatch": {
+      "picomatch": "2.3.2"
+    },
+    "chokidar": {
+      "picomatch": "2.3.2"
+    }
   }
 }

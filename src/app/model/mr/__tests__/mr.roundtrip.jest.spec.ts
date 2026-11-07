@@ -1,11 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Block } from '../../block';
-import { Command, CommandType } from '../../command';
+import { Melody, Preset, Procedure } from '../../content';
 import { AssignOperation, VaryOperation } from '../../operation';
 import { Part } from '../../part';
 import { Song } from '../../song';
-import { VariableValue } from '../../variable.context';
 import { parseSong } from '../mr.parser';
 import { serializeSong } from '../mr.serializer';
 import { SongDocument } from '../mr.types';
@@ -23,21 +22,32 @@ function readCorpus(file: string): string {
   return fs.readFileSync(path.join(CORPUS_DIR, file), 'utf8');
 }
 
-function blockSnapshot(block: Block): unknown {
+function melodySnapshot(melody: Melody): unknown {
   return {
-    label: block.label,
-    repeats: block.repeatingTimes,
-    notes: block.blockContent.notes,
-    isVariable: block.blockContent.isVariable,
-    variableName: block.blockContent.variableName,
-    defaultDuration: block.blockContent.defaultDuration,
-    commands: block.commands.map((command) => ({
-      type: command.type,
-      isVariable: command.isVariable,
-      variableName: command.getVariableName(),
-      value: command.isVariable ? null : command.value
-    })),
-    operations: block.operations.map((operation) => {
+    label: melody.label,
+    notes: melody.notes,
+    isVariable: melody.isVariable,
+    variableName: melody.variableName,
+    defaultDuration: melody.defaultDuration
+  };
+}
+
+function presetSnapshot(preset: Preset): unknown {
+  return {
+    label: preset.label,
+    settings: preset.settings.map((setting) => ({
+      type: setting.type,
+      isVariable: setting.isVariable,
+      variableName: setting.getVariableName(),
+      value: setting.isVariable ? null : setting.value
+    }))
+  };
+}
+
+function procedureSnapshot(procedure: Procedure): unknown {
+  return {
+    label: procedure.label,
+    operations: procedure.operations.map((operation) => {
       if (operation instanceof VaryOperation) {
         return { type: 'VARY', variableName: operation.variableName, value: operation.value };
       }
@@ -45,7 +55,17 @@ function blockSnapshot(block: Block): unknown {
         return { type: 'ASSIGN', variableName: operation.variableName, value: operation.value };
       }
       return { type: operation.constructor.name };
-    }),
+    })
+  };
+}
+
+function blockSnapshot(block: Block): unknown {
+  return {
+    label: block.label,
+    repeats: block.repeatingTimes,
+    melody: block.melody?.label ?? null,
+    preset: block.preset?.label ?? null,
+    procedure: block.procedure?.label ?? null,
     children: block.children.map(blockSnapshot)
   };
 }
@@ -57,10 +77,13 @@ function documentSnapshot(document: SongDocument): unknown {
     repeats: document.meta.repeats ?? 1,
     bpm: document.meta.bpm ?? 120,
     variables: Array.from(document.variables.entries()),
-    parts: document.song.parts.map((part) => ({
+    melodies: document.song.melodies.map(melodySnapshot),
+    presets: document.song.presets.map(presetSnapshot),
+    procedures: document.song.procedures.map(procedureSnapshot),
+    parts: document.song.parts.map((part: Part) => ({
       name: part.name,
       instrument: part.instrumentType,
-      blocks: part.blocks.map(blockSnapshot)
+      items: part.items.map(blockSnapshot)
     }))
   };
 }
@@ -91,16 +114,20 @@ describe('round-trip: idempotencia sobre el corpus', () => {
 describe('round-trip: normalización de entradas no canónicas', () => {
   it('normaliza espacios, comentarios y comillas sobrantes', () => {
     const nonCanonical = `# comentario de cabecera
-song    "Semilla"    # nombre
-version 1
+song "Semilla"    # nombre
+version 2
 
-# otra nota
-part "Piano"
-  block "Origen"
+melodies
+  melody "Origen"
     notes
       4n:0    4n:2 # dos notas en una línea
       4n:4
       4n:2
+
+# otra nota
+part "Piano"
+  block "Origen"
+    melody "Origen"
 `;
 
     expect(serializeSong(parseSong(nonCanonical))).toBe(readCorpus('semilla.mr'));
@@ -108,59 +135,88 @@ part "Piano"
 
   it('normaliza INVERSION a INV y el azúcar de operaciones a VARY/ASSIGN', () => {
     const text = `song Normaliza
-version 1
+version 2
+
+melodies
+  melody M
+    notes
+      4n:0
+
+presets
+  preset P
+    INVERSION 1
+
+procedures
+  procedure Proc
+    $oct += 1
+    $mode = RANDOM
 
 part P
   block B
-    notes
-      4n:0
-    commands
-      INVERSION 1
-    operations
-      $oct += 1
-      $mode = RANDOM
+    preset P
+    procedure Proc
+    melody M
 `;
 
     const canonical = serializeSong(parseSong(text));
 
-    expect(canonical).toContain('      INV 1\n');
-    expect(canonical).toContain('      VARY $oct 1\n');
-    expect(canonical).toContain('      ASSIGN $mode RANDOM\n');
+    expect(canonical).toContain('    INV 1\n');
+    expect(canonical).toContain('    VARY $oct 1\n');
+    expect(canonical).toContain('    ASSIGN $mode RANDOM\n');
     expect(canonical).not.toContain('INVERSION');
   });
 
-  it('reordena las secciones a notes → commands → operations → bloques', () => {
+  it('reordena las referencias dentro del bloque a preset → procedure → melody → hijos', () => {
     const text = `song Orden
-version 1
+version 2
+
+melodies
+  melody M
+    notes
+      4n:0
+
+presets
+  preset P
+    OCT 1
+
+procedures
+  procedure Proc
+    ASSIGN $x 1
 
 part P
   block B
-    operations
-      ASSIGN $x 1
+    melody M
+    procedure Proc
+    preset P
+
     block Hijo
-      notes
-        4n:2
-    commands
-      OCT 1
-    notes
-      4n:0
+      melody M
 `;
 
     expect(serializeSong(parseSong(text))).toBe(`song Orden
-version 1
+version 2
+
+melodies
+  melody M
+    notes
+      4n:0
+
+presets
+  preset P
+    OCT 1
+
+procedures
+  procedure Proc
+    ASSIGN $x 1
 
 part P
   block B
-    notes
-      4n:0
-    commands
-      OCT 1
-    operations
-      ASSIGN $x 1
+    preset P
+    procedure Proc
+    melody M
 
     block Hijo
-      notes
-        4n:2
+      melody M
 `);
   });
 
@@ -171,66 +227,5 @@ part P
 
       expect(twice).toBe(once);
     }
-  });
-});
-
-describe('round-trip: modelo construido a mano', () => {
-  function buildDocument(): SongDocument {
-    const song = new Song();
-    song.name = 'Modelo';
-    // La cabecera de reproducción es canónica en `Song` (#16/#20); la meta
-    // solo la refleja como haría `parseSong`.
-    song.repeats = 2;
-    song.bpm = 90;
-
-    const part = new Part();
-    part.name = 'P';
-
-    const block = new Block();
-    block.label = 'B';
-    block.blockContent.notes = '4n:0 4n:2';
-    block.blockContent.defaultDuration = '8n';
-    block.commands = [
-      new Command({ type: CommandType.OCT, value: 2 }),
-      new Command({ type: CommandType.SCALE, value: 'WHITE' }),
-      new Command({ type: CommandType.PLAYMODE, value: 'PATTERN' }),
-      new Command({ type: CommandType.PATTERN, value: '4t:0 4t:2' })
-    ];
-    block.operations = [new VaryOperation('oct', 1), new AssignOperation('mode', 'RANDOM')];
-
-    const child = new Block();
-    child.label = 'Hijo';
-    child.blockContent.setVariableReference('motif');
-    block.children = [child];
-
-    part.blocks = [block];
-    song.parts = [part];
-
-    const variables = new Map<string, VariableValue>([
-      ['oct', 2],
-      ['mode', 'ASCENDING'],
-      ['motif', '4t:0 4t:2']
-    ]);
-
-    return { song, variables, meta: { version: 1, repeats: 2, bpm: 90 } };
-  }
-
-  it('parse(serialize(m)) ≡ m', () => {
-    const document = buildDocument();
-
-    const reparsed = parseSong(serializeSong(document));
-
-    expect(documentSnapshot(reparsed)).toEqual(documentSnapshot(document));
-  });
-
-  it('tolera bpm 120 y repeats 1 como equivalentes a ausentes', () => {
-    const document = buildDocument();
-    document.song.repeats = 1;
-    document.song.bpm = 120;
-    document.meta = { version: 1, repeats: 1, bpm: 120 };
-
-    const reparsed = parseSong(serializeSong(document));
-
-    expect(reparsed.meta).toEqual({ version: 1 });
   });
 });

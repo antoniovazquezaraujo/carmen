@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    # Framework majors are coordinated upgrade projects; minor and patch
+    # updates are welcome and validated by CI.
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "zone.js"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular/cdk"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "primeng"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@primeng/themes"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "primeicons"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "primeflex"
+        update-types: ["version-update:semver-major"]
+      # Toolchain majors are pinned to the Angular 21 / Node 22 stack.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/jest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ts-jest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tone"
+        update-types: ["version-update:semver-major"]

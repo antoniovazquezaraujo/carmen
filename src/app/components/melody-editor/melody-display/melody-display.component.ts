@@ -23,53 +23,59 @@ export interface VisualElement {
  * - Provides clean event emission for parent coordination
  */
 @Component({
-  selector: 'app-melody-display',
-  template: `
+    selector: 'app-melody-display',
+    template: `
     <div class="notes-container-wrapper">
       <!-- Variable icon -->
-      <div class="variable-toggle-icon" *ngIf="showVariableIcon">$</div>
-      
+      @if (showVariableIcon) {
+        <div class="variable-toggle-icon">$</div>
+      }
+
       <div class="notes-container">
         <!-- Visual elements -->
-        <ng-container *ngFor="let element of visualElements; trackBy: trackByElementId">
-          
+        @for (element of visualElements; track trackByElementId($index, element)) {
           <!-- Simple note display -->
-          <div *ngIf="element.type === 'note' || element.type === 'rest'"
-               class="note-item"
-               [class.selected]="element.id === selectedElementId"
-               (click)="onElementClick(element.id)">
-            <div class="note-visual">
-              <span class="note-value" [class.silence]="element.value === null">
-                {{ element.value === null ? 's' : element.value }}
-              </span>
+          @if (element.type === 'note' || element.type === 'rest') {
+            <div
+              class="note-item"
+              [class.selected]="element.id === selectedElementId"
+              (click)="onElementClick(element.id)">
+              <div class="note-visual">
+                <span class="note-value" [class.silence]="element.value === null">
+                  {{ element.value === null ? 's' : element.value }}
+                </span>
+              </div>
+              <div class="note-duration">
+                <span class="duration-value">{{ element.duration }}</span>
+              </div>
             </div>
-            <div class="note-duration">
-              <span class="duration-value">{{ element.duration }}</span>
-            </div>
-          </div>
-          
+          }
           <!-- Composite group display -->
-          <div *ngIf="element.type === 'arpeggio' || element.type === 'chord'"
-               class="group-item"
-               [class.selected]="element.id === selectedElementId"
-               (click)="onElementClick(element.id)">
-            <span class="group-type">{{ element.type }}</span>
-            <span class="group-duration">{{ element.duration }}</span>
-          </div>
-
+          @if (element.type === 'arpeggio' || element.type === 'chord') {
+            <div
+              class="group-item"
+              [class.selected]="element.id === selectedElementId"
+              (click)="onElementClick(element.id)">
+              <span class="group-type">{{ element.type }}</span>
+              <span class="group-duration">{{ element.duration }}</span>
+            </div>
+          }
           <!-- Group markers -->
-          <span *ngIf="element.type === 'group-start' || element.type === 'group-end'"
-                class="group-marker" 
-                [class.group-start-marker]="element.type === 'group-start'"
-                [class.group-end-marker]="element.type === 'group-end'"
-                [class.active-marker]="element.id === selectedElementId"
-                (click)="onElementClick(element.id)">
-            <span *ngIf="element.type === 'group-start'" class="group-duration">{{element.duration}}:</span>
-            <span class="group-bracket">{{ element.type === 'group-start' ? '(' : ')' }}</span>
-          </span>
+          @if (element.type === 'group-start' || element.type === 'group-end') {
+            <span
+              class="group-marker"
+              [class.group-start-marker]="element.type === 'group-start'"
+              [class.group-end-marker]="element.type === 'group-end'"
+              [class.active-marker]="element.id === selectedElementId"
+              (click)="onElementClick(element.id)">
+              @if (element.type === 'group-start') {
+                <span class="group-duration">{{element.duration}}:</span>
+              }
+              <span class="group-bracket">{{ element.type === 'group-start' ? '(' : ')' }}</span>
+            </span>
+          }
+        }
 
-        </ng-container>
-        
         <!-- Add note button -->
         <div class="note-item add-note" (click)="onAddNote()" tabindex="0">
           <div class="note-visual">
@@ -78,8 +84,8 @@ export interface VisualElement {
         </div>
       </div>
     </div>
-  `,
-  styles: [`
+    `,
+    styles: [`
     .notes-container-wrapper {
       position: relative;
       display: flex;
@@ -243,11 +249,11 @@ export class MelodyDisplayComponent implements OnChanges {
    */
   private flattenElements(elements: MusicElement[]): VisualElement[] {
     const result: VisualElement[] = [];
-    
+
     for (const element of elements) {
       if (element.type === 'group') {
         const group = element as GenericGroup;
-        
+
         // Add group start marker
         result.push({
           id: `${element.id}_start`,
@@ -255,12 +261,12 @@ export class MelodyDisplayComponent implements OnChanges {
           originalElement: element,
           duration: group.duration
         });
-        
+
         // Add children elements recursively
         if (group.children) {
           result.push(...this.flattenElements(group.children));
         }
-        
+
         // Add group end marker
         result.push({
           id: `${element.id}_end`,
@@ -278,7 +284,7 @@ export class MelodyDisplayComponent implements OnChanges {
         });
       }
     }
-    
+
     return result;
   }
 
@@ -301,4 +307,4 @@ export class MelodyDisplayComponent implements OnChanges {
   isGroupExpanded(id: string): boolean {
     return this.expandedGroups.has(id);
   }
-} 
+}

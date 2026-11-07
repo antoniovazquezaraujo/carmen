@@ -25,12 +25,27 @@
     height: 24px;
 }
 
-input[type="text"], select {
+input[type="text"] {
     @extend .variable-input;
     min-width: 120px;
     
     @media (max-width: 768px) {
         min-width: 80px;
+        font-size: 12px;
+    }
+}
+
+/* Combos con auto-fit (field-sizing global) y clamp: los tipos y valores
+   cortos no ocupan 120px fijos y los nombres largos tienen tope. Sin flecha
+   nativa (se siguen abriendo al clic), coherente con Commands/Operations. */
+select {
+    @extend .variable-input;
+    min-width: 60px;
+    max-width: 160px;
+    appearance: none;
+    -webkit-appearance: none;
+    
+    @media (max-width: 768px) {
         font-size: 12px;
     }
 }
@@ -75,10 +90,10 @@ input[type="text"], select {
     }
 
     select {
-        min-width: 100px;
+        min-width: 60px;
+        max-width: 160px;
         
         @media (max-width: 768px) {
-            min-width: 80px;
             font-size: 12px;
         }
     }
@@ -92,4 +107,14 @@ input[type="text"], select {
 .string-input {
     min-width: 220px;
     max-width: 100%;
+}
+
+/* Los valores de playmode usan la misma notación simbólica que los comandos:
+   ○/● para los grupos par/impar y flechas para la dirección. */
+select.playmode-select {
+    min-width: 64px;
+    max-width: 160px;
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Symbols 2', 'DejaVu Sans', sans-serif;
 }

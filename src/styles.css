@@ -1,7 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-@import "../node_modules/primeicons/primeicons.css";
-@import "../node_modules/primeng/resources/themes/saga-green/theme.css";
-@import "~primeng/resources/primeng.min.css";
 
 html, body { 
   height: 100%; 
@@ -136,9 +133,10 @@ h1 { /* Add some style for the header */
   margin:0px!important;
  }
  .p-tree-node-content{
-  padding:0px!important;
-  margin:0px!important;
-  height:14px!important;
+  padding-top:0!important;
+  padding-right:0!important;
+  padding-bottom:0!important;
+  margin:0!important;
  }
 
 .p-dropdown-items .p-dropdown-item {
@@ -158,35 +156,221 @@ h1 { /* Add some style for the header */
   margin: 0px!important;
 }
 
-.p-tree-container {
+.p-tree-root-children {
   padding: 0px!important;
   margin: 0px!important;
 }
 
-.p-treenode {
+.p-tree-node {
   padding: 0px!important;
   margin: 0px!important;
   line-height: 1!important;
 }
 
-.p-treenode-content {
-  padding: 0px 0px!important;
-  margin: 0px!important;
-  min-height: 14px!important;
+.p-tree-node-content {
+  padding-top: 0!important;
+  padding-right: 0!important;
+  padding-bottom: 0!important;
+  margin: 0!important;
 }
 
-.p-tree-wrapper {
+.p-tree-root {
   line-height: 1!important;
 }
 
-.p-tree .p-tree-container .p-treenode .p-treenode-content {
+.p-tree .p-tree-root-children .p-tree-node .p-tree-node-content {
+  padding-top: 0!important;
+  padding-right: 0!important;
+  padding-bottom: 0!important;
+  margin: 0!important;
+}
+
+.p-tree .p-tree-root-children .p-tree-node {
   padding: 0!important;
   margin: 0!important;
 }
 
-.p-tree .p-tree-container .p-treenode {
-  padding: 0!important;
-  margin: 0!important;
+/* Guías visuales del árbol de bloques (estilo explorador de ficheros):
+   una línea vertical por cada nivel de anidación y un conector horizontal
+   corto hacia cada bloque. Trazo neutro de 2px en gris medio (contraste
+   reportado como insuficiente con 1px/#d9d9d9). No alteran el layout (la
+   indentación de 1rem por nivel la sigue aportando el padding de
+   `.p-tree-node-children`) ni interfieren con el drag & drop
+   (`pointer-events: none`, asa y droppoints intactos). */
+.p-tree .p-tree-node-children {
+  position: relative;
+}
+
+/* PrimeNG 21 reparte la indentación en dos capas: `1rem` de padding-left
+   en la `ul` y otros `0.5rem` de padding-left en el content del hijo. El
+   bloque empieza en `ul + 1rem` (su caja de header se extiende 14px a la
+   izquierda), así que la guía debe quedar pegada a ese borde: el hijo
+   arranca en `ul + 14px` y su trazo de 2px se pinta en `left: -2px` del
+   `p-treenode`. La guía se dibuja por hijo, no en la `ul` completa, para
+   poder cortar la rama en el último nodo y formar una L. */
+.p-tree .p-tree-node-children > p-treenode {
+  position: relative;
+}
+
+.p-tree .p-tree-node-children > p-treenode::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: -2px;
+  left: -2px;
+  width: 2px;
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* El primer hijo empieza en el borde superior de la `ul` (padding 2px). */
+.p-tree .p-tree-node-children > p-treenode:first-of-type::before {
+  top: -2px;
+}
+
+/* Último hijo: la vertical termina en su cabecera, formando una L. El
+   tramo del `p-treenode` llega hasta el borde superior del header (1px de
+   borde + 2px de padding del content); el resto hasta el centro lo pinta
+   el propio header (ver más abajo). */
+.p-tree .p-tree-node-children > p-treenode:last-of-type::before {
+  bottom: auto;
+  height: 3px;
+}
+
+.p-tree .p-tree-node-children > p-treenode:first-of-type:last-of-type::before {
+  top: -2px;
+  height: 5px;
+}
+
+/* Ramal del bloque padre: cuando un bloque con asa tiene hijos, la guía de
+   su lista de hijos sube desde el asa (centro del header) por delante de
+   contenido del bloque hasta empalmar con la `ul`. `:has()` lo limita a
+   bloques con hijos (`+ .p-tree-node-children`) y con asa (los raíces
+   visibles no tienen): sin hijos no se pinta ninguna línea. En navegadores
+   sin `:has()` el árbol conserva el aspecto anterior (mejora progresiva). */
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header {
+  position: relative;
+}
+
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-body {
+  position: relative;
+}
+
+/* Nodos anidados: la caja del header empieza 1px a la izquierda del content
+   del hijo; la guía vive en content+12 → 12 - (-1) = 13px desde la caja. */
+.p-tree .p-tree-node-children .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
+  left: 13px;
+}
+
+/* Raíces de contenedor: su header no lleva la extensión de 14px; la guía
+   queda 1px a la izquierda de la caja (que arranca en content+13). */
+.p-tree .p-tree-root-children > p-treenode > li.p-tree-node > .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
+  left: -1px;
+}
+
+/* Tramo de cabecera: de la altura del asa (centro del header) al borde
+   inferior; así el ramal "arranca en el icono" como los conectores. */
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-header::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  bottom: 0;
+  width: 2px;
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tramo del cuerpo: el body arranca en content+13 → -1px; `top: -1px`
+   salva su `margin-top` y `bottom: -4px` el hueco hasta la `ul` de hijos
+   para que la línea no se corte entre el header, el cuerpo y la lista. */
+.p-tree .p-tree-node-content:has(+ .p-tree-node-children):has(.block-drag-handle) .block-body::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -4px;
+  width: 2px;
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Conector horizontal corto desde la guía hasta el bloque. Se pinta como
+   fondo del propio `.block-header` en la franja de padding izquierda: el
+   header tiene `overflow-x: auto` y recortaría un pseudo-elemento que
+   sobresalga. `margin-left` negativo + `padding-left` y `width` compensados
+   extienden su caja de pintado sin mover el contenido (misma x). */
+.p-tree .p-tree-node-children .block-header {
+  box-sizing: border-box !important;
+  width: calc(100% + 14px) !important;
+  margin-left: -14px !important;
+  padding-left: 14px !important;
+  background-image: linear-gradient(to right, #a3a3a3, #a3a3a3);
+  background-repeat: no-repeat;
+  background-size: 12px 2px;
+  background-position: 1px center;
+}
+
+/* Cierre en L del último hijo: tramo vertical desde el borde superior del
+   header hasta su centro, justo donde engancha el conector horizontal. */
+.p-tree .p-tree-node-children > p-treenode:last-of-type .block-header {
+  position: relative;
+}
+
+.p-tree .p-tree-node-children > p-treenode:last-of-type .block-header::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 50%;
+  width: 2px;
+  background-color: #a3a3a3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Drag & drop de bloques: zonas de inserción amplias y visibles.
+   El `.p-tree-node-droppoint` por defecto mide 4px de alto; se amplía a 12px
+   con una línea de acento al pasar por encima o durante el arrastre para que
+   sea fácil apuntar sin ensuciar el árbol en reposo. */
+.p-tree .p-tree-node-droppoint {
+  position: relative;
+  height: 12px !important;
+  list-style-type: none;
+}
+
+.p-tree .p-tree-node-droppoint::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  border-radius: 1px;
+  background-color: transparent;
+  transition: background-color 0.12s ease, height 0.12s ease;
+}
+
+.p-tree .p-tree-node-droppoint:hover::after {
+  background-color: #c8e6c9;
+}
+
+.p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active {
+  background-color: transparent !important;
+}
+
+.p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active::after {
+  height: 4px;
+  background-color: #2e7d32;
+}
+
+/* Nodo destino del drop: resaltado claro (el tema por defecto es casi gris). */
+.p-tree .p-tree-root-children .p-tree-node .p-tree-node-content.p-tree-node-dragover {
+  background: #e8f5e9 !important;
+  box-shadow: inset 0 0 0 2px #2e7d32;
 }
 
 /* Estilo para botones con texto */
@@ -387,14 +571,15 @@ body .p-dropdown .p-dropdown-trigger {
   justify-content: center !important;
 }
 
-/* Estilos para los elementos select y input estándar */
+/* Estilos para los elementos select y input estándar.
+   Sin `width` en los selects: se ajustan al contenido con `field-sizing`
+   y el clamp de `.command-type`; los inputs numéricos mantienen su regla. */
 select.command-type,
 .command .command-type,
 .operation-item select.command-type,
 .operation-item input.command-value,
 .command input.command-value,
 .operation-item .number-input {
-  width: 120px;
   height: 30px;
   box-sizing: border-box;
   padding: 0 0.5rem;
@@ -415,10 +600,12 @@ select.command-type,
   text-align: center;
 }
 
-/* Asegurar que los contenedores tengan la misma altura - COMPACTO */
+/* Asegurar que los contenedores tengan la misma altura - COMPACTO.
+   `height: auto` + `min-height`: una línea queda en 24px como siempre y un
+   PATTERN que envuelve a 2+ líneas crece en vez de desbordar la caja. */
 .operation-item,
 .command {
-  height: 24px;
+  height: auto;
   min-height: 24px;
   align-items: center;
   box-sizing: border-box;
@@ -584,11 +771,13 @@ p-dropdown.command-value .p-dropdown .p-dropdown-clear-icon,
   font-size: 14px !important; /* Tamaño de fuente igual al de los selects */
 }
 
-/* Unificar apariencia de los contenedores */
+/* Unificar apariencia de los contenedores.
+   Borde transparente en reposo: mantiene el box y deja que el texto libre
+   muestre el chrome solo al hover/focus (regla más abajo). */
 .command,
 .operation-item {
   background-color: transparent !important; /* Quitar fondos diferentes */
-  border: none !important; /* Quitar bordes diferentes */
+  border: 1px solid transparent !important;
   border-radius: 0 !important; /* Quitar bordes redondeados */
   padding: 0.25rem !important; /* Padding uniforme */
 }
@@ -597,7 +786,7 @@ p-dropdown.command-value .p-dropdown .p-dropdown-clear-icon,
 .operation-item {
   background-color: transparent !important;
   border-radius: 0 !important;
-  border: none !important;
+  border: 1px solid transparent !important;
 }
 
 /* RESET COMPLETO Y UNIFICADO PARA P-DROPDOWN */
@@ -1138,19 +1327,20 @@ input[type="number"]:focus::-webkit-outer-spin-button,
 .operation-item,
 .notes-input {
   display: flex !important;
-  flex-flow: row nowrap !important;
+  /* Wrap: comandos/operaciones/notas envuelven al estrecharse la part. */
+  flex-flow: row wrap !important;
   align-items: center !important;
   background-color: transparent !important;
-  border: none !important;
   border-radius: 0 !important;
   padding: 1px 4px !important;
   margin-bottom: 1px !important;
   gap: 2px !important;
 }
 
-/* Reset for select nativo */
+/* Reset for select nativo.
+   Sin `width`: el combo se ajusta a la opción seleccionada (field-sizing);
+   el clamp del componente (`.command-type`, min 44 / max 140) lo acota. */
 .command-type {
-  width: 120px !important;
   height: 30px !important;
   padding: 0 0.5rem !important;
   border: 1px solid #ced4da !important;
@@ -1286,22 +1476,58 @@ input[type="number"]:focus::-webkit-outer-spin-button,
 }
 
 /* ====== RESTABLECER SELECTORES NATIVOS ====== */
+/* Sin `width`: el ancho lo decide `field-sizing: content` + clamp de
+   `.command-type` (min/max), para que el combo siga a la opción elegida.
+   En reposo el combo se lee como texto: sin borde, sin fondo y sin flecha
+   nativa; el padding derecho reserva el hueco del chevron (que aparece al
+   hover/focus) para que el ancho no salte. */
 select.command-type,
 .command .command-type,
 .operation-item select.command-type {
-  width: 120px !important;
   height: 30px !important;
-  padding: 0 0.5rem !important;
-  border: 1px solid #ced4da !important;
+  /* Sin chevron decorativo ni flecha nativa: padding simétrico. */
+  padding: 0 2px !important;
+  border: 1px solid transparent !important;
   border-radius: 4px !important;
   margin: 0 4px !important;
-  background-color: white !important;
+  background-color: transparent !important;
   font-size: 14px !important;
   font-family: inherit !important;
   line-height: 30px !important;
   vertical-align: middle !important;
-  appearance: auto !important;
+  appearance: none !important;
   box-sizing: border-box !important;
+}
+
+/* Commands/Operations como texto libre: la caja y los controles muestran su
+   chrome editable al pasar el ratón o al editar (focus-within). */
+.command .command-value,
+.command .number-input,
+.operation-item .command-value,
+.operation-item .number-input {
+  border-color: transparent !important;
+  background-color: transparent !important;
+}
+
+.command:hover select.command-type,
+.command:focus-within select.command-type,
+.operation-item:hover select.command-type,
+.operation-item:focus-within select.command-type {
+  /* Sin chevron: el combo se abre al clic pero no muestra flecha. */
+  border-color: #ced4da !important;
+  background-color: white !important;
+}
+
+.command:hover .command-value,
+.command:hover .number-input,
+.command:focus-within .command-value,
+.command:focus-within .number-input,
+.operation-item:hover .command-value,
+.operation-item:hover .number-input,
+.operation-item:focus-within .command-value,
+.operation-item:focus-within .number-input {
+  border-color: #ced4da !important;
+  background-color: white !important;
 }
 
 /* ====== INPUTS NUMÉRICOS ====== */
@@ -1349,14 +1575,32 @@ input[type="number"],
 .operation-item, 
 .notes-input {
   display: flex !important;
-  flex-flow: row nowrap !important;
+  /* Wrap: comandos/operaciones/notas envuelven al estrecharse la part. */
+  flex-flow: row wrap !important;
   align-items: center !important;
   background-color: transparent !important;
-  border: none !important;
   border-radius: 0 !important;
   padding: 4px 8px !important;
   margin-bottom: 4px !important;
   gap: 4px !important;
+}
+
+/* Commands/Operations como texto libre: en reposo no se ve caja; al pasar
+   el ratón o al editar (focus-within) aparece el borde de la caja. */
+.command,
+.operation-item {
+  border: 1px solid transparent !important;
+}
+
+.command:hover,
+.command:focus-within,
+.operation-item:hover,
+.operation-item:focus-within {
+  border-color: #e8e8e8 !important;
+}
+
+.notes-input {
+  border: none !important;
 }
 
 /* ====== BOTONES ====== */
@@ -1607,6 +1851,15 @@ select,
   font-family: inherit;
 }
 
+/* Los combos se ajustan a su contenido (CSS Form Control Styling, Baseline
+   2026): el ancho sigue a la opción seleccionada y los clamps por componente
+   (min/max) evitan saltos. Progresiva: sin soporte conservan el ancho
+   intrínseco actual. Solo `select`; los inputs numéricos compactos (32/45px)
+   no se tocan. Un `width` explícito sigue mandando (p. ej. duración de nota). */
+select {
+  field-sizing: content;
+}
+
 /* Estilos para botones en todos los componentes - PEQUEÑOS */
 :root .p-button {
   width: 20px !important;
@@ -1633,9 +1886,10 @@ select,
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  flex-wrap: nowrap !important;
+  /* Wrap: al estrechar la part, los controles bajan de línea en vez de
+     generar scroll horizontal interno (el header sigue compacto si caben). */
+  flex-wrap: wrap !important;
   width: 100% !important;
-  overflow-x: auto !important;
 }
 
 .block-header > * {
@@ -1864,4 +2118,291 @@ p-inputnumber .p-inputnumber-button-group > * {
 .p-inputnumber-button-group > * + *,
 p-inputnumber .p-inputnumber-button-group > * + * {
   margin-top: -1px !important;
+}
+
+/* ====== COMMANDS/OPERATIONS COMO TEXTO LIBRE ====== */
+/* `$` y `✕`: viven ocultos hasta el hover del comando; el chrome (fondo,
+   borde e icono) lo define la capa de tema junto al resto de botones. */
+.command-actions .p-button,
+.command-controls .p-button {
+  margin: 0 !important;
+  transition: border-color 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+}
+
+/* Foco de teclado claro (accesibilidad) sin ensuciar el clic con ratón. */
+.command select:focus-visible,
+.command input:focus-visible,
+.operation-item select:focus-visible,
+.operation-item input:focus-visible,
+.command-actions .p-button:focus-visible,
+.command-controls .p-button:focus-visible {
+  outline: 2px solid rgba(0, 119, 204, 0.55) !important;
+  outline-offset: 1px;
+}
+
+/* Notas en cualquier melody editor (header del bloque y PATTERN): hosts
+   inline-flex para que las cajas queden centradas en la línea. Sin comas
+   decorativas entre elementos. El chrome de la nota (borde/fondo al hover o
+   al seleccionar) vive en melody-note. */
+app-melody-editor .notes-container > app-melody-note,
+app-melody-editor .notes-container > app-melody-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ====== COMMANDS/OPERATIONS COMPACTOS ====== */
+/* Menos aire entre controles y en los bordes de la caja; la coma y los
+   botones comparten el gap mínimo. */
+.commands-container > .command,
+.operations-container > .operation-item {
+  gap: 1px !important;
+  padding: 1px 2px !important;
+}
+
+.command select.command-type,
+.operation-item select.command-type {
+  margin: 0 1px !important;
+}
+
+.command > .command-actions,
+.operation-item > .command-controls {
+  margin-left: 0 !important;
+  gap: 1px !important;
+}
+
+/* Inputs numéricos de estas filas: al contenido (field-sizing) con clamp,
+   liberados del ancho global de 80/45px y a 20px de alto. Se incluyen las
+   variantes con `input.` para batir la especificidad del reset global. */
+.command .command-value,
+.operation-item .command-value,
+.command .number-input,
+.operation-item .number-input,
+.command input.command-value.number-input,
+.operation-item input.command-value.number-input,
+.command input.number-input,
+.operation-item input.number-input {
+  width: auto !important;
+  min-width: 24px !important;
+  max-width: 64px !important;
+  height: 20px !important;
+  margin: 0 1px !important;
+  padding: 0 2px !important;
+  field-sizing: content;
+}
+
+/* ====== MÉTRICAS ÚNICAS DE COMMANDS/OPERATIONS ====== */
+/* Una sola tipografía (12px) y una sola altura (20px) para todos los
+   controles de la fila, en reposo y en hover. El prefijo `html body` empata
+   en especificidad con las reglas legacy `html body input[...]` y, al ir al
+   final, las neutraliza SOLO en este contexto: toolbar (#repetitions 32px,
+   #bpm 45px) e inputs de variables quedan intactos. */
+html body .commands-row select.command-type,
+html body .operations-row select.command-type,
+html body .commands-row .command-value,
+html body .operations-row .command-value,
+html body .commands-row .number-input,
+html body .operations-row .number-input,
+html body .commands-row input.command-value.number-input,
+html body .operations-row input.command-value.number-input,
+html body .commands-row input.number-input,
+html body .operations-row input.number-input {
+  width: auto !important;
+  min-width: 24px !important;
+  max-width: 64px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  padding: 0 2px !important;
+  field-sizing: content;
+}
+
+/* Los selects mantienen el ancho al contenido con su clamp (field-sizing);
+   solo se reafirma su métrica. */
+html body .commands-row select.command-type,
+html body .operations-row select.command-type {
+  max-width: 140px !important;
+}
+
+html body .commands-row .command-actions .p-button,
+html body .operations-row .command-controls .p-button,
+html body .commands-row .add-wrapper .p-button,
+html body .operations-row .add-wrapper .p-button {
+  height: 20px !important;
+  min-height: 20px !important;
+  max-height: 20px !important;
+}
+
+html body .commands-row .command-actions .p-button-icon,
+html body .operations-row .command-controls .p-button-icon,
+html body .commands-row .add-wrapper .p-button-icon,
+html body .operations-row .add-wrapper .p-button-icon {
+  font-size: 12px !important;
+}
+
+html body .commands-row .command-actions,
+html body .operations-row .command-controls,
+html body .commands-row .add-wrapper,
+html body .operations-row .add-wrapper {
+  height: 20px !important;
+  min-height: 20px !important;
+  align-items: center;
+}
+
+/* ====== ACCIONES `$`/`✕` COMO SUPERÍNDICES ====== */
+/* Fuera del flujo en reposo: aparecen al hover o al enfocar el comando y no
+   reservan hueco (0 layout shift). Con `opacity` en vez de `visibility` para
+   que sigan siendo alcanzables con Tab (el foco revela el comando). */
+html body .commands-container > .command,
+html body .operations-container > .operation-item {
+  position: relative;
+  overflow: visible;
+}
+
+html body .commands-row .command > .command-actions,
+html body .operations-row .operation-item > .command-controls {
+  position: absolute !important;
+  /* Base -12px (borde inferior sin tocar el texto del comando) + 2mm extra
+     pedidos por el usuario (~7.56px a 96dpi => top ≈ -19.6px). */
+  top: calc(-12px - 2mm) !important;
+  /* Anclados a la izquierda: los chips flotan sobre el select de tipo
+     (`Scale:`), no sobre el valor. `left: 0` los mantiene dentro de la caja
+     y el ancho del tipo (field-sizing, min ~36px) cubre los 33px del grupo. */
+  left: 0 !important;
+  display: flex !important;
+  gap: 1px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+  z-index: 3;
+}
+
+html body .commands-row .command:hover > .command-actions,
+html body .commands-row .command:focus-within > .command-actions,
+html body .operations-row .operation-item:hover > .command-controls,
+html body .operations-row .operation-item:focus-within > .command-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Tamaño de superíndice: cajas de 16px con glifos de 10px. */
+html body .commands-row .command .command-actions .p-button,
+html body .operations-row .operation-item .command-controls .p-button {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+html body .commands-row .command .command-actions .p-button .p-button-icon,
+html body .operations-row .operation-item .command-controls .p-button .p-button-icon {
+  font-size: 10px !important;
+}
+
+/* El `+` de añadir no queda pegado a los superíndices del último comando. */
+html body .commands-row .add-wrapper,
+html body .operations-row .add-wrapper {
+  margin-left: 6px !important;
+}
+
+/* ====== PULIDO DE CHIPS/COLONES EN COMMANDS ====== */
+/* Con wrap, los chips de una línea no deben pisar la línea anterior: el chip
+   sobresale `12px + 2mm` por encima de su caja y entre líneas hay 2px de
+   márgenes, así que el row-gap sube en la misma cantidad (2px de aire). */
+html body .commands-row .commands-container,
+html body .operations-row .operations-container {
+  row-gap: calc(12px + 2mm) !important;
+}
+
+/* Separador `:` de la lectura (solo presentación; el modelo no cambia).
+   Sin chevron, el select solo reserva 2px de padding derecho: el `:` se
+   desplaza con `position: relative` para quedar a ~1px de la etiqueta sin
+   mover el flujo ni el ancho del select (field-sizing estable). */
+.command-label-sep {
+  position: relative;
+  left: -5px;
+  margin-right: -4px;
+  color: inherit;
+}
+
+/* ====== BLOQUE COMPACTO: COLUMNA DE ICONOS Y ACCIONES AL HOVER ====== */
+/* Sección del cuerpo (Notes) con el mismo tratamiento que las filas de
+   Commands/Operations: borde superior y contenido tras la columna. */
+.block-section {
+  display: flex;
+  align-items: flex-start;
+  border-top: 1px solid #eee;
+  /* 4px hasta la línea del árbol (content+7..9) + columna de iconos. */
+  padding: 1px 1px 1px 4px;
+  min-height: 20px;
+}
+
+/* Columna de iconos del cuerpo: un glifo por sección (Notes/Commands/
+   Operations), alineado con el inicio de su sección. El ancho fijo mantiene
+   los tres contenidos en la misma x. */
+.block-section-icon {
+  flex: 0 0 18px;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 20px;
+  margin: 1px 2px 0 0;
+  color: #666;
+  font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Symbols 2', 'DejaVu Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  cursor: default;
+}
+
+/* Las filas de Settings/Operations también reservan la columna. */
+html body app-preset-editor .commands-row,
+html body app-procedure-editor .operations-row {
+  padding-left: 4px !important;
+}
+
+/* Acciones del header (+ / x / copiar): ocupan su espacio siempre
+   (0 layout shift al aparecer) pero solo se ven al hover o al enfocar el
+   header; siguen siendo tabulables (opacity, no visibility). Las
+   repeticiones (×N) son un dato editable, no una acción secundaria: quedan
+   visibles en la misma línea, antes de duplicar/eliminar. */
+.p-tree .block-header .block-controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.p-tree .block-header:hover .block-controls,
+.p-tree .block-header:focus-within .block-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ====== PARTS: ACCIONES AL HOVER ====== */
+/* Mismo patrón que el header de bloque: los botones de `.part-controls`
+   reservan su espacio (sin layout shift) pero solo se ven al pasar el ratón
+   por el header o al enfocar (focus-within); siguen siendo tabulables. */
+.part-header .part-controls {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.part-header:hover .part-controls,
+.part-header:focus-within .part-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.part-header .p-button:focus-visible {
+  outline: 2px solid rgba(0, 119, 204, 0.55) !important;
+  outline-offset: 1px;
 }

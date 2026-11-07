@@ -6,15 +6,26 @@
     border: 1px solid #ddd;
 }
 
+/* EXPERIMENTO parts en fila: el margen inferior (pensado para el apilado
+   vertical) no aplica; el `gap` de la fila ya separa las parts. */
+:host-context(.parts) .part {
+    margin-bottom: 0;
+}
+
 .part-header {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 0.25rem;
+    /* Los controles (al hover) bajan de línea en parts estrechas. */
+    flex-wrap: wrap;
 }
 
 .part-info {
-    width: 120px;
+    flex: 0 1 160px;
+    width: auto;
+    min-width: 120px;
+    max-width: 240px;
     margin-right: 4px;
 }
 
@@ -41,6 +52,12 @@
 .part-controls {
     display: flex;
     gap: 4px;
+}
+
+.part-empty {
+    margin: 4px 0;
+    color: #6c757d;
+    font-size: 0.9rem;
 }
 
 .part-content {

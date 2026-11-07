@@ -6,14 +6,16 @@ import { Subscription } from 'rxjs';
     selector: 'app-metronome',
     template: `
         <div class="metronome">
-            <div class="beat" 
-                 *ngFor="let beat of beats; let i = index" 
-                 [class.active]="beat === currentBeat"
-                 [class.downbeat]="beat % 8 === 0">
-                ●
+          <!-- 16 puntos (2 compases de 8): ancho recortado en la auditoría GUI. -->
+          @for (beat of beats; track beat; let i = $index) {
+            <div class="beat"
+              [class.active]="beat === currentBeat"
+              [class.downbeat]="beat % 8 === 0">
+              ●
             </div>
+          }
         </div>
-    `,
+        `,
     styles: [`
         /* Default styles (for potential standalone use) */
         :host {
@@ -61,7 +63,7 @@ import { Subscription } from 'rxjs';
     `]
 })
 export class MetronomeComponent implements OnInit, OnDestroy {
-    beats = Array.from({length: 32}, (_, i) => i);
+    beats = Array.from({length: 16}, (_, i) => i);
     currentBeat: number = -1;
     private subscription?: Subscription;
 

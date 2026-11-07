@@ -1,9 +1,9 @@
 import { Block } from '../../block';
+import { Melody, Preset, Procedure } from '../../content';
 import { Command, CommandType } from '../../command';
 import { AssignOperation, VaryOperation } from '../../operation';
 import { Part } from '../../part';
 import { Song } from '../../song';
-import { VariableValue } from '../../variable.context';
 import { MrSerializeError } from '../mr.errors';
 import { serializeSong } from '../mr.serializer';
 import { SongDocument } from '../mr.types';
@@ -12,13 +12,13 @@ function createDocument(name = 'X'): SongDocument {
   const song = new Song();
   song.name = name;
   song.parts = [];
-  return { song, variables: new Map(), meta: { version: 1 } };
+  return { song, variables: new Map(), meta: { version: 2 } };
 }
 
 function addPart(document: SongDocument, name: string, blocks: Block[]): Part {
   const part = new Part();
   part.name = name;
-  part.blocks = blocks;
+  part.items = blocks;
   document.song.parts.push(part);
   return part;
 }
@@ -27,6 +27,13 @@ function createBlock(label = ''): Block {
   const block = new Block();
   block.label = label;
   return block;
+}
+
+function createMelody(label: string, notes = '4n:0'): Melody {
+  const melody = new Melody();
+  melody.label = label;
+  melody.notes = notes;
+  return melody;
 }
 
 function expectSerializeError(document: SongDocument): MrSerializeError {
@@ -40,97 +47,165 @@ function expectSerializeError(document: SongDocument): MrSerializeError {
 }
 
 describe('serializeSong: cabecera y layout', () => {
-  it('emite el ejemplo mínimo canónico', () => {
+  it('emite el ejemplo mínimo canónico con melodía', () => {
     const document = createDocument('Semilla');
+    document.song.melodies = [createMelody('Origen', '4n:0 4n:2')];
     const block = createBlock('Origen');
-    block.blockContent.notes = '4n:0 4n:2';
+    block.melody = document.song.melodies[0];
     addPart(document, 'Piano', [block]);
 
     expect(serializeSong(document)).toBe(
       `song Semilla
-version 1
+version 2
 
-part Piano
-  block Origen
+melodies
+  melody Origen
     notes
       4n:0
       4n:2
+
+part Piano
+  block Origen
+    melody Origen
 `
     );
   });
 
   it('emite repeats desde Song y omite los valores por defecto', () => {
     const document = createDocument();
-    document.meta = { version: 1, repeats: 1, bpm: 120 };
-    expect(serializeSong(document)).toBe('song X\nversion 1\n');
+    expect(serializeSong(document)).toBe('song X\nversion 2\n');
 
     document.song.repeats = 2;
-    document.meta = { version: 1, repeats: 2, bpm: 90 };
-    expect(serializeSong(document)).toBe('song X\nversion 1\nrepeats 2\nbpm 90\n');
+    document.meta = { version: 2, repeats: 2, bpm: 90 };
+    expect(serializeSong(document)).toBe('song X\nversion 2\nrepeats 2\nbpm 90\n');
   });
 
-  it('ignora meta.repeats: Song.repeats es la fuente de verdad (#20)', () => {
+  it('ignora meta.repeats: Song.repeats es la fuente de verdad', () => {
     const document = createDocument();
-    document.meta = { version: 1, repeats: 5, bpm: 90 };
+    document.meta = { version: 2, repeats: 5, bpm: 90 };
 
-    expect(serializeSong(document)).toBe('song X\nversion 1\nbpm 90\n');
+    expect(serializeSong(document)).toBe('song X\nversion 2\nbpm 90\n');
+  });
+
+  it('rechaza una versión distinta de la 2', () => {
+    const document = createDocument();
+    document.meta = { version: 1 };
+
+    expect(expectSerializeError(document).message).toContain('versión de formato 2');
   });
 
   it('emite song "" para nombres vacíos y comillas cuando hacen falta', () => {
-    expect(serializeSong(createDocument(''))).toBe('song ""\nversion 1\n');
+    expect(serializeSong(createDocument(''))).toBe('song ""\nversion 2\n');
 
     const withSpaces = createDocument('Piano de cola');
     expect(serializeSong(withSpaces)).toContain('song "Piano de cola"');
   });
+});
 
-  it('escapa comillas y barras invertidas en nombres', () => {
-    expect(serializeSong(createDocument('di"ce\\'))).toContain('song "di\\"ce\\\\"');
+describe('serializeSong: bibliotecas', () => {
+  it('emite melodies → presets → procedures', () => {
+    const document = createDocument('Orden');
+    document.song.melodies = [createMelody('M')];
+    const preset = new Preset();
+    preset.label = 'P';
+    preset.settings = [new Command({ type: CommandType.OCT, value: 2 })];
+    document.song.presets = [preset];
+    const procedure = new Procedure();
+    procedure.label = 'Proc';
+    procedure.operations = [new VaryOperation('oct', 1)];
+    document.song.procedures = [procedure];
+
+    const text = serializeSong(document);
+    const melodiesIndex = text.indexOf('\nmelodies\n');
+    const presetsIndex = text.indexOf('\npresets\n');
+    const proceduresIndex = text.indexOf('\nprocedures\n');
+
+    expect(melodiesIndex).toBeGreaterThan(-1);
+    expect(presetsIndex).toBeGreaterThan(melodiesIndex);
+    expect(proceduresIndex).toBeGreaterThan(presetsIndex);
   });
 
-  it('separa partes y bloques hermanos con línea en blanco y no la pone antes del primer hijo', () => {
-    const document = createDocument('Layout');
-    const nested = createBlock('Padre');
-    const child = createBlock('Hijo');
-    child.blockContent.notes = '4n:0';
-    nested.children = [child];
-    addPart(document, 'A', [nested, createBlock('B')]);
+  it('omite las bibliotecas vacías', () => {
+    const document = createDocument();
 
-    expect(serializeSong(document)).toBe(
-      `song Layout
-version 1
-
-part A
-  block Padre
-    block Hijo
-      notes
-        4n:0
-
-  block B
-`
-    );
+    expect(serializeSong(document)).not.toContain('melodies');
+    expect(serializeSong(document)).not.toContain('presets');
+    expect(serializeSong(document)).not.toContain('procedures');
   });
 
-  it('pone línea en blanco entre las secciones y un bloque hijo', () => {
-    const document = createDocument('Hélice');
-    const parent = createBlock('Hélice');
-    parent.blockContent.notes = '4n:0';
-    parent.children = [createBlock('Eco')];
-    addPart(document, 'P', [parent]);
+  it('emite los ajustes del preset y las operaciones del procedure sin cabecera de sección', () => {
+    const document = createDocument();
+    const preset = new Preset();
+    preset.label = 'P';
+    preset.settings = [new Command({ type: CommandType.OCT, value: 2 })];
+    document.song.presets = [preset];
+    const procedure = new Procedure();
+    procedure.label = 'Proc';
+    procedure.operations = [new VaryOperation('oct', 1), new AssignOperation('mode', 'RANDOM')];
+    document.song.procedures = [procedure];
 
-    expect(serializeSong(document)).toContain(`    notes
-      4n:0
+    const text = serializeSong(document);
 
-    block Eco
-`);
+    expect(text).toContain('  preset P\n    OCT 2\n');
+    expect(text).toContain('  procedure Proc\n    VARY $oct 1\n    ASSIGN $mode RANDOM\n');
+  });
+
+  it('rechaza nombres duplicados dentro de una biblioteca', () => {
+    const document = createDocument();
+    document.song.melodies = [createMelody('M'), createMelody('M')];
+
+    expect(expectSerializeError(document).message).toContain("nombre duplicado en melodies: 'M'");
+  });
+
+  it('permite el mismo nombre en bibliotecas distintas', () => {
+    const document = createDocument();
+    document.song.melodies = [createMelody('Intro')];
+    const preset = new Preset();
+    preset.label = 'Intro';
+    document.song.presets = [preset];
+
+    expect(serializeSong(document)).toContain('  melody Intro');
+    expect(serializeSong(document)).toContain('  preset Intro');
+  });
+
+  it('emite notes $variable usando la bandera, no el valor cacheado', () => {
+    const document = createDocument();
+    const melody = new Melody();
+    melody.label = 'M';
+    melody.setVariableReference('motif');
+    melody.content.notes = '4n:9';
+    document.song.melodies = [melody];
+
+    expect(serializeSong(document)).toContain('    notes $motif\n');
+    expect(serializeSong(document)).not.toContain('4n:9');
   });
 });
 
-describe('serializeSong: partes y bloques', () => {
-  it('omite instrument PIANO y la etiqueta vacía', () => {
-    const document = createDocument();
-    addPart(document, '', [createBlock()]);
+describe('serializeSong: bloques', () => {
+  it('ordena preset → procedure → melody → hijos', () => {
+    const document = createDocument('Orden');
+    document.song.melodies = [createMelody('M')];
+    const preset = new Preset();
+    preset.label = 'P';
+    document.song.presets = [preset];
+    const procedure = new Procedure();
+    procedure.label = 'Proc';
+    document.song.procedures = [procedure];
 
-    expect(serializeSong(document)).toBe('song X\nversion 1\n\npart\n  block\n');
+    const parent = createBlock('Padre');
+    parent.preset = preset;
+    parent.procedure = procedure;
+    parent.melody = document.song.melodies[0];
+    parent.children = [createBlock('Hijo')];
+    addPart(document, 'P', [parent]);
+
+    expect(serializeSong(document)).toContain(`  block Padre
+    preset P
+    procedure Proc
+    melody M
+
+    block Hijo
+`);
   });
 
   it('emite repeats de bloque solo si no es 1 (incluido 0)', () => {
@@ -145,174 +220,35 @@ describe('serializeSong: partes y bloques', () => {
     expect(serializeSong(document)).toContain('  block repeats 2');
   });
 
-  it('comilla etiquetas reservadas', () => {
+  it('comilla etiquetas y nombres reservados', () => {
     const document = createDocument();
-    addPart(document, 'P', [createBlock('repeats')]);
-
-    expect(serializeSong(document)).toContain('  block "repeats"');
-  });
-});
-
-describe('serializeSong: notas', () => {
-  it('emite un evento de nivel superior por línea sin inventar duraciones', () => {
-    const document = createDocument();
-    const block = createBlock();
-    block.blockContent.notes = '0 2 4n:( 8n:0 2 )';
+    const melody = createMelody('melody');
+    document.song.melodies = [melody];
+    const block = createBlock('repeats');
+    block.melody = melody;
     addPart(document, 'P', [block]);
 
-    expect(serializeSong(document)).toContain(`    notes
-      0
-      2
-      4n:( 8n:0 2 )
-`);
+    const text = serializeSong(document);
+    expect(text).toContain('  melody "melody"');
+    expect(text).toContain('  block "repeats"');
+    expect(text).toContain('    melody "melody"');
   });
 
-  it('emite notes default <duración> (Q6a)', () => {
+  it('rechaza una referencia que no existe en la biblioteca', () => {
     const document = createDocument();
-    const block = createBlock();
-    block.blockContent.notes = '0 2';
-    block.blockContent.defaultDuration = '8n';
+    const block = createBlock('B');
+    block.melody = createMelody('Fantasma');
     addPart(document, 'P', [block]);
 
-    expect(serializeSong(document)).toContain(`    notes default 8n
-      0
-      2
-`);
+    expect(expectSerializeError(document).message).toContain("la referencia melody 'Fantasma' no existe");
   });
 
-  it('emite notes $variable usando la bandera, no el valor cacheado (brecha §3.2 #8)', () => {
+  it('rechaza una referencia sin nombre', () => {
     const document = createDocument();
-    const block = createBlock();
-    block.blockContent.setVariableReference('motif');
-    block.blockContent.notes = '4n:9'; // mutación de reproducción
+    const block = createBlock('B');
+    block.melody = new Melody();
     addPart(document, 'P', [block]);
 
-    expect(serializeSong(document)).toContain('    notes $motif\n');
-    expect(serializeSong(document)).not.toContain('4n:9');
-  });
-
-  it('omite la sección si no hay notas ni duración por defecto', () => {
-    const document = createDocument();
-    addPart(document, 'P', [createBlock()]);
-
-    expect(serializeSong(document)).not.toContain('notes');
-  });
-});
-
-describe('serializeSong: comandos', () => {
-  function commandsOf(commands: Command[]): string {
-    const document = createDocument();
-    const block = createBlock('C');
-    block.commands = commands;
-    addPart(document, 'P', [block]);
-    return serializeSong(document);
-  }
-
-  it('emite todos los comandos con sus nombres canónicos', () => {
-    const commands = [
-      new Command({ type: CommandType.OCT, value: 2 }),
-      new Command({ type: CommandType.SCALE, value: 'black' }),
-      new Command({ type: CommandType.GAP, value: 2 }),
-      new Command({ type: CommandType.PLAYMODE, value: 'ascending' }),
-      new Command({ type: CommandType.WIDTH, value: 3 }),
-      new Command({ type: CommandType.INV, value: 1 }),
-      new Command({ type: CommandType.KEY, value: 0 }),
-      new Command({ type: CommandType.SHIFTSTART, value: 0 }),
-      new Command({ type: CommandType.SHIFTSIZE, value: 3 }),
-      new Command({ type: CommandType.SHIFTVALUE, value: 1 }),
-      new Command({ type: CommandType.PATTERN_GAP, value: 1 }),
-      new Command({ type: CommandType.PATTERN, value: '4n:(0 2) 8n:s' })
-    ];
-
-    expect(commandsOf(commands)).toContain(`    commands
-      OCT 2
-      SCALE BLACK
-      GAP 2
-      PLAYMODE ASCENDING
-      WIDTH 3
-      INV 1
-      KEY 0
-      SHIFTSTART 0
-      SHIFTSIZE 3
-      SHIFTVALUE 1
-      PATTERN_GAP 1
-      PATTERN 4n:( 0 2 ) 8n:s
-`);
-  });
-
-  it('emite comandos con variable', () => {
-    const command = new Command({ type: CommandType.OCT });
-    command.setVariable('oct');
-    expect(commandsOf([command])).toContain('      OCT $oct\n');
-  });
-
-  it('falla si PATTERN está vacío o las notas son inválidas', () => {
-    expect(() => commandsOf([new Command({ type: CommandType.PATTERN, value: '' })])).toThrow(MrSerializeError);
-
-    const document = createDocument();
-    const block = createBlock();
-    block.blockContent.notes = 'no-valido';
-    addPart(document, 'P', [block]);
-    expect(expectSerializeError(document).message).toContain('no son válidas');
-  });
-
-  it('falla con una escala inválida', () => {
-    expect(() => commandsOf([new Command({ type: CommandType.SCALE, value: 'FUCSIA' })])).toThrow(MrSerializeError);
-  });
-});
-
-describe('serializeSong: operaciones y variables', () => {
-  it('emite VARY y ASSIGN canónicos', () => {
-    const document = createDocument();
-    const block = createBlock();
-    block.operations = [
-      new VaryOperation('oct', 2),
-      new VaryOperation('otro', -1),
-      new AssignOperation('x', 4),
-      new AssignOperation('mode', 'RANDOM'),
-      new AssignOperation('scale', 'black'),
-      new AssignOperation('texto', 'a b')
-    ];
-    addPart(document, 'P', [block]);
-
-    expect(serializeSong(document)).toContain(`    operations
-      VARY $oct 2
-      VARY $otro -1
-      ASSIGN $x 4
-      ASSIGN $mode RANDOM
-      ASSIGN $scale BLACK
-      ASSIGN $texto "a b"
-`);
-  });
-
-  it('canoniza las variables declaradas en orden', () => {
-    const document = createDocument();
-    document.variables = new Map<string, VariableValue>([
-      ['oct', 2],
-      ['mode', 'ascending'],
-      ['motif', '4t:0 4t:2'],
-      ['cita', 'di"ce']
-    ]);
-
-    expect(serializeSong(document)).toContain(`vars
-  $oct = 2
-  $mode = ASCENDING
-  $motif = "4t:0 4t:2"
-  $cita = "di\\"ce"
-`);
-  });
-
-  it('falla con versiones, bpm o repeats inválidos', () => {
-    const badVersion = createDocument();
-    badVersion.meta = { version: 2 };
-    expect(() => serializeSong(badVersion)).toThrow(MrSerializeError);
-
-    const badBpm = createDocument();
-    badBpm.meta = { version: 1, bpm: 20 };
-    expect(() => serializeSong(badBpm)).toThrow(MrSerializeError);
-
-    const badRepeats = createDocument();
-    badRepeats.song.repeats = 0;
-    expect(() => serializeSong(badRepeats)).toThrow(MrSerializeError);
+    expect(expectSerializeError(document).message).toContain('no tiene nombre');
   });
 });

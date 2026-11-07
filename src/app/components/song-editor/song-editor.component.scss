@@ -26,12 +26,12 @@
 .song-title-and-controls {
   display: flex;
   align-items: center;
-  gap: 15px; 
+  gap: 10px; 
 }
 
 /* Title input */
 .song-name-input {
-  width: 150px; 
+  width: 120px; 
   height: 30px; 
   padding: 0 8px;
   border: 1px solid #ccc;
@@ -40,15 +40,45 @@
   box-sizing: border-box;
 }
 
+/* Combo de duración por defecto: auto-fit (field-sizing global) con clamp
+   para que no salte entre opciones cortas y largas. Sin flecha (mismo
+   enfoque que los combos de Commands/Operations): sigue abriéndose al clic. */
+.default-duration-select {
+  min-width: 40px;
+  max-width: 80px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 /* Playback controls container */
 .playback-controls {
   display: flex; 
   align-items: center;
 }
 
-/* Variables button container */
-.variables-control {
-  flex-shrink: 0; 
+/* Toolbar uniforme: nombre, Repeat, BPM, play/stop, duración, metrónomo,
+   texto y guardar/cargar comparten la misma altura (30px). Los botones
+   globales miden 20px, así que el override es local al toolbar. */
+.song-header .song-name-input,
+.song-header .number-input,
+.song-header .default-duration-select,
+.song-header .playback-controls .p-button {
+  height: 30px !important;
+  box-sizing: border-box;
+}
+
+.song-header .playback-controls #repetitions {
+  height: 30px !important;
+}
+
+.song-header .playback-controls .p-button {
+  width: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+}
+
+.song-header .playback-controls .p-button .p-button-icon {
+  font-size: 14px !important;
 }
 
 /* Content section fills remaining space and scrolls */
@@ -61,20 +91,111 @@
   box-sizing: border-box; 
 }
 
-/* Sidebar styles (optional) */
-:host ::ng-deep .variables-sidebar {
-  width: 500px; 
+/* Panel de Variables: mismo lenguaje visual que las parts (borde, radio,
+   padding y margen), plegable desde su cabecera y encima de la fila. */
+.variables-panel {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+  background-color: transparent;
 }
 
-:host ::ng-deep .variables-sidebar .p-sidebar-content {
-  height: calc(100% - 3rem); 
-  padding: 1rem;
+.variables-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  cursor: pointer;
 }
 
-:host ::ng-deep .variables-sidebar h3 {
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #eee;
+.variables-panel-title {
+  font-weight: bold;
+}
+
+.variables-panel-content {
+  margin-left: 0.75rem;
+}
+
+.variables-panel-add {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.variables-panel-header:hover .variables-panel-add,
+.variables-panel-header:focus-within .variables-panel-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Panel de Parts: misma caja plegable que Variables/Blocks. Es el último de
+   la pila y contiene la fila de parts. */
+.parts-panel {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-bottom: 10px;
+  background-color: transparent;
+}
+
+.parts-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  cursor: pointer;
+}
+
+.parts-panel-title {
+  font-weight: bold;
+}
+
+.parts-panel-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: #e3ebf2;
+  color: #37474f;
+  font-size: 0.75rem;
+}
+
+/* El "+" vive en la cabecera, junto al contador; aparece al hover/foco sin
+   desplazar el contenido (mismo patrón que Blocks). */
+.parts-panel-add {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.parts-panel-header:hover .parts-panel-add,
+.parts-panel-header:focus-within .parts-panel-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.parts-panel-content {
+  margin-left: 0.75rem;
+}
+
+.parts-panel-empty {
+  margin: 4px 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.parts-panel-content app-song {
+  display: block;
+}
+
+/* El formulario/lista de variables ya trae su propio espaciado: dentro del
+   panel se recorta el padding vertical para no duplicarlo. */
+:host ::ng-deep .variables-panel app-variable-declaration .variables-container {
+  padding: 4px 0 0 0;
 }
 
 /* Other styles remain */
@@ -121,4 +242,67 @@
   margin: 0.5rem 0 0 0;
   color: #6c757d;
   font-size: 0.9rem;
+}
+/* ==========================================================================
+   Workspace: editor + live .mr panel
+   ========================================================================== */
+.workspace {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace > .content-section {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.panel-splitter {
+  position: relative;
+  flex: 0 0 8px;
+  align-self: stretch;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+
+.panel-splitter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--mr-border);
+  transition: width 120ms ease, background-color 120ms ease;
+}
+
+.panel-splitter:hover::before,
+.panel-splitter:focus-visible::before {
+  width: 2px;
+  background: var(--mr-accent);
+}
+
+.panel-splitter:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 1000px) {
+  .workspace {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .panel-splitter {
+    display: none;
+  }
+
+  .workspace app-mr-live-panel,
+  .workspace app-example-library {
+    flex: 0 0 34vh;
+    width: 100% !important;
+    max-width: none;
+  }
 }

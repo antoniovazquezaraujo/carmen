@@ -9,7 +9,7 @@
  */
 module.exports = {
   testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/packages'],
   testMatch: ['**/*.jest.spec.ts'],
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
   transform: {
@@ -23,19 +23,27 @@ module.exports = {
     ]
   },
   moduleNameMapper: {
+    // Paquetes del workspace.
+    '^@moderanger/core$': '<rootDir>/packages/core/src/index.ts',
+    '^@moderanger/core/(.*)$': '<rootDir>/packages/core/src/$1',
     // Resuelve los imports absolutos `src/...` (baseUrl de tsconfig.json),
     // que Jest no conoce por sí solo. Necesario para specs de componentes.
     '^src/(.*)$': '<rootDir>/src/$1',
     '^tone$': '<rootDir>/src/__mocks__/tone.ts',
+    '^@angular/common$': '<rootDir>/src/__mocks__/angular-common.ts',
+    '^@angular/forms$': '<rootDir>/src/__mocks__/angular-forms.ts',
+    '^primeng/.*$': '<rootDir>/src/__mocks__/primeng.ts',
+    '^@angular/cdk/overlay$': '<rootDir>/src/__mocks__/cdk-overlay.ts',
     '^@angular/core$': '<rootDir>/src/__mocks__/angular-core.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/src/jest.setup.ts'],
   clearMocks: true,
   collectCoverageFrom: [
-    'src/app/model/**/*.ts',
-    'src/app/services/note-generation.service.ts',
-    'src/app/shared/services/note-generation-unified.service.ts',
+    'packages/core/src/**/*.ts',
+    'packages/compiler/src/**/*.ts',
+    'src/app/model/song.player.ts',
     'src/app/features/generation/note-pattern-processor.service.ts',
+    '!packages/**/__tests__/**',
     '!src/app/**/__tests__/**',
     '!src/app/**/__mocks__/**'
   ],

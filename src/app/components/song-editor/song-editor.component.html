@@ -1,93 +1,255 @@
 <div class="song-editor">
-    <!-- Header moved here from SongComponent -->
-    <div class="song-header">
-        <div class="song-title-and-controls">
-            <div class="song-title">
-                <!-- Bind to song.name (Input property) -->
-                <input type="text" [(ngModel)]="song.name" class="song-name-input" placeholder="Enter song name">
-            </div>
-            <div class="playback-controls">
-                <div class="p-d-flex p-ai-center p-flex-nowrap">
-                    <!-- Use methods from this component (SongEditorComponent) -->
-                    <button pButton type="button" icon="pi pi-plus" (click)="addPart()" class="p-mr-2" pTooltip="Add Part" tooltipPosition="top"></button>
-                    <span>Repeat:</span>
-                    <!-- Repeticiones canónicas en Song.repeats (1-99 en la UI).
-                         `ngModelChange` sincroniza el modelo MIENTRAS se escribe
-                         (no solo al salir del campo), para que guardar/aplicar
-                         usen siempre el valor visible. -->
-                    <input type="number" id="repetitions" class="number-input" style="width:45px !important; max-width:45px !important;"
-                           [ngModel]="song.repeats" (ngModelChange)="onRepeatsChange($event)" min="1" max="99" step="1"
-                           pTooltip="Repeticiones de la canción" tooltipPosition="top" aria-label="Repeat">
-                    <span class="p-ml-2">BPM:</span>
-                    <!-- BPM canónico en Song.bpm (30-240, rango del formato .mr);
-                         `ngModelChange` mantiene el modelo en sync al teclear. -->
-                    <input type="number" id="bpm" class="number-input" style="width:52px !important; max-width:52px !important;"
-                           [ngModel]="song.bpm" (ngModelChange)="onBpmChange($event)" min="30" max="240" step="1"
-                           pTooltip="Tempo (BPM)" tooltipPosition="top" aria-label="BPM">
-                    <button pButton type="button" icon="pi pi-play" (click)="playSong()" class="p-ml-2"></button>
-                    <button pButton type="button" icon="pi pi-stop" (click)="stopSong()" class="p-ml-2"></button>
-                    <!-- Dropdown para Default Duration -->
-                    <select 
-                        id="defaultDurationSelect" 
-                        class="default-duration-select p-ml-2" 
-                        [(ngModel)]="selectedDefaultDuration" 
-                        (ngModelChange)="songPlayer.updateGlobalDefaultDuration($event)" 
-                        pTooltip="Default Note Duration" 
-                        tooltipPosition="top">
-                        <option *ngFor="let dur of availableDurations" [value]="dur">{{dur}}</option>
-                    </select>
-                    <!-- Use metronome$ property of this component -->
-                    <app-metronome class="inline-metronome p-ml-2"></app-metronome> 
-                    <!-- Variables button next to metronome -->
-                    <p-button (click)="toggleVariablesSidebar()" label="$" pTooltip="Show/Hide Variables" tooltipPosition="top" class="p-ml-2"></p-button>
-                    <!-- Vista avanzada de texto .mr (divulgación progresiva) -->
-                    <p-button (click)="toggleMrTextEditor()" label=".mr" icon="pi pi-code" pTooltip="Texto (.mr)" tooltipPosition="top" class="p-ml-2"></p-button>
-                    <!-- Guardar/cargar el texto canónico como fichero .mr -->
-                    <button pButton type="button" icon="pi pi-download" (click)="saveMrFile()" class="p-ml-2"
-                            pTooltip="Guardar .mr (texto canónico)" tooltipPosition="top" aria-label="Guardar .mr"></button>
-                    <button pButton type="button" icon="pi pi-upload" (click)="openMrFilePicker()" class="p-ml-2"
-                            pTooltip="Cargar .mr" tooltipPosition="top" aria-label="Cargar .mr"></button>
-                    <input #mrFileInput id="mrFileInput" class="mr-file-input" type="file"
-                           accept=".mr,text/plain" (change)="onMrFileSelected($event)" aria-hidden="true" tabindex="-1" />
-                </div>
-            </div>
+  <!-- Header moved here from SongComponent -->
+  <div class="song-header" [class.song-header--playing]="isPlaying">
+    <div class="song-title-and-controls">
+      <div class="song-title">
+        <span class="song-eyebrow">Now editing</span>
+        <!-- Bind to song.name (Input property) -->
+        <input type="text" [(ngModel)]="song.name" class="song-name-input" placeholder="Song title"
+          aria-label="Song title">
+      </div>
+      <div class="playback-controls">
+        <div class="toolbar-group transport-group">
+          <!-- Play siempre reproduce desde el principio: si ya está
+          sonando, reinicia (stop + play interno) sin obligar a
+          pasar por el botón Stop. -->
+          <button pButton type="button" icon="pi pi-play" (click)="playSong()"
+          pTooltip="Play" tooltipPosition="top" aria-label="Play song"></button>
+          <button pButton type="button" icon="pi pi-stop" (click)="stopSong()"
+          pTooltip="Stop" tooltipPosition="top" aria-label="Stop song"></button>
         </div>
-    </div>
 
-    <!-- Content section now only contains app-song (which will contain app-parts) -->
+        <span class="toolbar-divider" aria-hidden="true"></span>
+
+        <div class="toolbar-group">
+          <span class="toolbar-label">Repeat</span>
+          <!-- Repeticiones canónicas en Song.repeats (1-99 en la UI).
+          `ngModelChange` sincroniza el modelo MIENTRAS se escribe
+          (no solo al salir del campo), para que guardar/aplicar
+          usen siempre el valor visible. -->
+          <input type="number" id="repetitions" class="number-input"
+            [ngModel]="song.repeats" (ngModelChange)="onRepeatsChange($event)" min="1" max="99" step="1"
+            pTooltip="Repeticiones de la canción" tooltipPosition="top" aria-label="Repeat">
+        </div>
+
+        <div class="toolbar-group">
+          <span class="toolbar-label">BPM</span>
+          <!-- BPM canónico en Song.bpm (30-240, rango del formato .mr);
+          `ngModelChange` mantiene el modelo en sync al teclear. -->
+          <input type="number" id="bpm" class="number-input"
+            [ngModel]="song.bpm" (ngModelChange)="onBpmChange($event)" min="30" max="240" step="1"
+            pTooltip="Tempo (BPM)" tooltipPosition="top" aria-label="BPM">
+        </div>
+
+        <span class="toolbar-divider" aria-hidden="true"></span>
+
+        <div class="toolbar-group">
+          <span class="toolbar-label">Duration</span>
+          <!-- Dropdown para Default Duration -->
+          <select
+            id="defaultDurationSelect"
+            class="default-duration-select"
+            [(ngModel)]="selectedDefaultDuration"
+            (ngModelChange)="songPlayer.updateGlobalDefaultDuration($event)"
+            pTooltip="Default Note Duration"
+            tooltipPosition="top">
+            @for (dur of availableDurations; track dur) {
+              <option [value]="dur">{{dur}}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Use metronome$ property of this component -->
+        <app-metronome class="inline-metronome"></app-metronome>
+
+        <span class="toolbar-divider" aria-hidden="true"></span>
+
+        <div class="toolbar-group toolbar-actions">
+          <!-- Vista avanzada de texto .mr (divulgación progresiva) -->
+          <button type="button"
+            class="toolbar-label-button"
+            (click)="toggleMrTextPanel()"
+            [attr.aria-expanded]="mrTextPanelVisible"
+            aria-controls="mr-live-panel"
+            pTooltip="Source (.mr)" tooltipPosition="top" aria-label="Source (.mr)">
+            <span>Source</span><i class="pi pi-file-o" aria-hidden="true"></i>
+          </button>
+          <button type="button"
+            class="toolbar-label-button"
+            (click)="toggleExamplesPanel()"
+            [attr.aria-expanded]="examplesVisible"
+            aria-controls="example-library-panel"
+            pTooltip="Example songs" tooltipPosition="top" aria-label="Example songs">
+            <span>Examples</span><i class="pi pi-star" aria-hidden="true"></i>
+          </button>
+          <!-- Guardar/cargar el texto canónico como fichero .mr -->
+          <button type="button"
+            class="toolbar-label-button"
+            (click)="openMrFilePicker()"
+            pTooltip="Load .mr" tooltipPosition="top" aria-label="Load .mr">
+            <span>Load</span><i class="pi pi-upload" aria-hidden="true"></i>
+          </button>
+          <button type="button"
+            class="toolbar-label-button"
+            (click)="saveMrFile()"
+            pTooltip="Save .mr (canonical text)" tooltipPosition="top" aria-label="Save .mr">
+            <span>Save</span><i class="pi pi-download" aria-hidden="true"></i>
+          </button>
+          <input #mrFileInput id="mrFileInput" class="mr-file-input" type="file"
+            accept=".mr,text/plain" (change)="onMrFileSelected($event)" aria-hidden="true" tabindex="-1" />
+        </div>
+
+        <button type="button"
+          class="toolbar-label-button toolbar-help-button"
+          (click)="toggleHelp()"
+          pTooltip="Help and quick guide" tooltipPosition="top"
+          aria-haspopup="dialog"
+          [attr.aria-expanded]="helpVisible"
+          aria-label="Help and quick guide">
+          <span>Help</span><i class="pi pi-question-circle" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido: panel de Variables (plegable, como una part más, encima
+  de la fila) + la canción con sus parts. -->
+  <div class="workspace">
     <div class="content-section">
-        <app-song 
-            [song]="song" 
-            (removePartEvent)="removePartFromSong($event)"
-            (onDuplicatePartEvent)="duplicatePart($event)">
-        </app-song>
+      <div class="variables-panel">
+        <div class="variables-panel-header" (click)="toggleVariablesPanel()">
+          <p-button
+            [icon]="variablesExpanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            styleClass="p-button-text p-button-sm variables-panel-toggler">
+          </p-button>
+          <span class="variables-panel-title">Variables</span>
+          <p-button
+            class="variables-panel-add"
+            icon="pi pi-plus"
+            pTooltip="Add variable"
+            tooltipPosition="top"
+            aria-label="Add variable"
+            (click)="$event.stopPropagation(); toggleVariableForm()">
+          </p-button>
+        </div>
+        @if (variablesExpanded) {
+          <div class="variables-panel-content">
+            <app-variable-declaration
+              [formVisible]="variableFormVisible"
+              (variableAdded)="closeVariableForm()">
+            </app-variable-declaration>
+          </div>
+        }
+      </div>
+      <app-content-library [song]="song" #contentLibrary></app-content-library>
+      <div class="parts-panel">
+        <div class="parts-panel-header" (click)="togglePartsPanel()">
+          <p-button
+            [icon]="partsExpanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            styleClass="p-button-text p-button-sm parts-panel-toggler"
+            [attr.aria-expanded]="partsExpanded"
+            aria-label="Toggle parts">
+          </p-button>
+          <span class="parts-panel-title">Parts</span>
+          @if (song.parts.length) {
+            <span class="parts-panel-count">{{ song.parts.length }}</span>
+          }
+          <p-button
+            class="parts-panel-add"
+            icon="pi pi-plus"
+            pTooltip="Add part"
+            tooltipPosition="top"
+            aria-label="Add part"
+            (click)="$event.stopPropagation(); addPart()">
+          </p-button>
+        </div>
+        @if (partsExpanded) {
+          <div class="parts-panel-content">
+            <app-song
+              [song]="song"
+              (removePartEvent)="removePartFromSong($event)"
+              (onDuplicatePartEvent)="duplicatePart($event)"
+              (contentEditEvent)="focusContent($event)">
+            </app-song>
+          </div>
+        }
+      </div>
     </div>
 
-    <!-- Sidebar remains here, controlled by this component -->
-    <p-sidebar [(visible)]="variablesSidebarVisible" position="right" styleClass="variables-sidebar">
-        <h3>Variables</h3>
-        <app-variable-declaration></app-variable-declaration>
-    </p-sidebar>
-
-    <!-- Vista avanzada de texto canónico .mr -->
-    <app-mr-text-editor
+    @if (mrTextPanelVisible) {
+      <div class="panel-splitter"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize song text panel"
+        tabindex="0"
+        title="Drag to resize. Double click to reset."
+        (pointerdown)="startPanelResize('text', $event)"
+        (pointermove)="onPanelResize($event)"
+        (pointerup)="endPanelResize($event)"
+        (pointercancel)="endPanelResize($event)"
+        (dblclick)="resetPanelWidths()"
+      (keydown)="onPanelResizeKeydown('text', $event)"></div>
+    }
+    @if (mrTextPanelVisible) {
+      <app-mr-live-panel
         [song]="song"
-        [(visible)]="mrTextVisible"
-        (applied)="onMrTextApplied($event)">
-    </app-mr-text-editor>
+        [style.width.px]="mrTextPanelWidth"
+        (close)="mrTextPanelVisible = false"
+        (edit)="openMrTextEditor()">
+      </app-mr-live-panel>
+    }
 
-    <!-- Errores de guardar/cargar .mr: el modelo actual no se modifica -->
-    <p-dialog
-        [header]="mrErrorTitle"
-        [(visible)]="mrErrorVisible"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
-        [style]="{ width: '40rem', maxWidth: '95vw' }"
-        styleClass="mr-error-dialog">
-        <div class="mr-error-lines">
-            <p class="mr-error-line" *ngFor="let line of mrErrorLines">{{ line }}</p>
-        </div>
-        <p class="mr-error-hint">La canción actual no se ha modificado.</p>
-    </p-dialog>
+    @if (examplesVisible) {
+      <div class="panel-splitter"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize examples panel"
+        tabindex="0"
+        title="Drag to resize. Double click to reset."
+        (pointerdown)="startPanelResize('examples', $event)"
+        (pointermove)="onPanelResize($event)"
+        (pointerup)="endPanelResize($event)"
+        (pointercancel)="endPanelResize($event)"
+        (dblclick)="resetPanelWidths()"
+      (keydown)="onPanelResizeKeydown('examples', $event)"></div>
+    }
+    @if (examplesVisible) {
+      <app-example-library
+        id="example-library-panel"
+        [style.width.px]="examplesPanelWidth"
+        (close)="examplesVisible = false"
+        (loadExample)="loadExample($event)">
+      </app-example-library>
+    }
+  </div>
+
+  <!-- Guía contextual para orientar al usuario sin salir del editor. -->
+  <app-help-panel
+    [(visible)]="helpVisible"
+    (loadDemo)="loadDemoSong()">
+  </app-help-panel>
+
+  <!-- Vista avanzada de texto canónico .mr -->
+  <app-mr-text-editor
+    [song]="song"
+    [(visible)]="mrEditorVisible"
+    (applied)="onMrTextApplied($event)">
+  </app-mr-text-editor>
+
+  <!-- Errores de guardar/cargar .mr: el modelo actual no se modifica -->
+  <p-dialog
+    [header]="mrErrorTitle"
+    [(visible)]="mrErrorVisible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '40rem', maxWidth: '95vw' }"
+    styleClass="mr-error-dialog">
+    <div class="mr-error-lines">
+      @for (line of mrErrorLines; track line) {
+        <p class="mr-error-line">{{ line }}</p>
+      }
+    </div>
+    <p class="mr-error-hint">La canción actual no se ha modificado.</p>
+  </p-dialog>
 </div>

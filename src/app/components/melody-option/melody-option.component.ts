@@ -1,19 +1,21 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-melody-option',
-  template: `
+    selector: 'app-melody-option',
+    template: `
     <div class="melody-option">
       <span class="variable-name">{{name}}</span>
       <div class="notes-container">
-        <div *ngFor="let note of notes" class="note-item">
-          <span class="note-value">{{note}}</span>
-          <span class="note-duration">1</span>
-        </div>
+        @for (note of notes; track note) {
+          <div class="note-item">
+            <span class="note-value">{{note}}</span>
+            <span class="note-duration">1</span>
+          </div>
+        }
       </div>
     </div>
-  `,
-  styles: [`
+    `,
+    styles: [`
     .melody-option {
       display: flex;
       flex-direction: column;
