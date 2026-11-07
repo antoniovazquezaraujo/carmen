@@ -146,31 +146,3 @@
   letter-spacing: 0.02em;
   font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', 'Noto Sans Symbols 2', 'DejaVu Sans', sans-serif;
 }
-
-/* Botón de información de la escala: abre la miniatura en un popover. */
-.scale-preview-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  margin: 0 1px;
-  padding: 0;
-  border: 1px solid #1e1e1e;
-  border-radius: 50%;
-  background-color: #1e1e1e;
-  color: #ffffff;
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease;
-}
-
-.scale-preview-trigger:hover,
-.scale-preview-trigger:focus-visible {
-  border-color: #333333;
-  background-color: #333333;
-  outline: none;
-}
-
-.scale-preview-trigger .pi {
-  font-size: 0.65rem;
-}

@@ -7,24 +7,27 @@ function degrees(scale: string): number[] {
 }
 
 describe('ScalePreviewComponent', () => {
-  it('distribuye los grados en la rejilla de dos columnas', () => {
+  it('distribuye los grados alrededor de la rejilla de 12 celdas', () => {
     const component = new ScalePreviewComponent();
     component.scale = 'WHITE';
 
     expect(component.cells).toEqual([
-      [4, 5],
-      [3, 6],
-      [2, 7],
-      [1, null]
+      [4, null, 5],
+      [null, null, null],
+      [3, null, 6],
+      [2, null, 7],
+      [null, 1, null]
     ]);
   });
 
   it('mantiene todos los grados de cada escala', () => {
     expect(degrees('WHITE')).toEqual([4, 5, 3, 6, 2, 7, 1]);
+    expect(degrees('BLUE')).toEqual([4, 5, 3, 6, 2, 7, 1]);
+    expect(degrees('RED')).toEqual([4, 5, 3, 6, 2, 1, 7]);
     expect(degrees('BLACK')).toEqual([4, 5, 3, 6, 2, 7, 1, 8]);
     expect(degrees('PENTA')).toEqual([3, 4, 2, 5, 1]);
-    expect(degrees('TONES')).toEqual([3, 4, 2, 5, 1, 6]);
-    expect(degrees('FULL')).toEqual([6, 7, 5, 8, 4, 9, 3, 10, 2, 11, 1, 12]);
+    expect(degrees('TONES')).toEqual([4, 3, 5, 2, 6, 1]);
+    expect(degrees('FULL')).toEqual([6, 7, 8, 5, 9, 4, 10, 3, 11, 2, 1, 12]);
   });
 
   it('expone una etiqueta accesible con la escala y sus grados', () => {

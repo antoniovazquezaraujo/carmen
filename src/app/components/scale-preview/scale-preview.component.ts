@@ -1,22 +1,35 @@
 import { Component, Input } from '@angular/core';
-
-/** Número de grados de cada escala (la GUI solo necesita el conteo). */
-const SCALE_DEGREES: Record<string, number> = {
-    WHITE: 7,
-    BLUE: 7,
-    RED: 7,
-    BLACK: 8,
-    PENTA: 5,
-    TONES: 6,
-    FULL: 12
-};
+import { Scale } from 'src/app/model/scale';
 
 /**
- * Miniatura de una escala para el popover del editor de presets.
+ * Semitono -> celda del anillo de 12 posiciones.
  *
- * La disposición sigue el esquema de la guía: los grados se reparten en dos
- * columnas en zigzag (4 5 / 3 6 / 2 7 / 1). Las escalas de 5, 6, 8 y 12
- * grados usan la misma regla, añadiendo o quitando filas.
+ * La rejilla tiene 3 columnas y 5 filas: 12 celdas en el perímetro y las
+ * tres celdas interiores de la columna central quedan vacías. El anillo
+ * empieza en 1 (abajo, centro) y sube por la izquierda hasta 12 (abajo,
+ * derecha).
+ */
+const SEMITONE_CELLS: ReadonlyArray<readonly [number, number]> = [
+    [4, 1], // 0: 1, abajo centro
+    [4, 0], // 1
+    [3, 0], // 2
+    [2, 0], // 3
+    [1, 0], // 4
+    [0, 0], // 5
+    [0, 1], // 6
+    [0, 2], // 7
+    [1, 2], // 8
+    [2, 2], // 9
+    [3, 2], // 10
+    [4, 2]  // 11
+];
+
+/**
+ * Miniatura de una escala para el selector del editor de presets.
+ *
+ * La disposición reproduce el diagrama de referencia: 3 columnas × 5 filas,
+ * con las 12 celdas del perímetro ocupadas por los grados y las tres celdas
+ * interiores de la columna central vacías.
  */
 @Component({
     selector: 'app-scale-preview',
@@ -31,17 +44,15 @@ export class ScalePreviewComponent {
     }
 
     get cells(): ReadonlyArray<ReadonlyArray<number | null>> {
-        const total = SCALE_DEGREES[this.scaleName] ?? 7;
-        const rows = Math.ceil(total / 2);
-        const result: Array<Array<number | null>> = [];
-        for (let row = 0; row < rows; row++) {
-            const left = rows - row;
-            const right = rows + 1 + row;
-            result.push([
-                left >= 1 ? left : null,
-                right <= total ? right : null
-            ]);
-        }
+        const scale = Scale.getScaleByName(this.scaleName);
+        const result: Array<Array<number | null>> = Array.from(
+            { length: 5 },
+            () => [null, null, null] as Array<number | null>
+        );
+        scale.notes.forEach((semitone, index) => {
+            const [row, column] = SEMITONE_CELLS[semitone % SEMITONE_CELLS.length];
+            result[row][column] = index + 1;
+        });
         return result;
     }
 

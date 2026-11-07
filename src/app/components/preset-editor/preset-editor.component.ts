@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { Bind } from 'primeng/bind';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
-import { Popover } from 'primeng/popover';
 import { Subscription } from 'rxjs';
 import { Command, CommandType } from 'src/app/model/command';
 import { Preset } from 'src/app/model/content';
@@ -27,7 +26,7 @@ import { Scale } from 'src/app/model/scale';
 import { SongPlayer } from 'src/app/model/song.player';
 import { VariableContext } from 'src/app/model/variable.context';
 import { MelodyEditorComponent } from '../melody-editor/melody-editor.component';
-import { ScalePreviewComponent } from '../scale-preview/scale-preview.component';
+import { ScaleSelectComponent } from '../scale-select/scale-select.component';
 import {
     buildAvailableVariables,
     buildStringVariables,
@@ -53,7 +52,7 @@ import {
     selector: 'app-preset-editor',
     templateUrl: './preset-editor.component.html',
     styleUrls: ['./preset-editor.component.scss'],
-    imports: [Tooltip, FormsModule, MelodyEditorComponent, Bind, Button, Popover, ScalePreviewComponent]
+    imports: [Tooltip, FormsModule, MelodyEditorComponent, Bind, Button, ScaleSelectComponent]
 })
 export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() preset: Preset = new Preset();
@@ -129,11 +128,6 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     /** Descripción contextual del tipo seleccionado. */
     typeDescription(type: string): string {
         return commandTypeDescription(type);
-    }
-
-    /** Nombre de la escala seleccionada para la miniatura. */
-    scaleName(command: Command): string {
-        return String(command.value ?? 'WHITE');
     }
 
     removeCommand(command: Command): void {
@@ -285,6 +279,17 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     setPlayModeFromString(modeString: string, command: Command): void {
         if (command.type === CommandType.PLAYMODE) {
             command.setValue(modeString);
+            this.cdr.detectChanges();
+        }
+    }
+
+    scaleName(command: Command): string {
+        return String(command.value ?? 'WHITE');
+    }
+
+    handleScaleSelected(scale: string, command: Command): void {
+        if (command.type === CommandType.SCALE) {
+            command.setValue(scale);
             this.cdr.detectChanges();
         }
     }
