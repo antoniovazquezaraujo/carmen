@@ -6,6 +6,8 @@ All notable changes to **Mode Ranger**. Format based on
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-08
+
 ### Added
 
 - **Content libraries (`.mr` v2)**: songs now define reusable `melodies`, `presets` (playback settings, formerly commands) and `procedures` (operations). Blocks are structural: they nest and may reference at most one melody, one preset and one procedure. Editing a library entry updates every block that uses it.
