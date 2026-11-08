@@ -260,17 +260,17 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
     expect(arpeggio[0].noteDatas!.every(note => note.velocity === 34)).toBe(true);
   });
 
-  it('aplica VELOCITY como base, VELOCITY_PATTERN en ciclo y VELOCITY_RAMP por rango', () => {
+  it('aplica INTENSITY como base, INTENSITY_PATTERN en ciclo y INTENSITY_RAMP por rango', () => {
     const basePlayer = createPlayer();
     basePlayer.playMode = PlayMode.SINGLE;
-    new Command({ type: CommandType.VELOCITY, value: 20 }).execute(basePlayer);
+    new Command({ type: CommandType.INTENSITY, value: 20 }).execute(basePlayer);
     const base = createService().generateNotesForMelody(blockWith('4n:0 4n:1'), basePlayer);
     expect(base.map(note => note.velocity)).toEqual([20, 20]);
 
     const patternPlayer = createPlayer();
     patternPlayer.playMode = PlayMode.SINGLE;
-    new Command({ type: CommandType.VELOCITY, value: 90 }).execute(patternPlayer);
-    new Command({ type: CommandType.VELOCITY_PATTERN, value: '20 10 5' }).execute(patternPlayer);
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(patternPlayer);
+    new Command({ type: CommandType.INTENSITY_PATTERN, value: '20 10 5' }).execute(patternPlayer);
     const pattern = createService().generateNotesForMelody(
       blockWith('4n:0 4n:1 4n:2 4n:3'),
       patternPlayer
@@ -279,8 +279,8 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
 
     const rampPlayer = createPlayer();
     rampPlayer.playMode = PlayMode.SINGLE;
-    new Command({ type: CommandType.VELOCITY, value: 90 }).execute(rampPlayer);
-    new Command({ type: CommandType.VELOCITY_RAMP, value: '2 4 20 60' }).execute(rampPlayer);
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(rampPlayer);
+    new Command({ type: CommandType.INTENSITY_RAMP, value: '2 4 20 60' }).execute(rampPlayer);
     const ramp = createService().generateNotesForMelody(blockWith('4n:0 4n:1 4n:2 4n:3'), rampPlayer);
     expect(ramp.map(note => note.velocity)).toEqual([90, 20, 40, 60]);
   });
@@ -288,9 +288,9 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
   it('la velocity explícita @ prevalece sobre rampa y patrón', () => {
     const player = createPlayer();
     player.playMode = PlayMode.SINGLE;
-    new Command({ type: CommandType.VELOCITY, value: 90 }).execute(player);
-    new Command({ type: CommandType.VELOCITY_PATTERN, value: '20 10 5' }).execute(player);
-    new Command({ type: CommandType.VELOCITY_RAMP, value: '1 2 20 60' }).execute(player);
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(player);
+    new Command({ type: CommandType.INTENSITY_PATTERN, value: '20 10 5' }).execute(player);
+    new Command({ type: CommandType.INTENSITY_RAMP, value: '1 2 20 60' }).execute(player);
 
     const result = createService().generateNotesForMelody(blockWith('4n:0@34 4n:1'), player);
 

@@ -434,7 +434,7 @@ export class NoteGenerationService {
 
   /**
    * Aplica el perfil del preset a las notas generadas que no tengan una
-   * velocity explícita. Precedencia: `@` > rampa > patrón > VELOCITY > 90.
+   * velocity explícita. Precedencia: `@` > rampa > patrón > INTENSITY > 90.
    * La numeración es 1-based sobre las notas realmente emitidas (las notas de
    * un acorde/arpegio cuentan una a una; los silencios no).
    */

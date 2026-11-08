@@ -424,18 +424,23 @@ export class SongPlayer {
             const unit = state.executionUnits[state.currentUnitIndex];
             if (unit) {
                 const { block } = unit;
-                unit.commands.forEach((command: Command) => command.execute(state.player));
-                this._executeOperations(unit.operations);
+                const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                try {
+                    unit.commands.forEach((command: Command) => command.execute(state.player));
+                    this._executeOperations(unit.operations);
 
-                if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                    const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                        block.melody,
-                        state.player,
-                        block.id,
-                        block.preset?.id,
-                        block.procedure?.id
-                    );
-                    state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                    if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                        const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                            block.melody,
+                            state.player,
+                            block.id,
+                            block.preset?.id,
+                            block.procedure?.id
+                        );
+                        state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                    }
+                } finally {
+                    state.player.endVelocityProfileScope(velocityScope);
                 }
 
                 state.currentUnitIndex++;
@@ -580,20 +585,25 @@ export class SongPlayer {
                 const unit = state.executionUnits[state.currentUnitIndex];
                 if (unit) {
                     const { block } = unit;
-                    // Apply commands and operations FIRST
-                    unit.commands.forEach((command: Command) => command.execute(state.player));
-                    this._executeOperations(unit.operations);
+                    const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                    try {
+                        // Apply commands and operations FIRST
+                        unit.commands.forEach((command: Command) => command.execute(state.player));
+                        this._executeOperations(unit.operations);
 
-                    // Check if notes exist before calling generation
-                    if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                         const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                             block.melody,
-                             state.player,
-                             block.id,
-                             block.preset?.id,
-                             block.procedure?.id
-                         ); // Call the service
-                         state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        // Check if notes exist before calling generation
+                        if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                             const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                                 block.melody,
+                                 state.player,
+                                 block.id,
+                                 block.preset?.id,
+                                 block.procedure?.id
+                             ); // Call the service
+                             state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        }
+                    } finally {
+                        state.player.endVelocityProfileScope(velocityScope);
                     }
 
                     state.currentUnitIndex++;

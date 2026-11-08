@@ -35,9 +35,9 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     SHIFTSTART: 'First note in the octave-shift window.',
     SHIFTSIZE: 'Number of notes in the shift window.',
     SHIFTVALUE: 'Octaves added to the window; may be negative.',
-    VELOCITY: 'Default MIDI velocity for the generated notes (1–127).',
-    VELOCITY_PATTERN: 'Cyclic velocity pattern for the generated notes (e.g. 20 10 5).',
-    VELOCITY_RAMP: 'Linear velocity ramp over generated notes: start, end, from, to.',
+    INTENSITY: 'Default intensity (MIDI velocity 1–127) for the generated notes.',
+    INTENSITY_PATTERN: 'Cyclic intensity pattern for the generated notes (e.g. 20 10 5).',
+    INTENSITY_RAMP: 'Linear intensity ramp over generated notes: start, end, from, to.',
     PATTERN: 'Pattern melody used instead of normal generation.',
     DECORATION: 'Ornaments applied to chord or arpeggio notes.',
     SHIFT: 'Octave-shift window: Start, Size and Value together.'
@@ -163,8 +163,8 @@ export function filterVariables(
     if (
         command.type === CommandType.PATTERN ||
         command.type === CommandType.DECORATION ||
-        command.type === CommandType.VELOCITY_PATTERN ||
-        command.type === CommandType.VELOCITY_RAMP
+        command.type === CommandType.INTENSITY_PATTERN ||
+        command.type === CommandType.INTENSITY_RAMP
     ) {
         return [...stringVariables];
     }
@@ -190,14 +190,14 @@ export function defaultCommandValue(
     if (type === CommandType.SCALE) {
         return scaleNames[0] || 'WHITE';
     }
-    if (type === CommandType.VELOCITY) {
+    if (type === CommandType.INTENSITY) {
         return 90;
     }
     if (
         type === CommandType.PATTERN ||
         type === CommandType.DECORATION ||
-        type === CommandType.VELOCITY_PATTERN ||
-        type === CommandType.VELOCITY_RAMP
+        type === CommandType.INTENSITY_PATTERN ||
+        type === CommandType.INTENSITY_RAMP
     ) {
         return '';
     }

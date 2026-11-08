@@ -97,12 +97,12 @@
                 </app-melody-editor>
               }
             }
-            @case (commandTypes.VELOCITY) {
+            @case (commandTypes.INTENSITY) {
               @if (command.isVariable) {
                 <select class="command-type"
                   [ngModel]="getSelectedValue(command)"
                   (ngModelChange)="handleValueInput($event, command)">
-                  <option value="" disabled>Select Velocity variable</option>
+                  <option value="" disabled>Select intensity variable</option>
                   @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
                     <option [value]="variable.value">{{variable.label}}</option>
                   }
@@ -117,42 +117,42 @@
                   step="1">
               }
             }
-            @case (commandTypes.VELOCITY_PATTERN) {
+            @case (commandTypes.INTENSITY_PATTERN) {
               @if (command.isVariable) {
                 <select class="command-type"
                   [ngModel]="getSelectedValue(command)"
                   (ngModelChange)="handleValueInput($event, command)">
-                  <option value="" disabled>Select Velocity pattern variable</option>
+                  <option value="" disabled>Select intensity pattern variable</option>
                   @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
                     <option [value]="variable.value">{{variable.label}}</option>
                   }
                 </select>
               } @else {
                 <input type="text"
-                  class="command-value velocity-pattern-input"
+                  class="command-value intensity-pattern-input"
                   [ngModel]="command.value"
                   (ngModelChange)="handleValueInput($event, command)"
                   placeholder="20 10 5"
-                  aria-label="Velocity pattern">
+                  aria-label="Intensity pattern">
               }
             }
-            @case (commandTypes.VELOCITY_RAMP) {
+            @case (commandTypes.INTENSITY_RAMP) {
               @if (command.isVariable) {
                 <select class="command-type"
                   [ngModel]="getSelectedValue(command)"
                   (ngModelChange)="handleValueInput($event, command)">
-                  <option value="" disabled>Select Velocity ramp variable</option>
+                  <option value="" disabled>Select intensity ramp variable</option>
                   @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
                     <option [value]="variable.value">{{variable.label}}</option>
                   }
                 </select>
               } @else {
                 <input type="text"
-                  class="command-value velocity-ramp-input"
+                  class="command-value intensity-ramp-input"
                   [ngModel]="command.value"
                   (ngModelChange)="handleValueInput($event, command)"
                   placeholder="4 11 20 60"
-                  aria-label="Velocity ramp">
+                  aria-label="Intensity ramp">
               }
             }
             @default {

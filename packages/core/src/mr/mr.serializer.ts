@@ -310,27 +310,27 @@ function formatCommand(command: Command, context: string): string {
         throw wrapDecorationErrorInContext(context, error);
       }
     }
-    case CommandType.VELOCITY: {
+    case CommandType.INTENSITY: {
       const value = command.value;
       if (typeof value !== 'number' || !isVelocity(value)) {
-        throw new MrSerializeError(`VELOCITY inválida '${String(value)}' en ${context}: usa un entero entre 1 y 127`);
+        throw new MrSerializeError(`intensidad inválida '${String(value)}' en ${context}: usa un entero entre 1 y 127`);
       }
-      return `VELOCITY ${value}`;
+      return `INTENSITY ${value}`;
     }
-    case CommandType.VELOCITY_PATTERN: {
+    case CommandType.INTENSITY_PATTERN: {
       try {
-        return `VELOCITY_PATTERN ${printVelocityPattern(parseVelocityPattern(String(command.value)))}`;
+        return `INTENSITY_PATTERN ${printVelocityPattern(parseVelocityPattern(String(command.value)))}`;
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
-        throw new MrSerializeError(`VELOCITY_PATTERN inválido en ${context}: ${detail}`);
+        throw new MrSerializeError(`INTENSITY_PATTERN inválido en ${context}: ${detail}`);
       }
     }
-    case CommandType.VELOCITY_RAMP: {
+    case CommandType.INTENSITY_RAMP: {
       try {
-        return `VELOCITY_RAMP ${printVelocityRamp(parseVelocityRamp(String(command.value)))}`;
+        return `INTENSITY_RAMP ${printVelocityRamp(parseVelocityRamp(String(command.value)))}`;
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
-        throw new MrSerializeError(`VELOCITY_RAMP inválida en ${context}: ${detail}`);
+        throw new MrSerializeError(`INTENSITY_RAMP inválida en ${context}: ${detail}`);
       }
     }
     default: {

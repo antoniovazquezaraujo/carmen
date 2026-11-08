@@ -400,36 +400,36 @@ part P
 });
 
 describe('parseSong: intensidad y perfil de velocidad', () => {
-  it('parsea VELOCITY, VELOCITY_PATTERN y VELOCITY_RAMP y los serializa', () => {
+  it('parsea INTENSITY, INTENSITY_PATTERN y INTENSITY_RAMP y los serializa', () => {
     const document = parseSong(`song "X"
 version 2
 
 presets
   preset P
-    VELOCITY 20
-    VELOCITY_PATTERN 20 10 5
-    VELOCITY_RAMP 4 11 20 60
+    INTENSITY 20
+    INTENSITY_PATTERN 20 10 5
+    INTENSITY_RAMP 4 11 20 60
 `);
 
     const settings = document.song.presets[0].settings;
     expect(settings.map(setting => setting.type)).toEqual([
-      CommandType.VELOCITY,
-      CommandType.VELOCITY_PATTERN,
-      CommandType.VELOCITY_RAMP
+      CommandType.INTENSITY,
+      CommandType.INTENSITY_PATTERN,
+      CommandType.INTENSITY_RAMP
     ]);
     expect(settings.map(setting => setting.value)).toEqual([20, '20 10 5', '4 11 20 60']);
 
     const text = serializeSong(document);
-    expect(text).toContain('VELOCITY 20');
-    expect(text).toContain('VELOCITY_PATTERN 20 10 5');
-    expect(text).toContain('VELOCITY_RAMP 4 11 20 60');
+    expect(text).toContain('INTENSITY 20');
+    expect(text).toContain('INTENSITY_PATTERN 20 10 5');
+    expect(text).toContain('INTENSITY_RAMP 4 11 20 60');
   });
 
   it('rechaza velocidades y rampas inválidas', () => {
-    expect(expectParseError('presets\n  preset P\n    VELOCITY 0\n').message).toContain('entre 1 y 127');
-    expect(expectParseError('presets\n  preset P\n    VELOCITY 128\n').message).toContain('entre 1 y 127');
-    expect(expectParseError('presets\n  preset P\n    VELOCITY_PATTERN 20 0 5\n').message).toContain('entre 1 y 127');
-    expect(expectParseError('presets\n  preset P\n    VELOCITY_RAMP 4 11 20\n').message).toContain('4 enteros');
-    expect(expectParseError('presets\n  preset P\n    VELOCITY_RAMP 11 4 20 60\n').message).toContain('no puede ser mayor');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY 0\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY 128\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_PATTERN 20 0 5\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_RAMP 4 11 20\n').message).toContain('4 enteros');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_RAMP 11 4 20 60\n').message).toContain('no puede ser mayor');
   });
 });

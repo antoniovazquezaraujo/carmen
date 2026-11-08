@@ -113,7 +113,7 @@ El player web avanza con un scheduler de **96n** y redondea duraciones no repres
 | Resolución | 960 PPQ por defecto (`--ppq` configurable) |
 | Formato | SMF tipo 1; pista 0 conductora + una pista por part |
 | Instrumento | Programa 0 (Acoustic Grand Piano), canal = índice de part |
-| Velocidad | 90 por defecto; mandan `@`, `VELOCITY`, `VELOCITY_PATTERN` y `VELOCITY_RAMP` del `.mr` |
+| Intensidad (velocity MIDI) | 90 por defecto; mandan `@`, `INTENSITY`, `INTENSITY_PATTERN` y `INTENSITY_RAMP` del `.mr` |
 | Compás | 4/4 fijo |
 | Notas fuera de 0–127 | Se transportan por octavas (conservan la clase de altura) y se emite un warning |
 | `PATTERN_GAP` | Eliminado (2026-11-08); el compilador ya no lo acepta |

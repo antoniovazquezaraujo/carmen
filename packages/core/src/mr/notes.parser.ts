@@ -4,10 +4,10 @@
  *
  * Gramática (sección 7 de la propuesta):
  *
- *   evento   := duración? (entero | $variable | "s") velocity?
- *             | duración "(" evento* ")" velocity?
+ *   evento   := duración? (entero | $variable | "s") intensidad?
+ *             | duración "(" evento* ")" intensidad?
  *   duración := [0-9]+ (n|t|m) ":"
- *   velocity := "@" [1-9][0-9]*   (1–127)
+ *   intensidad := "@" [1-9][0-9]*   (velocity MIDI 1–127)
  *
  * - Un evento de nivel superior por línea es la forma canónica de salida;
  *   los grupos van completos en su línea.
@@ -134,7 +134,7 @@ class NoteScanner {
     if (char === '@') {
       this.advance();
       if (!this.isDigit(this.peek())) {
-        throw new MrParseError(`se esperaba una velocidad después de '@' (1–127)`, start);
+        throw new MrParseError(`se esperaba una intensidad después de '@' (1–127)`, start);
       }
       const digits = this.readDigits();
       return { type: 'velocity', text: `@${digits}`, value: Number(digits), position: start };
@@ -250,7 +250,7 @@ class NoteParser {
       const token = this.next();
       const velocity = token.value as number;
       if (velocity < 1 || velocity > 127) {
-        throw new MrParseError(`la velocidad debe estar entre 1 y 127 (recibido ${velocity})`, token.position);
+        throw new MrParseError(`la intensidad debe estar entre 1 y 127 (recibido ${velocity})`, token.position);
       }
       event.velocity = velocity;
     }

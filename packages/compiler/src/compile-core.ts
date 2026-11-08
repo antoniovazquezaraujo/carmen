@@ -57,11 +57,16 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
     const noteDatas: NoteData[] = [];
 
     units.forEach(unit => {
-        unit.settings.forEach(setting => setting.execute(player));
-        unit.operations.forEach(operation => operation.execute());
-        const melody = unit.block.melody;
-        if (unit.includeNotes && melody && melody.notes.trim()) {
-            noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+        const velocityScope = player.beginVelocityProfileScope(unit.settings);
+        try {
+            unit.settings.forEach(setting => setting.execute(player));
+            unit.operations.forEach(operation => operation.execute());
+            const melody = unit.block.melody;
+            if (unit.includeNotes && melody && melody.notes.trim()) {
+                noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+            }
+        } finally {
+            player.endVelocityProfileScope(velocityScope);
         }
     });
 

@@ -284,6 +284,8 @@ En cada pasada de un bloque:
 
 Los ajustes y las operaciones **persisten** después del bloque, igual que cuando vivían inline. Las operaciones se ejecutan en cada pasada; un `VARY` no es un valor congelado. Stop y el fin natural restauran las variables.
 
+La **intensidad** es la excepción: `INTENSITY`, `INTENSITY_PATTERN` y `INTENSITY_RAMP` son locales al bloque que los declara. Solo afectan a las notas propias de ese bloque y, al terminar, se restaura el perfil anterior antes de ejecutar sus bloques hijos o sus hermanos. Si un preset declara algún ajuste de intensidad, su perfil local parte de los valores por defecto (90, sin patrón ni rampa), así que no hereda un patrón o rampa antiguos.
+
 Como una melodía guarda notas y no un resultado renderizado, la misma melodía puede sonar distinta en bloques con presets o contextos armónicos distintos. Es intencionado.
 
 ---
@@ -304,7 +306,7 @@ Una duración es un número entero (sin ceros a la izquierda), una unidad y dos 
 
 Un compás son **cuatro pulsos** (4/4; todavía no hay compás configurable), así que `1m` equivale a una redonda y `2m` dura dos compases.
 
-Una nota también puede llevar una **velocity** con `@`: `4n:0@34` (MIDI 1–127). Se aplica al evento fuente y a todas las notas que genere (acorde, arpegio, patrón, adorno), salvo que un valor interno la sobrescriba. Un grupo también puede llevarla: `4n:( 0 2 )@40`; los hijos sin `@` propio la heredan. `@` es intensidad, no duración.
+Una nota también puede llevar una **intensidad** con `@`: `4n:0@34` (velocity MIDI 1–127). Se aplica al evento fuente y a todas las notas que genere (acorde, arpegio, patrón, adorno), salvo que un valor interno la sobrescriba. Un grupo también puede llevarla: `4n:( 0 2 )@40`; los hijos sin `@` propio la heredan. `@` es intensidad, no duración.
 
 Se escribe pegada al evento: `4n:0`, `8t:s`, `2n:( 0 2 )`. La duración es **opcional**: si falta, hereda la del grupo que la contiene; en el nivel raíz usa `notes default` y, si no hay, el fallback de reproducción (`16n`).
 
@@ -431,9 +433,9 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 | `SHIFTSTART` | Primera nota del acorde afectada por el desplazamiento | entero o `$variable` | `SHIFTSTART 0` |
 | `SHIFTSIZE` | Número de notas afectadas por el desplazamiento | entero o `$variable` | `SHIFTSIZE 3` |
 | `SHIFTVALUE` | Octavas que se suman a las notas desplazadas | entero o `$variable` | `SHIFTVALUE 1` |
-| `VELOCITY` | Velocity por defecto de las notas generadas | entero 1–127 o `$variable` | `VELOCITY 20` |
-| `VELOCITY_PATTERN` | Patrón cíclico de velocities | lista de enteros positivos | `VELOCITY_PATTERN 20 10 5` |
-| `VELOCITY_RAMP` | Rampa lineal de velocity sobre las notas generadas | nota inicial, nota final, velocity inicial, velocity final | `VELOCITY_RAMP 4 11 20 60` |
+| `INTENSITY` | Intensidad por defecto de las notas generadas (velocity MIDI) | entero 1–127 o `$variable` | `INTENSITY 20` |
+| `INTENSITY_PATTERN` | Patrón cíclico de intensidades | lista de enteros positivos | `INTENSITY_PATTERN 20 10 5` |
+| `INTENSITY_RAMP` | Rampa lineal de intensidad sobre las notas generadas | nota inicial, nota final, intensidad inicial, intensidad final | `INTENSITY_RAMP 4 11 20 60` |
 | `PATTERN` | Melodía del patrón (sublenguaje completo, una línea); se aplica **antes** del playmode, así se combina con acordes/arpegios; o una variable string | melodía o `$variable` | `PATTERN 4t:0 4t:-1 4t:3` |
 | `DECORATION` | Adorno añadido a **cada nota del acorde/arpegio**: por cada item, una nota `{ grado + offset }` | items `offset` (grados de escala) o `duración:offset`, o `$variable` | `DECORATION 4t:0 8t:-2` |
 
@@ -446,7 +448,7 @@ Notas:
 - En un ajuste numérico, la `$variable` se resuelve al reproducir; debe contener un número.
 - `SHIFTSTART`, `SHIFTSIZE` y `SHIFTVALUE` suman octavas completas a las notas del acorde en la ventana `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, sobre el orden final del acorde tras `INV`). La ventana se recorta al acorde, `SHIFTSIZE 0` no hace nada y un `SHIFTVALUE` negativo baja las notas afectadas. Dan forma al acorde/arpegio generado; con `PLAYMODE SINGLE` no hay acorde, así que no tienen efecto (igual que `WIDTH`/`INV`).
 - `DECORATION` adorna **cada nota del acorde/arpegio generado** (después de `WIDTH`/`GAP`/`INV`/`SHIFT`): cada item sustituye la nota por `{ grado + offset }`, donde `offset` se mide **en grados de escala** (la misma unidad que las notas, `PATTERN`, `WIDTH` y `GAP`). La duración del item (`4t` por defecto) se guarda como metadato de la nota, sin reescalar. Un item `0` conserva la nota original; sin ningún `0` desaparece. Los items son una lista plana (sin grupos). Con `PLAYMODE SINGLE` no hay acorde, así que no tiene efecto. **El tiempo lo decide el playmode, no las duraciones de los items**: `CHORD` hace sonar todas las notas adornadas a la vez durante la duración del evento, y los arpegios reparten la duración del evento a partes iguales entre las notas emitidas (cada item añade una rebanada); hoy las duraciones de item son metadato.
-- `VELOCITY`, `VELOCITY_PATTERN` y `VELOCITY_RAMP` definen el perfil de intensidad: `VELOCITY` es la base, el patrón cicla sobre las notas generadas, la rampa manda en su rango y el `@` de una nota gana a ambos. Los rangos de la rampa cuentan notas generadas en orden de reproducción, 1-based; cada nota emitida cuenta (las de acorde/arpegio una a una), los silencios no, y el contador se reinicia en cada repetición del bloque. La rampa es lineal, redondeada y limitada a 1–127.
+- `INTENSITY`, `INTENSITY_PATTERN` y `INTENSITY_RAMP` definen el perfil de intensidad: `INTENSITY` es la base, el patrón cicla sobre las notas generadas, la rampa manda en su rango y el `@` de una nota gana a ambos. Los valores son velocidades MIDI (1–127). Los rangos de la rampa cuentan notas generadas en orden de reproducción, 1-based; cada nota emitida cuenta (las de acorde/arpegio una a una), los silencios no, y el contador se reinicia en cada repetición del bloque. La rampa es lineal, redondeada y limitada a 1–127. El perfil es local al bloque (ver §3.6); los hijos y hermanos recuperan el perfil anterior.
 
 Ejemplo con todos los ajustes:
 
@@ -471,9 +473,9 @@ presets
     SHIFTSTART 0
     SHIFTSIZE 3
     SHIFTVALUE 1
-    VELOCITY 80
-    VELOCITY_PATTERN 80 60 40
-    VELOCITY_RAMP 1 4 40 100
+    INTENSITY 80
+    INTENSITY_PATTERN 80 60 40
+    INTENSITY_RAMP 1 4 40 100
     PATTERN 4t:0 4t:-1 4t:3
     DECORATION 0 -2 6
 
