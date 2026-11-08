@@ -182,6 +182,11 @@ export class ContentLibraryComponent implements OnChanges, OnInit, OnDestroy {
         return contentList(this.song, kind).length;
     }
 
+    /** Duración propia de la melodía para el editor embebido (validada al parsear). */
+    melodyDefaultDuration(melody: Melody): NoteDuration | undefined {
+        return melody.defaultDuration as NoteDuration | undefined;
+    }
+
     isExpanded(entry: ContentEntry): boolean {
         return this.expandedEntries.has(entry);
     }

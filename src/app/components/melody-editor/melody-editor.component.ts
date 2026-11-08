@@ -55,6 +55,11 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
   @Input() showVariableIcon: boolean = true;
   @Input() defaultDuration: NoteDuration = '4n';
   /**
+   * Duración propia de la melodía (`notes default`). Si está definida, manda
+   * sobre la duración global mientras se edita esta melodía.
+   */
+  @Input() defaultDurationOverride?: NoteDuration;
+  /**
    * Id de la melodía que edita este editor. Si coincide con la melodía que
    * suena, el editor resalta la nota-origen (`playing`). `undefined` (p. ej.
    * el editor de PATTERN) desactiva el resaltado.
@@ -105,14 +110,10 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
     // NO llamar al servicio desde aquí
     // this.melodyEditorService.setDefaultDuration(this.defaultDuration);
     console.log(`[MelodyEditor] ngOnInit: Component initialized. Input defaultDuration is: ${this.defaultDuration}`);
-    // Subscribe to global duration changes
+    // La duración propia de la melodía manda; si no existe, se usa la global.
+    this.syncDefaultDuration(this.songPlayer.globalDefaultDuration);
     this.globalDurationSub = this.songPlayer.globalDefaultDuration$.subscribe(duration => {
-        if (this.defaultDuration !== duration) {
-            console.log(`[MelodyEditor] ngOnInit: Global default duration changed to ${duration}, updating local.`);
-            this.defaultDuration = duration;
-            // We might need ChangeDetectorRef here if the change doesn't reflect immediately
-            // this.cdr.detectChanges(); 
-        }
+        this.syncDefaultDuration(duration);
     });
   }
 
@@ -128,13 +129,15 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
         // console.log(`[MelodyEditor] ngOnChanges: Skipping reload.`);
       }
     }
-    if (changes['defaultDuration']) {
-      const newDuration = changes['defaultDuration'].currentValue;
-      if (newDuration) {
-        console.log(`[MelodyEditor] ngOnChanges: Input defaultDuration changed to: ${newDuration}`);
-        // Eliminar la llamada al servicio, ya no gestiona el estado global
-        // this.melodyEditorService.setDefaultDuration(newDuration);
-      }
+    if (changes['defaultDuration'] || changes['defaultDurationOverride']) {
+      this.syncDefaultDuration(this.songPlayer.globalDefaultDuration);
+    }
+  }
+
+  private syncDefaultDuration(globalDuration: NoteDuration): void {
+    const effective = this.defaultDurationOverride ?? globalDuration;
+    if (this.defaultDuration !== effective) {
+      this.defaultDuration = effective;
     }
   }
 

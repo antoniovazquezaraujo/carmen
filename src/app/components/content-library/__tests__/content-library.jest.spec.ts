@@ -243,6 +243,12 @@ describe('ContentLibraryComponent · template', () => {
     expect(template).toContain('Deleting it also clears those references.');
   });
 
+  it('la duración por defecto es un tooltip y la melodía manda sobre la global', () => {
+    expect(template).not.toContain('>Default duration<');
+    expect(template).toContain('pTooltip="Default duration for this melody (overrides the global default)"');
+    expect(template).toContain('[defaultDurationOverride]="melodyDefaultDuration(melody)"');
+  });
+
   it('mantiene duración y notas en una sola fila compacta', () => {
     expect(template).toContain('content-melody-row');
     expect(styles).toContain('.content-melody-row');

@@ -15,6 +15,7 @@ All notable changes to **Mode Ranger**. Format based on
 - Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
 - The duration wheel and default-duration selectors now include `2m` and `4m`; `1m` is omitted because it equals `1n` in 4/4. Other measure counts can still be written in the `.mr` text.
 - Scale variables in the variables panel now use the same selector as presets, including the degree-ring preview of each scale on hover.
+- A melody's own default duration now prevails over the global default while editing that melody; the visible "Default duration" label in the content library became a tooltip on the selector.
 
 ### Fixed
 

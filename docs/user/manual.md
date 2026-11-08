@@ -357,6 +357,8 @@ part Piano
 
 Without `notes default`, a root event with no duration uses the `16n` fallback. Events inside a group always inherit the group duration, whether or not `notes default` is present.
 
+In the GUI, each melody's default duration is set from the content library. When a melody defines one, it overrides the global default duration of the toolbar while that melody is being edited; melodies without their own default keep using the global one.
+
 ### 4.7. Notes from a whole variable: `notes $variable`
 
 A melody can take all its notes from a string variable (a melody written with this same sublanguage):

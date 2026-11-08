@@ -357,6 +357,8 @@ part Piano
 
 Sin `notes default`, un evento raíz sin duración usa el fallback `16n`. Los eventos dentro de un grupo siempre heredan la duración del grupo, haya o no `notes default`.
 
+En la GUI, la duración por defecto de cada melodía se ajusta desde la biblioteca de contenido. Cuando una melodía define la suya, prevalece sobre la duración por defecto global de la barra de herramientas mientras se edita esa melodía; las melodías sin duración propia siguen usando la global.
+
 ### 4.7. Notas desde una variable completa: `notes $variable`
 
 Una melodía puede tomar todas sus notas de una variable string (una melodía escrita con este mismo sublenguaje):

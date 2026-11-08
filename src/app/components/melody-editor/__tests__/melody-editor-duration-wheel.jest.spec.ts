@@ -9,6 +9,7 @@
  * (mock local de `@angular/core`, sin TestBed), igual que `melody-editor-vars`.
  */
 import type { ChangeDetectorRef, ElementRef } from '@angular/core';
+import { of } from 'rxjs';
 import type { SongPlayer } from 'src/app/model/song.player';
 import { NoteData } from 'src/app/model/note';
 import { GenericGroup, MusicElement, SingleNote } from 'src/app/model/melody';
@@ -178,6 +179,43 @@ describe('MelodyEditorComponent · anillo de duración con la rueda', () => {
 
         component.changeDuration(id, -1); // blanco → 4m
         expect(lastEmitted()).toBe('4m:7');
+    });
+
+    it('la duración propia de la melodía manda sobre la global', () => {
+        const player = {
+            globalDefaultDuration$: of('4n' as const),
+            globalDefaultDuration: '4n' as const
+        } as unknown as SongPlayer;
+        const componentWithOverride = new MelodyEditorComponent(
+            new MelodyEditorService(),
+            { markForCheck: jest.fn(), detectChanges: jest.fn() } as unknown as ChangeDetectorRef,
+            {} as ElementRef,
+            player
+        );
+
+        componentWithOverride.defaultDurationOverride = '8n';
+        componentWithOverride.ngOnInit();
+
+        expect(componentWithOverride.defaultDuration).toBe('8n');
+        componentWithOverride.ngOnDestroy();
+    });
+
+    it('sin duración propia usa la global', () => {
+        const player = {
+            globalDefaultDuration$: of('4n' as const),
+            globalDefaultDuration: '4n' as const
+        } as unknown as SongPlayer;
+        const componentWithGlobal = new MelodyEditorComponent(
+            new MelodyEditorService(),
+            { markForCheck: jest.fn(), detectChanges: jest.fn() } as unknown as ChangeDetectorRef,
+            {} as ElementRef,
+            player
+        );
+
+        componentWithGlobal.ngOnInit();
+
+        expect(componentWithGlobal.defaultDuration).toBe('4n');
+        componentWithGlobal.ngOnDestroy();
     });
 
     it('30 giros seguidos: cada paso cambia el modelo y el id sigue resolviéndose', () => {
