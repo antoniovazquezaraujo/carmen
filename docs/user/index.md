@@ -1,5 +1,7 @@
 # Mode Ranger
 
+**[Open the app](https://antoniovazquezaraujo.github.io/moderanger/app/)** — run the latest release in your browser.
+
 **Mode Ranger** is a harmony studio: an editor to compose songs with parts, structural blocks and arpeggios, plus a text language — **`.mr`** — that is the canonical representation of every song. The GUI is a guided view of that text.
 
 ## Getting started

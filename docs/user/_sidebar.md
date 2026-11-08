@@ -1,4 +1,5 @@
 - [Home](index.md)
+- [Open the app](https://antoniovazquezaraujo.github.io/moderanger/app/)
 - [`.mr` manual](manual.md)
 - [Manual (español)](manual_es.md)
 - [Syntax cheatsheet](cheatsheet.md)

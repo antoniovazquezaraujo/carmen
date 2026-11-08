@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: pages-docs
-  cancel-in-progress: true
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -22,11 +22,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Publicar en la rama gh-pages
+      - name: Prepare site (docs at root, keep the deployed app)
+        run: |
+          mkdir -p site
+          cp -r docs/user/. site/
+          if git fetch --depth=1 origin gh-pages; then
+            git archive FETCH_HEAD app | tar -x -C site || true
+          fi
+          touch site/.nojekyll
+
+      - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/user
+          publish_dir: ./site
           publish_branch: gh-pages
           force_orphan: true
           commit_message: "docs: auto-deploy user documentation"
