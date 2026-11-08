@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **Mode Ranger**. Format based on
+All notable changes to **Carmen**. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/).
 
@@ -8,11 +8,12 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Added
 
-- **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/moderanger/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
+- **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/carmen/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
 - **Velocity and dynamics**: melody notes accept `@1–127` (also on groups), and presets accept `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP`. Playback and the MIDI compiler carry the velocity; the profile counts generated notes in playback order, and an explicit `@` wins over ramp/pattern. The melody editor shows and preserves velocities.
 
 ### Changed
 
+- **Rebranding to Carmen**: the product name, app title, README, user docs and GitHub URLs now use Carmen. The `.mr` format, `--mr-*` identifiers and the temporary `moderanger` CLI/package names remain unchanged for compatibility.
 - Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
 - The duration wheel and default-duration selectors now include `2m` and `4m`; `1m` is omitted because it equals `1n` in 4/4. Other measure counts can still be written in the `.mr` text.
 - Scale variables in the variables panel now use the same selector as presets, including the degree-ring preview of each scale on hover.

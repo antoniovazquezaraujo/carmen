@@ -1,6 +1,6 @@
-# 🎼 Wiki de Mode Ranger — Índice principal
+# 🎼 Wiki de Carmen — Índice principal
 
-Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para navegarse como wiki (Obsidian, VS Code, GitHub).
+Bienvenido a la documentación técnica de **Carmen**. Está pensada para navegarse como wiki (Obsidian, VS Code, GitHub).
 
 ## 🏗️ Arquitectura y diseño
 - [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura del proyecto]]

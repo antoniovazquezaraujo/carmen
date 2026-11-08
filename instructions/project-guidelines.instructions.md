@@ -1,9 +1,9 @@
 ---
 applyTo: "**/*"
-description: "Directrices de código y flujo de trabajo para Mode Ranger."
+description: "Directrices de código y flujo de trabajo para Carmen."
 ---
 
-# Mode Ranger - Project Guidelines
+# Carmen - Project Guidelines
 
 ## Purpose
 

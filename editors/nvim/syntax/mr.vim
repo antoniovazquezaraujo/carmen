@@ -1,4 +1,4 @@
-" syntax/mr.vim — resaltado del formato .mr de Mode Ranger.
+" syntax/mr.vim — resaltado del formato .mr de Carmen.
 "
 " Cubre la sintaxis de la Fase 1 del ADR-001:
 "   - cabecera: song / version / repeats / bpm

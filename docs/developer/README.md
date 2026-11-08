@@ -1,4 +1,4 @@
-# Mode Ranger — Documentación de desarrollo 🎼
+# Carmen — Documentación de desarrollo 🎼
 
 Wiki interna para desarrollo: arquitectura, decisiones, análisis, auditorías y proceso de release. La documentación pública para usuarios vive en [`docs/user/`](../user/index.md) (se publica en GitHub Pages).
 
@@ -8,7 +8,7 @@ Wiki interna para desarrollo: arquitectura, decisiones, análisis, auditorías y
 
 ## Arquitectura de un vistazo
 
-Mode Ranger es una app **Angular 21 + TypeScript 5.9** con un núcleo desacoplado:
+Carmen es una app **Angular 21 + TypeScript 5.9** con un núcleo desacoplado:
 
 ```
                     ┌────────────────────────────────────────────┐

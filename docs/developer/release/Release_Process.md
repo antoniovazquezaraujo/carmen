@@ -1,4 +1,4 @@
-# 🚀 Proceso de release y despliegue (Mode Ranger)
+# 🚀 Proceso de release y despliegue (Carmen)
 
 Este documento describe los procesos automatizados del repositorio para publicar la **documentación de usuario** y las **versiones** de la aplicación.
 
@@ -21,7 +21,7 @@ La documentación pública (`docs/user/`) se publica sola con `.github/workflows
 
 **¿Qué tienes que hacer?** Nada. Cada push a `develop` que toque `docs/user/**` copia esa carpeta a la rama `gh-pages`, y GitHub Pages sirve:
 
-👉 <https://antoniovazquezaraujo.github.io/moderanger/>
+👉 <https://antoniovazquezaraujo.github.io/carmen/>
 
 (La fuente de Pages está configurada a la rama `gh-pages`, raíz `/`.)
 
@@ -29,7 +29,7 @@ La documentación pública (`docs/user/`) se publica sola con `.github/workflows
 
 `.github/workflows/deploy-web-app.yml` compila la app con `--base-href ./` y la publica en:
 
-👉 <https://antoniovazquezaraujo.github.io/moderanger/app/>
+👉 <https://antoniovazquezaraujo.github.io/carmen/app/>
 
 Se dispara al empujar un tag `v*` o manualmente con `workflow_dispatch`. El workflow reconstruye el sitio completo: documentación en la raíz y app en `/app/`. El workflow de documentación conserva la última app publicada cuando solo cambian los docs.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * CLI de Mode Ranger.
+ * CLI de Carmen.
  *
  * Comandos:
  *   moderanger compile <song.mr>   .mr → .mid (o JSON)
@@ -72,7 +72,7 @@ function compileUsage(): string {
     return [
         'Usage: moderanger compile <song.mr> [options]',
         '',
-        'Compile a Mode Ranger .mr file to a Standard MIDI File (type 1).',
+        'Compile a Carmen .mr file to a Standard MIDI File (type 1).',
         '',
         'Options:',
         '  -o, --output <file>   Output file (default: input with .mid extension)',
@@ -89,7 +89,7 @@ function checkUsage(): string {
     return [
         'Usage: moderanger check <song.mr> [options]',
         '',
-        'Validate a Mode Ranger .mr file without generating output.',
+        'Validate a Carmen .mr file without generating output.',
         '',
         'Options:',
         '  --quiet               Do not print the success message',

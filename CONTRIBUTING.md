@@ -1,10 +1,10 @@
-# Contributing to Mode Ranger
+# Contributing to Carmen
 
 Thanks for your interest! This is a small project, so the process is intentionally light.
 
 ## Ways to help
 
-- Report bugs and request features via [Issues](https://github.com/antoniovazquezaraujo/moderanger/issues).
+- Report bugs and request features via [Issues](https://github.com/antoniovazquezaraujo/carmen/issues).
 - Improve the documentation (`docs/user/`, `docs/developer/`, `README.md`).
 - Send code or docs via a Pull Request.
 
@@ -62,7 +62,7 @@ Run a single test: `npm test -- -t "test name"`.
 
 ## Documentation
 
-- User documentation lives in `docs/user/` and is published automatically to <https://antoniovazquezaraujo.github.io/moderanger/> on every push to `develop`.
+- User documentation lives in `docs/user/` and is published automatically to <https://antoniovazquezaraujo.github.io/carmen/> on every push to `develop`.
 - Internal documentation lives in `docs/developer/`.
 - If a change is user-visible, update the manual/cheatsheet and add an entry to `CHANGELOG.md`.
 
