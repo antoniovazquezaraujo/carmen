@@ -1,1 +1,1 @@
-export * from '@moderanger/core/scale';
+export * from 'carmen-core/scale';

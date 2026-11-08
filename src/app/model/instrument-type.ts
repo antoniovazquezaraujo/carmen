@@ -1,1 +1,1 @@
-export * from '@moderanger/core/instrument-type';
+export * from 'carmen-core/instrument-type';

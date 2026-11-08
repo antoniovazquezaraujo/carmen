@@ -1,1 +1,1 @@
-export * from '@moderanger/core/variable.context';
+export * from 'carmen-core/variable.context';

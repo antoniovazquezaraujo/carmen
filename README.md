@@ -29,16 +29,16 @@ Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules
 
 ## MIDI compiler (experimental)
 
-The repository ships a browser-free CLI, `moderanger`, that compiles a `.mr` song to a Standard MIDI File. The CLI package and binary names keep the `moderanger` name for now; they will be renamed in a follow-up. The package metadata is prepared for publication as `@moderanger/cli`; once published, the global command will be:
+The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. It is published as `carmen-cli`; once published, the global command will be:
 
 ```sh
-npm install -g @moderanger/cli
+npm install -g carmen-cli
 
-moderanger compile cancion.mr              # writes cancion.mid
-moderanger compile cancion.mr -o salida.mid
-moderanger compile cancion.mr --json       # inspect the compiled events
-moderanger check cancion.mr                # validate without generating output
-moderanger version
+carmen compile cancion.mr              # writes cancion.mid
+carmen compile cancion.mr -o salida.mid
+carmen compile cancion.mr --json       # inspect the compiled events
+carmen check cancion.mr                # validate without generating output
+carmen version
 ```
 
 Until the package is published, build and run it from a clone:
@@ -51,7 +51,7 @@ node packages/compiler/dist/cli/main.js version
 cat cancion.mr | node packages/compiler/dist/cli/main.js compile - -o salida.mid
 ```
 
-`npm run midi -- cancion.mr` remains a development shortcut (it builds the CLI first). `moderanger-mid` is kept as a compatibility alias for `moderanger compile`. The compiler uses the same playback semantics as the app (parts, structural blocks, content libraries, repeats, settings, operations, patterns, chords and arpeggios). MIDI is not audio: open the `.mid` in a DAW or render it with a synthesizer such as FluidSynth. See [`docs/developer/analysis/compilador-midi-mvp.md`](docs/developer/analysis/compilador-midi-mvp.md) for the current limitations.
+`npm run midi -- cancion.mr` remains a development shortcut (it builds the CLI first). The CLI exposes a single `carmen` binary with `compile`, `check`, `version` and `help`. The compiler uses the same playback semantics as the app (parts, structural blocks, content libraries, repeats, settings, operations, patterns, chords and arpeggios). MIDI is not audio: open the `.mid` in a DAW or render it with a synthesizer such as FluidSynth. See [`docs/developer/analysis/compilador-midi-mvp.md`](docs/developer/analysis/compilador-midi-mvp.md) for the current limitations.
 
 ## The `.mr` language
 

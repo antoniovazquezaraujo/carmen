@@ -1,1 +1,1 @@
-export * from '@moderanger/core/event';
+export * from 'carmen-core/event';

@@ -1,1 +1,1 @@
-export * from '@moderanger/core/octaved-grade';
+export * from 'carmen-core/octaved-grade';

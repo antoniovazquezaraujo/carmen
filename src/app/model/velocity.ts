@@ -1,1 +1,1 @@
-export * from '@moderanger/core/velocity';
+export * from 'carmen-core/velocity';

@@ -24,8 +24,8 @@ module.exports = {
   },
   moduleNameMapper: {
     // Paquetes del workspace.
-    '^@moderanger/core$': '<rootDir>/packages/core/src/index.ts',
-    '^@moderanger/core/(.*)$': '<rootDir>/packages/core/src/$1',
+    '^carmen-core$': '<rootDir>/packages/core/src/index.ts',
+    '^carmen-core/(.*)$': '<rootDir>/packages/core/src/$1',
     // Resuelve los imports absolutos `src/...` (baseUrl de tsconfig.json),
     // que Jest no conoce por sí solo. Necesario para specs de componentes.
     '^src/(.*)$': '<rootDir>/src/$1',

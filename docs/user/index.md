@@ -23,7 +23,7 @@
 - **[`.mr` language manual](manual.md)** — song structure, content libraries, notes, groups, presets, procedures, variables and limitations.
 - **[Manual del lenguaje `.mr` (español)](manual_es.md)** — la versión en español del manual.
 - **[Syntax cheatsheet](cheatsheet.md)** — tokens, settings, operations and editor shortcuts at a glance.
-- **[MIDI compiler (experimental)](midi.md)** — compile a `.mr` song to a `.mid` file without the browser (`moderanger compile`).
+- **[MIDI compiler (experimental)](midi.md)** — compile a `.mr` song to a `.mid` file without the browser (`carmen compile`).
 
 ## Links
 

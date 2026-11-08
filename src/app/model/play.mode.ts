@@ -1,1 +1,1 @@
-export * from '@moderanger/core/play.mode';
+export * from 'carmen-core/play.mode';

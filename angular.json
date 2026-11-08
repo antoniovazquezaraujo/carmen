@@ -6,7 +6,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "moderanger": {
+    "carmen": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:application": {
@@ -21,7 +21,7 @@
           "builder": "@angular/build:application",
           "options": {
             "outputPath": {
-              "base": "dist/moderanger"
+              "base": "dist/carmen"
             },
             "index": "src/index.html",
             "polyfills": [
@@ -81,10 +81,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "moderanger:build:production"
+              "buildTarget": "carmen:build:production"
             },
             "development": {
-              "buildTarget": "moderanger:build:development"
+              "buildTarget": "carmen:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -92,7 +92,7 @@
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n",
           "options": {
-            "buildTarget": "moderanger:build"
+            "buildTarget": "carmen:build"
           }
         }
       }
