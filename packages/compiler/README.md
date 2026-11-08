@@ -1,6 +1,6 @@
 # @moderanger/cli
 
-Browser-free `.mr` → MIDI compiler and command-line interface for [Mode Ranger](https://github.com/antoniovazquezaraujo/moderanger).
+Browser-free `.mr` → MIDI compiler and command-line interface for [Carmen](https://github.com/antoniovazquezaraujo/carmen).
 
 ```sh
 npm install -g @moderanger/cli
@@ -13,6 +13,6 @@ moderanger version
 
 `moderanger-mid song.mr` remains available as a compatibility alias for `moderanger compile song.mr`.
 
-Use `-` as the input to read `.mr` from stdin. `--json` writes the compiled event model instead of a MIDI file. See the [user documentation](https://github.com/antoniovazquezaraujo/moderanger/blob/develop/docs/user/midi.md) for options and limitations.
+Use `-` as the input to read `.mr` from stdin. `--json` writes the compiled event model instead of a MIDI file. See the [user documentation](https://github.com/antoniovazquezaraujo/carmen/blob/develop/docs/user/midi.md) for options and limitations.
 
 Licensed under Apache-2.0.

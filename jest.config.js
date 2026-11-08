@@ -1,5 +1,5 @@
 /**
- * Jest config para el núcleo de Mode Ranger (Angular 13 / TS 4.5 / Node 16).
+ * Jest config para el núcleo de Carmen (Angular 13 / TS 4.5 / Node 16).
  *
  * - ts-jest compila TS a CommonJS con `src/tsconfig.jest.json`.
  * - Los specs viven junto al código con la convención `*.jest.spec.ts`

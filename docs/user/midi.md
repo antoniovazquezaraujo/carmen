@@ -1,6 +1,6 @@
 # MIDI compiler (experimental)
 
-Mode Ranger can compile a `.mr` song to a **Standard MIDI File** without opening the browser.
+Carmen can compile a `.mr` song to a **Standard MIDI File** without opening the browser.
 
 ## Requirements
 

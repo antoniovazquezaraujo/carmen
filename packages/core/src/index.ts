@@ -1,5 +1,5 @@
 /**
- * Núcleo puro de Mode Ranger: modelo, `.mr` y generación de notas.
+ * Núcleo puro de Carmen: modelo, `.mr` y generación de notas.
  *
  * No importa Angular, Tone ni APIs de navegador/Node. Lo consumen la app y el
  * compilador MIDI.

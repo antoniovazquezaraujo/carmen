@@ -1,16 +1,16 @@
-# Mode Ranger
+# Carmen
 
 Harmony studio with a component-based GUI (parts, structural blocks, content libraries and a melody editor) and a canonical text format, **`.mr`**, to save and load songs. The text is the canonical representation of a song; the GUI is its guided view.
 
-[![CI](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/moderanger/)
-[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/moderanger/app/)
+[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
 
 Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
 
 ## Play in the browser
 
-The latest release runs at **<https://antoniovazquezaraujo.github.io/moderanger/app/>**; no installation required. The user documentation stays at the site root.
+The latest release runs at **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no installation required. The user documentation stays at the site root.
 
 ## Quickstart
 
@@ -29,7 +29,7 @@ Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules
 
 ## MIDI compiler (experimental)
 
-The repository ships a browser-free CLI, `moderanger`, that compiles a `.mr` song to a Standard MIDI File. The package metadata is prepared for publication as `@moderanger/cli`; once published, the global command will be:
+The repository ships a browser-free CLI, `moderanger`, that compiles a `.mr` song to a Standard MIDI File. The CLI package and binary names keep the `moderanger` name for now; they will be renamed in a follow-up. The package metadata is prepared for publication as `@moderanger/cli`; once published, the global command will be:
 
 ```sh
 npm install -g @moderanger/cli
@@ -78,8 +78,8 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 
 ## Documentation
 
-- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/moderanger/app/)** — run the latest release in the browser.
-- 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/moderanger/)** — language manual, syntax cheatsheet and usage guide.
+- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the latest release in the browser.
+- 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
 - ✅ **[Manual validation v1](docs/developer/testing/validacion-manual-v1.md)** — step-by-step checklist.

@@ -13,11 +13,11 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json"
   },
-  "description": "Pure Mode Ranger core: model, .mr language and note generation.",
+  "description": "Pure Carmen core: model, .mr language and note generation.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antoniovazquezaraujo/moderanger.git",
+    "url": "git+https://github.com/antoniovazquezaraujo/carmen.git",
     "directory": "packages/core"
   },
   "engines": {
