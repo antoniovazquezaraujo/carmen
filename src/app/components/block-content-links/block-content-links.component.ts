@@ -82,24 +82,6 @@ export class BlockContentLinksComponent {
         this.notify('procedure', procedure.label);
     }
 
-    editMelody(): void {
-        if (this.block.melody) {
-            this.notify('melody', this.block.melody.label);
-        }
-    }
-
-    editPreset(): void {
-        if (this.block.preset) {
-            this.notify('preset', this.block.preset.label);
-        }
-    }
-
-    editProcedure(): void {
-        if (this.block.procedure) {
-            this.notify('procedure', this.block.procedure.label);
-        }
-    }
-
     private notify(kind: ContentKind, label: string): void {
         this.contentEdit.emit({ kind, label });
     }
