@@ -18,14 +18,6 @@
         tooltipPosition="top"
         aria-label="New melody"
         (click)="createMelody()"></p-button>
-      @if (block.melody) {
-        <p-button
-          icon="pi pi-pencil"
-          pTooltip="Edit melody"
-          tooltipPosition="top"
-          aria-label="Edit melody"
-          (click)="editMelody()"></p-button>
-      }
     </span>
   </div>
 
@@ -48,14 +40,6 @@
         tooltipPosition="top"
         aria-label="New preset"
         (click)="createPreset()"></p-button>
-      @if (block.preset) {
-        <p-button
-          icon="pi pi-pencil"
-          pTooltip="Edit preset"
-          tooltipPosition="top"
-          aria-label="Edit preset"
-          (click)="editPreset()"></p-button>
-      }
     </span>
   </div>
 
@@ -78,14 +62,6 @@
         tooltipPosition="top"
         aria-label="New procedure"
         (click)="createProcedure()"></p-button>
-      @if (block.procedure) {
-        <p-button
-          icon="pi pi-pencil"
-          pTooltip="Edit procedure"
-          tooltipPosition="top"
-          aria-label="Edit procedure"
-          (click)="editProcedure()"></p-button>
-      }
     </span>
   </div>
 </div>
