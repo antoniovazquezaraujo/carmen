@@ -1,6 +1,6 @@
 /**
- * Bloque estructural (ADR-004): sin contenido inline, con chips de contenido
- * en la cabecera y `app-block-content-links` en el cuerpo.
+ * Bloque estructural (ADR-004): sin contenido inline y con
+ * `app-block-content-links` como único acceso a las referencias.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -19,26 +19,16 @@ describe('BlockComponent · estructura sin contenido inline', () => {
     expect(body).not.toContain('blockContent');
   });
 
-  it('muestra chips de melodía, preset y procedimiento en la cabecera', () => {
+  it('no duplica las referencias de contenido en la cabecera', () => {
     const header = template.slice(template.indexOf('class="block-header"'), template.indexOf('class="block-body"'));
-    expect(header).toContain('block-content-chip');
-    expect(header).toContain('node.melody');
-    expect(header).toContain('node.preset');
-    expect(header).toContain('node.procedure');
-    expect(header).toContain("navigateTo('melody'");
-    expect(header).toContain("navigateTo('preset'");
-    expect(header).toContain("navigateTo('procedure'");
+    expect(header).not.toContain('block-content-chip');
+    expect(header).not.toContain('navigateTo');
   });
 
   it('el árbol es siempre [block] y no depende de contenido propio', () => {
     expect(component).toContain('this.rootTreeValue = [root];');
     expect(component).not.toContain('blockContent');
     expect(component).not.toContain('commands');
-  });
-
-  it('los chips son solo informativos y tienen estilo propio', () => {
-    expect(styles).toContain('.block-content-chip');
-    expect(styles).toContain('cursor: pointer');
   });
 
   it('resalta el bloque que está sonando', () => {
