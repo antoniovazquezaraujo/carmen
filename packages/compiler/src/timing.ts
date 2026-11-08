@@ -1,4 +1,4 @@
-import { durationToSeconds } from '@moderanger/core';
+import { durationToSeconds } from 'carmen-core';
 
 export { durationToSeconds };
 

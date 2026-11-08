@@ -10,7 +10,7 @@ import {
     Player,
     Song,
     VariableContext
-} from '@moderanger/core';
+} from 'carmen-core';
 
 /**
  * Unidad de ejecución musical: un bloque en una pasada concreta.

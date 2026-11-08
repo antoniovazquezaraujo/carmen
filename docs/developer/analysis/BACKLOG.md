@@ -10,7 +10,7 @@
 | # | Tema | Detalle | Esf. | Riesgo | Referencia |
 |---|---|---|---|---|---|
 | 1 | **Bug #121: las variables saltan al iniciar Play** | Las operaciones `VARY`/`ASSIGN` se aplican al construir la reproducción, no en su posición musical; el sidebar muestra el valor final desde el primer instante. Hay que decidir entre aplicación posicional o actualización visible diferida. | M | Medio | [#121](https://github.com/antoniovazquezaraujo/carmen/issues/121) |
-| 2 | **Publicar el CLI en npm** | `@moderanger/core` y `@moderanger/cli` siguen en `0.0.0` y no están publicados. Los tarballs se generan bien con `npm pack --dry-run`; falta la publicación manual con 2FA y el smoke test global. | S | Medio | `docs/developer/release/Release_Process.md` §4, `compilador-midi-mvp.md` |
+| 2 | **Publicar el CLI en npm** | `carmen-core` y `carmen-cli` siguen en `0.0.0` y no están publicados. Los tarballs se generan bien con `npm pack --dry-run`; falta la publicación manual con 2FA y el smoke test global. | S | Medio | `docs/developer/release/Release_Process.md` §4, `compilador-midi-mvp.md` |
 | 3 | **Expansión de melodías variables** | Una `$variable` string (`$motif = "4t:0"`) debería expandirse en reproducción como secuencia de eventos; hoy se sustituye por un silencio de su duración. Definir semántica de duración/reemplazo y el caso de grupos. | M | Medio | `pulido-bpm-variables.md` §8.3 |
 | 4 | **Instrumentos adicionales** | Ampliar `InstrumentType` (pads, órgano, bajo, campanas… y/o samplers), factoría tipo→Tone reutilizando instancias y selector de instrumento por parte en la GUI. | S/M | Bajo | [#14](https://github.com/antoniovazquezaraujo/carmen/issues/14), `audio-engine.service.ts` |
 | 5 | **Percusión (MVP: kit por grados)** | `instrument DRUMS` con mapa grado → pieza (bombo, caja, charles, toms, crash…), sintetizado con Tone y sin samples. Decidir si `PLAYMODE`/`PATTERN` aplican o se ignoran. | M | Medio | Conversación 2026-10-05 |
@@ -36,10 +36,11 @@
 - **Duraciones de compás** (2026-11-08): `1m`, `2m`… funcionan en SINGLE, CHORD, arpegios, grupos y compilador MIDI (compás = 4 pulsos, 4/4); la rueda y los selectores incluyen `2m` y `4m`.
 - **Intensidad** (2026-11-08): `@` por nota/grupo, `INTENSITY` base, `INTENSITY_PATTERN` cíclico y `INTENSITY_RAMP` por rango; reproducción y MIDI la transportan como velocity MIDI. El perfil es local al bloque (solo sus notas propias) y el editor conserva y muestra la intensidad.
 - **`PATTERN_GAP` eliminado** (2026-11-08): era un no-op deprecado; fuera del lenguaje, parser/serializador, player, GUI, corpus y documentación. Un `.mr` antiguo con él falla con un error de migración hacia `DECORATION`.
-- **Limpieza de código** (2026-11-08): eliminado el código v2 sin cablear (editor de melodía, reproductor/audio y servicios huérfanos, ~5.200 LOC) y cerrado el spike ANTLR #131. Se conservan `global-state`, `note-generation-unified`, `error-handler` y la API `@moderanger/core/music-element-utils`.
+- **Limpieza de código** (2026-11-08): eliminado el código v2 sin cablear (editor de melodía, reproductor/audio y servicios huérfanos, ~5.200 LOC) y cerrado el spike ANTLR #131. Se conservan `global-state`, `note-generation-unified`, `error-handler` y la API `carmen-core/music-element-utils`.
 - **Limpieza de ramas** (2026-11-08): 16 worktrees de ramas mergeadas o cerradas eliminados; ramas locales/remotas antiguas limpiadas.
 - **Angular 21 / Node 22 / TypeScript 5.9 / PrimeNG 21 / Jest 30**, application builder (`@angular/build`), componentes standalone, control flow y retirada de dependencias obsoletas.
-- **CLI MIDI y CLI unificado `moderanger`** (`compile`, `check`, `version`, `help`), con núcleo puro sin Angular/Tone.
+- **Paquetes y CLI Carmen** (2026-11-08): renombrados a `carmen-core` y `carmen-cli`; binario único `carmen` (`compile`, `check`, `version`, `help`) y retirado el alias `moderanger-mid`.
+- **CLI MIDI y CLI unificado** (`compile`, `check`, `version`, `help`), con núcleo puro sin Angular/Tone.
 - **Warm Studio UI**, tema claro/oscuro persistente, panel de ejemplos, guía contextual de ayuda y bibliotecas de contenido en la GUI.
 
 ## Ramas archivadas (tags)

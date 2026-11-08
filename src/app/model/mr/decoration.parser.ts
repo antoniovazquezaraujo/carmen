@@ -1,1 +1,1 @@
-export * from '@moderanger/core/mr/decoration.parser';
+export * from 'carmen-core/mr/decoration.parser';

@@ -39,7 +39,7 @@ cp -r editors/nvim/* ~/.vim/
 
 ```lua
 {
-  dir = '/ruta/a/moderanger/editors/nvim',
+  dir = '/ruta/a/carmen/editors/nvim',
   ft = 'mr',
 }
 ```
@@ -47,19 +47,19 @@ cp -r editors/nvim/* ~/.vim/
 `packer.nvim`:
 
 ```lua
-use { '/ruta/a/moderanger/editors/nvim' }
+use { '/ruta/a/carmen/editors/nvim' }
 ```
 
 `vim-plug`:
 
 ```vim
-Plug '/ruta/a/moderanger/editors/nvim'
+Plug '/ruta/a/carmen/editors/nvim'
 ```
 
 ## Comprobación
 
 ```sh
-nvim --clean --cmd 'set runtimepath+=/ruta/a/moderanger/editors/nvim' ejemplo.mr
+nvim --clean --cmd 'set runtimepath+=/ruta/a/carmen/editors/nvim' ejemplo.mr
 ```
 
 Dentro de NeoVim:

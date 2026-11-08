@@ -1,4 +1,4 @@
-import { applyDocumentVariables, parseSong, SongDocument, VariableContext } from '@moderanger/core';
+import { applyDocumentVariables, parseSong, SongDocument, VariableContext } from 'carmen-core';
 import { compilePart, substituteVariablesInSong } from './compile-core';
 import { DEFAULT_PPQ, secondsToTicks } from './timing';
 import { CompiledNote, CompiledPart, CompiledSong } from './types';

@@ -5,14 +5,14 @@ Carmen can compile a `.mr` song to a **Standard MIDI File** without opening the 
 ## Requirements
 
 - Node 22 or newer.
-- The global CLI package `@moderanger/cli` (planned publication), or a clone of the repository with dependencies installed (`npm ci`).
+- The global CLI package `carmen-cli` (planned publication), or a clone of the repository with dependencies installed (`npm ci`).
 
 ## Install
 
-Once `@moderanger/cli` is published:
+Once `carmen-cli` is published:
 
 ```sh
-npm install -g @moderanger/cli
+npm install -g carmen-cli
 ```
 
 Until then, build the CLI from a clone:
@@ -26,14 +26,14 @@ npm run build:cli
 With the global command:
 
 ```sh
-moderanger compile cancion.mr
-moderanger compile cancion.mr -o salida.mid
-moderanger compile cancion.mr --json
-moderanger check cancion.mr
-moderanger version
+carmen compile cancion.mr
+carmen compile cancion.mr -o salida.mid
+carmen compile cancion.mr --json
+carmen check cancion.mr
+carmen version
 ```
 
-From a clone, replace `moderanger` with `node packages/compiler/dist/cli/main.js`:
+From a clone, replace `carmen` with `node packages/compiler/dist/cli/main.js`:
 
 ```sh
 node packages/compiler/dist/cli/main.js compile cancion.mr
@@ -45,19 +45,19 @@ node packages/compiler/dist/cli/main.js check cancion.mr
 You can also read the song from stdin:
 
 ```sh
-cat cancion.mr | moderanger compile - -o salida.mid
+cat cancion.mr | carmen compile - -o salida.mid
 ```
 
-`moderanger-mid cancion.mr` is kept as a compatibility alias for `moderanger compile cancion.mr`.
+The CLI exposes a single `carmen` binary; there is no separate legacy binary.
 
 ## Commands
 
 | Command | Effect |
 |---|---|
-| `moderanger compile <song.mr>` | Compile to a Standard MIDI File (or JSON with `--json`). |
-| `moderanger check <song.mr>` | Validate the `.mr` document without generating output. |
-| `moderanger version` | Show the CLI version. |
-| `moderanger help` | Show the global help. |
+| `carmen compile <song.mr>` | Compile to a Standard MIDI File (or JSON with `--json`). |
+| `carmen check <song.mr>` | Validate the `.mr` document without generating output. |
+| `carmen version` | Show the CLI version. |
+| `carmen help` | Show the global help. |
 
 ## Compile options
 

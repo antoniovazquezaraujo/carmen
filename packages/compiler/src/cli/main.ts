@@ -3,16 +3,13 @@
  * CLI de Carmen.
  *
  * Comandos:
- *   moderanger compile <song.mr>   .mr → .mid (o JSON)
- *   moderanger check <song.mr>     validación del documento
- *   moderanger version
- *
- * `moderanger-mid <song.mr>` se mantiene como alias del antiguo binario y
- * equivale a `moderanger compile <song.mr>`.
+ *   carmen compile <song.mr>   .mr → .mid (o JSON)
+ *   carmen check <song.mr>     validación del documento
+ *   carmen version
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { prepareSongText } from '@moderanger/core';
+import { prepareSongText } from 'carmen-core';
 import { compileSongText } from '../compile-midi';
 import { buildMidi } from '../midi-writer';
 
@@ -55,7 +52,7 @@ const VERSION = readVersion();
 
 function globalUsage(): string {
     return [
-        'Usage: moderanger <command> [options]',
+        'Usage: carmen <command> [options]',
         '',
         'Commands:',
         '  compile <song.mr>   Compile a .mr song to MIDI (or JSON)',
@@ -63,14 +60,13 @@ function globalUsage(): string {
         '  version             Show the version',
         '  help                Show this help',
         '',
-        'Legacy: moderanger-mid <song.mr> is equivalent to compile.',
         'Use "-" as the input to read .mr from stdin.'
     ].join('\n');
 }
 
 function compileUsage(): string {
     return [
-        'Usage: moderanger compile <song.mr> [options]',
+        'Usage: carmen compile <song.mr> [options]',
         '',
         'Compile a Carmen .mr file to a Standard MIDI File (type 1).',
         '',
@@ -87,7 +83,7 @@ function compileUsage(): string {
 
 function checkUsage(): string {
     return [
-        'Usage: moderanger check <song.mr> [options]',
+        'Usage: carmen check <song.mr> [options]',
         '',
         'Validate a Carmen .mr file without generating output.',
         '',
@@ -188,7 +184,7 @@ function isFormattableError(error: unknown): error is FormattableError {
 }
 
 function printError(error: unknown, input: string): void {
-    if (process.env['MODERANGER_DEBUG'] && error instanceof Error && error.stack) {
+    if (process.env['CARMEN_DEBUG'] && error instanceof Error && error.stack) {
         console.error(error.stack);
     }
     if (isFormattableError(error)) {
@@ -203,7 +199,7 @@ async function runCompile(argv: string[]): Promise<void> {
     try {
         options = parseCompileArgs(argv);
     } catch (error) {
-        console.error(`moderanger: ${error instanceof Error ? error.message : String(error)}`);
+        console.error(`carmen: ${error instanceof Error ? error.message : String(error)}`);
         console.error(compileUsage());
         process.exitCode = 2;
         return;
@@ -214,20 +210,20 @@ async function runCompile(argv: string[]): Promise<void> {
         return;
     }
     if (!options.input) {
-        console.error('moderanger: missing input .mr file');
+        console.error('carmen: missing input .mr file');
         console.error(compileUsage());
         process.exitCode = 2;
         return;
     }
     if (!Number.isInteger(options.ppq) || options.ppq < 24) {
-        console.error('moderanger: --ppq must be an integer >= 24');
+        console.error('carmen: --ppq must be an integer >= 24');
         process.exitCode = 2;
         return;
     }
 
     const output = options.output || defaultOutput(options.input, options.json);
     if (!output) {
-        console.error('moderanger: stdin input requires -o/--output');
+        console.error('carmen: stdin input requires -o/--output');
         process.exitCode = 2;
         return;
     }
@@ -259,7 +255,7 @@ function runCheck(argv: string[]): void {
     try {
         options = parseCheckArgs(argv);
     } catch (error) {
-        console.error(`moderanger: ${error instanceof Error ? error.message : String(error)}`);
+        console.error(`carmen: ${error instanceof Error ? error.message : String(error)}`);
         console.error(checkUsage());
         process.exitCode = 2;
         return;
@@ -271,7 +267,7 @@ function runCheck(argv: string[]): void {
     }
     const input = options.input;
     if (!input) {
-        console.error('moderanger: missing input .mr file');
+        console.error('carmen: missing input .mr file');
         console.error(checkUsage());
         process.exitCode = 2;
         return;
@@ -298,25 +294,14 @@ function runCheck(argv: string[]): void {
 
 async function main(): Promise<void> {
     const argv = process.argv.slice(2);
-    const invokedAs = path.basename(process.argv[1] ?? '');
     const command = argv[0];
-
-    // Alias del binario antiguo: `moderanger-mid cancion.mr`.
-    if (invokedAs === 'moderanger-mid') {
-        if (argv[0] === 'version' || argv[0] === '-v' || argv[0] === '--version') {
-            stdout(`moderanger ${VERSION}`);
-            return;
-        }
-        await runCompile(argv);
-        return;
-    }
 
     if (!command || command === 'help' || command === '-h' || command === '--help') {
         stdout(globalUsage());
         return;
     }
     if (command === 'version' || command === '-v' || command === '--version') {
-        stdout(`moderanger ${VERSION}`);
+        stdout(`carmen ${VERSION}`);
         return;
     }
     if (command === 'compile') {
@@ -328,18 +313,18 @@ async function main(): Promise<void> {
         return;
     }
 
-    // Compatibilidad: `moderanger cancion.mr` equivale a compile.
+    // Compatibilidad: `carmen cancion.mr` equivale a compile.
     if (command === '-' || command.endsWith('.mr') || command.startsWith('-')) {
         await runCompile(argv);
         return;
     }
 
-    console.error(`moderanger: unknown command '${command}'`);
+    console.error(`carmen: unknown command '${command}'`);
     console.error(globalUsage());
     process.exitCode = 2;
 }
 
 main().catch(error => {
-    console.error(`moderanger: ${error instanceof Error ? error.message : String(error)}`);
+    console.error(`carmen: ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 1;
 });

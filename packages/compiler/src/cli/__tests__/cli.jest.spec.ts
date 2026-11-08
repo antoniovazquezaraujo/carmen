@@ -40,7 +40,7 @@ const writeSong = (file: string): void => {
     ].join('\n'));
 };
 
-describe('CLI moderanger', () => {
+describe('CLI carmen', () => {
     let dir: string;
 
     beforeAll(() => {
@@ -52,7 +52,7 @@ describe('CLI moderanger', () => {
     });
 
     beforeEach(() => {
-        dir = fs.mkdtempSync(path.join(os.tmpdir(), 'moderanger-cli-'));
+        dir = fs.mkdtempSync(path.join(os.tmpdir(), 'carmen-cli-'));
     });
 
     afterEach(() => {
@@ -153,7 +153,7 @@ describe('CLI moderanger', () => {
         const result = runCli(['version']);
 
         expect(result.status).toBe(0);
-        expect(result.stdout.trim()).toMatch(/^moderanger \d+\.\d+\.\d+/);
+        expect(result.stdout.trim()).toMatch(/^carmen \d+\.\d+\.\d+/);
     });
 
     it('muestra la ayuda global', () => {
@@ -163,36 +163,6 @@ describe('CLI moderanger', () => {
         expect(result.stdout).toContain('compile <song.mr>');
         expect(result.stdout).toContain('check <song.mr>');
         expect(result.stdout).toContain('version');
-    });
-
-    it('mantiene moderanger-mid como alias de compile', () => {
-        const input = path.join(dir, 'cancion.mr');
-        const output = path.join(dir, 'legacy.mid');
-        const alias = path.resolve(__dirname, '../../../dist/cli/legacy.js');
-        writeSong(input);
-
-        const result = spawnSync(process.execPath, [alias, input, '-o', output, '--quiet'], {
-            cwd: root,
-            encoding: 'utf8',
-            timeout: 120000
-        });
-
-        expect(result.status).toBe(0);
-        const midi = fs.readFileSync(output);
-        expect(midi.subarray(0, 4).toString('ascii')).toBe('MThd');
-    });
-
-    it('mantiene --version en el alias moderanger-mid', () => {
-        const alias = path.resolve(__dirname, '../../../dist/cli/legacy.js');
-
-        const result = spawnSync(process.execPath, [alias, '--version'], {
-            cwd: root,
-            encoding: 'utf8',
-            timeout: 120000
-        });
-
-        expect(result.status).toBe(0);
-        expect(result.stdout.trim()).toMatch(/^moderanger \d+\.\d+\.\d+/);
     });
 
     it('rechaza un comando desconocido', () => {

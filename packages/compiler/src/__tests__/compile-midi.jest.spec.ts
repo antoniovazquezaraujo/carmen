@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { VariableContext } from '@moderanger/core';
+import { VariableContext } from 'carmen-core';
 import { compileSongText } from '../compile-midi';
 import { CompiledSong } from '../types';
 

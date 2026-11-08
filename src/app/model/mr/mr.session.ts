@@ -1,1 +1,1 @@
-export * from '@moderanger/core/mr/mr.session';
+export * from 'carmen-core/mr/mr.session';

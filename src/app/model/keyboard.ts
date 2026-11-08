@@ -1,1 +1,1 @@
-export * from '@moderanger/core/keyboard';
+export * from 'carmen-core/keyboard';

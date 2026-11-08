@@ -112,7 +112,7 @@
 
 - [ ] **9.1.** Abre un `.mr` con el plugin opt-in:
   ```sh
-  nvim --clean --cmd 'set runtimepath+=/ruta/a/moderanger/editors/nvim' /tmp/opencode/validacion-v1/validacion-v1.mr
+  nvim --clean --cmd 'set runtimepath+=/ruta/a/carmen/editors/nvim' /tmp/opencode/validacion-v1/validacion-v1.mr
   ```
 - [ ] **9.2.** `:set filetype?` → `filetype=mr`; `:set shiftwidth?` → `shiftwidth=2`; `:set expandtab?` → `expandtab`; `:set commentstring?` → `commentstring=# %s`.
 - [ ] **9.3.** `:syntax list mrCommand` (y `mrSection`, `mrVariable`, `mrDuration`, `mrEnum`) listan grupos de resaltado.
