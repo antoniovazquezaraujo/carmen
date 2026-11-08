@@ -16,9 +16,10 @@
 | 5 | **Percusión (MVP: kit por grados)** | `instrument DRUMS` con mapa grado → pieza (bombo, caja, charles, toms, crash…), sintetizado con Tone y sin samples. Decidir si `PLAYMODE`/`PATTERN` aplican o se ignoran. | M | Medio | Conversación 2026-10-05 |
 | 6 | **Mezcla por parte** | Volumen, paneo y envolventes (ADSR) por parte. Prácticamente imprescindible si entra la percusión. | S | Bajo | Conversación 2026-10-05 |
 | 7 | **Mejoras UX de content libraries** | Navegación de usos en ambos sentidos (chip `×N` → bloques), buscador/filtro, duplicar-y-reasignar desde un bloque, importar/exportar entradas y audición individual. | S/M | Bajo | Conversación 2026-11-08 |
-| 8 | **Repeticiones con primera/última pasada** | Añadir semántica de primera vez / última vez en las repeticiones de canción o bloque. | S | Bajo | [#8](https://github.com/antoniovazquezaraujo/moderanger/issues/8) |
-| 9 | **Paridad de repeticiones de canción** | `main` recicla la secuencia extraída en las repeticiones; una rama archivada la reprocesaba. Ajuste pequeño si el producto lo pide. | S | Bajo | `docs/developer/audits/ramas-pendientes-vs-main.md` |
-| 10 | **Follow-ups de dependencias** | Reevaluar los overrides de `package-lock.json` y los avisos de Angular al migrar a Angular 22; no deben quedarse como deuda permanente. | S | Bajo | `npm-audit-2026-11.md` §6 |
+| 8 | **Edición visual de intensidad** | Lane/controles para velocity por nota, rampas y patrones sin editar `.mr`; hoy el perfil se configura en los ajustes del preset y `@` se escribe en el texto. | S/M | Bajo | Conversación 2026-11-08 |
+| 9 | **Repeticiones con primera/última pasada** | Añadir semántica de primera vez / última vez en las repeticiones de canción o bloque. | S | Bajo | [#8](https://github.com/antoniovazquezaraujo/moderanger/issues/8) |
+| 10 | **Paridad de repeticiones de canción** | `main` recicla la secuencia extraída en las repeticiones; una rama archivada la reprocesaba. Ajuste pequeño si el producto lo pide. | S | Bajo | `docs/developer/audits/ramas-pendientes-vs-main.md` |
+| 11 | **Follow-ups de dependencias** | Reevaluar los overrides de `package-lock.json` y los avisos de Angular al migrar a Angular 22; no deben quedarse como deuda permanente. | S | Bajo | `npm-audit-2026-11.md` §6 |
 
 ## Aparcado
 
@@ -32,6 +33,7 @@
 - **v1.0.0** (2026-11-08): primera release pública, ZIP web adjunto y workflow de release corregido; la protección de `main` exige ya el check de Node 22.
 - **Content libraries / `.mr` v2** (#142, ADR-004): `melodies`, `presets` y `procedures` reutilizables; bloques estructurales que referencian como máximo una entrada de cada tipo. Los PRs #139 y #140 (referencias anidadas con `use`) se cerraron por quedar sustituidos.
 - **Duraciones de compás** (2026-11-08): `1m`, `2m`… funcionan en SINGLE, CHORD, arpegios, grupos y compilador MIDI (compás = 4 pulsos, 4/4); la rueda y los selectores incluyen `2m` y `4m`.
+- **Intensidad** (2026-11-08): velocity `@` por nota/grupo, `VELOCITY` base, `VELOCITY_PATTERN` cíclico y `VELOCITY_RAMP` por rango; reproducción y MIDI la transportan. El editor conserva y muestra la velocity.
 - **`PATTERN_GAP` eliminado** (2026-11-08): era un no-op deprecado; fuera del lenguaje, parser/serializador, player, GUI, corpus y documentación. Un `.mr` antiguo con él falla con un error de migración hacia `DECORATION`.
 - **Limpieza de código** (2026-11-08): eliminado el código v2 sin cablear (editor de melodía, reproductor/audio y servicios huérfanos, ~5.200 LOC) y cerrado el spike ANTLR #131. Se conservan `global-state`, `note-generation-unified`, `error-handler` y la API `@moderanger/core/music-element-utils`.
 - **Limpieza de ramas** (2026-11-08): 16 worktrees de ramas mergeadas o cerradas eliminados; ramas locales/remotas antiguas limpiadas.

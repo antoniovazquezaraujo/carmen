@@ -2,6 +2,12 @@ export interface NoteData {
     id?: string;
     type?: 'note' | 'rest' | 'arpeggio' | 'chord' | 'silence' | 'group';
     duration?: string;
+    /**
+     * Velocidad MIDI 1–127 de esta nota (o del evento, para acordes/grupos).
+     * `undefined` = la decide el perfil del preset (VELOCITY/PATTERN/RAMP) o
+     * el fallback de reproducción (90). No se serializa como metadato interno.
+     */
+    velocity?: number;
     note?: number | undefined;
     /**
      * Referencia sin resolver a una variable de notas (p. ej. `motif` para
@@ -36,6 +42,7 @@ export class NoteData implements NoteData {
     id?: string;
     type?: 'note' | 'rest' | 'arpeggio' | 'chord' | 'silence' | 'group';
     duration?: string;
+    velocity?: number;
     note?: number | undefined;
     variable?: string;
     sourcePath?: number[];
@@ -52,6 +59,7 @@ export class NoteData implements NoteData {
     
     toString(): string {
         let durationPrefix = '';
+        const velocitySuffix = this.velocity !== undefined ? `@${this.velocity}` : '';
         // Añadir prefijo de duración SOLO si existe
         if (this.duration) {
             durationPrefix = `${this.duration}:`;
@@ -64,25 +72,25 @@ export class NoteData implements NoteData {
                 // Una referencia a variable se imprime tal cual (`$nombre`),
                 // con o sin duración, para conservarla en el editor.
                 if (this.variable !== undefined) {
-                    return `${durationPrefix}$${this.variable}`;
+                    return `${durationPrefix}$${this.variable}${velocitySuffix}`;
                 }
                 // Usar el prefijo (puede ser vacío si no había duración)
-                return `${durationPrefix}${this.note ?? 's'}`;
+                return `${durationPrefix}${this.note ?? 's'}${velocitySuffix}`;
             
             case 'arpeggio': 
                 const arpeggioNotes = this.noteDatas?.map(note => note.toString()).join(' ') ?? '';
                 // Usar el prefijo (el grupo siempre debería tener duración?)
-                return `${durationPrefix}[${arpeggioNotes}]`; 
+                return `${durationPrefix}[${arpeggioNotes}]${velocitySuffix}`; 
             
             case 'chord': 
                  const chordNotes = this.noteDatas?.map(note => note.toString()).join(' ') ?? '';
                  // Usar el prefijo
-                 return `${durationPrefix}{${chordNotes}}`; 
+                 return `${durationPrefix}{${chordNotes}}${velocitySuffix}`; 
             
             case 'group': 
                 const groupNotes = this.children?.map(note => note.toString()).join(' ') ?? '';
                 // Canoniza con espacios como el DSL: `4n:( 0 2 )`; vacío: `()`.
-                return groupNotes === '' ? `${durationPrefix}()` : `${durationPrefix}( ${groupNotes} )`; 
+                return groupNotes === '' ? `${durationPrefix}()${velocitySuffix}` : `${durationPrefix}( ${groupNotes} )${velocitySuffix}`; 
             
             default:
                 console.warn(`NoteData.toString: Unknown type ${this.type}`);

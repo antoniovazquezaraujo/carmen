@@ -25,6 +25,7 @@ export * from './play.state';
 export * from './scale';
 export * from './song';
 export * from './variable.context';
+export * from './velocity';
 export * from './mr';
 export * from './services/note-generation.service';
 export * from './services/note-generation-unified.service';

@@ -7,6 +7,7 @@ import { InstrumentType } from '../../../services/audio-engine.service';
 import { VariableContext } from '../../variable.context';
 import { MrParseError } from '../mr.errors';
 import { parseSong } from '../mr.parser';
+import { serializeSong } from '../mr.serializer';
 
 /** Primer bloque de la primera parte del texto `.mr` dado. */
 function firstBlockOfSong(text: string): Block {
@@ -395,5 +396,40 @@ part P
     expect(expectParseError('blocks\n  block R\n').message).toContain("la sección 'blocks' ya no existe");
     expect(expectParseError('part P\n  use R\n').message).toContain("'use' ya no existe");
     expect(expectParseError('part P\n  block B\n    use R\n').message).toContain("'use' ya no existe");
+  });
+});
+
+describe('parseSong: intensidad y perfil de velocidad', () => {
+  it('parsea VELOCITY, VELOCITY_PATTERN y VELOCITY_RAMP y los serializa', () => {
+    const document = parseSong(`song "X"
+version 2
+
+presets
+  preset P
+    VELOCITY 20
+    VELOCITY_PATTERN 20 10 5
+    VELOCITY_RAMP 4 11 20 60
+`);
+
+    const settings = document.song.presets[0].settings;
+    expect(settings.map(setting => setting.type)).toEqual([
+      CommandType.VELOCITY,
+      CommandType.VELOCITY_PATTERN,
+      CommandType.VELOCITY_RAMP
+    ]);
+    expect(settings.map(setting => setting.value)).toEqual([20, '20 10 5', '4 11 20 60']);
+
+    const text = serializeSong(document);
+    expect(text).toContain('VELOCITY 20');
+    expect(text).toContain('VELOCITY_PATTERN 20 10 5');
+    expect(text).toContain('VELOCITY_RAMP 4 11 20 60');
+  });
+
+  it('rechaza velocidades y rampas inválidas', () => {
+    expect(expectParseError('presets\n  preset P\n    VELOCITY 0\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    VELOCITY 128\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    VELOCITY_PATTERN 20 0 5\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    VELOCITY_RAMP 4 11 20\n').message).toContain('4 enteros');
+    expect(expectParseError('presets\n  preset P\n    VELOCITY_RAMP 11 4 20 60\n').message).toContain('no puede ser mayor');
   });
 });

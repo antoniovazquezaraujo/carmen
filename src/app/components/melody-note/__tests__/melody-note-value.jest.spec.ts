@@ -65,6 +65,13 @@ describe('MelodyNoteComponent · valor mostrado', () => {
     expect(component.valueText).toBe('$motif');
     expect(component.valueTitle).toBe('Referencia a la variable $motif');
   });
+
+  it('incluye la velocity en el tooltip cuando existe', () => {
+    const component = componentFor(4);
+    component.note.velocity = 34;
+
+    expect(component.valueTitle).toBe('Velocity 34');
+  });
 });
 
 const wheelEvent = (deltaY: number, shiftKey = false): WheelEvent =>

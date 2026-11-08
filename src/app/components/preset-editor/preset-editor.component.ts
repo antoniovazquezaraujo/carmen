@@ -165,15 +165,15 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         event.stopPropagation();
 
         if (command.isVariable) {
-            const resolvedString =
-                command.type === CommandType.PATTERN || command.type === CommandType.DECORATION
-                    ? String(command.value ?? '')
-                    : '';
+            const isStringValue =
+                command.type === CommandType.PATTERN ||
+                command.type === CommandType.DECORATION ||
+                command.type === CommandType.VELOCITY_PATTERN ||
+                command.type === CommandType.VELOCITY_RAMP;
+            const resolvedString = isStringValue ? String(command.value ?? '') : '';
             command.isVariable = false;
             command.setValue(
-                command.type === CommandType.PATTERN || command.type === CommandType.DECORATION
-                    ? resolvedString
-                    : this.getDefaultValueForCommandType(command.type)
+                isStringValue ? resolvedString : this.getDefaultValueForCommandType(command.type)
             );
         } else {
             this.updateAvailableVariables();
@@ -247,7 +247,12 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
             return;
         }
-        if (command.type === CommandType.PATTERN || command.type === CommandType.DECORATION) {
+        if (
+            command.type === CommandType.PATTERN ||
+            command.type === CommandType.DECORATION ||
+            command.type === CommandType.VELOCITY_PATTERN ||
+            command.type === CommandType.VELOCITY_RAMP
+        ) {
             command.isVariable = false;
         }
         command.setValue(this.getDefaultValueForCommandType(command.type));

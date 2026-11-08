@@ -9,6 +9,7 @@ All notable changes to **Mode Ranger**. Format based on
 ### Added
 
 - **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/moderanger/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
+- **Velocity and dynamics**: melody notes accept `@1–127` (also on groups), and presets accept `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP`. Playback and the MIDI compiler carry the velocity; the profile counts generated notes in playback order, and an explicit `@` wins over ramp/pattern. The melody editor shows and preserves velocities.
 
 ### Changed
 

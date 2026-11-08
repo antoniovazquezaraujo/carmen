@@ -9,6 +9,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { OctavedGrade } from "./octaved-grade";
 import { NoteGenerationUnifiedService } from "./services/note-generation-unified.service";
 import { DecorationItem } from "./mr/decoration.parser";
+import { DEFAULT_VELOCITY, VelocityRamp } from "./velocity";
 
 // Define missing constants (assuming default values, adjust if needed)
 const DEFAULT_BPM = 120;
@@ -36,6 +37,12 @@ export class Player {
     shiftStart = 0;
     shiftSize = 0;
     shiftValue = 0;
+    /** Velocity base del preset (1–127). */
+    velocity: number = DEFAULT_VELOCITY;
+    /** Patrón cíclico de velocities; `null` = sin patrón. */
+    velocityPattern: number[] | null = null;
+    /** Rampa de velocities sobre notas generadas; `null` = sin rampa. */
+    velocityRamp: VelocityRamp | null = null;
     playMode: PlayMode = PlayMode.CHORD;
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;

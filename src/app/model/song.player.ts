@@ -14,6 +14,7 @@ import { VariableContext, VariableValue } from './variable.context';
 import { BaseOperation, VaryOperation, AssignOperation } from './operation';
 import { Command } from './command';
 import { NoteDuration } from './melody';
+import { clampVelocity, DEFAULT_VELOCITY } from './velocity';
 import { GlobalStateService } from '../shared/services/global-state.service';
 
 type InstrumentId = string;
@@ -757,6 +758,11 @@ export class SongPlayer {
          }
     }
     
+    /** MIDI 1–127 → rango 0–1 que espera Tone.js. */
+    private velocityToUnit(velocity?: number): number {
+        return clampVelocity(velocity ?? DEFAULT_VELOCITY) / 127;
+    }
+
     private _playNoteData(partSoundInfo: PartSoundInfo, time: number): void {
         // No need for this check if _playTurn ensures index is valid
         // if (partSoundInfo.noteDataIndex >= partSoundInfo.noteDatas.length) return;
@@ -771,7 +777,13 @@ export class SongPlayer {
                 case 'note':
                     if (noteData.note !== undefined) {
                         this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
-                        this.audioEngine.triggerAttackRelease(instrumentId, this.audioEngine.midiToFrequency(noteData.note), durationToUse, time);
+                        this.audioEngine.triggerAttackRelease(
+                            instrumentId,
+                            this.audioEngine.midiToFrequency(noteData.note),
+                            durationToUse,
+                            time,
+                            this.velocityToUnit(noteData.velocity)
+                        );
                     }
                     break;
                 case 'chord':
@@ -779,7 +791,25 @@ export class SongPlayer {
                          const notesToPlay = this.noteDatasToNotes(noteData.noteDatas);
                          if (notesToPlay.length > 0) {
                               this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
-                              this.audioEngine.triggerAttackRelease(instrumentId, notesToPlay.map(n => this.audioEngine.midiToFrequency(n)), durationToUse, time);
+                              const freqs = notesToPlay.map(n => this.audioEngine.midiToFrequency(n));
+                              const velocities = noteData.noteDatas
+                                  .filter(child => child.note !== undefined)
+                                  .map(child => this.velocityToUnit(child.velocity ?? noteData.velocity));
+                              const firstVelocity = velocities[0] ?? this.velocityToUnit(noteData.velocity);
+                              const sameVelocity = velocities.every(value => value === firstVelocity);
+                              if (sameVelocity) {
+                                  this.audioEngine.triggerAttackRelease(instrumentId, freqs, durationToUse, time, firstVelocity);
+                              } else {
+                                  freqs.forEach((freq, index) => {
+                                      this.audioEngine.triggerAttackRelease(
+                                          instrumentId,
+                                          freq,
+                                          durationToUse,
+                                          time,
+                                          velocities[index] ?? firstVelocity
+                                      );
+                                  });
+                              }
                          }
                     }
                     break;
@@ -789,6 +819,9 @@ export class SongPlayer {
                          if (notesToPlay.length > 0) {
                               this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
                               const freqs = notesToPlay.map(n => this.audioEngine.midiToFrequency(n));
+                              const velocities = noteData.noteDatas
+                                  .filter(child => child.note !== undefined)
+                                  .map(child => child.velocity ?? noteData.velocity);
                               const totalDurationSeconds = this.audioEngine.timeToSeconds(durationToUse);
                               const singleNoteDurationSeconds = freqs.length > 0 ? totalDurationSeconds / freqs.length : totalDurationSeconds;
                               const singleNoteToneDuration = `${singleNoteDurationSeconds}s`;
@@ -798,7 +831,13 @@ export class SongPlayer {
                                   // Ensure note start time isn't in the past relative to Tone.Transport
                                   const transportNowSeconds = this.audioEngine.timeToSeconds(this.audioEngine.getTransportTime()); 
                                   const actualStartTime = Math.max(noteStartTime, transportNowSeconds);
-                                  this.audioEngine.triggerAttackRelease(instrumentId, freq, singleNoteToneDuration, actualStartTime);
+                                  this.audioEngine.triggerAttackRelease(
+                                      instrumentId,
+                                      freq,
+                                      singleNoteToneDuration,
+                                      actualStartTime,
+                                      this.velocityToUnit(velocities[index])
+                                  );
                               });
                          }
                      }

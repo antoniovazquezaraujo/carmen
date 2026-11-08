@@ -18,6 +18,8 @@ export interface BaseElement {
     time?: number; // Time in seconds relative to the start of the transport
     ticks?: number; // Time in ticks relative to the start of the transport
     duration?: NoteDuration; // Make duration optional
+    /** Velocidad MIDI 1–127; `undefined` = la decide el perfil del preset. */
+    velocity?: number;
 }
 
 // Nota simple
@@ -109,12 +111,14 @@ export class NoteConverter {
                 return new NoteData({
                     type: 'note',
                     duration: element.duration,
+                    velocity: element.velocity,
                     variable: element.variableName
                 });
             }
             return new NoteData({
                 type: element.type,
                 duration: element.duration,
+                velocity: element.velocity,
                 note: element.value ?? undefined
             });
         } else if (element.type === 'group') { // Manejar GenericGroup
@@ -122,6 +126,7 @@ export class NoteConverter {
             return new NoteData({
                 type: 'group',
                 duration: group.duration,
+                velocity: group.velocity,
                 children: group.children.map(child => this.toNoteData(child, defaultDuration))
             });
         } else { // Manejar CompositeNote (arpegio/acorde)
@@ -129,6 +134,7 @@ export class NoteConverter {
             return new NoteData({
                 type: group.type,
                 duration: group.duration ?? defaultDuration,
+                velocity: group.velocity,
                 noteDatas: group.notes.map(note => this.toNoteData(note, defaultDuration))
             });
         }
@@ -147,6 +153,9 @@ export class NoteConverter {
             if (noteData.duration !== undefined) {
                 note.duration = noteData.duration as NoteDuration;
             }
+            if (noteData.velocity !== undefined) {
+                note.velocity = noteData.velocity;
+            }
             if (noteData.variable !== undefined) {
                 // El token es un evento de nota (`$var`), no un silencio.
                 note.type = 'note';
@@ -155,16 +164,24 @@ export class NoteConverter {
             }
             return note;
         } else if (noteData.type === 'group') { // Manejar nuestro tipo 'group'
-            return NoteFactory.createGenericGroup(
+            const group = NoteFactory.createGenericGroup(
                 noteData.children?.map(child => this.fromNoteData(child)) ?? [],
                 noteData.duration as NoteDuration
             );
+            if (noteData.velocity !== undefined) {
+                group.velocity = noteData.velocity;
+            }
+            return group;
         } else { // Asumir CompositeNote (arpegio/acorde)
-            return NoteFactory.createCompositeNote(
+            const composite = NoteFactory.createCompositeNote(
                 noteData.type as 'arpeggio' | 'chord',
                 noteData.noteDatas?.map(note => this.fromNoteData(note) as SingleNote) ?? [], // Asumir SingleNote dentro?
                 noteData.duration as NoteDuration
             );
+            if (noteData.velocity !== undefined) {
+                composite.velocity = noteData.velocity;
+            }
+            return composite;
         }
     }
 } 

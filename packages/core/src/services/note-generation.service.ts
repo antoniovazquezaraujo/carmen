@@ -12,6 +12,7 @@ import { parseBlockNotes, parseBlockNotesForEditor } from '../mr/notes.parser';
 import { MrParseError } from '../mr/mr.errors';
 import { DEFAULT_DECORATION_DURATION, DecorationItem } from '../mr/decoration.parser';
 import { durationToSeconds } from '../duration';
+import { clampVelocity, DEFAULT_VELOCITY, velocityAtRampPosition } from '../velocity';
 // Import unified note generation service
 import { 
   NoteGenerationUnifiedService, 
@@ -142,6 +143,7 @@ export class NoteGenerationService {
         finalPlayableNotes.push(...this.processSingleNoteData(noteData, player, fallbackDuration));
     }
     
+    this.applyVelocityProfile(finalPlayableNotes, player);
     // <<< Add log before final return >>>
     console.log(`[NoteGenSvc] === generateNotesForMelody RETURNING === Count: ${finalPlayableNotes.length}, Content: ${JSON.stringify(finalPlayableNotes)}`);
     console.log(`[NoteGenSvc] === generateNotesForMelody END ===`);
@@ -155,10 +157,10 @@ export class NoteGenerationService {
    * restante) y escala sus duraciones al tiempo de la nota original.
    * Sin patrón devuelve el propio grado.
    */
-  private expandNoteWithPattern(baseGrade: number, duration: string, player: Player): NoteData[] {
+  private expandNoteWithPattern(baseGrade: number, duration: string, player: Player, sourceVelocity?: number): NoteData[] {
       const pattern = player.currentPattern;
       if (!pattern || pattern.length === 0) {
-          return [new NoteData({ type: 'note', note: baseGrade, duration })];
+          return [new NoteData({ type: 'note', note: baseGrade, duration, velocity: sourceVelocity })];
       }
       const scaleName = ScaleTypes[player.scale];
       const currentScale = Scale.getScaleByName(scaleName);
@@ -178,6 +180,9 @@ export class NoteGenerationService {
           const scaled = JSON.parse(JSON.stringify(item)) as NoteData;
           const itemSeconds = durationToSeconds(item.duration ?? '16n');
           scaled.duration = `${itemSeconds * scaleFactor}s`;
+          if (scaled.velocity === undefined && sourceVelocity !== undefined) {
+              scaled.velocity = sourceVelocity;
+          }
           return scaled;
       });
   }
@@ -198,7 +203,7 @@ export class NoteGenerationService {
       const result: NoteData[] = [];
       for (const item of items) {
           if (item.type === 'group') {
-              result.push(...this.flattenPatternGroup(item, baseGrade));
+              result.push(...this.flattenPatternGroup(item, baseGrade, item.velocity));
           } else {
               const clone = JSON.parse(JSON.stringify(item)) as NoteData;
               if (clone.type === 'note' && clone.note !== undefined) {
@@ -210,7 +215,8 @@ export class NoteGenerationService {
       return result;
   }
 
-  private flattenPatternGroup(group: NoteData, baseGrade: number): NoteData[] {
+  private flattenPatternGroup(group: NoteData, baseGrade: number, inheritedVelocity?: number): NoteData[] {
+      const groupVelocity = group.velocity ?? inheritedVelocity;
       const groupSeconds = durationToSeconds(group.duration ?? '16n');
       const children = group.children ?? [];
       const explicitChildren = children.filter(child => this.hasExplicitDuration(child));
@@ -236,11 +242,11 @@ export class NoteGenerationService {
       const result: NoteData[] = [];
       for (const child of children) {
           if (child.type === 'group') {
-              result.push(...this.flattenPatternGroup(child, baseGrade));
+              result.push(...this.flattenPatternGroup(child, baseGrade, groupVelocity));
           } else if (this.hasExplicitDuration(child)) {
-              result.push(this.clonePatternLeaf(child, baseGrade, this.itemDurationSeconds(child)));
+              result.push(this.clonePatternLeaf(child, baseGrade, this.itemDurationSeconds(child), groupVelocity));
           } else {
-              result.push(this.clonePatternLeaf(child, baseGrade, shareSeconds));
+              result.push(this.clonePatternLeaf(child, baseGrade, shareSeconds, groupVelocity));
           }
       }
       if (implicitChildren.length === 0 && groupSeconds - explicitSeconds > 1e-9) {
@@ -250,12 +256,15 @@ export class NoteGenerationService {
       return result;
   }
 
-  private clonePatternLeaf(child: NoteData, baseGrade: number, seconds: number): NoteData {
+  private clonePatternLeaf(child: NoteData, baseGrade: number, seconds: number, velocity?: number): NoteData {
       const clone = JSON.parse(JSON.stringify(child)) as NoteData;
       if (clone.type === 'note' && clone.note !== undefined) {
           clone.note = baseGrade + clone.note;
       }
       clone.duration = `${seconds}s`;
+      if (clone.velocity === undefined && velocity !== undefined) {
+          clone.velocity = velocity;
+      }
       return clone;
   }
 
@@ -405,6 +414,69 @@ export class NoteGenerationService {
   }
 
   /**
+   * Aplica una velocity explícita a un evento generado y a sus descendientes.
+   * Los valores ya presentes (p. ej. `@` en un item de PATTERN) se respetan.
+   */
+  private applyVelocityToTree(note: NoteData, velocity?: number): NoteData {
+      if (velocity === undefined) {
+          return note;
+      }
+      if (note.velocity === undefined) {
+          note.velocity = velocity;
+      }
+      if (note.noteDatas) {
+          note.noteDatas.forEach(child => this.applyVelocityToTree(child, velocity));
+      } else if (note.children) {
+          note.children.forEach(child => this.applyVelocityToTree(child, velocity));
+      }
+      return note;
+  }
+
+  /**
+   * Aplica el perfil del preset a las notas generadas que no tengan una
+   * velocity explícita. Precedencia: `@` > rampa > patrón > VELOCITY > 90.
+   * La numeración es 1-based sobre las notas realmente emitidas (las notas de
+   * un acorde/arpegio cuentan una a una; los silencios no).
+   */
+  private applyVelocityProfile(noteDatas: NoteData[], player: Player): void {
+      const notes = this.collectPlayableNotes(noteDatas);
+      const pattern = player.velocityPattern;
+      const ramp = player.velocityRamp;
+      const base = clampVelocity(player.velocity ?? DEFAULT_VELOCITY);
+
+      notes.forEach((note, index) => {
+          if (note.velocity !== undefined) {
+              return;
+          }
+          const position = index + 1;
+          const rampVelocity = ramp ? velocityAtRampPosition(ramp, position) : undefined;
+          if (rampVelocity !== undefined) {
+              note.velocity = rampVelocity;
+          } else if (pattern && pattern.length > 0) {
+              note.velocity = pattern[(position - 1) % pattern.length];
+          } else {
+              note.velocity = base;
+          }
+      });
+  }
+
+  /** Notas realmente emitidas, en orden de reproducción (sin silencios). */
+  private collectPlayableNotes(noteDatas: readonly NoteData[]): NoteData[] {
+      const notes: NoteData[] = [];
+      const visit = (note: NoteData): void => {
+          if (note.type === 'note' && note.note !== undefined) {
+              notes.push(note);
+          } else if ((note.type === 'chord' || note.type === 'arpeggio') && note.noteDatas) {
+              note.noteDatas.forEach(visit);
+          } else if (note.type === 'group' && note.children) {
+              note.children.forEach(visit);
+          }
+      };
+      noteDatas.forEach(visit);
+      return notes;
+  }
+
+  /**
    * Asigna a cada nodo del árbol parseado su ruta de índices dentro del bloque
    * (`[0, 2]` = tercer hijo del primer evento). Es metadato de origen para la
    * UI de resaltado: no viaja al `.mr` ni a la serialización.
@@ -440,9 +512,15 @@ export class NoteGenerationService {
   }
 
   // <<< New method similar to old SongPlayer.processIndividualNoteData >>>
-  private processSingleNoteData(noteData: NoteData, player: Player, fallbackDuration: string = '16n'): NoteData[] {
+  private processSingleNoteData(
+      noteData: NoteData,
+      player: Player,
+      fallbackDuration: string = '16n',
+      fallbackVelocity?: number
+  ): NoteData[] {
       const results: NoteData[] = [];
-      const duration: string = noteData.duration ?? fallbackDuration; 
+      const duration: string = noteData.duration ?? fallbackDuration;
+      const velocity = noteData.velocity ?? fallbackVelocity;
 
       switch (noteData.type) {
           case 'note':
@@ -456,7 +534,7 @@ export class NoteGenerationService {
                   // Cada evento generado hereda el origen (sourcePath) de esta nota.
                   let expanded: NoteData[];
                   try {
-                      expanded = this.expandNoteWithPattern(baseGrade, duration, player);
+                      expanded = this.expandNoteWithPattern(baseGrade, duration, player, velocity);
                   } catch (e) {
                       console.error(`[NoteGenSvc] Patrón inválido: ${e instanceof Error ? e.message : String(e)}`);
                       expanded = [this.createRestData(duration)];
@@ -464,7 +542,10 @@ export class NoteGenerationService {
                   for (const expandedNote of expanded) {
                       results.push(
                           ...this.generatePlayableData(expandedNote, player, duration)
-                              .map(generated => this.stampOrigin(generated, noteData))
+                              .map(generated => this.stampOrigin(
+                                  this.applyVelocityToTree(generated, expandedNote.velocity ?? velocity),
+                                  noteData
+                              ))
                       );
                   }
               } else {
@@ -491,7 +572,7 @@ export class NoteGenerationService {
               // Option 3: Ignore them in PATTERN mode.
               // For now, let's pass them through (Option 1).
               if (noteData.noteDatas) {
-                  results.push(noteData); 
+                  results.push(this.applyVelocityToTree(noteData, velocity)); 
               }
               break;
           case 'group': 
@@ -499,7 +580,7 @@ export class NoteGenerationService {
                if (noteData.children) {
                    const processedChildren: NoteData[] = [];
                    noteData.children.forEach(child => {
-                      processedChildren.push(...this.processSingleNoteData(child, player, fallbackDuration));
+                      processedChildren.push(...this.processSingleNoteData(child, player, fallbackDuration, velocity));
                    });
                    results.push(...processedChildren);
                }
