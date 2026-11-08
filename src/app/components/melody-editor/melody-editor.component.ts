@@ -78,7 +78,7 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
   private lastEmittedNotesString: string | null = null;
   private globalDurationSub!: Subscription;
   expandedGroups = new Set<string>();
-  readonly durations: NoteDuration[] = ['1n', '2n', '4n', '8n', '16n', '4t', '8t'];
+  readonly durations: NoteDuration[] = ['4m', '2m', '1n', '2n', '4n', '8n', '16n', '4t', '8t'];
   private lastWheelTime: number = 0;
   private readonly wheelThrottleDelay: number = 150;
 
@@ -491,7 +491,7 @@ export class MelodyEditorComponent implements OnInit, AfterViewInit, OnDestroy, 
 
   /**
    * Aplica un paso del anillo de duraciones a la nota indicada (o a la
-   * seleccionada). El anillo es único (7 duraciones + estado en blanco) y no
+   * seleccionada). El anillo es único (9 duraciones + estado en blanco) y no
    * reengancha por la duración del grupo ni por el `defaultDuration`: así los
    * dos sentidos recorren siempre los mismos 8 valores.
    */

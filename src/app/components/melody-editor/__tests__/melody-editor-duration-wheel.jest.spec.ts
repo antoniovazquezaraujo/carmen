@@ -1,8 +1,9 @@
 /**
- * Rueda de duración en `MelodyEditorComponent`: anillo único de 8 estados
- * (7 duraciones + blanco). Los dos sentidos recorren los mismos valores, el
- * estado blanco (heredado) sigue siendo alcanzable y siempre se sale de él, y
- * el índice no reengancha por la duración del grupo ni por `defaultDuration`.
+ * Rueda de duración en `MelodyEditorComponent`: anillo único de 10 estados
+ * (9 duraciones, incluidas `4m` y `2m`, + blanco). Los dos sentidos recorren
+ * los mismos valores, el estado blanco (heredado) sigue siendo alcanzable y
+ * siempre se sale de él, y el índice no reengancha por la duración del grupo
+ * ni por `defaultDuration`.
  *
  * Se instancia el componente directamente con un `MelodyEditorService` real
  * (mock local de `@angular/core`, sin TestBed), igual que `melody-editor-vars`.
@@ -103,25 +104,31 @@ describe('MelodyEditorComponent · anillo de duración con la rueda', () => {
         return out;
     };
 
-    it('los dos sentidos recorren los mismos 8 estados (blanco → extremos)', () => {
+    it('los dos sentidos recorren los mismos 10 estados (blanco → extremos)', () => {
         service.loadFromNoteData([new NoteData({ type: 'note', note: 1 })]);
         const id = service.getElements()[0].id;
 
-        const longer = collect(id, 1, 8); // hacia largo desde blanco: entra por 8t
-        expect(longer).toEqual(['8t:1', '4t:1', '16n:1', '8n:1', '4n:1', '2n:1', '1n:1', '1']);
+        const longer = collect(id, 1, 10); // hacia largo desde blanco: entra por 8t
+        expect(longer).toEqual(['8t:1', '4t:1', '16n:1', '8n:1', '4n:1', '2n:1', '1n:1', '2m:1', '4m:1', '1']);
 
-        const shorter = collect(id, -1, 8); // hacia corto desde blanco: entra por 1n
-        expect(shorter).toEqual(['1n:1', '2n:1', '4n:1', '8n:1', '16n:1', '4t:1', '8t:1', '1']);
+        const shorter = collect(id, -1, 10); // hacia corto desde blanco: entra por 4m
+        expect(shorter).toEqual(['4m:1', '2m:1', '1n:1', '2n:1', '4n:1', '8n:1', '16n:1', '4t:1', '8t:1', '1']);
 
-        // Mismos 8 estados en ambos sentidos (7 duraciones + blanco).
-        expect(new Set([...longer, ...shorter]).size).toBe(8);
+        // Mismos 10 estados en ambos sentidos (9 duraciones + blanco).
+        expect(new Set([...longer, ...shorter]).size).toBe(10);
     });
 
     it('desde una duración explícita el anillo es idéntico y pasa por blanco', () => {
         service.loadFromNoteData([new NoteData({ type: 'note', note: 1, duration: '1n' })]);
         const id = service.getElements()[0].id;
 
-        component.changeDuration(id, 1); // 1n → blanco (fin del anillo)
+        component.changeDuration(id, 1); // 1n → 2m
+        expect(lastEmitted()).toBe('2m:1');
+
+        component.changeDuration(id, 1); // 2m → 4m
+        expect(lastEmitted()).toBe('4m:1');
+
+        component.changeDuration(id, 1); // 4m → blanco (fin del anillo)
         expect(lastEmitted()).toBe('1');
 
         component.changeDuration(id, 1); // blanco → 8t
@@ -130,7 +137,13 @@ describe('MelodyEditorComponent · anillo de duración con la rueda', () => {
         component.changeDuration(id, -1); // 8t → blanco
         expect(lastEmitted()).toBe('1');
 
-        component.changeDuration(id, -1); // blanco → 1n
+        component.changeDuration(id, -1); // blanco → 4m
+        expect(lastEmitted()).toBe('4m:1');
+
+        component.changeDuration(id, -1); // 4m → 2m
+        expect(lastEmitted()).toBe('2m:1');
+
+        component.changeDuration(id, -1); // 2m → 1n
         expect(lastEmitted()).toBe('1n:1');
 
         component.changeDuration(id, -1); // 1n → 2n
@@ -149,8 +162,8 @@ describe('MelodyEditorComponent · anillo de duración con la rueda', () => {
         component.changeDuration(childId, -1); // 8t → blanco
         expect(lastEmitted()).toBe('4n:( 0 )');
 
-        component.changeDuration(childId, -1); // blanco + corto → 1n
-        expect(lastEmitted()).toBe('4n:( 1n:0 )');
+        component.changeDuration(childId, -1); // blanco + corto → 4m
+        expect(lastEmitted()).toBe('4n:( 4m:0 )');
     });
 
     it("normaliza una duración desconocida (`''`) como estado en blanco", () => {
@@ -163,8 +176,8 @@ describe('MelodyEditorComponent · anillo de duración con la rueda', () => {
         component.changeDuration(id, -1); // 8t → blanco
         expect(lastEmitted()).toBe('7');
 
-        component.changeDuration(id, -1); // blanco → 1n
-        expect(lastEmitted()).toBe('1n:7');
+        component.changeDuration(id, -1); // blanco → 4m
+        expect(lastEmitted()).toBe('4m:7');
     });
 
     it('30 giros seguidos: cada paso cambia el modelo y el id sigue resolviéndose', () => {
