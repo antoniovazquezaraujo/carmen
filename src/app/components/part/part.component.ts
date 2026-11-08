@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CdkDrag, type CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Button, ButtonDirective } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { Tooltip } from 'primeng/tooltip';
@@ -9,6 +10,7 @@ import { Song } from 'src/app/model/song';
 import { SongPlayer } from 'src/app/model/song.player';
 import type { ContentEditRequest } from '../block-content-links/block-content-links.component';
 import { BlockComponent } from '../block/block.component';
+import { moveBlockBetween, moveBlockWithin } from '../parts/parts-layout';
 
 /**
  * Parte de la canción: nombre, instrumento y una secuencia de bloques
@@ -18,7 +20,7 @@ import { BlockComponent } from '../block/block.component';
     selector: 'app-part',
     templateUrl: './part.component.html',
     styleUrls: ['./part.component.scss'],
-    imports: [Bind, Button, FormsModule, Tooltip, ButtonDirective, BlockComponent]
+    imports: [Bind, Button, CdkDrag, CdkDropList, FormsModule, Tooltip, ButtonDirective, BlockComponent]
 })
 export class PartComponent implements OnInit {
     @Input() part!: Part;
@@ -35,6 +37,8 @@ export class PartComponent implements OnInit {
 
     currentBlock: Block = new Block();
     isExpanded = true;
+    /** Bloque raíz que se está arrastrando, para apagar su tooltip. */
+    draggedRootBlockId: number | null = null;
 
     constructor(private readonly songPlayer: SongPlayer) {
         this.onDuplicatePart = new EventEmitter<Part>();
@@ -60,6 +64,30 @@ export class PartComponent implements OnInit {
         this.part.items.push(block);
         this.currentBlock = block;
         this.addChildEvent.emit({ parentBlock: null, partId: this.part.id });
+    }
+
+    onRootDragStarted(block: Block): void {
+        this.draggedRootBlockId = block.id;
+    }
+
+    onRootDragEnded(): void {
+        this.draggedRootBlockId = null;
+    }
+
+    /** Reordena bloques raíz dentro de esta part o los mueve desde otra. */
+    onBlockDrop(event: CdkDragDrop<Block[]>): void {
+        this.draggedRootBlockId = null;
+        if (event.previousContainer === event.container) {
+            moveBlockWithin(event.container.data, event.previousIndex, event.currentIndex);
+        } else {
+            moveBlockBetween(
+                event.previousContainer.data,
+                event.container.data,
+                event.previousIndex,
+                event.currentIndex
+            );
+        }
+        this.currentBlock = event.container.data[event.currentIndex] ?? this.part.items[0] ?? new Block();
     }
 
     onDuplicateBlock(block: Block): void {

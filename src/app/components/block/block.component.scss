@@ -97,7 +97,8 @@
 }
 
 /* Drag handle: único punto de agarre para mover un bloque */
-.block-drag-handle {
+.block-drag-handle,
+.block-root-drag-handle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -107,15 +108,18 @@
   user-select: none;
 }
 
-.block-drag-handle:hover {
+.block-drag-handle:hover,
+.block-root-drag-handle:hover {
   color: #424242;
 }
 
-.block-drag-handle:active {
+.block-drag-handle:active,
+.block-root-drag-handle:active {
   cursor: grabbing;
 }
 
-.block-drag-handle .pi {
+.block-drag-handle .pi,
+.block-root-drag-handle .pi {
   font-size: 0.75rem;
 }
 

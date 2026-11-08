@@ -18,9 +18,18 @@
     </div>
   </div>
   @if (isExpanded) {
-    <div class="part-content">
+    <div class="part-content"
+      cdkDropList
+      [cdkDropListData]="part.items"
+      (cdkDropListDropped)="onBlockDrop($event)">
       @for (block of blocks; track trackByBlock($index, block)) {
         <app-block
+          cdkDrag
+          [cdkDragData]="block"
+          [rootDraggable]="true"
+          [rootDragging]="draggedRootBlockId === block.id"
+          (cdkDragStarted)="onRootDragStarted(block)"
+          (cdkDragEnded)="onRootDragEnded()"
           [block]="block"
           [song]="song"
           (onDuplicateBlock)="onDuplicateBlock($event)"

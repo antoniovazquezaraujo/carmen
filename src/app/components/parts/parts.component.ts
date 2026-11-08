@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Part } from 'src/app/model/part';
 import { VariableContext } from 'src/app/model/variable.context';
 import { Song } from 'src/app/model/song';
@@ -16,7 +17,7 @@ const AUTO_SCROLL_STEP = 16;
     selector: 'app-parts',
     templateUrl: './parts.component.html',
     styleUrls: ['./parts.component.css'],
-    imports: [PartComponent]
+    imports: [CdkDropListGroup, PartComponent]
 })
 export class PartsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() parts: Part[] = [];

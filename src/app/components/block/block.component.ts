@@ -8,6 +8,7 @@ import {
     Output
 } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
 import { Bind } from 'primeng/bind';
 import { Button } from 'primeng/button';
@@ -46,7 +47,7 @@ interface BlockTreeDropEvent {
     selector: 'app-block',
     templateUrl: './block.component.html',
     styleUrls: ['./block.component.scss'],
-    imports: [Bind, Tree, PrimeTemplate, Tooltip, Button, FormsModule, BlockContentLinksComponent]
+    imports: [Bind, CdkDragHandle, Tree, PrimeTemplate, Tooltip, Button, FormsModule, BlockContentLinksComponent]
 })
 export class BlockComponent implements OnInit, OnDestroy {
     private _block!: Block;
@@ -82,6 +83,12 @@ export class BlockComponent implements OnInit, OnDestroy {
 
     /** Canción dueña de las bibliotecas de contenido. */
     @Input() song!: Song;
+
+    /** `true` en los bloques de primer nivel: los mueve Angular CDK. */
+    @Input() rootDraggable = false;
+
+    /** Estado del arrastre CDK del bloque raíz (para apagar su tooltip). */
+    @Input() rootDragging = false;
 
     @Output() blockChange = new EventEmitter<Block>();
     @Output() delete = new EventEmitter<void>();
@@ -246,9 +253,14 @@ export class BlockComponent implements OnInit, OnDestroy {
         this._block.children.splice(insertAt, 0, moved as Block);
     }
 
-    /** El bloque raíz visible del árbol no se puede mover: no tiene asa. */
+    /** El nodo raíz visible es el propio bloque de esta instancia. */
+    isRootNode(node: BlockTreeNode): boolean {
+        return node === this._block;
+    }
+
+    /** Los hijos se mueven con PrimeNG; el raíz, con Angular CDK. */
     canDrag(node: BlockTreeNode): boolean {
-        return node !== this._block;
+        return !this.isRootNode(node);
     }
 
     toggleNodeExpansion(node: ExpandableNode): void {

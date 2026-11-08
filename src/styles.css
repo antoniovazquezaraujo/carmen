@@ -2421,3 +2421,23 @@ html body app-procedure-editor .operations-row {
   outline: 2px solid rgba(0, 119, 204, 0.55) !important;
   outline-offset: 1px;
 }
+
+/* ====== BLOQUES RAÍZ: DRAG & DROP CON ANGULAR CDK ====== */
+/* El preview se clona en <body>; estos estilos son globales a propósito. */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--mr-surface, #fffdf8);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  opacity: 0.96;
+  cursor: grabbing;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.28;
+}
+
+.cdk-drag-animating,
+.part-content.cdk-drop-list-dragging app-block:not(.cdk-drag-placeholder) {
+  transition: transform 180ms cubic-bezier(0, 0, 0.2, 1);
+}

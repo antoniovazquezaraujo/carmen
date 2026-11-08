@@ -17,7 +17,19 @@ en el cuerpo con `app-block-content-links`.
   <ng-template let-node pTemplate="default">
     <div class="block-content" [class.block-content--playing]="isBlockPlaying(node)">
       <div class="block-header">
-        @if (canDrag(node)) {
+        @if (isRootNode(node) && rootDraggable) {
+          <span
+            class="header-item block-root-drag-handle"
+            cdkDragHandle
+            draggable="false"
+            (dragstart)="$event.preventDefault(); $event.stopPropagation()"
+            pTooltip="Drag to move block"
+            [tooltipDisabled]="rootDragging"
+            tooltipPosition="top"
+            aria-hidden="true">
+            <i class="pi pi-bars"></i>
+          </span>
+        } @else if (canDrag(node)) {
           <span
             class="header-item block-drag-handle"
             pTooltip="Drag to move block"

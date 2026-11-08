@@ -36,7 +36,7 @@ El árbol es un `p-tree` de PrimeNG 13.3.3 (`block.component.html`) con `draggab
 ### `block.component.html`
 
 - Enlaces reales: `(mousedown)`, `(dragstart)`, `(dragend)` (eventos nativos del host) y `(onNodeDrop)` (output real de PrimeNG).
-- Asa visible en el header (`pi pi-bars`, `pTooltip="Drag to move block"`, `aria-hidden`) para todos los nodos excepto el raíz del árbol.
+- Asa visible en el header (`pi pi-bars`, `pTooltip="Drag to move block"`, `aria-hidden`) para todos los nodos excepto el raíz del árbol (histórico; desde 2026-11-08 el raíz tiene asa CDK, ver §7).
 
 ### `block.component.scss`
 
@@ -63,7 +63,7 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 | `B2` → hueco inferior del árbol A (lista raíz sintética) | `A.children = [B1, B2]`, `D.children = []` ✅ |
 | Drop sobre uno mismo | Sin cambios (lo bloquea `allowDrop` de PrimeNG) ✅ |
 | `dragstart` desde un input (sin asa) | Cancelado (`preventDefault`) y modelo intacto ✅ |
-| `dragstart` del raíz visible | Cancelado y sin asa ✅ |
+| `dragstart` del raíz visible | Cancelado y sin asa (histórico; ahora usa CDK, ver §7) ✅ |
 | Consola del navegador durante todo el flujo | **0 errores, 0 warnings** ✅ |
 | `npm test` / `npm run build` | 32 suites / 420 tests ✅ / exit 0 ✅ |
 
@@ -83,7 +83,7 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 ## 4. Decisiones UX y limitaciones
 
 - **Drag solo desde el asa:** el gesto deja de competir con la edición de texto (notas, nombre, repeticiones) y el punto de agarre es inequívoco. El header sigue siendo clicable para todo lo demás.
-- **Raíz sin asa:** un bloque raíz de `part.blocks` no se puede mover entre bloques (su lista de hermanos vive en otra componente); mejor ocultar el asa que duplicar el bloque silenciosamente.
+- **Raíz sin asa (histórico):** en este primer fix, un bloque raíz de `part.items` no se podía mover porque su lista de hermanos vive en otra componente. Desde el 2026-11-08 los raíces tienen un asa CDK y se reordenan/mueven entre parts; ver §7.
 - **Droppoints invisibles en reposo:** se evita llenar el árbol de líneas; el área de 12px sigue siendo cómoda y la línea aparece al apuntar o durante el drag.
 - **Limitación conocida:** PrimeNG 13 no ofrece drag & drop por teclado; este fix no añade una alternativa de teclado (fuera de alcance). Queda como posible mejora futura.
 
@@ -118,3 +118,25 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 - `src/styles.css` (§ `.p-tree`)
 - `src/app/components/block/__tests__/block-dnd.jest.spec.ts`
 - PRs: `fix/block-dnd` → `develop` (#79) y `fix/block-handle-tooltip` → `develop` (#83).
+
+## 7. Drag & drop de bloques raíz (2026-11-08)
+
+**Petición:** los bloques de primer nivel no mostraban asa y no se podían arrastrar.
+
+**Alcance:** asa en cada bloque raíz para **reordenarlo dentro de su part** y **moverlo a otra part**. El drag de bloques hijos de PrimeNG se mantiene para reordenar y anidar dentro de un árbol.
+
+**Implementación:**
+
+- Angular CDK (`@angular/cdk/drag-drop`), ya presente por `@angular/cdk/overlay`.
+- `PartsComponent` envuelve la fila con `cdkDropListGroup`; cada `.part-content` es un `cdkDropList` con `part.items` como datos y `(cdkDropListDropped)="onBlockDrop($event)"`.
+- Cada `<app-block>` raíz lleva `cdkDrag`; el asa usa `cdkDragHandle` y una clase propia (`block-root-drag-handle`) para no activar el drag nativo de PrimeNG de los hijos.
+- `PartComponent.onBlockDrop` delega en `moveBlockWithin`/`moveBlockBetween` (`parts-layout.ts`): misma part → `splice` reordena; otra part → `splice` extrae e inserta en destino.
+- Los bloques raíz muestran el mismo icono `⋮⋮` que los hijos; el tooltip se apaga con `rootDragging` mientras dura el gesto.
+- `cdkDropListGroup` conecta todas las parts; un bloque puede soltarse en una part vacía o entre dos bloques.
+- Estilos globales para `.cdk-drag-preview`, `.cdk-drag-placeholder` y `.cdk-drag-animating`; el preview se clona en `<body>`.
+
+**Verificación:**
+
+- Tests de lógica pura: reordenar, no-op y transferencia entre parts (`parts-layout.jest.spec.ts`).
+- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle` y asa raíz separada (`part-block-dnd.jest.spec.ts`).
+- `npm test` y `npm run build` en verde.

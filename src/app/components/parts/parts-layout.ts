@@ -38,3 +38,23 @@ export function clampBoundary(
         right: Math.round(Math.max(minWidth, right - delta))
     };
 }
+
+/** Mueve un bloque dentro de la misma lista de una part. */
+export function moveBlockWithin<T>(items: T[], previousIndex: number, currentIndex: number): void {
+    if (previousIndex === currentIndex) {
+        return;
+    }
+    const [moved] = items.splice(previousIndex, 1);
+    items.splice(currentIndex, 0, moved);
+}
+
+/** Mueve un bloque de la lista de una part a la de otra. */
+export function moveBlockBetween<T>(
+    source: T[],
+    target: T[],
+    previousIndex: number,
+    currentIndex: number
+): void {
+    const [moved] = source.splice(previousIndex, 1);
+    target.splice(currentIndex, 0, moved);
+}
