@@ -68,7 +68,7 @@ part Piano instrument PIANO
 
 - One event per line inside `notes`; groups fit on their own line.
 - `duration:grade` (`4n:0`), rests `s`, negative grades (`-7`), groups `4n:( 0 2 )`, note variables `8t:$grade`.
-- Velocity with `@`: `4n:0@34` (MIDI 1–127), or on a group `4n:( 0 2 )@40`; children without their own `@` inherit it.
+- Intensity with `@`: `4n:0@34` (MIDI velocity 1–127), or on a group `4n:( 0 2 )@40`; children without their own `@` inherit it.
 - Without an explicit duration an event inherits from its group. In `notes` sections groups **inherit**; inside a `PATTERN` groups **subdivide** (children without a duration split the remaining time).
 
 ## Durations
@@ -95,11 +95,11 @@ part Piano instrument PIANO
 | `INV` | Inversion | `INV 1` |
 | `KEY` | Transposition in semitones | `KEY 0` |
 | `SHIFTSTART`/`SHIFTSIZE`/`SHIFTVALUE` | Shift chord window by whole octaves | `SHIFTSIZE 3` |
-| `VELOCITY` | Default velocity | `VELOCITY 20` |
-| `VELOCITY_PATTERN` | Cyclic velocity pattern | `VELOCITY_PATTERN 20 10 5` |
-| `VELOCITY_RAMP` | Linear ramp over generated notes | `VELOCITY_RAMP 4 11 20 60` |
+| `INTENSITY` | Default intensity (MIDI velocity) | `INTENSITY 20` |
+| `INTENSITY_PATTERN` | Cyclic intensity pattern | `INTENSITY_PATTERN 20 10 5` |
+| `INTENSITY_RAMP` | Linear intensity ramp over generated notes | `INTENSITY_RAMP 4 11 20 60` |
 
-The velocity profile (`VELOCITY`/`VELOCITY_PATTERN`/`VELOCITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
+The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 | `PATTERN` | Pattern melody (or `$variable`) | `PATTERN 4t:0 4t:2` |
 | `DECORATION` | Decoration added to each chord note (offsets in scale degrees) | `DECORATION 4t:0 8t:-2` |
 

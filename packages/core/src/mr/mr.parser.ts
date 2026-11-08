@@ -50,9 +50,9 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
   ['SHIFTSTART', CommandType.SHIFTSTART],
   ['SHIFTSIZE', CommandType.SHIFTSIZE],
   ['SHIFTVALUE', CommandType.SHIFTVALUE],
-  ['VELOCITY', CommandType.VELOCITY],
-  ['VELOCITY_PATTERN', CommandType.VELOCITY_PATTERN],
-  ['VELOCITY_RAMP', CommandType.VELOCITY_RAMP],
+  ['INTENSITY', CommandType.INTENSITY],
+  ['INTENSITY_PATTERN', CommandType.INTENSITY_PATTERN],
+  ['INTENSITY_RAMP', CommandType.INTENSITY_RAMP],
   ['PATTERN', CommandType.PATTERN],
   ['DECORATION', CommandType.DECORATION],
   // Alias de entrada por compatibilidad con la gramática antigua; el
@@ -71,9 +71,9 @@ const COMMAND_NAMES: readonly string[] = [
   'SHIFTSTART',
   'SHIFTSIZE',
   'SHIFTVALUE',
-  'VELOCITY',
-  'VELOCITY_PATTERN',
-  'VELOCITY_RAMP',
+  'INTENSITY',
+  'INTENSITY_PATTERN',
+  'INTENSITY_RAMP',
   'PATTERN',
   'DECORATION'
 ];
@@ -929,31 +929,31 @@ class MrDocumentParser {
       const decoration = canonicalDecoration(rest, { line: line.number, column: restColumn });
       return new Command({ type, value: decoration });
     }
-    if (type === CommandType.VELOCITY_PATTERN) {
+    if (type === CommandType.INTENSITY_PATTERN) {
       const patternWords = splitLineWords(rest, line.number, restColumn - 1);
       if (patternWords.length === 0) {
-        throw errorAt(line, restColumn, `VELOCITY_PATTERN requiere al menos una velocidad (p. ej. VELOCITY_PATTERN 20 10 5)`);
+        throw errorAt(line, restColumn, `INTENSITY_PATTERN requiere al menos una intensidad (p. ej. INTENSITY_PATTERN 20 10 5)`);
       }
       const values = patternWords.map(word => {
         const value = word.quoted ? null : parseCanonicalInteger(word.text);
         if (value === null || !isVelocity(value)) {
-          throw errorAt(line, word.column, `velocidad inválida '${word.text}': usa enteros entre 1 y 127`);
+          throw errorAt(line, word.column, `intensidad inválida '${word.text}': usa enteros entre 1 y 127`);
         }
         return value;
       });
       return new Command({ type, value: values.join(' ') });
     }
-    if (type === CommandType.VELOCITY_RAMP) {
+    if (type === CommandType.INTENSITY_RAMP) {
       const rampWords = splitLineWords(rest, line.number, restColumn - 1);
       if (rampWords.length !== 4) {
-        throw errorAt(line, restColumn, `VELOCITY_RAMP necesita 4 enteros: nota inicial, nota final, velocidad inicial y velocidad final`);
+        throw errorAt(line, restColumn, `INTENSITY_RAMP necesita 4 enteros: nota inicial, nota final, intensidad inicial e intensidad final`);
       }
       const raw = rampWords.map(word => word.text).join(' ');
       try {
         parseVelocityRamp(raw);
       } catch (error) {
         const detail = error instanceof Error ? error.message : String(error);
-        throw errorAt(line, restColumn, `VELOCITY_RAMP no es válida: ${detail}`);
+        throw errorAt(line, restColumn, `INTENSITY_RAMP no es válida: ${detail}`);
       }
       return new Command({ type, value: raw });
     }
@@ -992,8 +992,8 @@ class MrDocumentParser {
     if (value === null) {
       throw errorAt(line, word.column, `${keyword} requiere un entero (recibido '${word.text}') o una variable $válida`);
     }
-    if (type === CommandType.VELOCITY && !isVelocity(value)) {
-      throw errorAt(line, word.column, `VELOCITY debe estar entre 1 y 127 (recibido ${value})`);
+    if (type === CommandType.INTENSITY && !isVelocity(value)) {
+      throw errorAt(line, word.column, `INTENSITY debe estar entre 1 y 127 (recibido ${value})`);
     }
     return new Command({ type, value });
   }

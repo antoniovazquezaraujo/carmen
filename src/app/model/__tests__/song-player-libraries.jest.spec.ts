@@ -156,7 +156,7 @@ describe('SongPlayer · bibliotecas de contenido', () => {
     expect(VariableContext.getValue('x')).toBe(2);
   });
 
-  it('aplica VELOCITY_RAMP a las notas generadas del bloque', async () => {
+  it('aplica INTENSITY_RAMP a las notas generadas del bloque', async () => {
     const stub = createEngineStub();
     const player = new SongPlayer(
       stub.engine,
@@ -170,7 +170,7 @@ describe('SongPlayer · bibliotecas de contenido', () => {
     song.presets = [
       preset('P', [
         new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
-        new Command({ type: CommandType.VELOCITY_RAMP, value: '1 3 20 60' })
+        new Command({ type: CommandType.INTENSITY_RAMP, value: '1 3 20 60' })
       ])
     ];
 
@@ -204,7 +204,7 @@ describe('SongPlayer · bibliotecas de contenido', () => {
     song.melodies = [melodyA, melodyB];
     song.presets = [
       preset('P', [
-        new Command({ type: CommandType.VELOCITY, value: 20 }),
+        new Command({ type: CommandType.INTENSITY, value: 20 }),
         new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' })
       ])
     ];

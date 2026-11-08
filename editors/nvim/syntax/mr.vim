@@ -60,7 +60,7 @@ syn keyword mrInstrument PIANO
 
 " Comandos después de mrEnum/mrScale para que PATTERN mande como comando.
 syn keyword mrCommand OCT SCALE GAP PLAYMODE WIDTH INV INVERSION KEY
-      \ SHIFTSTART SHIFTSIZE SHIFTVALUE VELOCITY VELOCITY_PATTERN VELOCITY_RAMP
+      \ SHIFTSTART SHIFTSIZE SHIFTVALUE INTENSITY INTENSITY_PATTERN INTENSITY_RAMP
       \ PATTERN VARY ASSIGN
 
 syn match   mrVariable "\$[A-Za-z_][A-Za-z0-9_]*"

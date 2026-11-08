@@ -168,8 +168,8 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
             const isStringValue =
                 command.type === CommandType.PATTERN ||
                 command.type === CommandType.DECORATION ||
-                command.type === CommandType.VELOCITY_PATTERN ||
-                command.type === CommandType.VELOCITY_RAMP;
+                command.type === CommandType.INTENSITY_PATTERN ||
+                command.type === CommandType.INTENSITY_RAMP;
             const resolvedString = isStringValue ? String(command.value ?? '') : '';
             command.isVariable = false;
             command.setValue(
@@ -250,8 +250,8 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         if (
             command.type === CommandType.PATTERN ||
             command.type === CommandType.DECORATION ||
-            command.type === CommandType.VELOCITY_PATTERN ||
-            command.type === CommandType.VELOCITY_RAMP
+            command.type === CommandType.INTENSITY_PATTERN ||
+            command.type === CommandType.INTENSITY_RAMP
         ) {
             command.isVariable = false;
         }

@@ -3,8 +3,8 @@ export interface NoteData {
     type?: 'note' | 'rest' | 'arpeggio' | 'chord' | 'silence' | 'group';
     duration?: string;
     /**
-     * Velocidad MIDI 1–127 de esta nota (o del evento, para acordes/grupos).
-     * `undefined` = la decide el perfil del preset (VELOCITY/PATTERN/RAMP) o
+     * Intensidad (velocity MIDI 1–127) de esta nota o evento.
+     * `undefined` = la decide el perfil del preset (INTENSITY/PATTERN/RAMP) o
      * el fallback de reproducción (90). No se serializa como metadato interno.
      */
     velocity?: number;

@@ -18,7 +18,7 @@ export interface VelocityProfile {
 
 /** Comandos que forman el perfil de intensidad local de un preset. */
 export function isVelocityProfileCommand(type: string): boolean {
-    return type === 'VELOCITY' || type === 'VELOCITY_PATTERN' || type === 'VELOCITY_RAMP';
+    return type === 'INTENSITY' || type === 'INTENSITY_PATTERN' || type === 'INTENSITY_RAMP';
 }
 
 export interface VelocityRamp {
@@ -41,19 +41,19 @@ export function isVelocity(value: number): boolean {
     return Number.isInteger(value) && value >= MIN_VELOCITY && value <= MAX_VELOCITY;
 }
 
-/** "20 10 5" -> [20, 10, 5]. Lanza si algún valor no es una velocidad válida. */
+/** "20 10 5" -> [20, 10, 5]. Lanza si algún valor no es una intensidad válida. */
 export function parseVelocityPattern(text: string): number[] {
     const parts = text.trim().split(/\s+/).filter(part => part !== '');
     if (parts.length === 0) {
-        throw new Error('el patrón de velocidades está vacío');
+        throw new Error('el patrón de intensidad está vacío');
     }
     return parts.map(part => {
         if (!/^[1-9][0-9]*$/.test(part)) {
-            throw new Error(`velocidad inválida '${part}': usa enteros entre 1 y 127`);
+            throw new Error(`intensidad inválida '${part}': usa enteros entre 1 y 127`);
         }
         const value = Number(part);
         if (!isVelocity(value)) {
-            throw new Error(`velocidad fuera de rango '${part}': usa enteros entre 1 y 127`);
+            throw new Error(`intensidad fuera de rango '${part}': usa enteros entre 1 y 127`);
         }
         return value;
     });
@@ -67,7 +67,7 @@ export function printVelocityPattern(values: readonly number[]): string {
 export function parseVelocityRamp(text: string): VelocityRamp {
     const parts = text.trim().split(/\s+/).filter(part => part !== '');
     if (parts.length !== 4) {
-        throw new Error('la rampa de velocidades necesita 4 enteros: nota inicial, nota final, velocidad inicial y velocidad final');
+        throw new Error('la rampa de intensidad necesita 4 enteros: nota inicial, nota final, intensidad inicial e intensidad final');
     }
     const [fromText, toText, fromVelocityText, toVelocityText] = parts;
     const parsePositive = (value: string, what: string): number => {
@@ -78,11 +78,11 @@ export function parseVelocityRamp(text: string): VelocityRamp {
     };
     const parseVel = (value: string): number => {
         if (!/^[1-9][0-9]*$/.test(value)) {
-            throw new Error(`velocidad inválida '${value}': usa enteros entre 1 y 127`);
+            throw new Error(`intensidad inválida '${value}': usa enteros entre 1 y 127`);
         }
         const velocity = Number(value);
         if (!isVelocity(velocity)) {
-            throw new Error(`velocidad fuera de rango '${value}': usa enteros entre 1 y 127`);
+            throw new Error(`intensidad fuera de rango '${value}': usa enteros entre 1 y 127`);
         }
         return velocity;
     };
@@ -103,7 +103,7 @@ export function printVelocityRamp(ramp: VelocityRamp): string {
     return [ramp.from, ramp.to, ramp.fromVelocity, ramp.toVelocity].join(' ');
 }
 
-/** Interpola la velocity de la posición `index` (1-based) dentro de la rampa. */
+/** Interpola la intensidad de la posición `index` (1-based) dentro de la rampa. */
 export function velocityAtRampPosition(ramp: VelocityRamp, index: number): number | undefined {
     if (index < ramp.from || index > ramp.to) {
         return undefined;

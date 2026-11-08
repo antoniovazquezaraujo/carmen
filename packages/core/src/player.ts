@@ -37,11 +37,11 @@ export class Player {
     shiftStart = 0;
     shiftSize = 0;
     shiftValue = 0;
-    /** Velocity base del preset (1–127). */
+    /** Intensidad base del preset (velocity MIDI 1–127). */
     velocity: number = DEFAULT_VELOCITY;
-    /** Patrón cíclico de velocities; `null` = sin patrón. */
+    /** Patrón cíclico de intensidades; `null` = sin patrón. */
     velocityPattern: number[] | null = null;
-    /** Rampa de velocities sobre notas generadas; `null` = sin rampa. */
+    /** Rampa de intensidad sobre notas generadas; `null` = sin rampa. */
     velocityRamp: VelocityRamp | null = null;
     playMode: PlayMode = PlayMode.CHORD;
 

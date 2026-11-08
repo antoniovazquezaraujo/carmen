@@ -284,7 +284,7 @@ For each pass of a block:
 
 Settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
 
-The **velocity profile** is the exception: `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP` are local to the block that declares them. They apply only to that block's own notes and the previous profile is restored afterwards, before its child blocks or siblings run. If a preset declares any velocity setting, its local profile starts from the defaults (90, no pattern/ramp), so it does not inherit an old pattern or ramp.
+The **intensity profile** is the exception: `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP` are local to the block that declares them. They apply only to that block's own notes and the previous profile is restored afterwards, before its child blocks or siblings run. If a preset declares any intensity setting, its local profile starts from the defaults (90, no pattern/ramp), so it does not inherit an old pattern or ramp.
 
 Because a melody stores notes and not a rendered result, the same melody can sound different in blocks with different presets or harmonic contexts. That is intentional.
 
@@ -306,7 +306,7 @@ A duration is an integer (no leading zeros), a unit and a colon:
 
 A measure is **four beats** (4/4; there is no time-signature setting yet), so `1m` equals one whole note and `2m` lasts two measures.
 
-A note can also carry a **velocity** with `@`: `4n:0@34` (MIDI 1–127). It applies to the source event and to every note generated from it (chord, arpeggio, pattern, decoration) unless an inner value overrides it. A group can carry it too: `4n:( 0 2 )@40`; children without their own `@` inherit it. `@` is intensity, not duration.
+A note can also carry an **intensity** with `@`: `4n:0@34` (MIDI velocity 1–127). It applies to the source event and to every note generated from it (chord, arpeggio, pattern, decoration) unless an inner value overrides it. A group can carry it too: `4n:( 0 2 )@40`; children without their own `@` inherit it. `@` is intensity, not duration.
 
 It is written attached to the event: `4n:0`, `8t:s`, `2n:( 0 2 )`. The duration is **optional**: if missing, it inherits from the enclosing group; at root level it uses `notes default` and, if absent, the playback fallback (`16n`).
 
@@ -433,9 +433,9 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 | `SHIFTSTART` | First chord note affected by the shift | integer or `$variable` | `SHIFTSTART 0` |
 | `SHIFTSIZE` | Number of notes affected by the shift | integer or `$variable` | `SHIFTSIZE 3` |
 | `SHIFTVALUE` | Octaves added to shifted notes | integer or `$variable` | `SHIFTVALUE 1` |
-| `VELOCITY` | Default velocity of generated notes | integer 1–127 or `$variable` | `VELOCITY 20` |
-| `VELOCITY_PATTERN` | Cyclic velocity pattern | positive integer list | `VELOCITY_PATTERN 20 10 5` |
-| `VELOCITY_RAMP` | Linear velocity ramp over generated notes | start note, end note, start velocity, end velocity | `VELOCITY_RAMP 4 11 20 60` |
+| `INTENSITY` | Default intensity of generated notes (MIDI velocity) | integer 1–127 or `$variable` | `INTENSITY 20` |
+| `INTENSITY_PATTERN` | Cyclic intensity pattern | positive integer list | `INTENSITY_PATTERN 20 10 5` |
+| `INTENSITY_RAMP` | Linear intensity ramp over generated notes | start note, end note, start intensity, end intensity | `INTENSITY_RAMP 4 11 20 60` |
 | `PATTERN` | Pattern melody (full sublanguage, one line); it is applied **before** the playmode, so it combines with chords/arpeggios; or a string variable | melody or `$variable` | `PATTERN 4t:0 4t:-1 4t:3` |
 | `DECORATION` | Decoration added to **each chord/arpeggio note**: for every item, a `{ degree + offset }` note | items `offset` (scale degrees) or `duration:offset`, or `$variable` | `DECORATION 4t:0 8t:-2` |
 
@@ -448,7 +448,7 @@ Notes:
 - In a numeric setting, the `$variable` is resolved at playback time; it must contain a number.
 - `SHIFTSTART`, `SHIFTSIZE` and `SHIFTVALUE` add whole octaves to the chord notes in the window `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, on the final chord order after `INV`). The window is clamped to the chord, `SHIFTSIZE 0` does nothing and a negative `SHIFTVALUE` lowers the affected notes. They shape the generated chord/arpeggio; with `PLAYMODE SINGLE` there is no chord, so they have no effect (same as `WIDTH`/`INV`).
 - `DECORATION` decorates **each note of the generated chord/arpeggio** (after `WIDTH`/`GAP`/`INV`/`SHIFT`): every item replaces the note with `{ degree + offset }`, where `offset` is measured **in scale degrees** (the same unit as the notes, `PATTERN`, `WIDTH` and `GAP`). The item duration (`4t` by default) is kept as the note metadata, never rescaled. A `0` item keeps the original note; without any `0` it disappears. Items are a flat list (no groups). With `PLAYMODE SINGLE` there is no chord, so it has no effect. **The timing is decided by the playmode, not by the item durations**: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes (each item adds a slice); item durations are metadata today.
-- `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP` define the intensity profile: `VELOCITY` is the base, the pattern cycles over generated notes, the ramp overrides in its range and a note's own `@` wins over both. Ramp ranges count generated notes in playback order, 1-based; each emitted note counts (chord/arpeggio notes individually), rests do not, and the count restarts on each block repetition. The ramp is linear, rounded and clamped to 1–127. The profile is local to the block (see §3.6); child blocks and siblings recover the previous profile.
+- `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP` define the intensity profile: `INTENSITY` is the base, the pattern cycles over generated notes, the ramp overrides in its range and a note's own `@` wins over both. The values are MIDI velocities (1–127). Ramp ranges count generated notes in playback order, 1-based; each emitted note counts (chord/arpeggio notes individually), rests do not, and the count restarts on each block repetition. The ramp is linear, rounded and clamped to 1–127. The profile is local to the block (see §3.6); child blocks and siblings recover the previous profile.
 
 Example with all settings:
 
@@ -473,9 +473,9 @@ presets
     SHIFTSTART 0
     SHIFTSIZE 3
     SHIFTVALUE 1
-    VELOCITY 80
-    VELOCITY_PATTERN 80 60 40
-    VELOCITY_RAMP 1 4 40 100
+    INTENSITY 80
+    INTENSITY_PATTERN 80 60 40
+    INTENSITY_RAMP 1 4 40 100
     PATTERN 4t:0 4t:-1 4t:3
     DECORATION 0 -2 6
 

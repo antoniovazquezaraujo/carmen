@@ -17,9 +17,9 @@ export enum CommandType {
     SHIFTSTART = 'SHIFTSTART',
     SHIFTSIZE = 'SHIFTSIZE',
     SHIFTVALUE = 'SHIFTVALUE',
-    VELOCITY = 'VELOCITY',
-    VELOCITY_PATTERN = 'VELOCITY_PATTERN',
-    VELOCITY_RAMP = 'VELOCITY_RAMP',
+    INTENSITY = 'INTENSITY',
+    INTENSITY_PATTERN = 'INTENSITY_PATTERN',
+    INTENSITY_RAMP = 'INTENSITY_RAMP',
     PATTERN = 'PATTERN',
     DECORATION = 'DECORATION'
 }
@@ -70,13 +70,13 @@ export class Command {
         return this._value;
     }
 
-    /** PATTERN, DECORATION y los perfiles de velocidad guardan su valor como string. */
+    /** PATTERN, DECORATION y los perfiles de intensidad guardan su valor como string. */
     private isStringValued(): boolean {
         return (
             this.type === CommandType.PATTERN ||
             this.type === CommandType.DECORATION ||
-            this.type === CommandType.VELOCITY_PATTERN ||
-            this.type === CommandType.VELOCITY_RAMP
+            this.type === CommandType.INTENSITY_PATTERN ||
+            this.type === CommandType.INTENSITY_RAMP
         );
     }
 
@@ -164,7 +164,7 @@ export class Command {
             return;
         }
 
-        if (this.type === CommandType.VELOCITY_PATTERN) {
+        if (this.type === CommandType.INTENSITY_PATTERN) {
             const text = String(value);
             if (text.trim() === '') {
                 player.velocityPattern = null;
@@ -173,13 +173,13 @@ export class Command {
             try {
                 player.velocityPattern = parseVelocityPattern(text);
             } catch (e) {
-                console.error(`[Command VELOCITY_PATTERN] Invalid pattern "${text}":`, e);
+                console.error(`[Command INTENSITY_PATTERN] Invalid pattern "${text}":`, e);
                 player.velocityPattern = null;
             }
             return;
         }
 
-        if (this.type === CommandType.VELOCITY_RAMP) {
+        if (this.type === CommandType.INTENSITY_RAMP) {
             const text = String(value);
             if (text.trim() === '') {
                 player.velocityRamp = null;
@@ -188,7 +188,7 @@ export class Command {
             try {
                 player.velocityRamp = parseVelocityRamp(text);
             } catch (e) {
-                console.error(`[Command VELOCITY_RAMP] Invalid ramp "${text}":`, e);
+                console.error(`[Command INTENSITY_RAMP] Invalid ramp "${text}":`, e);
                 player.velocityRamp = null;
             }
             return;
@@ -233,7 +233,7 @@ export class Command {
             case CommandType.SHIFTSTART: player.shiftStart = value; break;
             case CommandType.SHIFTSIZE: player.shiftSize = value; break;
             case CommandType.SHIFTVALUE: player.shiftValue = value; break;
-            case CommandType.VELOCITY: {
+            case CommandType.INTENSITY: {
                 const numeric = Number(value);
                 player.velocity = isVelocity(numeric) ? numeric : DEFAULT_VELOCITY;
                 break;

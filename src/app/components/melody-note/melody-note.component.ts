@@ -22,7 +22,7 @@ import { SingleNote, NoteDuration } from '../../model/melody';
                     {{ valueText }}
                 </span>
                 @if (note.velocity !== undefined) {
-                    <span class="note-velocity" [title]="'Velocity ' + note.velocity">@{{ note.velocity }}</span>
+                    <span class="note-velocity" [title]="'Intensity ' + note.velocity">@{{ note.velocity }}</span>
                 }
             </div>
         </div>
@@ -185,7 +185,7 @@ export class MelodyNoteComponent implements OnDestroy {
         return this.note.value === null ? 's' : String(this.note.value);
     }
 
-    /** Tooltip del valor: referencia a variable, silencio, velocity o vacío. */
+    /** Tooltip del valor: referencia a variable, silencio, intensidad o vacío. */
     get valueTitle(): string {
         const base = this.note.variableName
             ? 'Referencia a la variable $' + this.note.variableName
@@ -193,7 +193,7 @@ export class MelodyNoteComponent implements OnDestroy {
         if (this.note.velocity === undefined) {
             return base;
         }
-        return base ? `${base} · velocity ${this.note.velocity}` : `Velocity ${this.note.velocity}`;
+        return base ? `${base} · intensidad ${this.note.velocity}` : `Intensidad ${this.note.velocity}`;
     }
     
     onClick(): void {
