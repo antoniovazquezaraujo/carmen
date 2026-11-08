@@ -116,7 +116,7 @@ El player web avanza con un scheduler de **96n** y redondea duraciones no repres
 | Velocidad | 90 fija |
 | Compás | 4/4 fijo |
 | Notas fuera de 0–127 | Se transportan por octavas (conservan la clase de altura) y se emite un warning |
-| `PATTERN_GAP` | Se ignora, como en el player |
+| `PATTERN_GAP` | Eliminado (2026-11-08); el compilador ya no lo acepta |
 | Duraciones de item de `DECORATION` | Se copia el comportamiento del player (metadato) |
 | Variables string como nota | Se copia el comportamiento del player (silencio si no se expanden) |
 | Variables globales | El compilador hace snapshot/restore; no deja estado si se usa como librería |

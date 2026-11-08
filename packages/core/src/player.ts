@@ -36,8 +36,6 @@ export class Player {
     shiftStart = 0;
     shiftSize = 0;
     shiftValue = 0;
-    decorationGap?: number = undefined;
-    decorationPattern?: string = undefined;
     playMode: PlayMode = PlayMode.CHORD;
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;

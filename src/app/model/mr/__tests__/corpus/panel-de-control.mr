@@ -18,7 +18,6 @@ presets
     SHIFTSTART 0
     SHIFTSIZE 3
     SHIFTVALUE 1
-    PATTERN_GAP 1
     PATTERN 4t:0 4t:-1 4t:3
 
 part Piano

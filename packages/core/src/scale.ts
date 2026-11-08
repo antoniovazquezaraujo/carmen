@@ -56,19 +56,11 @@ export class Scale {
         gap: number,
         shiftStart: number,
         shiftSize: number,
-        shiftValue: number,
-        decorationPattern: string,
-        decorationGap?: number
+        shiftValue: number
     ): NoteData[] {
         var selectedGrades:OctavedGrade[] = this.getSelectedGrades(grade, density, gap);
         var shiftedGrades:OctavedGrade[] = this.getShiftedGrades(selectedGrades, shiftStart, shiftSize, shiftValue)
-        var notes:NoteData[];
-        if(decorationPattern === undefined || decorationPattern === ''){
-            notes =  this.octavedGradesToNotes(shiftedGrades);
-        }else{
-            var decoratedGrades:OctavedGrade[] =  this.getDecoratedGrades(shiftedGrades, gap, decorationPattern, decorationGap);
-            notes = this.octavedGradesToNotes(decoratedGrades);
-        }
+        var notes:NoteData[] = this.octavedGradesToNotes(shiftedGrades);
         if(tonality === undefined || tonality === 0){
             return notes;
         }else{
@@ -83,25 +75,6 @@ export class Scale {
         }
         return chordNotes;
     }
-    getDecoratedGrades(arpegioGrades: OctavedGrade[], baseGap:number, decorationPattern: string, decorationGap?: number): OctavedGrade[] {
-        var gap = decorationGap ?? baseGap;
-        var decoratedGrades:OctavedGrade[] =[]; 
-        var baseGrade = arpegioGrades[0];
-        let decorationValues = decorationPattern.trim().split(/\s+/).map(n => ({ note: parseInt(n), duration: '4t' }));
-        
-        for (var arpegioIndex = 0; arpegioIndex < arpegioGrades.length; arpegioIndex++) {
-            var grades: OctavedGrade[] = [];
-            var arpegioGrade = arpegioGrades[arpegioIndex];
-            for(var decorationIndex=0; decorationIndex<decorationValues.length; decorationIndex++){
-                var decoratedGrade = new OctavedGrade(this,arpegioGrade.grade, arpegioGrade.octave, decorationValues[decorationIndex].duration);
-                decoratedGrade.addGrade(decorationValues[decorationIndex].note! * gap);
-                grades.push(decoratedGrade);
-            }
-            decoratedGrades= decoratedGrades.concat(grades);
-        }
-        return decoratedGrades;
-    }
- 
     /**
      * Desplaza en octavas la ventana `[shiftStart, shiftStart + shiftSize)` de
      * una lista de grados ya ordenada (el acorde final). La ventana se recorta

@@ -62,5 +62,5 @@ Se eligió este punto porque la ventana describe posiciones del **acorde final**
 
 ## 7. Lo que queda fuera
 
-- **`PATTERN_GAP`/decoración:** sigue sin aplicarse (era y es la parte no audible de la limitación 7 del manual).
+- **`PATTERN_GAP`/decoración:** eliminado (2026-11-08); la decoración de acordes/arpegios se hace con `DECORATION`.
 - **Expansión de melodías variables:** sin cambios (#19 del backlog).

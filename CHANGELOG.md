@@ -19,6 +19,10 @@ All notable changes to **Mode Ranger**. Format based on
 
 - Measure durations (`1m`, `2m`, ...) now work in every play mode, groups and the MIDI compiler. The parser already accepted them, but the note-generation validation rejected them for chords/arpeggios and silently replaced the event with a rest; a measure is four beats (4/4).
 
+### Removed
+
+- `PATTERN_GAP` removed from the language, parser/serializer, player, GUI, corpus and user documentation. It was a deprecated no-op; a `.mr` file that still contains it now fails with a migration error pointing to `DECORATION`.
+
 ### Internal
 
 - Removed the unwired v2 melody-editor/player prototype, its services and tests, plus the unused `config`, `keyboard` and `unsaved-changes` code (~5.2k LOC). The live `global-state` and `note-generation-unified` services, `error-handler.service.ts` and the `@moderanger/core/music-element-utils` API with its test are kept.

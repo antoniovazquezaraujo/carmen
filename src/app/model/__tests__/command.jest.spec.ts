@@ -17,7 +17,6 @@ interface FakePlayer {
   shiftStart: number;
   shiftSize: number;
   shiftValue: number;
-  decorationGap?: number;
 }
 
 const createFakePlayer = (): FakePlayer => ({

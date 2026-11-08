@@ -185,6 +185,19 @@ procedures
     expect(document.song.procedures[0].operations[1]).toBeInstanceOf(AssignOperation);
   });
 
+  it('rechaza PATTERN_GAP con un error de migración hacia DECORATION', () => {
+    const error = expectParseError(`song "X"
+version 2
+
+presets
+  preset P
+    PATTERN_GAP 1
+`);
+
+    expect(error.message).toContain("'PATTERN_GAP' se eliminó");
+    expect(error.message).toContain('DECORATION');
+  });
+
   it('permite el mismo nombre en bibliotecas distintas', () => {
     const document = parseSong(`melodies
   melody Intro

@@ -427,7 +427,6 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 | `SHIFTSTART` | First chord note affected by the shift | integer or `$variable` | `SHIFTSTART 0` |
 | `SHIFTSIZE` | Number of notes affected by the shift | integer or `$variable` | `SHIFTSIZE 3` |
 | `SHIFTVALUE` | Octaves added to shifted notes | integer or `$variable` | `SHIFTVALUE 1` |
-| `PATTERN_GAP` | Deprecated: pattern decoration separation (no effect; use `DECORATION`) | integer or `$variable` | `PATTERN_GAP 1` |
 | `PATTERN` | Pattern melody (full sublanguage, one line); it is applied **before** the playmode, so it combines with chords/arpeggios; or a string variable | melody or `$variable` | `PATTERN 4t:0 4t:-1 4t:3` |
 | `DECORATION` | Decoration added to **each chord/arpeggio note**: for every item, a `{ degree + offset }` note | items `offset` (scale degrees) or `duration:offset`, or `$variable` | `DECORATION 4t:0 8t:-2` |
 
@@ -439,7 +438,6 @@ Notes:
 - `PATTERN` is **independent from the playmode**: when present, it expands every note before the playmode generates its sound (chord, arpeggio, random...). Without `PATTERN`, nothing changes. Its melody is written on one line (durations, rests and groups allowed).
 - In a numeric setting, the `$variable` is resolved at playback time; it must contain a number.
 - `SHIFTSTART`, `SHIFTSIZE` and `SHIFTVALUE` add whole octaves to the chord notes in the window `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, on the final chord order after `INV`). The window is clamped to the chord, `SHIFTSIZE 0` does nothing and a negative `SHIFTVALUE` lowers the affected notes. They shape the generated chord/arpeggio; with `PLAYMODE SINGLE` there is no chord, so they have no effect (same as `WIDTH`/`INV`).
-- `PATTERN_GAP` is **deprecated**: it is read and saved for compatibility, but it has no effect; chord decoration is done with `DECORATION`.
 - `DECORATION` decorates **each note of the generated chord/arpeggio** (after `WIDTH`/`GAP`/`INV`/`SHIFT`): every item replaces the note with `{ degree + offset }`, where `offset` is measured **in scale degrees** (the same unit as the notes, `PATTERN`, `WIDTH` and `GAP`). The item duration (`4t` by default) is kept as the note metadata, never rescaled. A `0` item keeps the original note; without any `0` it disappears. Items are a flat list (no groups). With `PLAYMODE SINGLE` there is no chord, so it has no effect. **The timing is decided by the playmode, not by the item durations**: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes (each item adds a slice); item durations are metadata today.
 
 Example with all settings:
@@ -465,7 +463,6 @@ presets
     SHIFTSTART 0
     SHIFTSIZE 3
     SHIFTVALUE 1
-    PATTERN_GAP 1
     PATTERN 4t:0 4t:-1 4t:3
     DECORATION 0 -2 6
 
@@ -660,12 +657,11 @@ In the `.mr` view, errors appear below the text with their `line, column`; click
 4. **Multiline groups.** Not allowed; a group must open and close on its line.
 5. **Literal chords and arpeggios.** They are not written in the text; `PLAYMODE` generates them from grades, scale and settings.
 6. **Variables panel.** Collapsible and collapsed by default, above the parts row; lists and edits all four types (number, scale, playmode and string). String variables are edited as plain text.
-7. **`PATTERN_GAP` deprecated.** It is read and saved for compatibility but has no effect; chord decoration uses `DECORATION`.
-8. **Instruments.** Only `PIANO`.
-9. **`pulse` and `beatsPerBar`.** Not serialized.
-10. **One parse error at a time.** The parser stops at the first error; the dialog is ready to show more.
-11. **No autosave or "Save as".** `.mr` is the only format and the file name is derived from the song name.
-12. **`DECORATION` item durations are metadata.** The playmode decides the timing: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes. The explicit item durations (`4t:0`, `8t:-2`) are stored in the model and the `.mr`, but they do not change the sound.
+7. **Instruments.** Only `PIANO`.
+8. **`pulse` and `beatsPerBar`.** Not serialized.
+9. **One parse error at a time.** The parser stops at the first error; the dialog is ready to show more.
+10. **No autosave or "Save as".** `.mr` is the only format and the file name is derived from the song name.
+11. **`DECORATION` item durations are metadata.** The playmode decides the timing: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes. The explicit item durations (`4t:0`, `8t:-2`) are stored in the model and the `.mr`, but they do not change the sound.
 
 ---
 
@@ -783,7 +779,6 @@ presets
     SCALE $scale
     PLAYMODE SINGLE
     PATTERN 4t:0 4t:2 4t:-1
-    PATTERN_GAP 1
 
   preset EcoAjustes
     OCT 1

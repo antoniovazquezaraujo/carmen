@@ -16,7 +16,6 @@ export enum CommandType {
     SHIFTSTART = 'SHIFTSTART',
     SHIFTSIZE = 'SHIFTSIZE',
     SHIFTVALUE = 'SHIFTVALUE',
-    PATTERN_GAP = 'PATTERN_GAP',
     PATTERN = 'PATTERN',
     DECORATION = 'DECORATION'
 }
@@ -195,7 +194,6 @@ export class Command {
             case CommandType.SHIFTSTART: player.shiftStart = value; break;
             case CommandType.SHIFTSIZE: player.shiftSize = value; break;
             case CommandType.SHIFTVALUE: player.shiftValue = value; break;
-            case CommandType.PATTERN_GAP: player.decorationGap = value; break;
         }
     }
     
