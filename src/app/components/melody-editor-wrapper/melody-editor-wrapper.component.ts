@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, forwardRef, ChangeDetectorRef }
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MelodyEditorService } from '../../services/melody-editor.service';
 import { MelodyEditorComponent } from '../melody-editor/melody-editor.component';
+import { NoteDuration } from '../../model/melody';
 
 @Component({
     selector: 'app-melody-editor-wrapper',
@@ -10,7 +11,8 @@ import { MelodyEditorComponent } from '../melody-editor/melody-editor.component'
             [notes]="notes" 
             (notesChange)="onNotesChange($event)"
             [showVariableIcon]="showVariableIcon"
-            [playingBlockId]="blockId">
+            [playingBlockId]="blockId"
+            [defaultDurationOverride]="defaultDurationOverride">
         </app-melody-editor>
     `,
     providers: [
@@ -28,6 +30,8 @@ export class MelodyEditorWrapperComponent implements ControlValueAccessor {
     @Input() showVariableIcon: boolean = true;
     /** Bloque que edita el control; el editor lo usa para el resaltado `playing`. */
     @Input() blockId?: number;
+    /** Duración propia de la melodía; si existe, prevalece sobre la global. */
+    @Input() defaultDurationOverride?: NoteDuration;
 
     private onChange = (_: any) => {};
     private onTouched = () => {};

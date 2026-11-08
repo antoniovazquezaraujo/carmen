@@ -823,6 +823,11 @@ export class SongPlayer {
          return notes.map(note => ({ type: 'note', note, duration }));
     }
 
+    /** Duración por defecto global actual (fallback si la melodía no define una). */
+    get globalDefaultDuration(): NoteDuration {
+        return this.globalState.globalDefaultDuration;
+    }
+
     // Method to update the global default duration
     updateGlobalDefaultDuration(duration: NoteDuration): void {
         this.globalState.setGlobalDefaultDuration(duration);
