@@ -329,7 +329,7 @@ Rules: the group opens and closes **on the same line**; an unclosed group is a s
 
 Inside a `PATTERN`, groups **subdivide**: children with an explicit duration keep it and children without a duration split the remaining time; the content must fit the group (otherwise it is a measure error with `line:column`). In a melody's `notes` section, by contrast, groups inherit the group duration.
 
-In the visual editor, a note without its own duration **does not show it** (it inherits from the group). Hovering the note activates the duration area (no symbol): the wheel over it changes the duration and, from then on, it stays explicit and visible. The cycle includes the **empty** state: wheel past `1n`/`8t` and the note goes back to having no duration (inherited).
+In the visual editor, a note without its own duration **does not show it** (it inherits from the group). Hovering the note activates the duration area (no symbol): the wheel over it changes the duration and, from then on, it stays explicit and visible. The cycle includes the **empty** state: wheel past `4m`/`8t` and the note goes back to having no duration (inherited). The wheel offers `4m` and `2m`; `1m` is not in the wheel because it equals `1n` in 4/4, and other measure counts can be written in the `.mr` text.
 
 ### 4.5. Note variables
 

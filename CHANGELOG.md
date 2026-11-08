@@ -13,6 +13,7 @@ All notable changes to **Mode Ranger**. Format based on
 ### Changed
 
 - Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
+- The duration wheel and default-duration selectors now include `2m` and `4m`; `1m` is omitted because it equals `1n` in 4/4. Other measure counts can still be written in the `.mr` text.
 
 ### Fixed
 

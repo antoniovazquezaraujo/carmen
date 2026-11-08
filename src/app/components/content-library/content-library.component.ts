@@ -71,6 +71,8 @@ export class ContentLibraryComponent implements OnChanges, OnInit, OnDestroy {
         { kind: 'procedure', label: 'Procedures' }
     ];
     readonly availableDurations: ReadonlyArray<NoteDuration> = [
+        '4m',
+        '2m',
         '1n',
         '2n',
         '4n',

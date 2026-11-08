@@ -103,7 +103,7 @@ export class SongEditorComponent implements OnInit, OnDestroy {
     @ViewChild('contentLibrary') contentLibraryRef?: ContentLibraryComponent;
 
     selectedDefaultDuration: NoteDuration = '4n';
-    readonly availableDurations: NoteDuration[] = ['1n', '2n', '4n', '8n', '16n', '4t', '8t'];
+    readonly availableDurations: NoteDuration[] = ['4m', '2m', '1n', '2n', '4n', '8n', '16n', '4t', '8t'];
 
     private destroy$ = new Subject<void>();
     private panelResize: { target: 'text' | 'examples'; startX: number; startWidth: number } | null = null;

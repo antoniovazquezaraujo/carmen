@@ -31,7 +31,7 @@
 
 - **v1.0.0** (2026-11-08): primera release pública, ZIP web adjunto y workflow de release corregido; la protección de `main` exige ya el check de Node 22.
 - **Content libraries / `.mr` v2** (#142, ADR-004): `melodies`, `presets` y `procedures` reutilizables; bloques estructurales que referencian como máximo una entrada de cada tipo. Los PRs #139 y #140 (referencias anidadas con `use`) se cerraron por quedar sustituidos.
-- **Duraciones de compás** (2026-11-08): `1m`, `2m`… funcionan en SINGLE, CHORD, arpegios, grupos y compilador MIDI (compás = 4 pulsos, 4/4).
+- **Duraciones de compás** (2026-11-08): `1m`, `2m`… funcionan en SINGLE, CHORD, arpegios, grupos y compilador MIDI (compás = 4 pulsos, 4/4); la rueda y los selectores incluyen `2m` y `4m`.
 - **Limpieza de código** (2026-11-08): eliminado el código v2 sin cablear (editor de melodía, reproductor/audio y servicios huérfanos, ~5.200 LOC) y cerrado el spike ANTLR #131. Se conservan `global-state`, `note-generation-unified`, `error-handler` y la API `@moderanger/core/music-element-utils`.
 - **Limpieza de ramas** (2026-11-08): 16 worktrees de ramas mergeadas o cerradas eliminados; ramas locales/remotas antiguas limpiadas.
 - **Angular 21 / Node 22 / TypeScript 5.9 / PrimeNG 21 / Jest 30**, application builder (`@angular/build`), componentes standalone, control flow y retirada de dependencias obsoletas.
