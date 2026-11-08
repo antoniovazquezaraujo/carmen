@@ -10,6 +10,10 @@ All notable changes to **Mode Ranger**. Format based on
 
 - **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/moderanger/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
 
+### Internal
+
+- Removed the unwired v2 melody-editor/player prototype, its services and tests, plus the unused `config`, `keyboard` and `unsaved-changes` code (~5.2k LOC). The live `global-state` and `note-generation-unified` services, `error-handler.service.ts` and the `@moderanger/core/music-element-utils` API with its test are kept.
+
 ## [1.0.0] - 2026-11-08
 
 ### Added
