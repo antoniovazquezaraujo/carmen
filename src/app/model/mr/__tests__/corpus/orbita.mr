@@ -24,7 +24,6 @@ presets
     SCALE $scale
     PLAYMODE SINGLE
     PATTERN 4t:0 4t:2 4t:-1
-    PATTERN_GAP 1
 
   preset EcoAjustes
     OCT 1

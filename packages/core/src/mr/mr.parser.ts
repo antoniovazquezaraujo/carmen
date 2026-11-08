@@ -49,7 +49,6 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
   ['SHIFTSTART', CommandType.SHIFTSTART],
   ['SHIFTSIZE', CommandType.SHIFTSIZE],
   ['SHIFTVALUE', CommandType.SHIFTVALUE],
-  ['PATTERN_GAP', CommandType.PATTERN_GAP],
   ['PATTERN', CommandType.PATTERN],
   ['DECORATION', CommandType.DECORATION],
   // Alias de entrada por compatibilidad con la gramática antigua; el
@@ -68,10 +67,14 @@ const COMMAND_NAMES: readonly string[] = [
   'SHIFTSTART',
   'SHIFTSIZE',
   'SHIFTVALUE',
-  'PATTERN_GAP',
   'PATTERN',
   'DECORATION'
 ];
+
+/** Comandos retirados: se reconocen solo para dar un error de migración claro. */
+const REMOVED_COMMANDS: ReadonlyMap<string, string> = new Map([
+  ['PATTERN_GAP', "'PATTERN_GAP' se eliminó y no tiene reemplazo directo; usa 'DECORATION' para adornar acordes/arpegios"]
+]);
 
 const INSTRUMENT_KEYS: readonly string[] = Object.keys(InstrumentType);
 
@@ -881,6 +884,10 @@ class MrDocumentParser {
       throw errorAt(line, line.indent + 1, `comando no reconocido '${line.code}'; los comandos se escriben en mayúsculas (OCT, SCALE, …)`);
     }
     const keyword = match[1];
+    const removed = REMOVED_COMMANDS.get(keyword);
+    if (removed !== undefined) {
+      throw errorAt(line, line.indent + 1, removed);
+    }
     const type = COMMAND_TYPES.get(keyword);
     if (type === undefined) {
       throw errorAt(line, line.indent + 1, `comando desconocido '${keyword}'; comandos válidos: ${COMMAND_NAMES.join(', ')}`);
