@@ -14,6 +14,10 @@ All notable changes to **Mode Ranger**. Format based on
 
 - Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
 
+### Fixed
+
+- Measure durations (`1m`, `2m`, ...) now work in every play mode, groups and the MIDI compiler. The parser already accepted them, but the note-generation validation rejected them for chords/arpeggios and silently replaced the event with a rest; a measure is four beats (4/4).
+
 ### Internal
 
 - Removed the unwired v2 melody-editor/player prototype, its services and tests, plus the unused `config`, `keyboard` and `unsaved-changes` code (~5.2k LOC). The live `global-state` and `note-generation-unified` services, `error-handler.service.ts` and the `@moderanger/core/music-element-utils` API with its test are kept.

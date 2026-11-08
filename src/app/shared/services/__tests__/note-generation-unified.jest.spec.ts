@@ -64,6 +64,25 @@ describe('NoteGenerationUnifiedService.createCompositeNote', () => {
   });
 });
 
+describe('NoteGenerationUnifiedService · duraciones de compás', () => {
+  it('acepta 1m, 2m y 120m en notas y acordes', () => {
+    const single = service.createSingleNote({ value: 60, duration: '1m' });
+    const chord = service.createCompositeNote('chord', [single.data!], '2m');
+    const long = service.createSingleNote({ value: 60, duration: '120m' });
+
+    expect(single.success).toBe(true);
+    expect(single.data!.duration).toBe('1m');
+    expect(chord.success).toBe(true);
+    expect(chord.data!.duration).toBe('2m');
+    expect(long.success).toBe(true);
+  });
+
+  it('rechaza compases con cero o ceros a la izquierda', () => {
+    expect(service.createSingleNote({ value: 60, duration: '0m' as NoteDuration }).success).toBe(false);
+    expect(service.createSingleNote({ value: 60, duration: '01m' as NoteDuration }).success).toBe(false);
+  });
+});
+
 describe('NoteGenerationUnifiedService.createGenericGroup', () => {
   it('exige duración válida y no admite grupos vacíos por defecto', () => {
     expect(service.createGenericGroup({ duration: '3n' as NoteDuration }).success).toBe(false);

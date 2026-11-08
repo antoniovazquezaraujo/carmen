@@ -1,7 +1,14 @@
 import { NoteData } from './note';
 
 // Tipos básicos
-export type NoteDuration = '1n' | '2n' | '4n' | '8n' | '16n' | '4t' | '8t';
+/**
+ * Duración de una nota, silencio o grupo.
+ *
+ * `n` son figuras de partitura, `t` tresillos y `m` compases. Un compás se
+ * mide en 4/4 (4 negras), igual que en `durationToSeconds`; el número es la
+ * cantidad de compases (`1m`, `2m`, `4m`...).
+ */
+export type NoteDuration = '1n' | '2n' | '4n' | '8n' | '16n' | '4t' | '8t' | `${number}m`;
 export type NoteType = 'note' | 'rest' | 'arpeggio' | 'chord' | 'group';
 
 // Modelo base de nota

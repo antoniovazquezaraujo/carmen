@@ -302,6 +302,8 @@ Una duración es un número entero (sin ceros a la izquierda), una unidad y dos 
 | `t` | tresillo | `4t`, `8t` |
 | `m` | compás | `1m`, `2m` |
 
+Un compás son **cuatro pulsos** (4/4; todavía no hay compás configurable), así que `1m` equivale a una redonda y `2m` dura dos compases.
+
 Se escribe pegada al evento: `4n:0`, `8t:s`, `2n:( 0 2 )`. La duración es **opcional**: si falta, hereda la del grupo que la contiene; en el nivel raíz usa `notes default` y, si no hay, el fallback de reproducción (`16n`).
 
 ### 4.2. Grados (notas)

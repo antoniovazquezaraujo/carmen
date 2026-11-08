@@ -56,6 +56,15 @@ describe('compilador MIDI · eventos musicales', () => {
         ]);
     });
 
+    it('compila duraciones de compás en 4/4', async () => {
+        const song = await compile('1m:0\n2m:2');
+
+        expect(song.parts[0].notes).toEqual([
+            { tick: 0, durationTicks: 3840, midi: 60, velocity: 90 },
+            { tick: 3840, durationTicks: 7680, midi: 63, velocity: 90 }
+        ]);
+    });
+
     it('aplica los ajustes del preset antes de generar las notas', async () => {
         const chord = await compile('4n:0', {
             preset: ['PLAYMODE CHORD', 'WIDTH 2']
