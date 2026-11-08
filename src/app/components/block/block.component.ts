@@ -15,7 +15,6 @@ import { PrimeTemplate } from 'primeng/api';
 import { Tooltip } from 'primeng/tooltip';
 import { Tree } from 'primeng/tree';
 import { Block } from 'src/app/model/block';
-import { ContentKind } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
 import { PlayingNoteSource, SongPlayer } from 'src/app/model/song.player';
 import {
@@ -258,8 +257,4 @@ export class BlockComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** Navega desde un chip de contenido a su definición en la biblioteca. */
-    navigateTo(kind: ContentKind, label: string): void {
-        this.contentEdit.emit({ kind, label });
-    }
 }

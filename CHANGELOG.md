@@ -12,7 +12,7 @@ All notable changes to **Mode Ranger**. Format based on
 
 ### Changed
 
-- Block content rows no longer duplicate the melody/preset/procedure edit action with pencil buttons; the content chips in the block header remain the shortcut to their library entry.
+- Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
 
 ### Internal
 

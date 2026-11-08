@@ -115,16 +115,20 @@ describe('BlockContentLinksComponent', () => {
     expect(block.procedure).toBe(song.procedures[0]);
   });
 
-  it('emite navegación al crear contenido', () => {
+  it('emite navegación al crear y al editar contenido', () => {
     const song = new Song();
+    const melody = addMelody(song, 'Tema');
     const block = new Block();
+    block.melody = melody;
     const component = createComponent(block, song);
     const events: ContentEditRequest[] = [];
     component.contentEdit.subscribe(request => events.push(request));
 
+    component.editMelody();
     component.createPreset();
 
-    expect(events[0]).toMatchObject({ kind: 'preset' });
+    expect(events[0]).toEqual({ kind: 'melody', label: 'Tema' });
+    expect(events[1]).toMatchObject({ kind: 'preset' });
   });
 });
 
@@ -135,12 +139,12 @@ describe('BlockContentLinksComponent · template', () => {
     expect(template).toContain('<option value="">No procedure</option>');
   });
 
-  it('tiene botones para crear cada tipo y no duplica la edición', () => {
+  it('tiene botones para crear y navegar por cada tipo', () => {
     expect(template).toContain('(click)="createMelody()"');
     expect(template).toContain('(click)="createPreset()"');
     expect(template).toContain('(click)="createProcedure()"');
-    expect(template).not.toContain('(click)="editMelody()"');
-    expect(template).not.toContain('(click)="editPreset()"');
-    expect(template).not.toContain('(click)="editProcedure()"');
+    expect(template).toContain('(click)="editMelody()"');
+    expect(template).toContain('(click)="editPreset()"');
+    expect(template).toContain('(click)="editProcedure()"');
   });
 });
