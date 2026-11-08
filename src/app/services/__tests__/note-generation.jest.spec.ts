@@ -122,6 +122,29 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
     expect(service.generateNotesForMelody(blockWith('8n:( 0 2 )'), createPlayer()).map(n => n.duration)).toEqual(['8n', '8n']);
   });
 
+  it('acepta duraciones de compás en SINGLE, CHORD, arpegios y grupos', () => {
+    const singlePlayer = createPlayer();
+    singlePlayer.playMode = PlayMode.SINGLE;
+    const single = createService().generateNotesForMelody(blockWith('1m:0'), singlePlayer);
+
+    const chord = createService().generateNotesForMelody(blockWith('1m:0'), createPlayer());
+
+    const arpeggioPlayer = createPlayer();
+    arpeggioPlayer.playMode = PlayMode.ASCENDING;
+    arpeggioPlayer.density = 1;
+    arpeggioPlayer.gap = 2;
+    const arpeggio = createService().generateNotesForMelody(blockWith('1m:0'), arpeggioPlayer);
+
+    const group = createService().generateNotesForMelody(blockWith('2m:( 0 2 )'), createPlayer());
+
+    expect(single[0]).toMatchObject({ type: 'note', duration: '1m' });
+    expect(chord[0]).toMatchObject({ type: 'chord', duration: '1m' });
+    expect(chord[0].noteDatas).toHaveLength(1);
+    expect(arpeggio[0]).toMatchObject({ type: 'arpeggio', duration: '1m' });
+    expect(arpeggio[0].noteDatas!.length).toBeGreaterThan(0);
+    expect(group.map(n => n.duration)).toEqual(['2m', '2m']);
+  });
+
   it('propaga la duración del subgrupo más cercano en grupos anidados', () => {
     const result = createService().generateNotesForMelody(blockWith('4n:( 2 8n:( 0 2 ) )'), createPlayer());
 

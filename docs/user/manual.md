@@ -302,6 +302,8 @@ A duration is an integer (no leading zeros), a unit and a colon:
 | `t` | triplet | `4t`, `8t` |
 | `m` | measure | `1m`, `2m` |
 
+A measure is **four beats** (4/4; there is no time-signature setting yet), so `1m` equals one whole note and `2m` lasts two measures.
+
 It is written attached to the event: `4n:0`, `8t:s`, `2n:( 0 2 )`. The duration is **optional**: if missing, it inherits from the enclosing group; at root level it uses `notes default` and, if absent, the playback fallback (`16n`).
 
 ### 4.2. Grades (notes)

@@ -62,6 +62,18 @@ describe('notes.parser: eventos del DSL', () => {
     }
   });
 
+  it('acepta duraciones de compás y las conserva al imprimir', () => {
+    const events = parseNoteEvents('1m:0 2m:s 1m:( 0 2 )');
+    const editor = parseBlockNotesForEditor('1m:0');
+
+    expect(events[0]).toMatchObject({ kind: 'atom', duration: '1m', grade: 0 });
+    expect(events[1]).toMatchObject({ kind: 'atom', duration: '2m', rest: true });
+    expect(events[2]).toMatchObject({ kind: 'group', duration: '1m' });
+    expect(events.map(printNoteEvent)).toEqual(['1m:0', '2m:s', '1m:( 0 2 )']);
+    expect(editor.noteData[0]).toMatchObject({ type: 'note', duration: '1m', note: 0 });
+    expect(editor.noteData[0].toString()).toBe('1m:0');
+  });
+
   it('admite grupos vacíos', () => {
     const [group] = parseNoteEvents('2n:()');
 
