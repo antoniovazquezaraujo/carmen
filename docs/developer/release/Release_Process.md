@@ -25,6 +25,14 @@ La documentación pública (`docs/user/`) se publica sola con `.github/workflows
 
 (La fuente de Pages está configurada a la rama `gh-pages`, raíz `/`.)
 
+### Publicación de la aplicación web
+
+`.github/workflows/deploy-web-app.yml` compila la app con `--base-href ./` y la publica en:
+
+👉 <https://antoniovazquezaraujo.github.io/moderanger/app/>
+
+Se dispara al empujar un tag `v*` o manualmente con `workflow_dispatch`. El workflow reconstruye el sitio completo: documentación en la raíz y app en `/app/`. El workflow de documentación conserva la última app publicada cuando solo cambian los docs.
+
 ---
 
 ## 2. Publicación de una versión de la aplicación

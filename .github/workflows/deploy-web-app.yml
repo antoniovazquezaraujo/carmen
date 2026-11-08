@@ -1,0 +1,54 @@
+name: Deploy Web App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: web app + docs -> gh-pages
+    runs-on: ubuntu-latest
+
+    env:
+      NPM_CONFIG_LOGLEVEL: error
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web app
+        run: npm run build:app -- --base-href ./
+
+      - name: Prepare site (docs at root, app under /app/)
+        run: |
+          mkdir -p site/app
+          cp -r docs/user/. site/
+          cp -r dist/moderanger/browser/. site/app/
+          touch site/.nojekyll
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "deploy: web app + user documentation"
