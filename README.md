@@ -4,8 +4,13 @@ Harmony studio with a component-based GUI (parts, structural blocks, content lib
 
 [![CI](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/moderanger/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/moderanger/app/)
 
 Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
+
+## Play in the browser
+
+The latest release runs at **<https://antoniovazquezaraujo.github.io/moderanger/app/>**; no installation required. The user documentation stays at the site root.
 
 ## Quickstart
 
@@ -73,6 +78,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 
 ## Documentation
 
+- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/moderanger/app/)** — run the latest release in the browser.
 - 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/moderanger/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
@@ -87,6 +93,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 - `main` reflects released versions; deployments are triggered with a `v*` tag (see [`docs/developer/release/Release_Process.md`](docs/developer/release/Release_Process.md)).
 - CI (`tests + build`) is required on every PR and coverage has its own threshold.
 - User documentation is published automatically on every push to `develop`.
+- The web app is published under `/app/` when a `v*` tag is pushed (or manually with `workflow_dispatch`).
 
 ## Project layout
 

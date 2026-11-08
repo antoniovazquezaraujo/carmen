@@ -5,8 +5,13 @@ Estudio de armonía con GUI de componentes (partes, bloques, editor de melodía)
 
 [![CI](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/moderanger/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/moderanger/app/)
 
 Estado: **lenguaje `.mr` v2** (2026-11-05, `version 2`). El formato 2 añade bibliotecas globales `melodies`, `presets` y `procedures`; los bloques son estructurales y referencian ese contenido.
+
+## Probar en el navegador
+
+La última release está publicada en **<https://antoniovazquezaraujo.github.io/moderanger/app/>**; no hace falta instalar nada. La documentación de usuario sigue en la raíz del sitio.
 
 ## Quickstart
 
@@ -46,6 +51,7 @@ Se edita en la GUI, en la vista avanzada de texto (botón `.mr`) o con cualquier
 
 ## Documentación
 
+- 🎹 **[Aplicación web](https://antoniovazquezaraujo.github.io/moderanger/app/)** — ejecuta la última release en el navegador.
 - 🌐 **[Documentación de usuario](https://antoniovazquezaraujo.github.io/moderanger/)** — manual del lenguaje, chuleta de sintaxis y guía de uso.
 - 📘 **[Manual del lenguaje `.mr`](docs/user/manual.md)** — referencia completa (también en el sitio publicado).
 - 🧑‍💻 **[Wiki de desarrollo](docs/developer/README.md)** — arquitectura, ADRs, análisis, auditorías, diseño y proceso de release.
@@ -60,6 +66,7 @@ Se edita en la GUI, en la vista avanzada de texto (botón `.mr`) o con cualquier
 - `main` refleja las versiones publicadas; los despliegues se lanzan con un tag `v*` (ver [`docs/developer/release/Release_Process.md`](docs/developer/release/Release_Process.md)).
 - El CI (`tests + build`) es obligatorio en cada PR y la cobertura tiene umbral propio.
 - La documentación de usuario se publica sola al hacer push a `develop`.
+- La aplicación web se publica en `/app/` al empujar un tag `v*` (o manualmente con `workflow_dispatch`).
 
 ## Estructura rápida
 

@@ -6,6 +6,10 @@ All notable changes to **Mode Ranger**. Format based on
 
 ## [Unreleased]
 
+### Added
+
+- **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/moderanger/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
+
 ## [1.0.0] - 2026-11-08
 
 ### Added
