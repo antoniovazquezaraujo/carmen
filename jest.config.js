@@ -42,7 +42,6 @@ module.exports = {
     'packages/core/src/**/*.ts',
     'packages/compiler/src/**/*.ts',
     'src/app/model/song.player.ts',
-    'src/app/features/generation/note-pattern-processor.service.ts',
     '!packages/**/__tests__/**',
     '!src/app/**/__tests__/**',
     '!src/app/**/__mocks__/**'

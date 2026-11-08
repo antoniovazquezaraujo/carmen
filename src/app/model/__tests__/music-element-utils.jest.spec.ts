@@ -9,7 +9,7 @@ import {
   isSingleNote,
   validateElements,
   walkElements
-} from '../music-element-utils';
+} from '@moderanger/core/music-element-utils';
 
 const note = (id: string, value: number): SingleNote => ({ id, type: 'note', value });
 const rest = (id: string): SingleNote => ({ id, type: 'rest', value: null });
