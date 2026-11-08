@@ -21,6 +21,9 @@ import { SingleNote, NoteDuration } from '../../model/melody';
                       [title]="valueTitle">
                     {{ valueText }}
                 </span>
+                @if (note.velocity !== undefined) {
+                    <span class="note-velocity" [title]="'Velocity ' + note.velocity">@{{ note.velocity }}</span>
+                }
             </div>
         </div>
     `,
@@ -118,6 +121,18 @@ import { SingleNote, NoteDuration } from '../../model/melody';
 
         /* Mismo tamaño/peso que los comandos: las notas se leen como texto
            seguido (12px, normal) sin cambiar la caja de 20px. */
+        .note-velocity {
+            margin-left: 2px;
+            color: #6c757d;
+            font-size: 0.62rem;
+            line-height: 1;
+        }
+
+        .note-item.selected .note-velocity,
+        .note-item.playing .note-velocity {
+            color: inherit;
+        }
+
         .note-visual .note-value {
            font-size: 12px;
            font-weight: normal;
@@ -170,12 +185,15 @@ export class MelodyNoteComponent implements OnDestroy {
         return this.note.value === null ? 's' : String(this.note.value);
     }
 
-    /** Tooltip del valor: referencia a variable, silencio o vacío. */
+    /** Tooltip del valor: referencia a variable, silencio, velocity o vacío. */
     get valueTitle(): string {
-        if (this.note.variableName) {
-            return 'Referencia a la variable $' + this.note.variableName;
+        const base = this.note.variableName
+            ? 'Referencia a la variable $' + this.note.variableName
+            : (this.note.value === null ? 'Silencio' : '');
+        if (this.note.velocity === undefined) {
+            return base;
         }
-        return this.note.value === null ? 'Silencio' : '';
+        return base ? `${base} · velocity ${this.note.velocity}` : `Velocity ${this.note.velocity}`;
     }
     
     onClick(): void {

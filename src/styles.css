@@ -2225,6 +2225,21 @@ html body .operations-row select.command-type {
   max-width: 140px !important;
 }
 
+/* Los perfiles de velocity son listas de números, no un valor corto. */
+html body .commands-row .velocity-pattern-input,
+html body .operations-row .velocity-pattern-input {
+  min-width: 64px !important;
+  max-width: 100px !important;
+  text-align: left !important;
+}
+
+html body .commands-row .velocity-ramp-input,
+html body .operations-row .velocity-ramp-input {
+  min-width: 90px !important;
+  max-width: 140px !important;
+  text-align: left !important;
+}
+
 html body .commands-row .command-actions .p-button,
 html body .operations-row .command-controls .p-button,
 html body .commands-row .add-wrapper .p-button,

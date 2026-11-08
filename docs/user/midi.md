@@ -86,7 +86,7 @@ MIDI is not audio: open the file in a DAW, VLC, MuseScore or render it with a sy
 ## Current limitations
 
 - No WAV/MP3 export yet.
-- Fixed velocity (90), 4/4 time signature and piano program in this first version.
+- 4/4 time signature and piano program in this first version. Velocity comes from the score (`@`, `VELOCITY`, `VELOCITY_PATTERN`, `VELOCITY_RAMP`); without a profile it defaults to 90.
 - The current `.mr` language limitations are inherited (for example, string variables used as a single note are not expanded).
 - Notes outside the MIDI range 0–127 are transposed by octaves and reported as warnings.
 

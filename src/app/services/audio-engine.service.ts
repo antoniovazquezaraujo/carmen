@@ -213,7 +213,13 @@ export class AudioEngineService {
 
   // --- Interacción con Instrumentos --- 
 
-  triggerAttackRelease(instrumentId: InstrumentId, noteOrFreq: Frequency | Frequency[], duration: Time, time?: Time): void {
+  triggerAttackRelease(
+    instrumentId: InstrumentId,
+    noteOrFreq: Frequency | Frequency[],
+    duration: Time,
+    time?: Time,
+    velocity?: number
+  ): void {
     const instrument = this.instruments.get(instrumentId);
     if (!instrument) {
         console.error(`[AudioEngine] Instrument ${instrumentId} not found! Cannot triggerAttackRelease.`); 
@@ -221,7 +227,7 @@ export class AudioEngineService {
     }
 
     try {
-        instrument.triggerAttackRelease(noteOrFreq, duration, time);
+        instrument.triggerAttackRelease(noteOrFreq, duration, time, velocity);
     } catch (error) {
         console.error(`[AudioEngine] Error during instrument.triggerAttackRelease for ${instrumentId}`, error); 
         throw error;

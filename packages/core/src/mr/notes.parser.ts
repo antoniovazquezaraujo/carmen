@@ -4,9 +4,10 @@
  *
  * Gramática (sección 7 de la propuesta):
  *
- *   evento   := duración? (entero | $variable | "s")
- *             | duración "(" evento* ")"
+ *   evento   := duración? (entero | $variable | "s") velocity?
+ *             | duración "(" evento* ")" velocity?
  *   duración := [0-9]+ (n|t|m) ":"
+ *   velocity := "@" [1-9][0-9]*   (1–127)
  *
  * - Un evento de nivel superior por línea es la forma canónica de salida;
  *   los grupos van completos en su línea.
@@ -28,6 +29,8 @@ export interface NoteAtom {
   /** Nombre de variable sin `$`. */
   variable?: string;
   rest?: boolean;
+  /** Velocidad MIDI 1–127; `undefined` = la decide el perfil del preset. */
+  velocity?: number;
   position: MrSourcePosition;
 }
 
@@ -35,6 +38,8 @@ export interface NoteGroup {
   kind: 'group';
   duration: string;
   children: NoteEvent[];
+  /** Velocidad heredada por los hijos que no tengan una propia. */
+  velocity?: number;
   position: MrSourcePosition;
 }
 
@@ -46,7 +51,7 @@ const resolveFromContext: VariableResolver = (name) => VariableContext.getValue(
 // Tokenizador
 // ---------------------------------------------------------------------------
 
-type NoteTokenType = 'duration' | 'integer' | 'variable' | 'rest' | 'open' | 'close' | 'eof';
+type NoteTokenType = 'duration' | 'integer' | 'variable' | 'rest' | 'velocity' | 'open' | 'close' | 'eof';
 
 interface NoteToken {
   type: NoteTokenType;
@@ -125,6 +130,14 @@ class NoteScanner {
     if (char === ')') {
       this.advance();
       return { type: 'close', text: ')', position: start };
+    }
+    if (char === '@') {
+      this.advance();
+      if (!this.isDigit(this.peek())) {
+        throw new MrParseError(`se esperaba una velocidad después de '@' (1–127)`, start);
+      }
+      const digits = this.readDigits();
+      return { type: 'velocity', text: `@${digits}`, value: Number(digits), position: start };
     }
     if (char === '$') {
       this.advance();
@@ -232,6 +245,19 @@ class NoteParser {
   }
 
   private parseEvent(): NoteEvent {
+    const event = this.parseBaseEvent();
+    if (this.peek().type === 'velocity') {
+      const token = this.next();
+      const velocity = token.value as number;
+      if (velocity < 1 || velocity > 127) {
+        throw new MrParseError(`la velocidad debe estar entre 1 y 127 (recibido ${velocity})`, token.position);
+      }
+      event.velocity = velocity;
+    }
+    return event;
+  }
+
+  private parseBaseEvent(): NoteEvent {
     const token = this.peek();
     if (token.type === 'duration') {
       this.next();
@@ -239,6 +265,9 @@ class NoteParser {
         return this.parseGroupContents(token.value as string, token.position);
       }
       return this.parseAtom(token.value as string, token.position);
+    }
+    if (token.type === 'velocity') {
+      throw new MrParseError(`'@' debe seguir a una nota, un silencio o un grupo`, token.position);
     }
     if (token.type === 'open') {
       throw new MrParseError(`se esperaba una duración antes de '(' (p. ej. 4n:( 0 2 ))`, token.position);
@@ -299,11 +328,12 @@ function eventToNoteData(event: NoteEvent, resolve: VariableResolver): NoteData 
     return new NoteData({
       type: 'group',
       duration: event.duration,
+      velocity: event.velocity,
       children: noteEventsToNoteData(event.children, resolve)
     });
   }
   if (event.rest) {
-    return new NoteData({ type: 'rest', duration: event.duration });
+    return new NoteData({ type: 'rest', duration: event.duration, velocity: event.velocity });
   }
   if (event.variable !== undefined) {
     const value = resolve(event.variable);
@@ -316,9 +346,9 @@ function eventToNoteData(event: NoteEvent, resolve: VariableResolver): NoteData 
         event.position
       );
     }
-    return new NoteData({ type: 'note', duration: event.duration, note: value });
+    return new NoteData({ type: 'note', duration: event.duration, velocity: event.velocity, note: value });
   }
-  return new NoteData({ type: 'note', duration: event.duration, note: event.grade });
+  return new NoteData({ type: 'note', duration: event.duration, velocity: event.velocity, note: event.grade });
 }
 
 /**
@@ -366,41 +396,43 @@ function eventToEditorNoteData(
     return new NoteData({
       type: 'group',
       duration: event.duration,
+      velocity: event.velocity,
       children: event.children.map((child) => eventToEditorNoteData(child, resolve, variableReferences))
     });
   }
   if (event.rest) {
-    return new NoteData({ type: 'rest', duration: event.duration });
+    return new NoteData({ type: 'rest', duration: event.duration, velocity: event.velocity });
   }
   if (event.variable !== undefined) {
     const value = resolve(event.variable);
     if (typeof value === 'number') {
-      return new NoteData({ type: 'note', duration: event.duration, note: value });
+      return new NoteData({ type: 'note', duration: event.duration, velocity: event.velocity, note: value });
     }
     variableReferences.push(event.variable);
-    return new NoteData({ type: 'note', duration: event.duration, variable: event.variable });
+    return new NoteData({ type: 'note', duration: event.duration, velocity: event.velocity, variable: event.variable });
   }
-  return new NoteData({ type: 'note', duration: event.duration, note: event.grade });
+  return new NoteData({ type: 'note', duration: event.duration, velocity: event.velocity, note: event.grade });
 }
 
 /** Imprime un evento en su forma canónica (sin salto de línea). */
 export function printNoteEvent(event: NoteEvent): string {
   const prefix = event.duration ? `${event.duration}:` : '';
+  const velocity = event.velocity !== undefined ? `@${event.velocity}` : '';
   if (event.kind === 'group') {
     if (event.children.length === 0) {
-      return `${prefix}()`;
+      return `${prefix}()${velocity}`;
     }
     // Los ejemplos normativos de §7.2/§7.3 y todo el corpus usan `( … )` con
     // un espacio tras '(' y antes de ')'. Es la forma canónica elegida.
-    return `${prefix}( ${event.children.map(printNoteEvent).join(' ')} )`;
+    return `${prefix}( ${event.children.map(printNoteEvent).join(' ')} )${velocity}`;
   }
   if (event.rest) {
-    return `${prefix}s`;
+    return `${prefix}s${velocity}`;
   }
   if (event.variable !== undefined) {
-    return `${prefix}$${event.variable}`;
+    return `${prefix}$${event.variable}${velocity}`;
   }
-  return `${prefix}${event.grade}`;
+  return `${prefix}${event.grade}${velocity}`;
 }
 
 /** Forma canónica en una sola línea (separador: un espacio). */

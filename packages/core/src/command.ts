@@ -4,6 +4,7 @@ import { ScaleTypes } from './scale';
 import { NoteData } from './note';
 import { parseBlockNotes } from './mr/notes.parser';
 import { parseDecorationItems } from './mr/decoration.parser';
+import { DEFAULT_VELOCITY, isVelocity, parseVelocityPattern, parseVelocityRamp } from './velocity';
 
 export enum CommandType {
     OCT = 'OCT',
@@ -16,6 +17,9 @@ export enum CommandType {
     SHIFTSTART = 'SHIFTSTART',
     SHIFTSIZE = 'SHIFTSIZE',
     SHIFTVALUE = 'SHIFTVALUE',
+    VELOCITY = 'VELOCITY',
+    VELOCITY_PATTERN = 'VELOCITY_PATTERN',
+    VELOCITY_RAMP = 'VELOCITY_RAMP',
     PATTERN = 'PATTERN',
     DECORATION = 'DECORATION'
 }
@@ -66,9 +70,14 @@ export class Command {
         return this._value;
     }
 
-    /** PATTERN y DECORATION guardan su valor como string (melodía/items). */
+    /** PATTERN, DECORATION y los perfiles de velocidad guardan su valor como string. */
     private isStringValued(): boolean {
-        return this.type === CommandType.PATTERN || this.type === CommandType.DECORATION;
+        return (
+            this.type === CommandType.PATTERN ||
+            this.type === CommandType.DECORATION ||
+            this.type === CommandType.VELOCITY_PATTERN ||
+            this.type === CommandType.VELOCITY_RAMP
+        );
     }
 
     setVariable(name: string | null): void {
@@ -154,6 +163,36 @@ export class Command {
             }
             return;
         }
+
+        if (this.type === CommandType.VELOCITY_PATTERN) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.velocityPattern = null;
+                return;
+            }
+            try {
+                player.velocityPattern = parseVelocityPattern(text);
+            } catch (e) {
+                console.error(`[Command VELOCITY_PATTERN] Invalid pattern "${text}":`, e);
+                player.velocityPattern = null;
+            }
+            return;
+        }
+
+        if (this.type === CommandType.VELOCITY_RAMP) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.velocityRamp = null;
+                return;
+            }
+            try {
+                player.velocityRamp = parseVelocityRamp(text);
+            } catch (e) {
+                console.error(`[Command VELOCITY_RAMP] Invalid ramp "${text}":`, e);
+                player.velocityRamp = null;
+            }
+            return;
+        }
         
         if (this.type === CommandType.SCALE) {
              const scaleName = String(value).toUpperCase();
@@ -194,6 +233,11 @@ export class Command {
             case CommandType.SHIFTSTART: player.shiftStart = value; break;
             case CommandType.SHIFTSIZE: player.shiftSize = value; break;
             case CommandType.SHIFTVALUE: player.shiftValue = value; break;
+            case CommandType.VELOCITY: {
+                const numeric = Number(value);
+                player.velocity = isVelocity(numeric) ? numeric : DEFAULT_VELOCITY;
+                break;
+            }
         }
     }
     

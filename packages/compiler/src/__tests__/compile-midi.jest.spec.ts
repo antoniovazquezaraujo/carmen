@@ -56,6 +56,16 @@ describe('compilador MIDI · eventos musicales', () => {
         ]);
     });
 
+    it('respeta la velocity @ de la nota y VELOCITY del preset', async () => {
+        const explicit = await compile('4n:0@34');
+        expect(explicit.parts[0].notes[0].velocity).toBe(34);
+
+        const preset = await compile('4n:0 4n:2', {
+            preset: ['VELOCITY 20', 'VELOCITY_PATTERN 20 10 5']
+        });
+        expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
+    });
+
     it('compila duraciones de compás en 4/4', async () => {
         const song = await compile('1m:0\n2m:2');
 
