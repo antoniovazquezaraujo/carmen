@@ -14,7 +14,7 @@ All notable changes to **Carmen**. Format based on
 ### Changed
 
 - **Rebranding to Carmen**: the product name, app title, README, user docs and GitHub URLs now use Carmen. The `.mr` format and `--mr-*` identifiers remain unchanged.
-- **npm packages and CLI**: the workspace packages are now `carmen-core` and `carmen-cli`; the CLI installs a single `carmen` binary (`compile`, `check`, `version`, `help`). The legacy `moderanger-mid` alias is removed, and the web release asset is now `carmen-web.zip`.
+- **npm packages and CLI**: the workspace packages are now `carmen-core` and `carmen-cli`; the CLI installs a single `carmen` binary (`compile`, `check`, `version`, `help`). The legacy `moderanger-mid` alias is removed. The Angular build output moved to `dist/carmen/browser`, and the web release asset is now `carmen-web.zip`.
 - Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
 - The duration wheel and default-duration selectors now include `2m` and `4m`; `1m` is omitted because it equals `1n` in 4/4. Other measure counts can still be written in the `.mr` text.
 - Scale variables in the variables panel now use the same selector as presets, including the degree-ring preview of each scale on hover.

@@ -39,7 +39,7 @@ jobs:
 
       - name: Package web app
         run: |
-          cd dist/moderanger/browser
+          cd dist/carmen/browser
           zip -r ../../carmen-web.zip .
 
       - name: Publish release (auto-generated changelog)
