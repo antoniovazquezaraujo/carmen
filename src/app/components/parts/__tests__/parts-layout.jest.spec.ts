@@ -1,8 +1,12 @@
 /**
  * Lógica pura del splitter de parts: reparto, clamps y crecimiento sin tope.
  */
+import { Block } from 'src/app/model/block';
+import { Part } from 'src/app/model/part';
 import {
     clampBoundary,
+    containsBlock,
+    findBlockById,
     KEYBOARD_RESIZE_STEP,
     MIN_PART_WIDTH,
     moveBlockBetween,
@@ -85,5 +89,36 @@ describe('parts-layout · movimiento de bloques raíz', () => {
 
         expect(source).toEqual(['A', 'C']);
         expect(target).toEqual(['D', 'B', 'E']);
+    });
+});
+
+describe('parts-layout · anidación de bloques', () => {
+    it('detecta un bloque y sus descendientes, pero no a sus ancestros', () => {
+        const root = new Block();
+        const child = new Block();
+        const grandchild = new Block();
+        child.children = [grandchild];
+        root.children = [child];
+
+        expect(containsBlock(root, root)).toBe(true);
+        expect(containsBlock(root, child)).toBe(true);
+        expect(containsBlock(root, grandchild)).toBe(true);
+        expect(containsBlock(child, root)).toBe(false);
+    });
+
+    it('encuentra un bloque anidado por id en cualquier part', () => {
+        const firstRoot = new Block();
+        const nested = new Block();
+        firstRoot.children = [nested];
+        const firstPart = new Part();
+        firstPart.items = [firstRoot];
+
+        const secondRoot = new Block();
+        const secondPart = new Part();
+        secondPart.items = [secondRoot];
+
+        expect(findBlockById([firstPart, secondPart], nested.id)).toBe(nested);
+        expect(findBlockById([firstPart, secondPart], secondRoot.id)).toBe(secondRoot);
+        expect(findBlockById([firstPart, secondPart], -1)).toBeNull();
     });
 });

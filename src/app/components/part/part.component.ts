@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CdkDrag, type CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Button, ButtonDirective } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +10,12 @@ import { Song } from 'src/app/model/song';
 import { SongPlayer } from 'src/app/model/song.player';
 import type { ContentEditRequest } from '../block-content-links/block-content-links.component';
 import { BlockComponent } from '../block/block.component';
-import { moveBlockBetween, moveBlockWithin } from '../parts/parts-layout';
+import {
+    containsBlock,
+    findBlockById,
+    moveBlockBetween,
+    moveBlockWithin
+} from '../parts/parts-layout';
 
 /**
  * Parte de la canción: nombre, instrumento y una secuencia de bloques
@@ -40,7 +45,10 @@ export class PartComponent implements OnInit {
     /** Bloque raíz que se está arrastrando, para apagar su tooltip. */
     draggedRootBlockId: number | null = null;
 
-    constructor(private readonly songPlayer: SongPlayer) {
+    constructor(
+        private readonly songPlayer: SongPlayer,
+        private readonly cdr: ChangeDetectorRef
+    ) {
         this.onDuplicatePart = new EventEmitter<Part>();
         this.onRemovePart = new EventEmitter<Part>();
     }
@@ -74,9 +82,24 @@ export class PartComponent implements OnInit {
         this.draggedRootBlockId = null;
     }
 
-    /** Reordena bloques raíz dentro de esta part o los mueve desde otra. */
+    /** Reordena/mueve bloques raíz o los anida si se sueltan en una cabecera. */
     onBlockDrop(event: CdkDragDrop<Block[]>): void {
         this.draggedRootBlockId = null;
+        const moved = event.previousContainer.data[event.previousIndex];
+        const nestTarget = this.blockHeaderAt(event.event);
+
+        if (nestTarget) {
+            if (!moved || containsBlock(moved, nestTarget)) {
+                return;
+            }
+            event.previousContainer.data.splice(event.previousIndex, 1);
+            nestTarget.children.push(moved);
+            (nestTarget as Block & { expanded?: boolean }).expanded = true;
+            this.currentBlock = nestTarget;
+            this.cdr.detectChanges();
+            return;
+        }
+
         if (event.previousContainer === event.container) {
             moveBlockWithin(event.container.data, event.previousIndex, event.currentIndex);
         } else {
@@ -88,6 +111,24 @@ export class PartComponent implements OnInit {
             );
         }
         this.currentBlock = event.container.data[event.currentIndex] ?? this.part.items[0] ?? new Block();
+    }
+
+    /** Bloque cuya cabecera está bajo el puntero en el momento del drop. */
+    private blockHeaderAt(event: Event): Block | null {
+        if (typeof document === 'undefined') {
+            return null;
+        }
+        const pointer = event as MouseEvent;
+        if (typeof pointer.clientX !== 'number' || typeof pointer.clientY !== 'number') {
+            return null;
+        }
+        const element = document.elementFromPoint(pointer.clientX, pointer.clientY);
+        const header = element?.closest('.block-header') as HTMLElement | null;
+        const id = Number(header?.dataset['blockId']);
+        if (!header || !Number.isInteger(id)) {
+            return null;
+        }
+        return findBlockById(this.song?.parts ?? [this.part], id);
     }
 
     onDuplicateBlock(block: Block): void {

@@ -240,7 +240,7 @@ En la GUI, las partes viven en la fila **Parts**, debajo de los paneles de varia
 - Un bloque puede contener como máximo una referencia `preset`, una `procedure` y una `melody`, además de cualquier número de bloques hijos. Las referencias son opcionales: un bloque puede ser solo estructura.
 - **No hay contenido inline** dentro de un bloque: ni secciones `notes`, ni `commands`, ni `operations`.
 - En el árbol visual, cada nivel de anidación se marca con una **guía vertical tenue** y un **conector corto** hacia cada bloque, para leer la jerarquía de un vistazo.
-- Arrastra un bloque desde su asa (`⋮⋮`) para reordenarlo dentro de su part o moverlo a otra part. Los bloques hijos también se pueden arrastrar para reordenarlos o anidarlos dentro de otro bloque. Si sueltas un bloque entre dos bloques, cambia de posición.
+- Arrastra un bloque desde su asa (`⋮⋮`) para reordenarlo dentro de su part o moverlo a otra part. Suéltalo sobre la cabecera de otro bloque para anidarlo como último hijo de ese bloque. Los bloques hijos también se pueden arrastrar para reordenarlos o anidarlos dentro de otro bloque. Si sueltas un bloque entre dos bloques, cambia de posición.
 
 ```mr
 song Estructura

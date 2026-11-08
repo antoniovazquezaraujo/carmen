@@ -132,6 +132,8 @@
 - [ ] **10.10.** Arrastra un bloque raíz desde su asa y suéltalo por encima/debajo de otro bloque de la misma part: cambia el orden y persiste al guardar y recargar el `.mr`.
 - [ ] **10.11.** Arrastra un bloque raíz a otra part (con o sin bloques): aparece en la posición soltada, desaparece de la part de origen y persiste al guardar.
 - [ ] **10.12.** Arrastra un bloque raíz a una part vacía: la part deja de mostrar “No blocks yet” y el bloque queda como único hijo raíz.
+- [ ] **10.13.** Arrastra un bloque raíz y suéltalo sobre la **cabecera** de otro bloque: la cabecera se resalta al apuntarla, el bloque pasa a ser su último hijo y el destino se expande.
+- [ ] **10.14.** Intenta soltar un bloque sobre su propia cabecera o sobre la de un descendiente: no debe anidarse ni crearse un ciclo.
 - [ ] **10.10.** No aparecen errores nuevos en la consola del navegador durante las pruebas.
 
 ## 11. Caso 11 — Guías de jerarquía del árbol (feat/block-tree-guides, 2026-10-05)

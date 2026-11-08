@@ -61,7 +61,7 @@ part Piano instrument PIANO
 - `procedures`: `procedure <name>` plus operations (`VARY`, `ASSIGN`).
 - Libraries are leaves: they contain no blocks and no references to other library entries.
 - A block is structure only: optional `preset`, `procedure` and `melody` references plus child blocks. No inline `notes`/`commands`/`operations`.
-- In the GUI, drag a block by its handle to reorder it within a part or move it to another part. Child blocks can also be dragged to reorder or nest them.
+- In the GUI, drag a block by its handle to reorder it within a part or move it to another part. Drop it on another block's header to nest it as the last child. Child blocks can also be dragged to reorder or nest them.
 - Per pass: preset settings → procedure operations → melody notes → child blocks. `repeats` repeats the full pass, children included.
 - Format 2 has no `blocks` section and no `use`: blocks are never referenced and there is no reader for `version 1`.
 

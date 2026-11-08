@@ -263,6 +263,8 @@ export class BlockComponent implements OnInit, OnDestroy {
         return !this.isRootNode(node);
     }
 
+
+
     toggleNodeExpansion(node: ExpandableNode): void {
         if (node) {
             node.expanded = !node.expanded;

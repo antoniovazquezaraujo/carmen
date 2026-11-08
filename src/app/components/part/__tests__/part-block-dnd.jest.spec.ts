@@ -10,6 +10,7 @@ import * as path from 'path';
 
 const read = (relative: string): string => fs.readFileSync(path.resolve(__dirname, relative), 'utf8');
 const partTemplate = read('../part.component.html');
+const partSource = read('../part.component.ts');
 const partsTemplate = read('../../parts/parts.component.html');
 const blockTemplate = read('../../block/block.component.html');
 const blockStyles = read('../../block/block.component.scss');
@@ -41,6 +42,11 @@ describe('bloques raíz · drag & drop con CDK', () => {
         expect(blockTemplate).toContain('[tooltipDisabled]="rootDragging"');
         // El asa hija mantiene su clase y su drag de PrimeNG.
         expect(blockTemplate).toContain('block-drag-handle');
+    });
+
+    it('expone el id del bloque en la cabecera para resolver el anidamiento', () => {
+        expect(blockTemplate).toContain('[attr.data-block-id]="node.id"');
+        expect(partSource).toContain('blockHeaderAt(event.event)');
     });
 
     it('da el mismo aspecto a ambas asas', () => {

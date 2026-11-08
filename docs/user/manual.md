@@ -240,7 +240,7 @@ In the GUI, parts live in the **Parts** row, below the variables and content pan
 - A block may contain at most one `preset`, one `procedure` and one `melody` reference, plus any number of child blocks. References are optional: a block can be only structure.
 - There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections.
 - In the visual tree, each nesting level is marked with a **subtle vertical guide** and a **short connector** to every block, so the hierarchy is readable at a glance.
-- Drag a block from its handle (`⋮⋮`) to reorder it within its part or move it to another part. Child blocks can also be dragged to reorder them or nest them inside another block. Dropping a block between two blocks changes its position.
+- Drag a block from its handle (`⋮⋮`) to reorder it within its part or move it to another part. Drop it on another block's header to nest it as that block's last child. Child blocks can also be dragged to reorder them or nest them inside another block. Dropping a block between two blocks changes its position.
 
 ```mr
 song Estructura

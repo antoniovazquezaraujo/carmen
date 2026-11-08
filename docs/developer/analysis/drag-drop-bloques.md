@@ -123,7 +123,7 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 
 **Petición:** los bloques de primer nivel no mostraban asa y no se podían arrastrar.
 
-**Alcance:** asa en cada bloque raíz para **reordenarlo dentro de su part** y **moverlo a otra part**. El drag de bloques hijos de PrimeNG se mantiene para reordenar y anidar dentro de un árbol.
+**Alcance:** asa en cada bloque raíz para **reordenarlo dentro de su part**, **moverlo a otra part** y **anidarlo** soltándolo sobre la cabecera de otro bloque (como último hijo). El drag de bloques hijos de PrimeNG se mantiene para reordenar y anidar dentro de un árbol.
 
 **Implementación:**
 
@@ -131,12 +131,17 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 - `PartsComponent` envuelve la fila con `cdkDropListGroup`; cada `.part-content` es un `cdkDropList` con `part.items` como datos y `(cdkDropListDropped)="onBlockDrop($event)"`.
 - Cada `<app-block>` raíz lleva `cdkDrag`; el asa usa `cdkDragHandle` y una clase propia (`block-root-drag-handle`) para no activar el drag nativo de PrimeNG de los hijos.
 - `PartComponent.onBlockDrop` delega en `moveBlockWithin`/`moveBlockBetween` (`parts-layout.ts`): misma part → `splice` reordena; otra part → `splice` extrae e inserta en destino.
+- Cada `.block-header` lleva `data-block-id`. Al soltar, `PartComponent.onBlockDrop` mira el elemento bajo el puntero (`elementFromPoint`) y resuelve el bloque con `findBlockById`; si hay cabecera, extrae el bloque de la lista de la part y lo añade al final de `target.children`, expandiendo el destino.
+- `containsBlock` rechaza soltar un bloque dentro de sí mismo o de un descendiente, para no crear ciclos.
 - Los bloques raíz muestran el mismo icono `⋮⋮` que los hijos; el tooltip se apaga con `rootDragging` mientras dura el gesto.
-- `cdkDropListGroup` conecta todas las parts; un bloque puede soltarse en una part vacía o entre dos bloques.
+- `cdkDropListGroup` conecta todas las parts; un bloque puede soltarse en una part vacía, entre dos bloques o sobre una cabecera para anidarlo.
+- Al arrastrar, la cabecera bajo el puntero se resalta con `.part-content.cdk-drop-list-dragging .block-header:hover`.
 - Estilos globales para `.cdk-drag-preview`, `.cdk-drag-placeholder` y `.cdk-drag-animating`; el preview se clona en `<body>`.
 
 **Verificación:**
 
 - Tests de lógica pura: reordenar, no-op y transferencia entre parts (`parts-layout.jest.spec.ts`).
-- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle` y asa raíz separada (`part-block-dnd.jest.spec.ts`).
+- Tests de anidación: `canNestDrop` bloquea ciclos y `onNestDrop` añade al final de los hijos (`block-dnd.jest.spec.ts`).
+- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle`, cabecera de anidación y asa raíz separada (`part-block-dnd.jest.spec.ts`).
+- Verificación real con Chrome headless + CDP: reordenar, mover entre parts y anidar sobre una cabecera.
 - `npm test` y `npm run build` en verde.
