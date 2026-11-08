@@ -66,6 +66,36 @@ describe('compilador MIDI · eventos musicales', () => {
         expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
     });
 
+    it('aplica VELOCITY solo al bloque que usa el preset, no a hijos ni hermanos', async () => {
+        const song = await compileSongText(`song Aislada
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+  melody B
+    notes
+      4n:2
+
+presets
+  preset P
+    VELOCITY 20
+    PLAYMODE SINGLE
+
+part Piano
+  block A
+    preset P
+    melody A
+    block Hijo
+      melody A
+  block B
+    melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.velocity)).toEqual([20, 90, 90]);
+    });
+
     it('compila duraciones de compás en 4/4', async () => {
         const song = await compile('1m:0\n2m:2');
 

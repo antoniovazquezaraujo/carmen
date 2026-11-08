@@ -9,6 +9,18 @@ export const DEFAULT_VELOCITY = 90;
 export const MIN_VELOCITY = 1;
 export const MAX_VELOCITY = 127;
 
+/** Perfil completo de intensidad que puede tener un preset. */
+export interface VelocityProfile {
+    velocity: number;
+    velocityPattern: number[] | null;
+    velocityRamp: VelocityRamp | null;
+}
+
+/** Comandos que forman el perfil de intensidad local de un preset. */
+export function isVelocityProfileCommand(type: string): boolean {
+    return type === 'VELOCITY' || type === 'VELOCITY_PATTERN' || type === 'VELOCITY_RAMP';
+}
+
 export interface VelocityRamp {
     /** Primera nota generada del bloque, 1-based. */
     from: number;

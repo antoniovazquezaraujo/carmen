@@ -284,6 +284,8 @@ For each pass of a block:
 
 Settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
 
+The **velocity profile** is the exception: `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP` are local to the block that declares them. They apply only to that block's own notes and the previous profile is restored afterwards, before its child blocks or siblings run. If a preset declares any velocity setting, its local profile starts from the defaults (90, no pattern/ramp), so it does not inherit an old pattern or ramp.
+
 Because a melody stores notes and not a rendered result, the same melody can sound different in blocks with different presets or harmonic contexts. That is intentional.
 
 ---
@@ -446,7 +448,7 @@ Notes:
 - In a numeric setting, the `$variable` is resolved at playback time; it must contain a number.
 - `SHIFTSTART`, `SHIFTSIZE` and `SHIFTVALUE` add whole octaves to the chord notes in the window `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, on the final chord order after `INV`). The window is clamped to the chord, `SHIFTSIZE 0` does nothing and a negative `SHIFTVALUE` lowers the affected notes. They shape the generated chord/arpeggio; with `PLAYMODE SINGLE` there is no chord, so they have no effect (same as `WIDTH`/`INV`).
 - `DECORATION` decorates **each note of the generated chord/arpeggio** (after `WIDTH`/`GAP`/`INV`/`SHIFT`): every item replaces the note with `{ degree + offset }`, where `offset` is measured **in scale degrees** (the same unit as the notes, `PATTERN`, `WIDTH` and `GAP`). The item duration (`4t` by default) is kept as the note metadata, never rescaled. A `0` item keeps the original note; without any `0` it disappears. Items are a flat list (no groups). With `PLAYMODE SINGLE` there is no chord, so it has no effect. **The timing is decided by the playmode, not by the item durations**: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes (each item adds a slice); item durations are metadata today.
-- `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP` define the intensity profile: `VELOCITY` is the base, the pattern cycles over generated notes, the ramp overrides in its range and a note's own `@` wins over both. Ramp ranges count generated notes in playback order, 1-based; each emitted note counts (chord/arpeggio notes individually), rests do not, and the count restarts on each block repetition. The ramp is linear, rounded and clamped to 1–127.
+- `VELOCITY`, `VELOCITY_PATTERN` and `VELOCITY_RAMP` define the intensity profile: `VELOCITY` is the base, the pattern cycles over generated notes, the ramp overrides in its range and a note's own `@` wins over both. Ramp ranges count generated notes in playback order, 1-based; each emitted note counts (chord/arpeggio notes individually), rests do not, and the count restarts on each block repetition. The ramp is linear, rounded and clamped to 1–127. The profile is local to the block (see §3.6); child blocks and siblings recover the previous profile.
 
 Example with all settings:
 

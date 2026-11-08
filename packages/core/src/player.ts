@@ -9,7 +9,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { OctavedGrade } from "./octaved-grade";
 import { NoteGenerationUnifiedService } from "./services/note-generation-unified.service";
 import { DecorationItem } from "./mr/decoration.parser";
-import { DEFAULT_VELOCITY, VelocityRamp } from "./velocity";
+import { DEFAULT_VELOCITY, isVelocityProfileCommand, VelocityProfile, VelocityRamp } from "./velocity";
 
 // Define missing constants (assuming default values, adjust if needed)
 const DEFAULT_BPM = 120;
@@ -44,6 +44,48 @@ export class Player {
     /** Rampa de velocities sobre notas generadas; `null` = sin rampa. */
     velocityRamp: VelocityRamp | null = null;
     playMode: PlayMode = PlayMode.CHORD;
+
+    /** Copia del perfil de intensidad (para ámbitos locales de bloque). */
+    snapshotVelocityProfile(): VelocityProfile {
+        return {
+            velocity: this.velocity,
+            velocityPattern: this.velocityPattern ? [...this.velocityPattern] : null,
+            velocityRamp: this.velocityRamp ? { ...this.velocityRamp } : null
+        };
+    }
+
+    restoreVelocityProfile(profile: VelocityProfile): void {
+        this.velocity = profile.velocity;
+        this.velocityPattern = profile.velocityPattern ? [...profile.velocityPattern] : null;
+        this.velocityRamp = profile.velocityRamp ? { ...profile.velocityRamp } : null;
+    }
+
+    resetVelocityProfile(): void {
+        this.velocity = DEFAULT_VELOCITY;
+        this.velocityPattern = null;
+        this.velocityRamp = null;
+    }
+
+    /**
+     * Si el preset declara algún ajuste de intensidad, lo aplica como perfil
+     * local del bloque: parte de defaults y devuelve el perfil anterior en
+     * `endVelocityProfileScope`. Sin ajustes de intensidad no hay ámbito y se
+     * conserva el perfil heredado.
+     */
+    beginVelocityProfileScope(commands: readonly { type: string }[]): VelocityProfile | null {
+        if (!commands.some(command => isVelocityProfileCommand(command.type))) {
+            return null;
+        }
+        const snapshot = this.snapshotVelocityProfile();
+        this.resetVelocityProfile();
+        return snapshot;
+    }
+
+    endVelocityProfileScope(snapshot: VelocityProfile | null): void {
+        if (snapshot) {
+            this.restoreVelocityProfile(snapshot);
+        }
+    }
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;
     currentPattern: NoteData[] | null = null;

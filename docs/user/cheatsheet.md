@@ -98,6 +98,8 @@ part Piano instrument PIANO
 | `VELOCITY` | Default velocity | `VELOCITY 20` |
 | `VELOCITY_PATTERN` | Cyclic velocity pattern | `VELOCITY_PATTERN 20 10 5` |
 | `VELOCITY_RAMP` | Linear ramp over generated notes | `VELOCITY_RAMP 4 11 20 60` |
+
+The velocity profile (`VELOCITY`/`VELOCITY_PATTERN`/`VELOCITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 | `PATTERN` | Pattern melody (or `$variable`) | `PATTERN 4t:0 4t:2` |
 | `DECORATION` | Decoration added to each chord note (offsets in scale degrees) | `DECORATION 4t:0 8t:-2` |
 

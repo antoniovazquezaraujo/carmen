@@ -155,4 +155,47 @@ describe('SongPlayer · bibliotecas de contenido', () => {
 
     expect(VariableContext.getValue('x')).toBe(2);
   });
+
+  it('la velocity del preset solo afecta a su bloque, no a hijos ni hermanos', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyA = melody('A');
+    const melodyB = melody('B');
+    song.melodies = [melodyA, melodyB];
+    song.presets = [
+      preset('P', [
+        new Command({ type: CommandType.VELOCITY, value: 20 }),
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' })
+      ])
+    ];
+
+    const part = new Part();
+    const blockA = new Block();
+    blockA.label = 'A';
+    blockA.preset = song.presets[0];
+    blockA.melody = melodyA;
+    const child = new Block();
+    child.label = 'Hijo';
+    child.melody = melodyA;
+    blockA.children = [child];
+    const blockB = new Block();
+    blockB.label = 'B';
+    blockB.melody = melodyB;
+    part.items = [blockA, blockB];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    const velocities = stub.triggerCalls().map(call => call[4]);
+    expect(velocities).toEqual([20 / 127, 90 / 127, 90 / 127]);
+  });
 });

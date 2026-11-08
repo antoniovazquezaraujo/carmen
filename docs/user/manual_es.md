@@ -284,6 +284,8 @@ En cada pasada de un bloque:
 
 Los ajustes y las operaciones **persisten** después del bloque, igual que cuando vivían inline. Las operaciones se ejecutan en cada pasada; un `VARY` no es un valor congelado. Stop y el fin natural restauran las variables.
 
+La **velocidad** es la excepción: `VELOCITY`, `VELOCITY_PATTERN` y `VELOCITY_RAMP` son locales al bloque que los declara. Solo afectan a las notas propias de ese bloque y, al terminar, se restaura el perfil anterior antes de ejecutar sus bloques hijos o sus hermanos. Si un preset declara algún ajuste de velocidad, su perfil local parte de los valores por defecto (90, sin patrón ni rampa), así que no hereda un patrón o rampa antiguos.
+
 Como una melodía guarda notas y no un resultado renderizado, la misma melodía puede sonar distinta en bloques con presets o contextos armónicos distintos. Es intencionado.
 
 ---
@@ -446,7 +448,7 @@ Notas:
 - En un ajuste numérico, la `$variable` se resuelve al reproducir; debe contener un número.
 - `SHIFTSTART`, `SHIFTSIZE` y `SHIFTVALUE` suman octavas completas a las notas del acorde en la ventana `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, sobre el orden final del acorde tras `INV`). La ventana se recorta al acorde, `SHIFTSIZE 0` no hace nada y un `SHIFTVALUE` negativo baja las notas afectadas. Dan forma al acorde/arpegio generado; con `PLAYMODE SINGLE` no hay acorde, así que no tienen efecto (igual que `WIDTH`/`INV`).
 - `DECORATION` adorna **cada nota del acorde/arpegio generado** (después de `WIDTH`/`GAP`/`INV`/`SHIFT`): cada item sustituye la nota por `{ grado + offset }`, donde `offset` se mide **en grados de escala** (la misma unidad que las notas, `PATTERN`, `WIDTH` y `GAP`). La duración del item (`4t` por defecto) se guarda como metadato de la nota, sin reescalar. Un item `0` conserva la nota original; sin ningún `0` desaparece. Los items son una lista plana (sin grupos). Con `PLAYMODE SINGLE` no hay acorde, así que no tiene efecto. **El tiempo lo decide el playmode, no las duraciones de los items**: `CHORD` hace sonar todas las notas adornadas a la vez durante la duración del evento, y los arpegios reparten la duración del evento a partes iguales entre las notas emitidas (cada item añade una rebanada); hoy las duraciones de item son metadato.
-- `VELOCITY`, `VELOCITY_PATTERN` y `VELOCITY_RAMP` definen el perfil de intensidad: `VELOCITY` es la base, el patrón cicla sobre las notas generadas, la rampa manda en su rango y el `@` de una nota gana a ambos. Los rangos de la rampa cuentan notas generadas en orden de reproducción, 1-based; cada nota emitida cuenta (las de acorde/arpegio una a una), los silencios no, y el contador se reinicia en cada repetición del bloque. La rampa es lineal, redondeada y limitada a 1–127.
+- `VELOCITY`, `VELOCITY_PATTERN` y `VELOCITY_RAMP` definen el perfil de intensidad: `VELOCITY` es la base, el patrón cicla sobre las notas generadas, la rampa manda en su rango y el `@` de una nota gana a ambos. Los rangos de la rampa cuentan notas generadas en orden de reproducción, 1-based; cada nota emitida cuenta (las de acorde/arpegio una a una), los silencios no, y el contador se reinicia en cada repetición del bloque. La rampa es lineal, redondeada y limitada a 1–127. El perfil es local al bloque (ver §3.6); los hijos y hermanos recuperan el perfil anterior.
 
 Ejemplo con todos los ajustes:
 
