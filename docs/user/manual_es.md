@@ -544,7 +544,7 @@ Se declaran en `vars` y se usan en cualquier preset, melodía o procedimiento. E
 
 - Los strings con espacios o comillas van siempre entre comillas dobles; dentro se escapan `\"` y `\\`.
 - Los valores de escala y playmode se reconocen sin distinguir mayúsculas y se canonizan a MAYÚSCULAS: `$scale = black` se guarda como `$scale = BLACK`.
-- En la app, el panel plegable **Variables** (encima de la fila de parts) lista y edita los cuatro tipos: número, escala, playmode y string (melodías/patrones, editados como texto).
+- En la app, el panel plegable **Variables** (encima de la fila de parts) lista y edita los cuatro tipos: número, escala, playmode y string (melodías/patrones, editados como texto). Las variables de escala usan el mismo selector que los presets, con la vista previa del anillo de grados al pasar el ratón.
 - Al pulsar Aplicar o cargar un `.mr`, las variables declaradas en el texto se sincronizan con la app (se dan de alta y de baja).
 - Las variables están vivas durante la reproducción: `VARY`/`ASSIGN` las modifican. Al guardar se escribe el **valor vigente** en ese momento, que normalmente coincide con el declarado si no has reproducido con operaciones.
 
