@@ -99,6 +99,16 @@ select {
     }
 }
 
+/* Selector de escala con vista previa (misma pieza que el preset editor). */
+app-scale-select {
+    min-width: 90px;
+    max-width: 160px;
+}
+
+:host ::ng-deep app-scale-select .scale-select-trigger {
+    height: 24px;
+}
+
 .validation-error {
     color: red;
     font-size: 0.8rem;

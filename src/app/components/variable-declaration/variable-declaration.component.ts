@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { Tooltip } from 'primeng/tooltip';
 import { Bind } from 'primeng/bind';
 import { Button } from 'primeng/button';
+import { ScaleSelectComponent } from '../scale-select/scale-select.component';
 
 interface VariableDeclaration {
     name: string;
@@ -24,7 +25,7 @@ interface VariableDeclaration {
     selector: 'app-variable-declaration',
     templateUrl: './variable-declaration.component.html',
     styleUrls: ['./variable-declaration.component.scss'],
-    imports: [FormsModule, Tooltip, Bind, Button]
+    imports: [FormsModule, Tooltip, Bind, Button, ScaleSelectComponent]
 })
 export class VariableDeclarationComponent implements OnInit, OnDestroy {
     /** El formulario se muestra solo al pulsar el + de la cabecera. */
@@ -71,6 +72,25 @@ export class VariableDeclarationComponent implements OnInit, OnDestroy {
 
     playModeDescription(value: string | number): string {
         return playModeDescriptionText(String(value));
+    }
+
+    /** Valor válido para `app-scale-select`; si el modelo no trae uno, cae al primero. */
+    scaleValue(value: string | number): string {
+        const text = String(value ?? '');
+        return this.scaleNames.includes(text) ? text : (this.scaleNames[0] ?? 'WHITE');
+    }
+
+    onNewScaleSelected(value: string): void {
+        this.newVariable.value = value;
+    }
+
+    onScaleSelected(index: number, value: string): void {
+        const variable = this.variables[index];
+        if (!variable) {
+            return;
+        }
+        variable.value = value;
+        this.updateVariable(index);
     }
 
     addVariable(): void {

@@ -544,7 +544,7 @@ Declared in `vars` and used in any preset, melody or procedure. The name is `$` 
 
 - Strings with spaces or quotes are always double-quoted; inside them `\"` and `\\` are escaped.
 - Scale and playmode values are recognized case-insensitively and canonicalized to UPPERCASE: `$scale = black` is saved as `$scale = BLACK`.
-- In the app, the collapsible **Variables** panel (above the parts row) lists and edits all four types: number, scale, playmode and string (melodies/patterns, edited as text).
+- In the app, the collapsible **Variables** panel (above the parts row) lists and edits all four types: number, scale, playmode and string (melodies/patterns, edited as text). Scale variables use the same selector as presets, with a degree-ring preview of each scale on hover.
 - When you press Apply or load a `.mr` file, the variables declared in the text are synchronized with the app (created and removed).
 - Variables are alive during playback: `VARY`/`ASSIGN` change them. When saving, the **current value** is written at that moment, which normally matches the declared one if you have not played with operations.
 

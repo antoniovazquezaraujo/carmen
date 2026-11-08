@@ -36,11 +36,11 @@
           </select>
         }
         @case ('scale') {
-          <select [(ngModel)]="newVariable.value" name="value" autocomplete="off" required>
-            @for (scale of scaleNames; track scale) {
-              <option [value]="scale">{{scale}}</option>
-            }
-          </select>
+          <app-scale-select
+            [value]="scaleValue(newVariable.value)"
+            [options]="scaleNames"
+            (valueChange)="onNewScaleSelected($event)">
+          </app-scale-select>
         }
         @case ('string') {
           <input
@@ -96,14 +96,11 @@
             </select>
           }
           @case ('scale') {
-            <select
-              [(ngModel)]="variable.value"
-              autocomplete="off"
-              (ngModelChange)="updateVariable(i)">
-              @for (scale of scaleNames; track scale) {
-                <option [value]="scale">{{scale}}</option>
-              }
-            </select>
+            <app-scale-select
+              [value]="scaleValue(variable.value)"
+              [options]="scaleNames"
+              (valueChange)="onScaleSelected(i, $event)">
+            </app-scale-select>
           }
           @case ('string') {
             <input
