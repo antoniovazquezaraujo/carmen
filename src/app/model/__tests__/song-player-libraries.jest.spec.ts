@@ -156,6 +156,40 @@ describe('SongPlayer · bibliotecas de contenido', () => {
     expect(VariableContext.getValue('x')).toBe(2);
   });
 
+  it('aplica VELOCITY_RAMP a las notas generadas del bloque', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyRamp = melody('Ramp', '4n:0 4n:1 4n:2');
+    song.melodies = [melodyRamp];
+    song.presets = [
+      preset('P', [
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
+        new Command({ type: CommandType.VELOCITY_RAMP, value: '1 3 20 60' })
+      ])
+    ];
+
+    const part = new Part();
+    const block = new Block();
+    block.label = 'Ramp';
+    block.preset = song.presets[0];
+    block.melody = melodyRamp;
+    part.items = [block];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    expect(stub.triggerCalls().map(call => call[4])).toEqual([20 / 127, 40 / 127, 60 / 127]);
+  });
+
   it('la velocity del preset solo afecta a su bloque, no a hijos ni hermanos', async () => {
     const stub = createEngineStub();
     const player = new SongPlayer(
