@@ -347,8 +347,8 @@ part Piano
     {
         id: 'glass-orbit',
         title: 'Glass Orbit',
-        description: 'A pattern-driven orbit where variables change the mode and octave while it plays.',
-        tags: ['Pattern', 'Variables', 'Operations'],
+        description: 'An eight-pass orbit of decorated chords, with two presets and a procedure that shifts mode, scale and key.',
+        tags: ['Chords', 'Decoration', 'Variables'],
         bpm: 108,
         mr: `song "Glass Orbit"
 version 2
@@ -356,37 +356,59 @@ repeats 2
 bpm 108
 
 vars
-  $oct = 3
-  $mode = ASCENDING
-  $scale = BLUE
+  $oct = 1
+  $mode = CHORD
+  $scale = WHITE
+  $tone = 0
 
 melodies
-  melody Orbit
+  melody a
     notes
-      8n:0
-      8n:2
-      8n:4
-      8n:6
+      2n:0
+
+  melody b
+    notes
+      2n:1
 
 presets
-  preset OrbitAjustes
+  preset a
     OCT $oct
     SCALE $scale
     PLAYMODE $mode
-    WIDTH 2
+    WIDTH 4
     GAP 3
-    PATTERN 4t:0 4t:-1 4t:2 4t:-2
+    DECORATION 2n:-1 1n:1
+    KEY $tone
+
+  preset b
+    OCT $oct
+    SCALE $scale
+    PLAYMODE $mode
+    WIDTH 4
+    GAP -1
+    DECORATION 2n:0 1n:3
+    KEY $tone
 
 procedures
-  procedure OrbitProcedimiento
-    VARY $oct 1
-    ASSIGN $mode EVEN_ASC_ODD_DESC
+  procedure a
+    VARY $mode 1
+    VARY $scale 2
+    VARY $tone 3
 
 part Glass
-  block Orbit repeats 2
-    preset OrbitAjustes
-    procedure OrbitProcedimiento
-    melody Orbit
+  block Orbit repeats 8
+    preset a
+    procedure a
+    melody a
+
+    block Orbit
+      preset a
+      melody b
+
+  block Orbit repeats 8
+    preset b
+    procedure a
+    melody b
 `
     },
     {

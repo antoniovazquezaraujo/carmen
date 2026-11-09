@@ -30,9 +30,10 @@ describe('example song library', () => {
         expect(glass).toBeDefined();
 
         createExampleSong(glass!);
-        expect(VariableContext.getValue('oct')).toBe(3);
-        expect(VariableContext.getValue('mode')).toBe('ASCENDING');
-        expect(VariableContext.getValue('scale')).toBe('BLUE');
+        expect(VariableContext.getValue('oct')).toBe(1);
+        expect(VariableContext.getValue('mode')).toBe('CHORD');
+        expect(VariableContext.getValue('scale')).toBe('WHITE');
+        expect(VariableContext.getValue('tone')).toBe(0);
 
         createExampleSong(dodecaedro!);
         expect(VariableContext.getValue('oct')).toBeUndefined();
