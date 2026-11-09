@@ -146,9 +146,8 @@
 /* Entrada que está sonando: se mantiene resaltada aunque esté plegada. */
 .library-entry--playing .library-entry-header {
   border-radius: 4px;
-  background-color: #1e1e1e;
+  background-color: #2f2b26;
   color: #f5f5f5;
-  box-shadow: inset 3px 0 0 #8faebc;
   transition: background-color 120ms ease;
 }
 
