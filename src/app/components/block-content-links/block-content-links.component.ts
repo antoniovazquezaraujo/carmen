@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
+import { Dialog } from 'primeng/dialog';
 import { Tooltip } from 'primeng/tooltip';
 import { Block } from 'src/app/model/block';
+import { cloneCommand } from 'src/app/model/command';
 import { ContentKind, Melody, Preset, Procedure } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
+import { PresetEditorComponent } from '../preset-editor/preset-editor.component';
 import { createContent, findContent } from '../content-library/content-usage';
 
 /** Navegación desde un bloque a la definición de contenido. */
@@ -24,13 +27,37 @@ export interface ContentEditRequest {
     selector: 'app-block-content-links',
     templateUrl: './block-content-links.component.html',
     styleUrls: ['./block-content-links.component.scss'],
-    imports: [FormsModule, Button, Tooltip]
+    imports: [FormsModule, Button, Dialog, Tooltip, PresetEditorComponent]
 })
 export class BlockContentLinksComponent {
     @Input() block!: Block;
     @Input() song!: Song;
 
     @Output() contentEdit = new EventEmitter<ContentEditRequest>();
+
+    overridesVisible = false;
+    overridesDraft = new Preset();
+
+    openOverrides(): void {
+        const draft = new Preset();
+        draft.label = 'Overrides';
+        draft.settings = (this.block.overrides ?? []).map(cloneCommand);
+        this.overridesDraft = draft;
+        this.overridesVisible = true;
+    }
+
+    saveOverrides(): void {
+        this.block.overrides = this.overridesDraft.settings.map(cloneCommand);
+        this.overridesVisible = false;
+    }
+
+    cancelOverrides(): void {
+        this.overridesVisible = false;
+    }
+
+    clearOverrides(): void {
+        this.block.overrides = [];
+    }
 
     get melodies(): Melody[] {
         return this.song?.melodies ?? [];

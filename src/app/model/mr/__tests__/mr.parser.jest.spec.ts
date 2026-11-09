@@ -399,6 +399,44 @@ part P
   });
 });
 
+describe('parseSong: overrides locales de bloque', () => {
+  it('parsea la sección overrides y la serializa en orden canónico', () => {
+    const document = parseSong(`song "Overrides"
+version 2
+
+presets
+  preset Base
+    OCT 2
+
+part Piano
+  block A
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+`);
+
+    const block = document.song.parts[0].items[0];
+    expect(block.overrides.map(setting => setting.type)).toEqual([
+      CommandType.OCT,
+      CommandType.INTENSITY
+    ]);
+    expect(block.overrides.map(setting => setting.value)).toEqual([3, 40]);
+
+    const text = serializeSong(document);
+    expect(text).toContain('  block A\n    preset Base\n    overrides\n      OCT 3\n      INTENSITY 40\n');
+  });
+
+  it('rechaza overrides vacíos y comandos mal indentados', () => {
+    expect(expectParseError('part Piano\n  block A\n    overrides\n').message).toContain(
+      'al menos un ajuste'
+    );
+    expect(expectParseError('part Piano\n  block A\n    overrides\n        OCT 3\n').message).toContain(
+      'indentación inesperada'
+    );
+  });
+});
+
 describe('parseSong: patrón de octavas', () => {
   it('parsea y serializa OCTAVE_PATTERN con enteros relativos', () => {
     const document = parseSong(`song "Octavas"

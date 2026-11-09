@@ -56,6 +56,8 @@ type ExecutionUnit = {
     block: Block;
     /** Comandos a ejecutar en esta unidad (definición y/o llamada, según el caso). */
     commands: Command[];
+    /** Overrides locales que solo afectan a las notas propias del bloque. */
+    overrides: Command[];
     /** Operaciones a ejecutar en esta unidad (definición y/o llamada). */
     operations: BaseOperation[];
     /** `true` si esta unidad genera las notas de `block` (pasada de notas). */
@@ -428,17 +430,27 @@ export class SongPlayer {
                 const octaveScope = state.player.beginOctavePatternScope();
                 try {
                     unit.commands.forEach((command: Command) => command.execute(state.player));
-                    this._executeOperations(unit.operations);
+                    const overrideScope = unit.overrides.length > 0
+                        ? state.player.snapshotPresetState()
+                        : null;
+                    try {
+                        unit.overrides.forEach((command: Command) => command.execute(state.player));
+                        this._executeOperations(unit.operations);
 
-                    if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                        const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                            block.melody,
-                            state.player,
-                            block.id,
-                            block.preset?.id,
-                            block.procedure?.id
-                        );
-                        state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                            const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                                block.melody,
+                                state.player,
+                                block.id,
+                                block.preset?.id,
+                                block.procedure?.id
+                            );
+                            state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        }
+                    } finally {
+                        if (overrideScope) {
+                            state.player.restorePresetState(overrideScope);
+                        }
                     }
                 } finally {
                     state.player.endOctavePatternScope(octaveScope);
@@ -536,6 +548,7 @@ export class SongPlayer {
                 units.push({
                     block,
                     commands: block.preset?.settings ?? [],
+                    overrides: block.overrides ?? [],
                     operations: block.procedure?.operations ?? [],
                     includeNotes: block.melody !== undefined,
                     repetitionIndex: i,
@@ -592,18 +605,28 @@ export class SongPlayer {
                     try {
                         // Apply commands and operations FIRST
                         unit.commands.forEach((command: Command) => command.execute(state.player));
-                        this._executeOperations(unit.operations);
+                        const overrideScope = unit.overrides.length > 0
+                            ? state.player.snapshotPresetState()
+                            : null;
+                        try {
+                            unit.overrides.forEach((command: Command) => command.execute(state.player));
+                            this._executeOperations(unit.operations);
 
-                        // Check if notes exist before calling generation
-                        if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                             const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                                 block.melody,
-                                 state.player,
-                                 block.id,
-                                 block.preset?.id,
-                                 block.procedure?.id
-                             ); // Call the service
-                             state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                            // Check if notes exist before calling generation
+                            if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                                 const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                                     block.melody,
+                                     state.player,
+                                     block.id,
+                                     block.preset?.id,
+                                     block.procedure?.id
+                                 ); // Call the service
+                                 state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                            }
+                        } finally {
+                            if (overrideScope) {
+                                state.player.restorePresetState(overrideScope);
+                            }
                         }
                     } finally {
                         state.player.endOctavePatternScope(octaveScope);

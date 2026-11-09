@@ -42,6 +42,7 @@ jest.mock('@angular/core', () => {
 });
 
 import { Block } from 'src/app/model/block';
+import { Command, CommandType } from 'src/app/model/command';
 import { Melody, Preset, Procedure } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
 import { BlockContentLinksComponent, ContentEditRequest } from '../block-content-links.component';
@@ -96,6 +97,21 @@ describe('BlockContentLinksComponent', () => {
     component.onProcedureSelected('');
     expect(block.preset).toBeUndefined();
     expect(block.procedure).toBeUndefined();
+  });
+
+  it('edita overrides locales en un borrador y los aplica al bloque', () => {
+    const song = new Song();
+    const block = new Block();
+    const component = createComponent(block, song);
+
+    component.openOverrides();
+    expect(component.overridesVisible).toBe(true);
+    component.overridesDraft.settings.push(new Command({ type: CommandType.OCT, value: 3 }));
+    component.saveOverrides();
+
+    expect(component.overridesVisible).toBe(false);
+    expect(block.overrides.map(setting => setting.type)).toEqual([CommandType.OCT]);
+    expect(block.overrides[0].value).toBe(3);
   });
 
   it('crea contenido desde el bloque y lo asigna', () => {

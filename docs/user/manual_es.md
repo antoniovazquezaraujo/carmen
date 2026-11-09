@@ -102,7 +102,7 @@ Reglas generales:
 | Orden de secciones | Cabecera, después `vars`, después `melodies`, después `presets`, después `procedures` y después las partes. Dentro de un bloque el orden canónico es `preset` → `procedure` → `melody` → bloques hijos. |
 | Extensión | Ficheros `.mr`; el nombre se propone al guardar a partir del nombre de la canción. |
 
-Palabras reservadas (hay que comillarlas si se usan como nombre): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`.
+Palabras reservadas (hay que comillarlas si se usan como nombre): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`, `overrides`.
 
 ### 3.1. Cabecera
 
@@ -238,10 +238,38 @@ En la GUI, las partes viven en la fila **Parts**, debajo de los paneles de varia
 - `repeats 0` es válido: el bloque no suena (útil para silenciar sin borrar).
 - Los bloques anidados van **un nivel (2 espacios) más adentro** que su padre.
 - Un bloque puede contener como máximo una referencia `preset`, una `procedure` y una `melody`, además de cualquier número de bloques hijos. Las referencias son opcionales: un bloque puede ser solo estructura.
-- **No hay contenido inline** dentro de un bloque: ni secciones `notes`, ni `commands`, ni `operations`.
+- Un bloque también puede tener una sección opcional `overrides` con ajustes locales del preset. Se aplican después del preset referenciado y solo a las notas propias del bloque; los hijos conservan el preset base. `overrides` también se puede usar sin preset referenciado.
+- **No hay contenido inline** dentro de un bloque: ni secciones `notes`, ni `commands`, ni `operations`. `overrides` es solo una capa local de preset, no contenido de notas inline.
 - En el árbol visual, cada nivel de anidación se marca con una **guía vertical tenue** y un **conector corto** hacia cada bloque, para leer la jerarquía de un vistazo.
 - Arrastra un bloque desde su asa (`⋮⋮`) para reordenarlo dentro de su part o moverlo a otra part. Suéltalo sobre la cabecera de otro bloque para anidarlo como último hijo de ese bloque. Los bloques hijos también se pueden arrastrar para reordenarlos o anidarlos dentro de otro bloque. Si sueltas un bloque entre dos bloques, cambia de posición.
 - Para devolver un bloque anidado al primer nivel de una part, arrástralo a la zona discontinua **Drop here to move it to the top level** del fondo de la part de destino.
+
+Un bloque puede reutilizar un preset y cambiar solo algunos ajustes localmente:
+
+```mr
+song Overrides
+version 2
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+presets
+  preset Base
+    OCT 2
+    INTENSITY 90
+
+part Piano
+  block Tema
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+    melody Tema
+```
+
+Los overrides solo afectan a las notas de `Tema`; sus bloques hijos conservan `Base`. Las líneas permitidas son los mismos ajustes de preset de la sección 3.3.
 
 ```mr
 song Estructura
@@ -278,13 +306,16 @@ part Piano
 En cada pasada de un bloque:
 
 1. se aplican los ajustes de su `preset`, en orden;
-2. se ejecutan las operaciones de su `procedure`, en orden;
-3. se reproducen las notas de su `melody` (si existe);
-4. se ejecutan sus bloques hijos, en orden.
+2. se aplican los ajustes de sus `overrides`, en orden;
+3. se ejecutan las operaciones de su `procedure`, en orden;
+4. se reproducen las notas de su `melody` (si existe);
+5. se ejecutan sus bloques hijos, en orden.
 
 `repeats` repite la pasada completa, incluidos los bloques hijos. Las entradas de contenido no tienen repeticiones propias: la repetición pertenece al bloque. Para repetir una melodía dentro de un bloque, se añade un bloque hijo que la referencie (o se repite el bloque padre).
 
-Los ajustes y las operaciones **persisten** después del bloque, igual que cuando vivían inline. Las operaciones se ejecutan en cada pasada; un `VARY` no es un valor congelado. Stop y el fin natural restauran las variables.
+Los ajustes del preset base y las operaciones **persisten** después del bloque, igual que cuando vivían inline. Las operaciones se ejecutan en cada pasada; un `VARY` no es un valor congelado. Stop y el fin natural restauran las variables.
+
+Los `overrides` del bloque son la excepción: se aplican solo a las notas propias del bloque y después se vuelve al estado posterior al preset base antes de ejecutar sus bloques hijos o sus hermanos.
 
 La **intensidad** es la excepción: `INTENSITY`, `INTENSITY_PATTERN` y `INTENSITY_RAMP` son locales al bloque que los declara. Solo afectan a las notas propias de ese bloque y, al terminar, se restaura el perfil anterior antes de ejecutar sus bloques hijos o sus hermanos. Si un preset declara algún ajuste de intensidad, su perfil local parte de los valores por defecto (90, sin patrón ni rampa), así que no hereda un patrón o rampa antiguos.
 

@@ -707,6 +707,7 @@ class MrDocumentParser {
 
   private parseBlockBody(block: Block, bodyIndent: number, partIndex: number, blockPath: readonly number[]): void {
     const references = new Set<string>();
+    let hasOverrides = false;
     for (;;) {
       const line = this.peek();
       if (!line || line.indent < bodyIndent) {
@@ -742,6 +743,17 @@ class MrDocumentParser {
           }
           block.procedure = procedure;
         }
+      } else if (word === 'overrides') {
+        if (hasOverrides) {
+          throw errorAt(line, line.indent + 1, `el bloque ya tiene una sección 'overrides'`);
+        }
+        const words = splitLineWords(line.code, line.number, line.indent);
+        if (words.length !== 1) {
+          throw errorAt(line, line.indent + 1, `'overrides' no admite texto; escribe los ajustes en las líneas siguientes`);
+        }
+        hasOverrides = true;
+        this.advance();
+        this.parseBlockOverrides(block, line, bodyIndent);
       } else if (word === 'block') {
         this.advance();
         block.children.push(this.parseBlock(line, partIndex, [...blockPath, block.children.length]));
@@ -753,9 +765,29 @@ class MrDocumentParser {
         throw errorAt(
           line,
           line.indent + 1,
-          `clave desconocida '${word}' dentro de un bloque; se esperaba 'preset', 'procedure', 'melody' o 'block'`
+          `clave desconocida '${word}' dentro de un bloque; se esperaba 'preset', 'overrides', 'procedure', 'melody' o 'block'`
         );
       }
+    }
+  }
+
+  private parseBlockOverrides(block: Block, sectionLine: SourceLine, sectionIndent: number): void {
+    const commandIndent = sectionIndent + 2;
+    let count = 0;
+    for (;;) {
+      const line = this.peek();
+      if (!line || line.indent < commandIndent) {
+        break;
+      }
+      if (line.indent > commandIndent) {
+        throw errorAt(line, 1, `indentación inesperada (${line.indent} espacios): los overrides van con ${commandIndent} espacios`);
+      }
+      this.advance();
+      block.overrides.push(this.parseCommand(line));
+      count++;
+    }
+    if (count === 0) {
+      throw errorAt(sectionLine, sectionLine.indent + 1, `'overrides' requiere al menos un ajuste`);
     }
   }
 

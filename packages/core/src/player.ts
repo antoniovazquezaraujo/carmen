@@ -16,6 +16,27 @@ const DEFAULT_BPM = 120;
 const MIN_BPM = 30;
 const MAX_BPM = 240;
 
+/** Instantánea de los ajustes que puede cambiar un preset/override. */
+export interface PlayerPresetState {
+    scale: ScaleTypes;
+    tonality: number;
+    timbre: number;
+    density: number;
+    inversion: number;
+    octave: number;
+    gap: number;
+    shiftStart: number;
+    shiftSize: number;
+    shiftValue: number;
+    velocity: number;
+    velocityPattern: number[] | null;
+    velocityRamp: VelocityRamp | null;
+    playMode: PlayMode;
+    currentPattern: NoteData[] | null;
+    currentDecoration: DecorationItem[] | null;
+    octavePattern: number[] | null;
+}
+
 type InstrumentId = string;
 
 /** Superficie mínima del motor que usa el estado musical. */
@@ -101,6 +122,49 @@ export class Player {
 
     endOctavePatternScope(snapshot: number[] | null): void {
         this.octavePattern = snapshot ? [...snapshot] : null;
+    }
+
+    /** Instantánea para aplicar overrides locales y restaurarlos después. */
+    snapshotPresetState(): PlayerPresetState {
+        return {
+            scale: this.scale,
+            tonality: this.tonality,
+            timbre: this.timbre,
+            density: this.density,
+            inversion: this.inversion,
+            octave: this.octave,
+            gap: this.gap,
+            shiftStart: this.shiftStart,
+            shiftSize: this.shiftSize,
+            shiftValue: this.shiftValue,
+            velocity: this.velocity,
+            velocityPattern: this.velocityPattern ? [...this.velocityPattern] : null,
+            velocityRamp: this.velocityRamp ? { ...this.velocityRamp } : null,
+            playMode: this.playMode,
+            currentPattern: this.currentPattern ? [...this.currentPattern] : null,
+            currentDecoration: this.currentDecoration ? [...this.currentDecoration] : null,
+            octavePattern: this.octavePattern ? [...this.octavePattern] : null
+        };
+    }
+
+    restorePresetState(state: PlayerPresetState): void {
+        this.scale = state.scale;
+        this.tonality = state.tonality;
+        this.timbre = state.timbre;
+        this.density = state.density;
+        this.inversion = state.inversion;
+        this.octave = state.octave;
+        this.gap = state.gap;
+        this.shiftStart = state.shiftStart;
+        this.shiftSize = state.shiftSize;
+        this.shiftValue = state.shiftValue;
+        this.velocity = state.velocity;
+        this.velocityPattern = state.velocityPattern ? [...state.velocityPattern] : null;
+        this.velocityRamp = state.velocityRamp ? { ...state.velocityRamp } : null;
+        this.playMode = state.playMode;
+        this.currentPattern = state.currentPattern ? [...state.currentPattern] : null;
+        this.currentDecoration = state.currentDecoration ? [...state.currentDecoration] : null;
+        this.octavePattern = state.octavePattern ? [...state.octavePattern] : null;
     }
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;

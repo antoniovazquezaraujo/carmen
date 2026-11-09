@@ -156,6 +156,55 @@ describe('SongPlayer · bibliotecas de contenido', () => {
     expect(VariableContext.getValue('x')).toBe(2);
   });
 
+  it('aplica overrides solo a las notas propias y restaura el preset para hijos y hermanos', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyA = melody('A', '4n:0');
+    const melodyB = melody('B', '4n:0');
+    song.melodies = [melodyA, melodyB];
+    song.presets = [
+      preset('Base', [
+        new Command({ type: CommandType.OCT, value: 2 }),
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
+        new Command({ type: CommandType.INTENSITY, value: 90 })
+      ])
+    ];
+
+    const part = new Part();
+    const blockA = new Block();
+    blockA.label = 'A';
+    blockA.preset = song.presets[0];
+    blockA.overrides = [
+      new Command({ type: CommandType.OCT, value: 3 }),
+      new Command({ type: CommandType.INTENSITY, value: 40 })
+    ];
+    blockA.melody = melodyA;
+    const child = new Block();
+    child.label = 'Hijo';
+    child.melody = melodyB;
+    blockA.children = [child];
+    const sibling = new Block();
+    sibling.label = 'Hermano';
+    sibling.preset = song.presets[0];
+    sibling.melody = melodyB;
+    part.items = [blockA, sibling];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    expect(stub.triggerCalls().map(call => call[1])).toEqual([72, 60, 60]);
+    expect(stub.triggerCalls().map(call => call[4])).toEqual([40 / 127, 90 / 127, 90 / 127]);
+  });
+
   it('OCTAVE_PATTERN repite la melodía del bloque y deja intactos los hijos', async () => {
     const stub = createEngineStub();
     const player = new SongPlayer(

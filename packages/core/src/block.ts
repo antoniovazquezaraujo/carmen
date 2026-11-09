@@ -1,4 +1,5 @@
 import { Melody, Preset, Procedure } from './content';
+import { Command, cloneCommand } from './command';
 
 /**
  * Resolución de referencias de contenido al clonar. `Song.clone` construye un
@@ -16,7 +17,8 @@ export interface ContentResolver {
  *
  * El contenido vive en las bibliotecas globales. Un bloque puede referenciar
  * como máximo una melodía, un preset y un procedimiento; los hijos aportan la
- * secuencia. No hay contenido inline ni referencias entre bloques (ADR-004).
+ * secuencia. `overrides` es una capa local de ajustes sobre el preset base:
+ * solo afecta a las notas propias del bloque, no a sus hijos.
  */
 export class Block {
     static _id: number = 0;
@@ -28,6 +30,8 @@ export class Block {
     melody?: Melody;
     preset?: Preset;
     procedure?: Procedure;
+    /** Ajustes locales que sobrescriben el preset solo en este bloque. */
+    overrides: Command[] = [];
     children: Block[] = [];
 
     constructor() { }
@@ -42,7 +46,8 @@ export class Block {
             (this.label ?? '').trim() !== '' ||
             this.melody !== undefined ||
             this.preset !== undefined ||
-            this.procedure !== undefined
+            this.procedure !== undefined ||
+            this.overrides.length > 0
         );
     }
 
@@ -86,6 +91,7 @@ export class Block {
         if (this.procedure !== undefined) {
             cloned.procedure = resolver?.procedure ? resolver.procedure(this.procedure) : this.procedure;
         }
+        cloned.overrides = this.overrides.map(cloneCommand);
         cloned.children = this.children.map(child => child.clone(resolver));
         return cloned;
     }
@@ -99,6 +105,7 @@ export class Block {
             melody: this.melody?.label ?? null,
             preset: this.preset?.label ?? null,
             procedure: this.procedure?.label ?? null,
+            overrides: this.overrides,
             children: this.children
         };
     }

@@ -199,6 +199,13 @@ function emitBlock(lines: string[], block: Block, level: number, song: Song): vo
     lines.push(`${bodyIndent}preset ${formatName(block.preset.label)}`);
     bodyEmitted = true;
   }
+  if (block.overrides.length > 0) {
+    lines.push(`${bodyIndent}overrides`);
+    block.overrides.forEach(setting => {
+      lines.push(`${bodyIndent}  ${formatCommand(setting, `los overrides del bloque ${formatName(block.label)}`)}`);
+    });
+    bodyEmitted = true;
+  }
   if (block.procedure !== undefined) {
     assertLibraryReference(song.procedures, block.procedure, 'procedure');
     lines.push(`${bodyIndent}procedure ${formatName(block.procedure.label)}`);

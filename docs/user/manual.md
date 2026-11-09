@@ -102,7 +102,7 @@ General rules:
 | Section order | Header, then `vars`, then `melodies`, then `presets`, then `procedures`, then parts. Within a block the canonical order is `preset` → `procedure` → `melody` → child blocks. |
 | Extension | `.mr` files; the file name is proposed when saving from the song name. |
 
-Reserved words (quote them if used as a name): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`.
+Reserved words (quote them if used as a name): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`, `overrides`.
 
 ### 3.1. Header
 
@@ -238,10 +238,38 @@ In the GUI, parts live in the **Parts** row, below the variables and content pan
 - `repeats 0` is valid: the block stays silent (useful to mute without deleting).
 - Nested blocks go **one level (2 spaces) deeper** than their parent.
 - A block may contain at most one `preset`, one `procedure` and one `melody` reference, plus any number of child blocks. References are optional: a block can be only structure.
-- There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections.
+- A block may also have an optional `overrides` section with local preset settings. They are applied after the referenced preset and only to the block's own notes; child blocks keep the base preset. `overrides` can also be used without a referenced preset.
+- There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections. `overrides` is only a local preset layer, not inline note content.
 - In the visual tree, each nesting level is marked with a **subtle vertical guide** and a **short connector** to every block, so the hierarchy is readable at a glance.
 - Drag a block from its handle (`⋮⋮`) to reorder it within its part or move it to another part. Drop it on another block's header to nest it as that block's last child. Child blocks can also be dragged to reorder them or nest them inside another block. Dropping a block between two blocks changes its position.
 - To move a nested block back to the top level of a part, drag it to the dashed **Drop here to move it to the top level** zone at the bottom of the target part.
+
+A block can reuse a preset and tweak only a few settings locally:
+
+```mr
+song Overrides
+version 2
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+presets
+  preset Base
+    OCT 2
+    INTENSITY 90
+
+part Piano
+  block Tema
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+    melody Tema
+```
+
+The overrides only affect the notes of `Tema`; its child blocks keep `Base`. The allowed lines are the same preset settings listed in section 3.3.
 
 ```mr
 song Estructura
@@ -278,13 +306,16 @@ part Piano
 For each pass of a block:
 
 1. the settings of its `preset` are applied, in order;
-2. the operations of its `procedure` are executed, in order;
-3. the notes of its `melody` are played (if present);
-4. its child blocks run, in order.
+2. the settings of its `overrides` are applied, in order;
+3. the operations of its `procedure` are executed, in order;
+4. the notes of its `melody` are played (if present);
+5. its child blocks run, in order.
 
 `repeats` repeats the complete pass, including child blocks. Content entries have no repetitions of their own: repetition belongs to the block. To repeat a melody inside a block, add a child block that references it (or repeat the parent block).
 
-Settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
+Base preset settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
+
+Block `overrides` are an exception: they are applied only for the block's own notes and then the player returns to the post-base-preset state before its child blocks or siblings run.
 
 The **intensity profile** is the exception: `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP` are local to the block that declares them. They apply only to that block's own notes and the previous profile is restored afterwards, before its child blocks or siblings run. If a preset declares any intensity setting, its local profile starts from the defaults (90, no pattern/ramp), so it does not inherit an old pattern or ramp.
 
