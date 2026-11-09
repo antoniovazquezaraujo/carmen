@@ -56,12 +56,17 @@
   margin-bottom: 2px;
 }
 
-/* Bloque que está sonando: resalta su cabecera aunque esté plegado. */
+/* Bloque que está sonando: resalta su cabecera aunque esté plegado.
+   El fondo se extiende a todo el ancho útil (incluido el padding de
+   `.block-content`) para que no quede una franja sin rellenar a la izquierda. */
 .block-content--playing > .block-header {
-  background-color: #1e1e1e;
+  box-sizing: border-box;
+  width: calc(100% + 12px) !important;
+  margin: 0 -6px;
+  padding: 2px 6px;
+  background-color: #2f2b26;
   color: #f5f5f5;
   border-radius: 4px;
-  box-shadow: inset 3px 0 0 #8faebc;
   transition: background-color 120ms ease;
 }
 

@@ -35,5 +35,8 @@ describe('BlockComponent · estructura sin contenido inline', () => {
     expect(template).toContain('block-content--playing');
     expect(component).toContain('isBlockPlaying');
     expect(styles).toContain('.block-content--playing');
+    expect(styles).toContain('background-color: #2f2b26');
+    expect(styles).toContain('width: calc(100% + 12px)');
+    expect(styles).not.toContain('inset 3px 0 0 #8faebc');
   });
 });

@@ -55,6 +55,11 @@ function blockWithMelody(value: Melody): Block {
 }
 
 describe('ContentLibraryComponent · CRUD', () => {
+  it('usa un fondo de reproducción más claro y sin el acento curvo', () => {
+    expect(styles).toContain('background-color: #2f2b26');
+    expect(styles).not.toContain('inset 3px 0 0 #8faebc');
+  });
+
   it('crea entradas con nombre libre en la biblioteca activa', () => {
     const song = new Song();
     const component = createComponent(song);
