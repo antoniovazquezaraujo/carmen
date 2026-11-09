@@ -59,6 +59,21 @@
     </span>
   </div>
 
+  <div class="overrides-inline-row">
+    <span class="block-section-icon overrides-icon"
+      pTooltip="Overrides apply only to this block's own notes"
+      tooltipPosition="top"
+      aria-label="Block overrides"
+      role="img">
+      <i class="pi pi-sliders-h" aria-hidden="true"></i>
+    </span>
+    <app-preset-editor
+      class="overrides-editor"
+      [preset]="overridesPreset"
+      [showSectionIcon]="false">
+    </app-preset-editor>
+  </div>
+
   <div class="content-link-row">
     <span class="block-section-icon" pTooltip="Procedure" tooltipPosition="top" aria-label="Procedure" role="img">&#8794;</span>
     <select

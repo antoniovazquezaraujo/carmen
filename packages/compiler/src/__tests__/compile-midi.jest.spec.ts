@@ -66,6 +66,43 @@ describe('compilador MIDI · eventos musicales', () => {
         expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
     });
 
+    it('aplica overrides solo al bloque propio y los restaura para hijos y hermanos', async () => {
+        const song = await compileSongText(`song Overrides
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+  melody B
+    notes
+      4n:0
+
+presets
+  preset Base
+    OCT 2
+    PLAYMODE SINGLE
+    INTENSITY 90
+
+part Piano
+  block A
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+    melody A
+    block Hijo
+      melody B
+  block Hermano
+    preset Base
+    melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([72, 60, 60]);
+        expect(song.parts[0].notes.map(note => note.velocity)).toEqual([40, 90, 90]);
+        expect(song.parts[0].notes.map(note => note.tick)).toEqual([0, 960, 1920]);
+    });
+
     it('OCTAVE_PATTERN repite la melodía propia y no afecta a los hijos', async () => {
         const song = await compileSongText(`song Octavas
 version 2

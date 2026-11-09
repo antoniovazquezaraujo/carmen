@@ -5,6 +5,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { Block } from 'src/app/model/block';
 import { ContentKind, Melody, Preset, Procedure } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
+import { PresetEditorComponent } from '../preset-editor/preset-editor.component';
 import { createContent, findContent } from '../content-library/content-usage';
 
 /** Navegación desde un bloque a la definición de contenido. */
@@ -24,10 +25,22 @@ export interface ContentEditRequest {
     selector: 'app-block-content-links',
     templateUrl: './block-content-links.component.html',
     styleUrls: ['./block-content-links.component.scss'],
-    imports: [FormsModule, Button, Tooltip]
+    imports: [FormsModule, Button, Tooltip, PresetEditorComponent]
 })
 export class BlockContentLinksComponent {
-    @Input() block!: Block;
+    private _block!: Block;
+    /** Vista estable para el editor inline; comparte el array del bloque. */
+    readonly overridesPreset = new Preset();
+
+    @Input()
+    set block(value: Block) {
+        this._block = value;
+        this.overridesPreset.settings = value.overrides ?? [];
+    }
+    get block(): Block {
+        return this._block;
+    }
+
     @Input() song!: Song;
 
     @Output() contentEdit = new EventEmitter<ContentEditRequest>();

@@ -52,6 +52,10 @@ describe('Block · estructura y contenido', () => {
     const withProcedure = new Block();
     withProcedure.procedure = procedure();
     expect(withProcedure.hasOwnContent()).toBe(true);
+
+    const withOverrides = new Block();
+    withOverrides.overrides = [new Command({ type: CommandType.OCT, value: 3 })];
+    expect(withOverrides.hasOwnContent()).toBe(true);
   });
 
   it('un contenedor con hijos y sin contenido propio no cuenta como contenido', () => {
@@ -71,6 +75,7 @@ describe('Block.clone', () => {
     block.melody = melody('M');
     block.preset = preset('P');
     block.procedure = procedure('Proc');
+    block.overrides = [new Command({ type: CommandType.OCT, value: 3 })];
 
     const clone = block.clone();
 
@@ -81,6 +86,9 @@ describe('Block.clone', () => {
     expect(clone.melody).toBe(block.melody);
     expect(clone.preset).toBe(block.preset);
     expect(clone.procedure).toBe(block.procedure);
+    expect(clone.overrides).not.toBe(block.overrides);
+    expect(clone.overrides[0]).not.toBe(block.overrides[0]);
+    expect(clone.overrides[0].value).toBe(3);
   });
 
   it('usa el resolver para apuntar a las copias de las bibliotecas', () => {
@@ -123,6 +131,7 @@ describe('Block.toJSON', () => {
       melody: 'M',
       preset: 'P',
       procedure: 'Proc',
+      overrides: [],
       children: []
     });
   });

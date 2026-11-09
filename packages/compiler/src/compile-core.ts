@@ -21,6 +21,7 @@ import {
 interface ExecutionUnit {
     block: Block;
     settings: Command[];
+    overrides: Command[];
     operations: BaseOperation[];
     includeNotes: boolean;
 }
@@ -61,10 +62,18 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
         const octaveScope = player.beginOctavePatternScope();
         try {
             unit.settings.forEach(setting => setting.execute(player));
-            unit.operations.forEach(operation => operation.execute());
-            const melody = unit.block.melody;
-            if (unit.includeNotes && melody && melody.notes.trim()) {
-                noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+            const overrideScope = unit.overrides.length > 0 ? player.snapshotPresetState() : null;
+            try {
+                unit.overrides.forEach(setting => setting.execute(player));
+                unit.operations.forEach(operation => operation.execute());
+                const melody = unit.block.melody;
+                if (unit.includeNotes && melody && melody.notes.trim()) {
+                    noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+                }
+            } finally {
+                if (overrideScope) {
+                    player.restorePresetState(overrideScope);
+                }
             }
         } finally {
             player.endOctavePatternScope(octaveScope);
@@ -88,6 +97,7 @@ function buildExecutionUnits(part: Part): ExecutionUnit[] {
             units.push({
                 block,
                 settings: block.preset?.settings ?? [],
+                overrides: block.overrides ?? [],
                 operations: block.procedure?.operations ?? [],
                 includeNotes: block.melody !== undefined
             });

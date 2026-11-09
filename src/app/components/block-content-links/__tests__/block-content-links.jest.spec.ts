@@ -42,6 +42,7 @@ jest.mock('@angular/core', () => {
 });
 
 import { Block } from 'src/app/model/block';
+import { Command, CommandType } from 'src/app/model/command';
 import { Melody, Preset, Procedure } from 'src/app/model/content';
 import { Song } from 'src/app/model/song';
 import { BlockContentLinksComponent, ContentEditRequest } from '../block-content-links.component';
@@ -96,6 +97,25 @@ describe('BlockContentLinksComponent', () => {
     component.onProcedureSelected('');
     expect(block.preset).toBeUndefined();
     expect(block.procedure).toBeUndefined();
+  });
+
+  it('edita overrides locales directamente sobre el bloque', () => {
+    const song = new Song();
+    const block = new Block();
+    const component = createComponent(block, song);
+
+    component.overridesPreset.settings.push(new Command({ type: CommandType.OCT, value: 3 }));
+
+    expect(block.overrides.map(setting => setting.type)).toEqual([CommandType.OCT]);
+    expect(block.overrides[0].value).toBe(3);
+  });
+
+  it('muestra el editor de overrides inline con un icono de sliders', () => {
+    expect(template).toContain('app-preset-editor');
+    expect(template).toContain('overrides-inline-row');
+    expect(template).toContain('pi pi-sliders-h');
+    expect(template).toContain('[showSectionIcon]="false"');
+    expect(template).not.toContain('p-dialog');
   });
 
   it('crea contenido desde el bloque y lo asigna', () => {

@@ -24,7 +24,8 @@ export const MR_RESERVED_WORDS: ReadonlySet<string> = new Set([
   'presets',
   'preset',
   'procedures',
-  'procedure'
+  'procedure',
+  'overrides'
 ]);
 
 /** Nombre sin comillas: letras, dígitos, `_`, `.` y `-`. */

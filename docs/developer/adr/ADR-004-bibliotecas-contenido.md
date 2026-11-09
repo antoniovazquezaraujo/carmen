@@ -104,3 +104,13 @@ responde a la implementación, no al concepto de producto.
 - La GUI permite gestionar las bibliotecas y asignarlas a bloques.
 - `npm test`, `npm run test:cov` y `npm run build` en verde.
 - Documentación de usuario, corpus y `CHANGELOG` actualizados al implementar.
+
+## 6. Addendum (2026-11-09): overrides locales de preset por bloque
+
+La decisión de bibliotecas globales se mantiene, pero un bloque puede añadir una capa local de ajustes (`overrides`) sobre el preset que referencia. No es una referencia nueva ni una copia del preset:
+
+- Orden: ajustes del preset base → overrides del bloque → operaciones → melodía → hijos.
+- Los overrides solo afectan a las notas propias del bloque; el estado posterior al preset base se restaura antes de hijos y hermanos.
+- Se pueden usar sin preset base (actúan como ajustes locales).
+- El `.mr` los expresa con una sección `overrides` indentada dentro del bloque; el serializador mantiene el orden canónico preset → overrides → procedure → melody → children.
+- La GUI los edita desde el bloque con una fila inline (icono de sliders y botón `+`), sin diálogo modal.

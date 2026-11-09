@@ -1,6 +1,8 @@
 <div class="block-container">
   <div class="commands-row">
-    <span class="block-section-icon" pTooltip="Settings" tooltipPosition="top" aria-label="Settings" role="img">&#9881;</span>
+    @if (showSectionIcon) {
+      <span class="block-section-icon" pTooltip="Settings" tooltipPosition="top" aria-label="Settings" role="img">&#9881;</span>
+    }
     <div class="container-wrapper commands-container">
       @for (command of preset.settings; track command) {
         <div class="command">
