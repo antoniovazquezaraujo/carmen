@@ -425,6 +425,7 @@ export class SongPlayer {
             if (unit) {
                 const { block } = unit;
                 const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                const octaveScope = state.player.beginOctavePatternScope();
                 try {
                     unit.commands.forEach((command: Command) => command.execute(state.player));
                     this._executeOperations(unit.operations);
@@ -440,6 +441,7 @@ export class SongPlayer {
                         state.extractedNotes = state.extractedNotes.concat(blockNotes);
                     }
                 } finally {
+                    state.player.endOctavePatternScope(octaveScope);
                     state.player.endVelocityProfileScope(velocityScope);
                 }
 
@@ -586,6 +588,7 @@ export class SongPlayer {
                 if (unit) {
                     const { block } = unit;
                     const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                    const octaveScope = state.player.beginOctavePatternScope();
                     try {
                         // Apply commands and operations FIRST
                         unit.commands.forEach((command: Command) => command.execute(state.player));
@@ -603,6 +606,7 @@ export class SongPlayer {
                              state.extractedNotes = state.extractedNotes.concat(blockNotes);
                         }
                     } finally {
+                        state.player.endOctavePatternScope(octaveScope);
                         state.player.endVelocityProfileScope(velocityScope);
                     }
 

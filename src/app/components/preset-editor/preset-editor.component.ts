@@ -167,6 +167,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         if (command.isVariable) {
             const isStringValue =
                 command.type === CommandType.PATTERN ||
+                command.type === CommandType.OCTAVE_PATTERN ||
                 command.type === CommandType.DECORATION ||
                 command.type === CommandType.INTENSITY_PATTERN ||
                 command.type === CommandType.INTENSITY_RAMP;
@@ -249,6 +250,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
         if (
             command.type === CommandType.PATTERN ||
+            command.type === CommandType.OCTAVE_PATTERN ||
             command.type === CommandType.DECORATION ||
             command.type === CommandType.INTENSITY_PATTERN ||
             command.type === CommandType.INTENSITY_RAMP

@@ -155,6 +155,25 @@
                   aria-label="Intensity ramp">
               }
             }
+            @case (commandTypes.OCTAVE_PATTERN) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select octave pattern variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <input type="text"
+                  class="command-value octave-pattern-input"
+                  [ngModel]="command.value"
+                  (ngModelChange)="handleValueInput($event, command)"
+                  placeholder="1 0 -1 2"
+                  aria-label="Octave pattern">
+              }
+            }
             @default {
               @if (command.isVariable) {
                 <select class="command-type"

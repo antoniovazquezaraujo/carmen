@@ -8,6 +8,7 @@ All notable changes to **Carmen**. Format based on
 
 ### Added
 
+- **Octave pattern**: presets accept `OCTAVE_PATTERN` (e.g. `1 0 -1 2`) to repeat the block's own generated melody at octave offsets relative to `OCT`. Child blocks are unaffected; the pattern repeats on each block pass and works in both playback and the MIDI compiler.
 - **Top-level block drag & drop**: blocks at the first level of a part now have a drag handle. They can be reordered within the part, moved to another part, or dropped on another block's header to nest as its last child. Child blocks keep the existing tree drag & drop for reordering and nesting.
 - **Unparent nested blocks**: a nested block can be dropped on a wide dashed top-level zone at the bottom of a part to move it out of its parent. Tree insertion lines are thicker (4px, 6px when active) for easier targeting.
 - **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/carmen/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.

@@ -41,6 +41,7 @@ import { isVelocity, parseVelocityRamp } from '../velocity';
 
 const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandType>([
   ['OCT', CommandType.OCT],
+  ['OCTAVE_PATTERN', CommandType.OCTAVE_PATTERN],
   ['SCALE', CommandType.SCALE],
   ['GAP', CommandType.GAP],
   ['PLAYMODE', CommandType.PLAYMODE],
@@ -62,6 +63,7 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
 
 const COMMAND_NAMES: readonly string[] = [
   'OCT',
+  'OCTAVE_PATTERN',
   'SCALE',
   'GAP',
   'PLAYMODE',
@@ -956,6 +958,20 @@ class MrDocumentParser {
         throw errorAt(line, restColumn, `INTENSITY_RAMP no es válida: ${detail}`);
       }
       return new Command({ type, value: raw });
+    }
+    if (type === CommandType.OCTAVE_PATTERN) {
+      const patternWords = splitLineWords(rest, line.number, restColumn - 1);
+      if (patternWords.length === 0) {
+        throw errorAt(line, restColumn, `OCTAVE_PATTERN necesita al menos una octava (p. ej. OCTAVE_PATTERN 1 0 -1 2)`);
+      }
+      const values = patternWords.map(word => {
+        const value = word.quoted ? null : parseCanonicalInteger(word.text);
+        if (value === null) {
+          throw errorAt(line, word.column, `octava inválida '${word.text}': usa enteros (p. ej. 1 0 -1 2)`);
+        }
+        return value;
+      });
+      return new Command({ type, value: values.join(' ') });
     }
     const words = splitLineWords(rest, line.number, restColumn - 1);
     if (words.length !== 1) {

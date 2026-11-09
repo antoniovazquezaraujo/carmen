@@ -13,6 +13,7 @@ import { Block } from '../block';
 import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
 import { isVelocity, parseVelocityPattern, parseVelocityRamp, printVelocityPattern, printVelocityRamp } from '../velocity';
+import { parseOctavePattern, printOctavePattern } from '../octave-pattern';
 import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames, PlayMode } from '../play.mode';
@@ -284,6 +285,14 @@ function formatCommand(command: Command, context: string): string {
         throw new MrSerializeError(`playmode inválido '${String(value)}' en ${context}`);
       }
       return `PLAYMODE ${name}`;
+    }
+    case CommandType.OCTAVE_PATTERN: {
+      try {
+        return `OCTAVE_PATTERN ${printOctavePattern(parseOctavePattern(String(command.value)))}`;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new MrSerializeError(`OCTAVE_PATTERN inválido en ${context}: ${detail}`);
+      }
     }
     case CommandType.PATTERN: {
       const pattern = String(command.value).trim();

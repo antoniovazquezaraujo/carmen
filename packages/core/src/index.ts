@@ -16,6 +16,7 @@ export * from './keyboard';
 export * from './melody';
 export * from './music-element-utils';
 export * from './note';
+export * from './octave-pattern';
 export * from './octaved-grade';
 export * from './operation';
 export * from './part';

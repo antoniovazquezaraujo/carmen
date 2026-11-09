@@ -8,6 +8,7 @@ import {
 describe('command-ui · descripciones y grupo Shift', () => {
   it('describe los ajustes y el grupo sintético Shift', () => {
     expect(commandTypeDescription(CommandType.OCT)).toContain('octave');
+    expect(commandTypeDescription(CommandType.OCTAVE_PATTERN)).toContain('octave offsets');
     expect(commandTypeDescription(CommandType.PLAYMODE)).toContain('chord');
     expect(commandTypeDescription('SHIFT')).toContain('Start, Size and Value');
     expect(commandTypeDescription('UNKNOWN')).toBe('Playback setting.');

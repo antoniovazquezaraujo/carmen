@@ -66,6 +66,49 @@ describe('compilador MIDI · eventos musicales', () => {
         expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
     });
 
+    it('OCTAVE_PATTERN repite la melodía propia y no afecta a los hijos', async () => {
+        const song = await compileSongText(`song Octavas
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+      4n:1
+  melody B
+    notes
+      4n:2
+
+presets
+  preset P
+    OCT 2
+    OCTAVE_PATTERN 1 0 -1 2
+    PLAYMODE SINGLE
+
+part Piano
+  block A
+    preset P
+    melody A
+    block Hijo
+      melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([
+            72, 74,
+            60, 62,
+            48, 50,
+            84, 86,
+            63
+        ]);
+        expect(song.parts[0].notes.map(note => note.tick)).toEqual([
+            0, 960,
+            1920, 2880,
+            3840, 4800,
+            5760, 6720,
+            7680
+        ]);
+    });
+
     it('aplica INTENSITY solo al bloque que usa el preset, no a hijos ni hermanos', async () => {
         const song = await compileSongText(`song Aislada
 version 2

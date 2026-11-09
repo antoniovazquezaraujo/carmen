@@ -43,6 +43,8 @@ export class Player {
     velocityPattern: number[] | null = null;
     /** Rampa de intensidad sobre notas generadas; `null` = sin rampa. */
     velocityRamp: VelocityRamp | null = null;
+    /** Octavas de `OCTAVE_PATTERN`; `null` = sin expansión. */
+    octavePattern: number[] | null = null;
     playMode: PlayMode = PlayMode.CHORD;
 
     /** Copia del perfil de intensidad (para ámbitos locales de bloque). */
@@ -85,6 +87,20 @@ export class Player {
         if (snapshot) {
             this.restoreVelocityProfile(snapshot);
         }
+    }
+
+    /**
+     * `OCTAVE_PATTERN` es local al bloque: el comando lo fija durante la
+     * pasada y se restaura antes de los hijos/hermanos.
+     */
+    beginOctavePatternScope(): number[] | null {
+        const snapshot = this.octavePattern ? [...this.octavePattern] : null;
+        this.octavePattern = null;
+        return snapshot;
+    }
+
+    endOctavePatternScope(snapshot: number[] | null): void {
+        this.octavePattern = snapshot ? [...snapshot] : null;
     }
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;

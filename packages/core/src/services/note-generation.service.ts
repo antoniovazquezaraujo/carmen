@@ -143,11 +143,42 @@ export class NoteGenerationService {
         finalPlayableNotes.push(...this.processSingleNoteData(noteData, player, fallbackDuration));
     }
     
-    this.applyVelocityProfile(finalPlayableNotes, player);
+    // El patrón de octavas repite la secuencia ya generada. La intensidad se
+    // aplica después para que patrón/rampa sigan el orden de reproducción
+    // expandido; sin OCTAVE_PATTERN el resultado es el mismo de siempre.
+    const expandedNotes = this.applyOctavePattern(finalPlayableNotes, player.octavePattern);
+    this.applyVelocityProfile(expandedNotes, player);
     // <<< Add log before final return >>>
-    console.log(`[NoteGenSvc] === generateNotesForMelody RETURNING === Count: ${finalPlayableNotes.length}, Content: ${JSON.stringify(finalPlayableNotes)}`);
+    console.log(`[NoteGenSvc] === generateNotesForMelody RETURNING === Count: ${expandedNotes.length}, Content: ${JSON.stringify(expandedNotes)}`);
     console.log(`[NoteGenSvc] === generateNotesForMelody END ===`);
-    return finalPlayableNotes;
+    return expandedNotes;
+  }
+
+  /** Repite la secuencia completa por cada desplazamiento de octava. */
+  private applyOctavePattern(noteDatas: readonly NoteData[], pattern: readonly number[] | null): NoteData[] {
+    if (!pattern || pattern.length === 0) {
+      return [...noteDatas];
+    }
+    const result: NoteData[] = [];
+    pattern.forEach(offset => {
+      noteDatas.forEach(note => result.push(this.transposeNoteData(note, offset)));
+    });
+    return result;
+  }
+
+  /** Copia profunda de un evento MIDI desplazando sus notas `offset` octavas. */
+  private transposeNoteData(note: NoteData, offset: number): NoteData {
+    const copy = new NoteData({ ...note });
+    if (copy.note !== undefined) {
+      copy.note += offset * 12;
+    }
+    if (note.noteDatas) {
+      copy.noteDatas = note.noteDatas.map(child => this.transposeNoteData(child, offset));
+    }
+    if (note.children) {
+      copy.children = note.children.map(child => this.transposeNoteData(child, offset));
+    }
+    return copy;
   }
 
 
