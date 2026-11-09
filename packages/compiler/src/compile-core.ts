@@ -58,6 +58,7 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
 
     units.forEach(unit => {
         const velocityScope = player.beginVelocityProfileScope(unit.settings);
+        const octaveScope = player.beginOctavePatternScope();
         try {
             unit.settings.forEach(setting => setting.execute(player));
             unit.operations.forEach(operation => operation.execute());
@@ -66,6 +67,7 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
                 noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
             }
         } finally {
+            player.endOctavePatternScope(octaveScope);
             player.endVelocityProfileScope(velocityScope);
         }
     });

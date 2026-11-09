@@ -5,9 +5,11 @@ import { NoteData } from './note';
 import { parseBlockNotes } from './mr/notes.parser';
 import { parseDecorationItems } from './mr/decoration.parser';
 import { DEFAULT_VELOCITY, isVelocity, parseVelocityPattern, parseVelocityRamp } from './velocity';
+import { parseOctavePattern } from './octave-pattern';
 
 export enum CommandType {
     OCT = 'OCT',
+    OCTAVE_PATTERN = 'OCTAVE_PATTERN',
     SCALE = 'SCALE',
     GAP = 'GAP',
     PLAYMODE = 'PLAYMODE',
@@ -74,6 +76,7 @@ export class Command {
     private isStringValued(): boolean {
         return (
             this.type === CommandType.PATTERN ||
+            this.type === CommandType.OCTAVE_PATTERN ||
             this.type === CommandType.DECORATION ||
             this.type === CommandType.INTENSITY_PATTERN ||
             this.type === CommandType.INTENSITY_RAMP
@@ -131,6 +134,21 @@ export class Command {
     execute(player: any): void {
         const rawValue = this.value;
         let value: any = rawValue;
+
+        if (this.type === CommandType.OCTAVE_PATTERN) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.octavePattern = null;
+                return;
+            }
+            try {
+                player.octavePattern = parseOctavePattern(text);
+            } catch (e) {
+                console.error(`[Command OCTAVE_PATTERN] Invalid pattern "${text}":`, e);
+                player.octavePattern = null;
+            }
+            return;
+        }
 
         if (this.type === CommandType.PATTERN) {
             const patternString = String(value);

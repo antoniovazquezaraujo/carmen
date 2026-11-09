@@ -90,6 +90,7 @@ part Piano instrument PIANO
 | Setting | Purpose | Example |
 |---|---|---|
 | `OCT` | Base octave | `OCT 2` |
+| `OCTAVE_PATTERN` | Repeat the block's own melody at octave offsets | `OCTAVE_PATTERN 1 0 -1 2` |
 | `SCALE` | Active scale | `SCALE BLACK` |
 | `GAP` | Gap between chord notes | `GAP 2` |
 | `PLAYMODE` | How grades sound | `PLAYMODE ASCENDING` |
@@ -106,6 +107,8 @@ The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies
 | `DECORATION` | Decoration added to each chord note (offsets in scale degrees) | `DECORATION 4t:0 8t:-2` |
 
 Numeric settings accept `$variable`.
+
+`OCTAVE_PATTERN` is relative to `OCT` and applies only to the block's own melody: `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` plays the sequence in octaves 3, 2, 1, 4. Child blocks keep their own octave/pattern.
 
 ## Procedures
 

@@ -399,6 +399,33 @@ part P
   });
 });
 
+describe('parseSong: patrón de octavas', () => {
+  it('parsea y serializa OCTAVE_PATTERN con enteros relativos', () => {
+    const document = parseSong(`song "Octavas"
+version 2
+
+presets
+  preset P
+    OCT 2
+    OCTAVE_PATTERN 1 0 -1 2
+`);
+
+    const settings = document.song.presets[0].settings;
+    expect(settings.map(setting => setting.type)).toEqual([
+      CommandType.OCT,
+      CommandType.OCTAVE_PATTERN
+    ]);
+    expect(settings[1].value).toBe('1 0 -1 2');
+    expect(serializeSong(document)).toContain('OCTAVE_PATTERN 1 0 -1 2');
+  });
+
+  it('rechaza valores que no son enteros', () => {
+    expect(expectParseError('presets\n  preset P\n    OCTAVE_PATTERN 1 x -1\n').message).toContain(
+      "octava inválida 'x'"
+    );
+  });
+});
+
 describe('parseSong: intensidad y perfil de velocidad', () => {
   it('parsea INTENSITY, INTENSITY_PATTERN y INTENSITY_RAMP y los serializa', () => {
     const document = parseSong(`song "X"

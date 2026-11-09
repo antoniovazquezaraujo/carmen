@@ -26,6 +26,7 @@ export function commandTypeLabel(type: string): string {
 /** Descripciones breves de los ajustes para la ayuda contextual de la GUI. */
 const COMMAND_DESCRIPTIONS: Record<string, string> = {
     OCT: 'Base octave used to interpret melody degrees.',
+    OCTAVE_PATTERN: 'Repeats the block melody at octave offsets relative to OCT (e.g. 1 0 -1 2).',
     SCALE: 'Scale used to turn degrees into notes.',
     GAP: 'Distance between generated chord notes.',
     PLAYMODE: 'How notes are generated: single note, chord, arpeggio…',
@@ -162,6 +163,7 @@ export function filterVariables(
 ): VariableOption[] {
     if (
         command.type === CommandType.PATTERN ||
+        command.type === CommandType.OCTAVE_PATTERN ||
         command.type === CommandType.DECORATION ||
         command.type === CommandType.INTENSITY_PATTERN ||
         command.type === CommandType.INTENSITY_RAMP
@@ -195,6 +197,7 @@ export function defaultCommandValue(
     }
     if (
         type === CommandType.PATTERN ||
+        type === CommandType.OCTAVE_PATTERN ||
         type === CommandType.DECORATION ||
         type === CommandType.INTENSITY_PATTERN ||
         type === CommandType.INTENSITY_RAMP
