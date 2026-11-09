@@ -269,7 +269,7 @@ part Piano
     melody Tema
 ```
 
-The overrides only affect the notes of `Tema`; its child blocks keep `Base`. The allowed lines are the same preset settings listed in section 3.3.
+The overrides only affect the notes of `Tema`; its child blocks keep `Base`. The allowed lines are the same preset settings listed in section 3.3. In the GUI they appear as an inline row in the block body, marked with a sliders icon; use its `+` button to add a setting.
 
 ```mr
 song Estructura

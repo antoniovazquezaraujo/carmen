@@ -8,7 +8,7 @@ All notable changes to **Carmen**. Format based on
 
 ### Added
 
-- **Block preset overrides**: a block can keep a shared preset and add an `overrides` section with local settings. Overrides apply after the base preset and only to the block's own notes; children and siblings keep the base preset. The block editor exposes them through **Add overrides**.
+- **Block preset overrides**: a block can keep a shared preset and add an `overrides` section with local settings. Overrides apply after the base preset and only to the block's own notes; children and siblings keep the base preset. The block editor exposes them as an inline settings row with a sliders icon and a plus button.
 - **Octave pattern**: presets accept `OCTAVE_PATTERN` (e.g. `1 0 -1 2`) to repeat the block's own generated melody at octave offsets relative to `OCT`. Child blocks are unaffected; the pattern repeats on each block pass and works in both playback and the MIDI compiler.
 - **Top-level block drag & drop**: blocks at the first level of a part now have a drag handle. They can be reordered within the part, moved to another part, or dropped on another block's header to nest as its last child. Child blocks keep the existing tree drag & drop for reordering and nesting.
 - **Unparent nested blocks**: a nested block can be dropped on a wide dashed top-level zone at the bottom of a part to move it out of its parent. Tree insertion lines are thicker (4px, 6px when active) for easier targeting.

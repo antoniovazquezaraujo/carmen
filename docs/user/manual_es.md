@@ -269,7 +269,7 @@ part Piano
     melody Tema
 ```
 
-Los overrides solo afectan a las notas de `Tema`; sus bloques hijos conservan `Base`. Las líneas permitidas son los mismos ajustes de preset de la sección 3.3.
+Los overrides solo afectan a las notas de `Tema`; sus bloques hijos conservan `Base`. Las líneas permitidas son los mismos ajustes de preset de la sección 3.3. En la GUI aparecen como una fila inline en el cuerpo del bloque, marcada con un icono de sliders; usa su botón `+` para añadir un ajuste.
 
 ```mr
 song Estructura

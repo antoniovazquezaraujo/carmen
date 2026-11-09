@@ -45,45 +45,27 @@
   }
 }
 
-/* Overrides locales del bloque: mismo aspecto que los selectores de contenido. */
-.overrides-trigger {
-  text-align: left;
-  cursor: pointer;
-  color: var(--mr-ink, #212529);
-  background-color: var(--mr-surface, #fff);
-}
 
-.overrides-trigger:hover {
-  border-color: var(--mr-accent, #0f766e);
-  background-color: var(--mr-accent-soft, #e4f2ef);
-}
-
-.overrides-help {
-  margin: 0 0 10px;
-  color: var(--mr-muted, #6c757d);
-  font-size: 12px;
-}
-
-.overrides-dialog-actions {
+/* Overrides locales del bloque: editor inline, como una fila más de ajustes. */
+.overrides-inline-row {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 24px;
+  padding: 1px 0;
 }
 
-.overrides-dialog-button {
-  padding: 6px 12px;
-  border: 1px solid var(--mr-border-strong, #cfc5b5);
-  border-radius: 6px;
-  background: var(--mr-surface, #fff);
-  color: var(--mr-ink, #212529);
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
+.overrides-icon {
+  flex: 0 0 18px;
+  padding-top: 3px;
+  color: #8a8176;
 }
 
-.overrides-dialog-button--primary {
-  border-color: var(--mr-accent-solid, #0f766e);
-  background: var(--mr-accent-solid, #0f766e);
-  color: #fff;
+.overrides-icon .pi {
+  font-size: 0.8rem;
+}
+
+.overrides-editor {
+  flex: 1;
+  min-width: 0;
 }

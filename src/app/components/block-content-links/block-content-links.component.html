@@ -59,30 +59,19 @@
     </span>
   </div>
 
-  <div class="content-link-row">
-    <span class="block-section-icon"
+  <div class="overrides-inline-row">
+    <span class="block-section-icon overrides-icon"
       pTooltip="Overrides apply only to this block's own notes"
       tooltipPosition="top"
       aria-label="Block overrides"
-      role="img">&#8801;</span>
-    <button type="button"
-      class="content-link-select overrides-trigger"
-      pTooltip="Edit block overrides"
-      tooltipPosition="top"
-      aria-label="Edit block overrides"
-      (click)="openOverrides()">
-      {{ block.overrides.length ? 'Overrides (' + block.overrides.length + ')' : 'Add overrides' }}
-    </button>
-    @if (block.overrides.length) {
-      <span class="content-link-actions">
-        <p-button
-          icon="pi pi-times"
-          pTooltip="Clear block overrides"
-          tooltipPosition="top"
-          aria-label="Clear block overrides"
-          (click)="clearOverrides()"></p-button>
-      </span>
-    }
+      role="img">
+      <i class="pi pi-sliders-h" aria-hidden="true"></i>
+    </span>
+    <app-preset-editor
+      class="overrides-editor"
+      [preset]="overridesPreset"
+      [showSectionIcon]="false">
+    </app-preset-editor>
   </div>
 
   <div class="content-link-row">
@@ -114,20 +103,4 @@
       }
     </span>
   </div>
-
-  <p-dialog
-    header="Block overrides"
-    [(visible)]="overridesVisible"
-    [modal]="true"
-    [dismissableMask]="true"
-    [style]="{ width: 'min(720px, 95vw)' }">
-    <p class="overrides-help">
-      These settings apply only to this block's own notes. Child blocks keep the base preset.
-    </p>
-    <app-preset-editor [preset]="overridesDraft"></app-preset-editor>
-    <div class="overrides-dialog-actions">
-      <button type="button" class="overrides-dialog-button" (click)="cancelOverrides()">Cancel</button>
-      <button type="button" class="overrides-dialog-button overrides-dialog-button--primary" (click)="saveOverrides()">Apply</button>
-    </div>
-  </p-dialog>
 </div>

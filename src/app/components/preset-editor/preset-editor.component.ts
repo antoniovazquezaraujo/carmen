@@ -56,6 +56,8 @@ import {
 })
 export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() preset: Preset = new Preset();
+    /** Permite ocultar el icono de ajustes cuando se embebe en un bloque. */
+    @Input() showSectionIcon = true;
 
     readonly commandTypes = CommandType;
     readonly syntheticShift = 'SHIFT';
@@ -131,7 +133,10 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     removeCommand(command: Command): void {
-        this.preset.settings = this.preset.settings.filter(setting => setting !== command);
+        const index = this.preset.settings.indexOf(command);
+        if (index >= 0) {
+            this.preset.settings.splice(index, 1);
+        }
         this.cdr.detectChanges();
     }
 

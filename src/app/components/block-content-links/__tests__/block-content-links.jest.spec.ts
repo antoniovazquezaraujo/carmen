@@ -99,19 +99,23 @@ describe('BlockContentLinksComponent', () => {
     expect(block.procedure).toBeUndefined();
   });
 
-  it('edita overrides locales en un borrador y los aplica al bloque', () => {
+  it('edita overrides locales directamente sobre el bloque', () => {
     const song = new Song();
     const block = new Block();
     const component = createComponent(block, song);
 
-    component.openOverrides();
-    expect(component.overridesVisible).toBe(true);
-    component.overridesDraft.settings.push(new Command({ type: CommandType.OCT, value: 3 }));
-    component.saveOverrides();
+    component.overridesPreset.settings.push(new Command({ type: CommandType.OCT, value: 3 }));
 
-    expect(component.overridesVisible).toBe(false);
     expect(block.overrides.map(setting => setting.type)).toEqual([CommandType.OCT]);
     expect(block.overrides[0].value).toBe(3);
+  });
+
+  it('muestra el editor de overrides inline con un icono de sliders', () => {
+    expect(template).toContain('app-preset-editor');
+    expect(template).toContain('overrides-inline-row');
+    expect(template).toContain('pi pi-sliders-h');
+    expect(template).toContain('[showSectionIcon]="false"');
+    expect(template).not.toContain('p-dialog');
   });
 
   it('crea contenido desde el bloque y lo asigna', () => {
