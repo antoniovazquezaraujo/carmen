@@ -141,7 +141,25 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 **Verificación:**
 
 - Tests de lógica pura: reordenar, no-op y transferencia entre parts (`parts-layout.jest.spec.ts`).
-- Tests de anidación: `canNestDrop` bloquea ciclos y `onNestDrop` añade al final de los hijos (`block-dnd.jest.spec.ts`).
-- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle`, cabecera de anidación y asa raíz separada (`part-block-dnd.jest.spec.ts`).
-- Verificación real con Chrome headless + CDP: reordenar, mover entre parts y anidar sobre una cabecera.
+- Tests de anidación: `containsBlock` bloquea ciclos y `findBlockById` resuelve hijos (`parts-layout.jest.spec.ts`).
+- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle`, `data-block-id` y asa raíz separada (`part-block-dnd.jest.spec.ts`).
+- Verificación real con Chrome headless + CDP: reordenar, mover entre parts, anidar sobre una cabecera y rechazar ciclos.
+- `npm test` y `npm run build` en verde.
+
+## 8. Sacar un bloque de su padre y líneas de inserción (2026-11-09)
+
+**Problema reportado:** una vez anidado, un bloque era difícil de devolver al primer nivel; la única opción práctica era moverlo a otra part. Además, la línea de inserción se veía demasiado fina y a veces el drop no movía el bloque.
+
+**Solución:**
+
+- `PartComponent` se suscribe a `TreeDragDropService.dragStart$`/`dragStop$` y guarda el nodo, sus `subNodes` y el índice.
+- Mientras hay un drag de PrimeNG, cada part muestra una zona inferior de 34px, con borde discontinuo y texto **Drop here to move it to the top level**.
+- Al soltar ahí (`onRootDrop`), el nodo se extrae de `subNodes` y se añade a `part.items`; sirve para la misma part o para otra, y convierte el hijo en bloque raíz.
+- La zona se resalta en verde con `part-root-dropzone--active`; si se cancela el drag, `dragStop$` la oculta.
+- El droppoint de PrimeNG pasa de 12px/2px a **16px/4px** (6px y sombra al apuntar), para que la línea sea visible y fácil de acertar.
+
+**Verificación:**
+
+- Prueba real con Chrome headless + CDP: `A[B]` → arrastrar `B` al fondo de la part → `[A, B]`; la zona aparece solo durante el drag.
+- Tests de contrato de plantilla/estilos para la zona y el grosor de la línea.
 - `npm test` y `npm run build` en verde.

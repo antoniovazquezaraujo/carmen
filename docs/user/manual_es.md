@@ -241,6 +241,7 @@ En la GUI, las partes viven en la fila **Parts**, debajo de los paneles de varia
 - **No hay contenido inline** dentro de un bloque: ni secciones `notes`, ni `commands`, ni `operations`.
 - En el árbol visual, cada nivel de anidación se marca con una **guía vertical tenue** y un **conector corto** hacia cada bloque, para leer la jerarquía de un vistazo.
 - Arrastra un bloque desde su asa (`⋮⋮`) para reordenarlo dentro de su part o moverlo a otra part. Suéltalo sobre la cabecera de otro bloque para anidarlo como último hijo de ese bloque. Los bloques hijos también se pueden arrastrar para reordenarlos o anidarlos dentro de otro bloque. Si sueltas un bloque entre dos bloques, cambia de posición.
+- Para devolver un bloque anidado al primer nivel de una part, arrástralo a la zona discontinua **Drop here to move it to the top level** del fondo de la part de destino.
 
 ```mr
 song Estructura

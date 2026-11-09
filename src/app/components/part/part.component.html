@@ -41,6 +41,16 @@
       @if (blocks.length === 0) {
         <p class="part-empty">No blocks yet.</p>
       }
+      @if (primeDragActive) {
+        <div class="part-root-dropzone"
+          [class.part-root-dropzone--active]="rootDropActive"
+          (dragover)="onRootDragOver($event)"
+          (dragleave)="onRootDragLeave($event)"
+          (drop)="onRootDrop($event)">
+          <i class="pi pi-arrow-up" aria-hidden="true"></i>
+          <span>Drop here to move it to the top level</span>
+        </div>
+      }
     </div>
   }
 </div>

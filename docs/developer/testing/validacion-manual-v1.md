@@ -134,6 +134,8 @@
 - [ ] **10.12.** Arrastra un bloque raíz a una part vacía: la part deja de mostrar “No blocks yet” y el bloque queda como único hijo raíz.
 - [ ] **10.13.** Arrastra un bloque raíz y suéltalo sobre la **cabecera** de otro bloque: la cabecera se resalta al apuntarla, el bloque pasa a ser su último hijo y el destino se expande.
 - [ ] **10.14.** Intenta soltar un bloque sobre su propia cabecera o sobre la de un descendiente: no debe anidarse ni crearse un ciclo.
+- [ ] **10.15.** Arrastra un bloque hijo a la zona discontinua **Drop here to move it to the top level** del fondo de su propia part o de otra: sale del padre y queda como bloque raíz de la part de destino.
+- [ ] **10.16.** Durante el drag, la zona de primer nivel mide al menos 34px de alto y se resalta en verde; las líneas de inserción del árbol se ven gruesas (4px, 6px al apuntar) y el drop se aplica al soltar.
 - [ ] **10.10.** No aparecen errores nuevos en la consola del navegador durante las pruebas.
 
 ## 11. Caso 11 — Guías de jerarquía del árbol (feat/block-tree-guides, 2026-10-05)
@@ -141,7 +143,7 @@
 - [ ] **11.1.** Carga un `.mr` con al menos **tres niveles** de anidación (p. ej. `Piano > Nivel1 > Nivel2 > Nivel3`) y expande hasta el último nivel.
 - [ ] **11.2.** Cada nivel muestra una **línea vertical gris tenue** (continúa por toda la lista de hijos, sin invadir cabeceras) y cada bloque anidado recibe un **conector horizontal corto** desde esa línea hacia su asa de arrastre, con ~1px de separación.
 - [ ] **11.3.** Los bloques **raíz** (tanto de un bloque con contenido propio como de un contenedor clásico) **no** tienen conector: la guía solo cuelga de los padres anidados.
-- [ ] **11.4.** Las guías no generan *layout shift*: las asas, nombres y editores de melodía conservan su posición; el droppoint de 12px y el asa `⋮⋮` del fix #79 siguen igual (ver caso 10).
+- [ ] **11.4.** Las guías no generan *layout shift*: las asas, nombres y editores de melodía conservan su posición; el droppoint mide 16px de alto y su línea 4px (6px activa), y el asa `⋮⋮` del fix #79 sigue igual (ver caso 10).
 - [ ] **11.5.** Pasa el ratón y haz clic sobre las líneas: no seleccionan ni bloquean nada; el drag & drop sigue funcionando (reordenar, anidar y soltar de nuevo con los casos 10.2–10.4).
 - [ ] **11.6.** No aparecen errores nuevos en la consola del navegador.
 

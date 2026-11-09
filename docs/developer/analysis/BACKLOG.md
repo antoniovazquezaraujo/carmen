@@ -31,7 +31,7 @@
 ## Completado recientemente
 
 - **Rebranding visible** (2026-11-08): producto, app, README y docs pasan a **Carmen**; repo y Pages en `antoniovazquezaraujo/carmen`. Se mantienen `.mr` y `--mr-*`; paquetes y CLI pasan a `carmen-core`/`carmen-cli`.
-- **Drag de bloques raíz** (2026-11-08): asa en bloques de primer nivel, reordenación dentro de la part, movimiento entre parts y anidación al soltar sobre la cabecera de otro bloque con Angular CDK; el drag de hijos de PrimeNG se mantiene.
+- **Drag de bloques raíz** (2026-11-08): asa en bloques de primer nivel, reordenación dentro de la part, movimiento entre parts y anidación al soltar sobre la cabecera de otro bloque con Angular CDK. Los hijos de PrimeNG se pueden devolver al primer nivel con una zona de drop amplia; las líneas de inserción pasan a 4px (6px activas).
 - **v1.0.0** (2026-11-08): primera release pública, ZIP web adjunto y workflow de release corregido; la protección de `main` exige ya el check de Node 22.
 - **Content libraries / `.mr` v2** (#142, ADR-004): `melodies`, `presets` y `procedures` reutilizables; bloques estructurales que referencian como máximo una entrada de cada tipo. Los PRs #139 y #140 (referencias anidadas con `use`) se cerraron por quedar sustituidos.
 - **Duraciones de compás** (2026-11-08): `1m`, `2m`… funcionan en SINGLE, CHORD, arpegios, grupos y compilador MIDI (compás = 4 pulsos, 4/4); la rueda y los selectores incluyen `2m` y `4m`.

@@ -11,6 +11,7 @@ import * as path from 'path';
 const read = (relative: string): string => fs.readFileSync(path.resolve(__dirname, relative), 'utf8');
 const partTemplate = read('../part.component.html');
 const partSource = read('../part.component.ts');
+const partStyles = read('../part.component.scss');
 const partsTemplate = read('../../parts/parts.component.html');
 const blockTemplate = read('../../block/block.component.html');
 const blockStyles = read('../../block/block.component.scss');
@@ -47,6 +48,15 @@ describe('bloques raíz · drag & drop con CDK', () => {
     it('expone el id del bloque en la cabecera para resolver el anidamiento', () => {
         expect(blockTemplate).toContain('[attr.data-block-id]="node.id"');
         expect(partSource).toContain('blockHeaderAt(event.event)');
+    });
+
+    it('ofrece una zona amplia para devolver un hijo al primer nivel', () => {
+        expect(partTemplate).toContain('part-root-dropzone');
+        expect(partTemplate).toContain('(drop)="onRootDrop($event)"');
+        expect(partTemplate).toContain('Drop here to move it to the top level');
+        expect(partStyles).toContain('.part-root-dropzone');
+        expect(partStyles).toContain('min-height: 34px');
+        expect(partStyles).toContain('border: 2px dashed');
     });
 
     it('da el mismo aspecto a ambas asas', () => {

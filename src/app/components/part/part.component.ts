@@ -1,9 +1,20 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output
+} from '@angular/core';
 import { CdkDrag, type CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
 import { Button, ButtonDirective } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { Tooltip } from 'primeng/tooltip';
 import { Bind } from 'primeng/bind';
+import { TreeDragDropService } from 'primeng/api';
+import type { TreeNodeDragEvent } from 'primeng/api';
+import { Subscription } from 'rxjs';
 import { Block } from 'src/app/model/block';
 import { Part } from 'src/app/model/part';
 import { Song } from 'src/app/model/song';
@@ -27,7 +38,7 @@ import {
     styleUrls: ['./part.component.scss'],
     imports: [Bind, Button, CdkDrag, CdkDropList, FormsModule, Tooltip, ButtonDirective, BlockComponent]
 })
-export class PartComponent implements OnInit {
+export class PartComponent implements OnInit, OnDestroy {
     @Input() part!: Part;
     @Input() song!: Song;
     @Output() onDuplicatePart: EventEmitter<Part>;
@@ -45,9 +56,18 @@ export class PartComponent implements OnInit {
     /** Bloque raíz que se está arrastrando, para apagar su tooltip. */
     draggedRootBlockId: number | null = null;
 
+    /** `true` mientras un bloque hijo se arrastra con PrimeNG. */
+    primeDragActive = false;
+    /** Zona inferior resaltada mientras el bloque hijo está encima. */
+    rootDropActive = false;
+
+    private primeDrag: TreeNodeDragEvent | null = null;
+    private readonly subscriptions = new Subscription();
+
     constructor(
         private readonly songPlayer: SongPlayer,
-        private readonly cdr: ChangeDetectorRef
+        private readonly cdr: ChangeDetectorRef,
+        private readonly dragDropService: TreeDragDropService
     ) {
         this.onDuplicatePart = new EventEmitter<Part>();
         this.onRemovePart = new EventEmitter<Part>();
@@ -173,6 +193,63 @@ export class PartComponent implements OnInit {
         if (this.part.items.length > 0) {
             this.currentBlock = this.part.items[0];
         }
+        this.subscriptions.add(this.dragDropService.dragStart$.subscribe(event => {
+            this.primeDrag = event;
+            this.primeDragActive = !!event.node && !!event.subNodes;
+        }));
+        this.subscriptions.add(this.dragDropService.dragStop$.subscribe(() => {
+            this.primeDrag = null;
+            this.primeDragActive = false;
+            this.rootDropActive = false;
+        }));
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+    }
+
+    /**
+     * Zona inferior de la part para devolver un bloque hijo al primer nivel.
+     * PrimeNG no ofrece un destino fuera de sus árboles; este drop nativo
+     * saca el nodo de `subNodes` y lo añade a `part.items`.
+     */
+    onRootDragOver(event: DragEvent): void {
+        if (!this.primeDrag?.node || !this.primeDrag.subNodes) {
+            return;
+        }
+        event.preventDefault();
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'move';
+        }
+        this.rootDropActive = true;
+    }
+
+    onRootDragLeave(event: DragEvent): void {
+        const current = event.currentTarget as HTMLElement | null;
+        const related = event.relatedTarget as Node | null;
+        if (!current || !related || !current.contains(related)) {
+            this.rootDropActive = false;
+        }
+    }
+
+    onRootDrop(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.rootDropActive = false;
+        const drag = this.primeDrag;
+        this.primeDrag = null;
+        this.primeDragActive = false;
+        if (!drag?.node || !drag.subNodes) {
+            return;
+        }
+        const index = drag.subNodes.indexOf(drag.node);
+        if (index < 0) {
+            return;
+        }
+        drag.subNodes.splice(index, 1);
+        this.part.items.push(drag.node as Block);
+        this.currentBlock = drag.node as Block;
+        this.cdr.detectChanges();
     }
 
     duplicatePart(): void {

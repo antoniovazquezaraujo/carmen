@@ -241,6 +241,7 @@ In the GUI, parts live in the **Parts** row, below the variables and content pan
 - There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections.
 - In the visual tree, each nesting level is marked with a **subtle vertical guide** and a **short connector** to every block, so the hierarchy is readable at a glance.
 - Drag a block from its handle (`⋮⋮`) to reorder it within its part or move it to another part. Drop it on another block's header to nest it as that block's last child. Child blocks can also be dragged to reorder them or nest them inside another block. Dropping a block between two blocks changes its position.
+- To move a nested block back to the top level of a part, drag it to the dashed **Drop here to move it to the top level** zone at the bottom of the target part.
 
 ```mr
 song Estructura
