@@ -34,6 +34,7 @@ module.exports = {
     '^@angular/forms$': '<rootDir>/src/__mocks__/angular-forms.ts',
     '^primeng/.*$': '<rootDir>/src/__mocks__/primeng.ts',
     '^@angular/cdk/overlay$': '<rootDir>/src/__mocks__/cdk-overlay.ts',
+    '^@angular/cdk/drag-drop$': '<rootDir>/src/__mocks__/cdk-drag-drop.ts',
     '^@angular/core$': '<rootDir>/src/__mocks__/angular-core.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/src/jest.setup.ts'],

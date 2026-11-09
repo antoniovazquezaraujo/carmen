@@ -332,12 +332,11 @@ h1 { /* Add some style for the header */
 }
 
 /* Drag & drop de bloques: zonas de inserción amplias y visibles.
-   El `.p-tree-node-droppoint` por defecto mide 4px de alto; se amplía a 12px
-   con una línea de acento al pasar por encima o durante el arrastre para que
-   sea fácil apuntar sin ensuciar el árbol en reposo. */
+   El `.p-tree-node-droppoint` por defecto mide 4px de alto; se amplía a 16px
+   con una línea de 4px (6px al apuntar) para que sea fácil ver y acertar. */
 .p-tree .p-tree-node-droppoint {
   position: relative;
-  height: 12px !important;
+  height: 16px !important;
   list-style-type: none;
 }
 
@@ -347,15 +346,15 @@ h1 { /* Add some style for the header */
   left: 4px;
   right: 4px;
   top: 50%;
-  height: 2px;
+  height: 4px;
   transform: translateY(-50%);
-  border-radius: 1px;
+  border-radius: 2px;
   background-color: transparent;
   transition: background-color 0.12s ease, height 0.12s ease;
 }
 
 .p-tree .p-tree-node-droppoint:hover::after {
-  background-color: #c8e6c9;
+  background-color: #a5d6a7;
 }
 
 .p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active {
@@ -363,8 +362,9 @@ h1 { /* Add some style for the header */
 }
 
 .p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active::after {
-  height: 4px;
+  height: 6px;
   background-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.18);
 }
 
 /* Nodo destino del drop: resaltado claro (el tema por defecto es casi gris). */
@@ -2420,4 +2420,32 @@ html body app-procedure-editor .operations-row {
 .part-header .p-button:focus-visible {
   outline: 2px solid rgba(0, 119, 204, 0.55) !important;
   outline-offset: 1px;
+}
+
+/* ====== BLOQUES RAÍZ: DRAG & DROP CON ANGULAR CDK ====== */
+/* El preview se clona en <body>; estos estilos son globales a propósito. */
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--mr-surface, #fffdf8);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+  opacity: 0.96;
+  cursor: grabbing;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.28;
+}
+
+.cdk-drag-animating,
+.part-content.cdk-drop-list-dragging app-block:not(.cdk-drag-placeholder) {
+  transition: transform 180ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Al arrastrar un bloque raíz, la cabecera bajo el puntero es la zona de anidación. */
+.part-content.cdk-drop-list-dragging .block-header:hover,
+.part-content.cdk-drop-list-receiving .block-header:hover {
+  border-radius: 4px;
+  background-color: #e8f5e9 !important;
+  box-shadow: inset 0 0 0 2px #2e7d32;
 }

@@ -36,7 +36,7 @@ El árbol es un `p-tree` de PrimeNG 13.3.3 (`block.component.html`) con `draggab
 ### `block.component.html`
 
 - Enlaces reales: `(mousedown)`, `(dragstart)`, `(dragend)` (eventos nativos del host) y `(onNodeDrop)` (output real de PrimeNG).
-- Asa visible en el header (`pi pi-bars`, `pTooltip="Drag to move block"`, `aria-hidden`) para todos los nodos excepto el raíz del árbol.
+- Asa visible en el header (`pi pi-bars`, `pTooltip="Drag to move block"`, `aria-hidden`) para todos los nodos excepto el raíz del árbol (histórico; desde 2026-11-08 el raíz tiene asa CDK, ver §7).
 
 ### `block.component.scss`
 
@@ -63,7 +63,7 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 | `B2` → hueco inferior del árbol A (lista raíz sintética) | `A.children = [B1, B2]`, `D.children = []` ✅ |
 | Drop sobre uno mismo | Sin cambios (lo bloquea `allowDrop` de PrimeNG) ✅ |
 | `dragstart` desde un input (sin asa) | Cancelado (`preventDefault`) y modelo intacto ✅ |
-| `dragstart` del raíz visible | Cancelado y sin asa ✅ |
+| `dragstart` del raíz visible | Cancelado y sin asa (histórico; ahora usa CDK, ver §7) ✅ |
 | Consola del navegador durante todo el flujo | **0 errores, 0 warnings** ✅ |
 | `npm test` / `npm run build` | 32 suites / 420 tests ✅ / exit 0 ✅ |
 
@@ -83,7 +83,7 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 ## 4. Decisiones UX y limitaciones
 
 - **Drag solo desde el asa:** el gesto deja de competir con la edición de texto (notas, nombre, repeticiones) y el punto de agarre es inequívoco. El header sigue siendo clicable para todo lo demás.
-- **Raíz sin asa:** un bloque raíz de `part.blocks` no se puede mover entre bloques (su lista de hermanos vive en otra componente); mejor ocultar el asa que duplicar el bloque silenciosamente.
+- **Raíz sin asa (histórico):** en este primer fix, un bloque raíz de `part.items` no se podía mover porque su lista de hermanos vive en otra componente. Desde el 2026-11-08 los raíces tienen un asa CDK y se reordenan/mueven entre parts; ver §7.
 - **Droppoints invisibles en reposo:** se evita llenar el árbol de líneas; el área de 12px sigue siendo cómoda y la línea aparece al apuntar o durante el drag.
 - **Limitación conocida:** PrimeNG 13 no ofrece drag & drop por teclado; este fix no añade una alternativa de teclado (fuera de alcance). Queda como posible mejora futura.
 
@@ -118,3 +118,48 @@ Chrome 153 headless con `--remote-debugging-port`, app servida en `http://localh
 - `src/styles.css` (§ `.p-tree`)
 - `src/app/components/block/__tests__/block-dnd.jest.spec.ts`
 - PRs: `fix/block-dnd` → `develop` (#79) y `fix/block-handle-tooltip` → `develop` (#83).
+
+## 7. Drag & drop de bloques raíz (2026-11-08)
+
+**Petición:** los bloques de primer nivel no mostraban asa y no se podían arrastrar.
+
+**Alcance:** asa en cada bloque raíz para **reordenarlo dentro de su part**, **moverlo a otra part** y **anidarlo** soltándolo sobre la cabecera de otro bloque (como último hijo). El drag de bloques hijos de PrimeNG se mantiene para reordenar y anidar dentro de un árbol.
+
+**Implementación:**
+
+- Angular CDK (`@angular/cdk/drag-drop`), ya presente por `@angular/cdk/overlay`.
+- `PartsComponent` envuelve la fila con `cdkDropListGroup`; cada `.part-content` es un `cdkDropList` con `part.items` como datos y `(cdkDropListDropped)="onBlockDrop($event)"`.
+- Cada `<app-block>` raíz lleva `cdkDrag`; el asa usa `cdkDragHandle` y una clase propia (`block-root-drag-handle`) para no activar el drag nativo de PrimeNG de los hijos.
+- `PartComponent.onBlockDrop` delega en `moveBlockWithin`/`moveBlockBetween` (`parts-layout.ts`): misma part → `splice` reordena; otra part → `splice` extrae e inserta en destino.
+- Cada `.block-header` lleva `data-block-id`. Al soltar, `PartComponent.onBlockDrop` mira el elemento bajo el puntero (`elementFromPoint`) y resuelve el bloque con `findBlockById`; si hay cabecera, extrae el bloque de la lista de la part y lo añade al final de `target.children`, expandiendo el destino.
+- `containsBlock` rechaza soltar un bloque dentro de sí mismo o de un descendiente, para no crear ciclos.
+- Los bloques raíz muestran el mismo icono `⋮⋮` que los hijos; el tooltip se apaga con `rootDragging` mientras dura el gesto.
+- `cdkDropListGroup` conecta todas las parts; un bloque puede soltarse en una part vacía, entre dos bloques o sobre una cabecera para anidarlo.
+- Al arrastrar, la cabecera bajo el puntero se resalta con `.part-content.cdk-drop-list-dragging .block-header:hover`.
+- Estilos globales para `.cdk-drag-preview`, `.cdk-drag-placeholder` y `.cdk-drag-animating`; el preview se clona en `<body>`.
+
+**Verificación:**
+
+- Tests de lógica pura: reordenar, no-op y transferencia entre parts (`parts-layout.jest.spec.ts`).
+- Tests de anidación: `containsBlock` bloquea ciclos y `findBlockById` resuelve hijos (`parts-layout.jest.spec.ts`).
+- Test de contrato de plantilla: `cdkDropListGroup`, `cdkDropList`, `cdkDrag`, `cdkDragHandle`, `data-block-id` y asa raíz separada (`part-block-dnd.jest.spec.ts`).
+- Verificación real con Chrome headless + CDP: reordenar, mover entre parts, anidar sobre una cabecera y rechazar ciclos.
+- `npm test` y `npm run build` en verde.
+
+## 8. Sacar un bloque de su padre y líneas de inserción (2026-11-09)
+
+**Problema reportado:** una vez anidado, un bloque era difícil de devolver al primer nivel; la única opción práctica era moverlo a otra part. Además, la línea de inserción se veía demasiado fina y a veces el drop no movía el bloque.
+
+**Solución:**
+
+- `PartComponent` se suscribe a `TreeDragDropService.dragStart$`/`dragStop$` y guarda el nodo, sus `subNodes` y el índice.
+- Mientras hay un drag de PrimeNG, cada part muestra una zona inferior de 34px, con borde discontinuo y texto **Drop here to move it to the top level**.
+- Al soltar ahí (`onRootDrop`), el nodo se extrae de `subNodes` y se añade a `part.items`; sirve para la misma part o para otra, y convierte el hijo en bloque raíz.
+- La zona se resalta en verde con `part-root-dropzone--active`; si se cancela el drag, `dragStop$` la oculta.
+- El droppoint de PrimeNG pasa de 12px/2px a **16px/4px** (6px y sombra al apuntar), para que la línea sea visible y fácil de acertar.
+
+**Verificación:**
+
+- Prueba real con Chrome headless + CDP: `A[B]` → arrastrar `B` al fondo de la part → `[A, B]`; la zona aparece solo durante el drag.
+- Tests de contrato de plantilla/estilos para la zona y el grosor de la línea.
+- `npm test` y `npm run build` en verde.

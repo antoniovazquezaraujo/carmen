@@ -70,4 +70,30 @@
   display: inline-block; /* Ensure it takes up space */
   vertical-align: middle; /* Align vertically with other header items */
   margin-right: 0.5rem; /* Add some spacing */
-} 
+}
+
+/* Destino para devolver un bloque hijo al primer nivel de la part. */
+.part-root-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  margin: 6px 0 2px;
+  padding: 4px 8px;
+  border: 2px dashed var(--mr-border-strong, #bdbdbd);
+  border-radius: 6px;
+  background: var(--mr-surface-soft, #f8f4ec);
+  color: var(--mr-muted, #6c757d);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  transition: border-color 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+}
+
+.part-root-dropzone--active {
+  border-color: #2e7d32;
+  background: #e8f5e9;
+  color: #1b5e20;
+  box-shadow: inset 0 0 0 2px #2e7d32;
+}

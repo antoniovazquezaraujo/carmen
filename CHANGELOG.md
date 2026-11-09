@@ -8,6 +8,8 @@ All notable changes to **Carmen**. Format based on
 
 ### Added
 
+- **Top-level block drag & drop**: blocks at the first level of a part now have a drag handle. They can be reordered within the part, moved to another part, or dropped on another block's header to nest as its last child. Child blocks keep the existing tree drag & drop for reordering and nesting.
+- **Unparent nested blocks**: a nested block can be dropped on a wide dashed top-level zone at the bottom of a part to move it out of its parent. Tree insertion lines are thicker (4px, 6px when active) for easier targeting.
 - **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/carmen/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
 - **Intensity**: melody notes accept `@1–127` (also on groups), and presets accept `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP`. Playback and the MIDI compiler carry the intensity as MIDI velocity; the profile counts generated notes in playback order, and an explicit `@` wins over ramp/pattern. The melody editor shows and preserves intensities. The intensity profile is local to the block that declares it: it applies to that block's own notes and the previous profile is restored before children/siblings; other preset settings keep persisting.
 

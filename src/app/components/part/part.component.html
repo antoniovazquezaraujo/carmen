@@ -18,9 +18,18 @@
     </div>
   </div>
   @if (isExpanded) {
-    <div class="part-content">
+    <div class="part-content"
+      cdkDropList
+      [cdkDropListData]="part.items"
+      (cdkDropListDropped)="onBlockDrop($event)">
       @for (block of blocks; track trackByBlock($index, block)) {
         <app-block
+          cdkDrag
+          [cdkDragData]="block"
+          [rootDraggable]="true"
+          [rootDragging]="draggedRootBlockId === block.id"
+          (cdkDragStarted)="onRootDragStarted(block)"
+          (cdkDragEnded)="onRootDragEnded()"
           [block]="block"
           [song]="song"
           (onDuplicateBlock)="onDuplicateBlock($event)"
@@ -31,6 +40,16 @@
       }
       @if (blocks.length === 0) {
         <p class="part-empty">No blocks yet.</p>
+      }
+      @if (primeDragActive) {
+        <div class="part-root-dropzone"
+          [class.part-root-dropzone--active]="rootDropActive"
+          (dragover)="onRootDragOver($event)"
+          (dragleave)="onRootDragLeave($event)"
+          (drop)="onRootDrop($event)">
+          <i class="pi pi-arrow-up" aria-hidden="true"></i>
+          <span>Drop here to move it to the top level</span>
+        </div>
       }
     </div>
   }

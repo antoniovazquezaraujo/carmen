@@ -2,7 +2,7 @@
 splitter arrastrable entre parts adyacentes. El reparto inicial es igual
 (flex); tras el primer arrastre se fijan anchos explícitos en px y, si no
 caben, la fila hace scroll horizontal. -->
-<div class="parts" [class.parts--dragging]="draggingIndex !== null">
+<div class="parts" cdkDropListGroup [class.parts--dragging]="draggingIndex !== null">
   @for (part of parts; track part; let i = $index; let last = $last) {
     <app-part
       [part]="part"
