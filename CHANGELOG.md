@@ -6,6 +6,8 @@ All notable changes to **Carmen**. Format based on
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-10
+
 ### Added
 
 - **Carmen logo**: added the final keyboard wordmark to `src/assets/brand/` and the README (English and Spanish).
