@@ -33,7 +33,8 @@
   <rect x="186.476" y="117" width="24" height="33" fill="#000000"/>
   <rect x="224.571" y="25" width="24" height="166" fill="#000000"/>
   <rect x="300.762" y="25" width="24" height="166" fill="#000000"/>
-  <rect x="338.857" y="25" width="24" height="166" fill="#000000"/>
+  <rect x="338.857" y="25" width="24" height="63" fill="#000000"/>
+  <rect x="338.857" y="159" width="24" height="32" fill="#000000"/>
   <rect x="415.048" y="25" width="24" height="166" fill="#000000"/>
   <rect x="453.143" y="25" width="24" height="63" fill="#000000"/>
   <rect x="491.238" y="25" width="24" height="166" fill="#000000"/>
