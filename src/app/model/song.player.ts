@@ -14,6 +14,7 @@ import { VariableContext, VariableValue } from './variable.context';
 import { BaseOperation, VaryOperation, AssignOperation } from './operation';
 import { Command } from './command';
 import { NoteDuration } from './melody';
+import { clampVelocity, DEFAULT_VELOCITY } from './velocity';
 import { GlobalStateService } from '../shared/services/global-state.service';
 
 type InstrumentId = string;
@@ -55,6 +56,8 @@ type ExecutionUnit = {
     block: Block;
     /** Comandos a ejecutar en esta unidad (definición y/o llamada, según el caso). */
     commands: Command[];
+    /** Overrides locales que solo afectan a las notas propias del bloque. */
+    overrides: Command[];
     /** Operaciones a ejecutar en esta unidad (definición y/o llamada). */
     operations: BaseOperation[];
     /** `true` si esta unidad genera las notas de `block` (pasada de notas). */
@@ -423,18 +426,35 @@ export class SongPlayer {
             const unit = state.executionUnits[state.currentUnitIndex];
             if (unit) {
                 const { block } = unit;
-                unit.commands.forEach((command: Command) => command.execute(state.player));
-                this._executeOperations(unit.operations);
+                const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                const octaveScope = state.player.beginOctavePatternScope();
+                try {
+                    unit.commands.forEach((command: Command) => command.execute(state.player));
+                    const overrideScope = unit.overrides.length > 0
+                        ? state.player.snapshotPresetState()
+                        : null;
+                    try {
+                        unit.overrides.forEach((command: Command) => command.execute(state.player));
+                        this._executeOperations(unit.operations);
 
-                if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                    const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                        block.melody,
-                        state.player,
-                        block.id,
-                        block.preset?.id,
-                        block.procedure?.id
-                    );
-                    state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                            const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                                block.melody,
+                                state.player,
+                                block.id,
+                                block.preset?.id,
+                                block.procedure?.id
+                            );
+                            state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                        }
+                    } finally {
+                        if (overrideScope) {
+                            state.player.restorePresetState(overrideScope);
+                        }
+                    }
+                } finally {
+                    state.player.endOctavePatternScope(octaveScope);
+                    state.player.endVelocityProfileScope(velocityScope);
                 }
 
                 state.currentUnitIndex++;
@@ -528,6 +548,7 @@ export class SongPlayer {
                 units.push({
                     block,
                     commands: block.preset?.settings ?? [],
+                    overrides: block.overrides ?? [],
                     operations: block.procedure?.operations ?? [],
                     includeNotes: block.melody !== undefined,
                     repetitionIndex: i,
@@ -579,20 +600,37 @@ export class SongPlayer {
                 const unit = state.executionUnits[state.currentUnitIndex];
                 if (unit) {
                     const { block } = unit;
-                    // Apply commands and operations FIRST
-                    unit.commands.forEach((command: Command) => command.execute(state.player));
-                    this._executeOperations(unit.operations);
+                    const velocityScope = state.player.beginVelocityProfileScope(unit.commands);
+                    const octaveScope = state.player.beginOctavePatternScope();
+                    try {
+                        // Apply commands and operations FIRST
+                        unit.commands.forEach((command: Command) => command.execute(state.player));
+                        const overrideScope = unit.overrides.length > 0
+                            ? state.player.snapshotPresetState()
+                            : null;
+                        try {
+                            unit.overrides.forEach((command: Command) => command.execute(state.player));
+                            this._executeOperations(unit.operations);
 
-                    // Check if notes exist before calling generation
-                    if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
-                         const blockNotes = this.noteGenerationService.generateNotesForMelody(
-                             block.melody,
-                             state.player,
-                             block.id,
-                             block.preset?.id,
-                             block.procedure?.id
-                         ); // Call the service
-                         state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                            // Check if notes exist before calling generation
+                            if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
+                                 const blockNotes = this.noteGenerationService.generateNotesForMelody(
+                                     block.melody,
+                                     state.player,
+                                     block.id,
+                                     block.preset?.id,
+                                     block.procedure?.id
+                                 ); // Call the service
+                                 state.extractedNotes = state.extractedNotes.concat(blockNotes);
+                            }
+                        } finally {
+                            if (overrideScope) {
+                                state.player.restorePresetState(overrideScope);
+                            }
+                        }
+                    } finally {
+                        state.player.endOctavePatternScope(octaveScope);
+                        state.player.endVelocityProfileScope(velocityScope);
                     }
 
                     state.currentUnitIndex++;
@@ -757,6 +795,11 @@ export class SongPlayer {
          }
     }
     
+    /** MIDI 1–127 → rango 0–1 que espera Tone.js. */
+    private velocityToUnit(velocity?: number): number {
+        return clampVelocity(velocity ?? DEFAULT_VELOCITY) / 127;
+    }
+
     private _playNoteData(partSoundInfo: PartSoundInfo, time: number): void {
         // No need for this check if _playTurn ensures index is valid
         // if (partSoundInfo.noteDataIndex >= partSoundInfo.noteDatas.length) return;
@@ -771,7 +814,13 @@ export class SongPlayer {
                 case 'note':
                     if (noteData.note !== undefined) {
                         this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
-                        this.audioEngine.triggerAttackRelease(instrumentId, this.audioEngine.midiToFrequency(noteData.note), durationToUse, time);
+                        this.audioEngine.triggerAttackRelease(
+                            instrumentId,
+                            this.audioEngine.midiToFrequency(noteData.note),
+                            durationToUse,
+                            time,
+                            this.velocityToUnit(noteData.velocity)
+                        );
                     }
                     break;
                 case 'chord':
@@ -779,7 +828,25 @@ export class SongPlayer {
                          const notesToPlay = this.noteDatasToNotes(noteData.noteDatas);
                          if (notesToPlay.length > 0) {
                               this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
-                              this.audioEngine.triggerAttackRelease(instrumentId, notesToPlay.map(n => this.audioEngine.midiToFrequency(n)), durationToUse, time);
+                              const freqs = notesToPlay.map(n => this.audioEngine.midiToFrequency(n));
+                              const velocities = noteData.noteDatas
+                                  .filter(child => child.note !== undefined)
+                                  .map(child => this.velocityToUnit(child.velocity ?? noteData.velocity));
+                              const firstVelocity = velocities[0] ?? this.velocityToUnit(noteData.velocity);
+                              const sameVelocity = velocities.every(value => value === firstVelocity);
+                              if (sameVelocity) {
+                                  this.audioEngine.triggerAttackRelease(instrumentId, freqs, durationToUse, time, firstVelocity);
+                              } else {
+                                  freqs.forEach((freq, index) => {
+                                      this.audioEngine.triggerAttackRelease(
+                                          instrumentId,
+                                          freq,
+                                          durationToUse,
+                                          time,
+                                          velocities[index] ?? firstVelocity
+                                      );
+                                  });
+                              }
                          }
                     }
                     break;
@@ -789,6 +856,9 @@ export class SongPlayer {
                          if (notesToPlay.length > 0) {
                               this._activatePlayingSourceFromNoteData(noteData, durationSeconds);
                               const freqs = notesToPlay.map(n => this.audioEngine.midiToFrequency(n));
+                              const velocities = noteData.noteDatas
+                                  .filter(child => child.note !== undefined)
+                                  .map(child => child.velocity ?? noteData.velocity);
                               const totalDurationSeconds = this.audioEngine.timeToSeconds(durationToUse);
                               const singleNoteDurationSeconds = freqs.length > 0 ? totalDurationSeconds / freqs.length : totalDurationSeconds;
                               const singleNoteToneDuration = `${singleNoteDurationSeconds}s`;
@@ -798,7 +868,13 @@ export class SongPlayer {
                                   // Ensure note start time isn't in the past relative to Tone.Transport
                                   const transportNowSeconds = this.audioEngine.timeToSeconds(this.audioEngine.getTransportTime()); 
                                   const actualStartTime = Math.max(noteStartTime, transportNowSeconds);
-                                  this.audioEngine.triggerAttackRelease(instrumentId, freq, singleNoteToneDuration, actualStartTime);
+                                  this.audioEngine.triggerAttackRelease(
+                                      instrumentId,
+                                      freq,
+                                      singleNoteToneDuration,
+                                      actualStartTime,
+                                      this.velocityToUnit(velocities[index])
+                                  );
                               });
                          }
                      }
@@ -821,6 +897,11 @@ export class SongPlayer {
     }
     private notesToNoteDatas(notes: number[], duration: string): NoteData[] {
          return notes.map(note => ({ type: 'note', note, duration }));
+    }
+
+    /** Duración por defecto global actual (fallback si la melodía no define una). */
+    get globalDefaultDuration(): NoteDuration {
+        return this.globalState.globalDefaultDuration;
     }
 
     // Method to update the global default duration

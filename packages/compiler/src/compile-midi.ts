@@ -1,4 +1,4 @@
-import { applyDocumentVariables, parseSong, SongDocument, VariableContext } from '@moderanger/core';
+import { applyDocumentVariables, parseSong, SongDocument, VariableContext } from 'carmen-core';
 import { compilePart, substituteVariablesInSong } from './compile-core';
 import { DEFAULT_PPQ, secondsToTicks } from './timing';
 import { CompiledNote, CompiledPart, CompiledSong } from './types';
@@ -6,7 +6,7 @@ import { CompiledNote, CompiledPart, CompiledSong } from './types';
 export interface CompileOptions {
     /** Ticks por negra; por defecto 960. */
     ppq?: number;
-    /** Velocidad MIDI fija; por defecto 90. */
+    /** Velocidad de reserva cuando la nota no trae velocity; por defecto 90. */
     velocity?: number;
 }
 
@@ -55,7 +55,7 @@ export async function compileDocument(document: SongDocument, options: CompileOp
                         tick: secondsToTicks(event.time + offset, bpm, ppq),
                         durationTicks: Math.max(1, secondsToTicks(event.duration, bpm, ppq)),
                         midi,
-                        velocity
+                        velocity: event.velocity ?? velocity
                     });
                 });
             }

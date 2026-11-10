@@ -122,6 +122,29 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
     expect(service.generateNotesForMelody(blockWith('8n:( 0 2 )'), createPlayer()).map(n => n.duration)).toEqual(['8n', '8n']);
   });
 
+  it('acepta duraciones de compás en SINGLE, CHORD, arpegios y grupos', () => {
+    const singlePlayer = createPlayer();
+    singlePlayer.playMode = PlayMode.SINGLE;
+    const single = createService().generateNotesForMelody(blockWith('1m:0'), singlePlayer);
+
+    const chord = createService().generateNotesForMelody(blockWith('1m:0'), createPlayer());
+
+    const arpeggioPlayer = createPlayer();
+    arpeggioPlayer.playMode = PlayMode.ASCENDING;
+    arpeggioPlayer.density = 1;
+    arpeggioPlayer.gap = 2;
+    const arpeggio = createService().generateNotesForMelody(blockWith('1m:0'), arpeggioPlayer);
+
+    const group = createService().generateNotesForMelody(blockWith('2m:( 0 2 )'), createPlayer());
+
+    expect(single[0]).toMatchObject({ type: 'note', duration: '1m' });
+    expect(chord[0]).toMatchObject({ type: 'chord', duration: '1m' });
+    expect(chord[0].noteDatas).toHaveLength(1);
+    expect(arpeggio[0]).toMatchObject({ type: 'arpeggio', duration: '1m' });
+    expect(arpeggio[0].noteDatas!.length).toBeGreaterThan(0);
+    expect(group.map(n => n.duration)).toEqual(['2m', '2m']);
+  });
+
   it('propaga la duración del subgrupo más cercano en grupos anidados', () => {
     const result = createService().generateNotesForMelody(blockWith('4n:( 2 8n:( 0 2 ) )'), createPlayer());
 
@@ -217,6 +240,67 @@ describe('NoteGenerationService.generateNotesForMelody', () => {
     expect(result).toHaveLength(2);
     expect(result.every(n => n.type === 'chord')).toBe(true);
     expect(result[0].noteDatas!.length).toBeGreaterThan(0);
+  });
+
+  it('propaga la velocity @ de la nota fuente a SINGLE, CHORD y arpegios', () => {
+    const singlePlayer = createPlayer();
+    singlePlayer.playMode = PlayMode.SINGLE;
+    const single = createService().generateNotesForMelody(blockWith('4n:0@34'), singlePlayer);
+
+    const chord = createService().generateNotesForMelody(blockWith('4n:0@34'), createPlayer());
+
+    const arpeggioPlayer = createPlayer();
+    arpeggioPlayer.playMode = PlayMode.ASCENDING;
+    arpeggioPlayer.density = 1;
+    arpeggioPlayer.gap = 2;
+    const arpeggio = createService().generateNotesForMelody(blockWith('4n:0@34'), arpeggioPlayer);
+
+    expect(single[0]).toMatchObject({ type: 'note', velocity: 34 });
+    expect(chord[0].noteDatas!.every(note => note.velocity === 34)).toBe(true);
+    expect(arpeggio[0].noteDatas!.every(note => note.velocity === 34)).toBe(true);
+  });
+
+  it('aplica INTENSITY como base, INTENSITY_PATTERN en ciclo y INTENSITY_RAMP por rango', () => {
+    const basePlayer = createPlayer();
+    basePlayer.playMode = PlayMode.SINGLE;
+    new Command({ type: CommandType.INTENSITY, value: 20 }).execute(basePlayer);
+    const base = createService().generateNotesForMelody(blockWith('4n:0 4n:1'), basePlayer);
+    expect(base.map(note => note.velocity)).toEqual([20, 20]);
+
+    const patternPlayer = createPlayer();
+    patternPlayer.playMode = PlayMode.SINGLE;
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(patternPlayer);
+    new Command({ type: CommandType.INTENSITY_PATTERN, value: '20 10 5' }).execute(patternPlayer);
+    const pattern = createService().generateNotesForMelody(
+      blockWith('4n:0 4n:1 4n:2 4n:3'),
+      patternPlayer
+    );
+    expect(pattern.map(note => note.velocity)).toEqual([20, 10, 5, 20]);
+
+    const rampPlayer = createPlayer();
+    rampPlayer.playMode = PlayMode.SINGLE;
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(rampPlayer);
+    new Command({ type: CommandType.INTENSITY_RAMP, value: '2 4 20 60' }).execute(rampPlayer);
+    const ramp = createService().generateNotesForMelody(blockWith('4n:0 4n:1 4n:2 4n:3'), rampPlayer);
+    expect(ramp.map(note => note.velocity)).toEqual([90, 20, 40, 60]);
+  });
+
+  it('la velocity explícita @ prevalece sobre rampa y patrón', () => {
+    const player = createPlayer();
+    player.playMode = PlayMode.SINGLE;
+    new Command({ type: CommandType.INTENSITY, value: 90 }).execute(player);
+    new Command({ type: CommandType.INTENSITY_PATTERN, value: '20 10 5' }).execute(player);
+    new Command({ type: CommandType.INTENSITY_RAMP, value: '1 2 20 60' }).execute(player);
+
+    const result = createService().generateNotesForMelody(blockWith('4n:0@34 4n:1'), player);
+
+    expect(result.map(note => note.velocity)).toEqual([34, 60]);
+  });
+
+  it('la velocity de un grupo se hereda por sus hijos', () => {
+    const result = createService().generateNotesForMelody(blockWith('4n:( 0 2 )@40'), createPlayer());
+
+    expect(result[0].noteDatas!.every(note => note.velocity === 40)).toBe(true);
   });
 
   it('deja pasar los silencios explícitos de la gramática', () => {

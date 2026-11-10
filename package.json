@@ -1,5 +1,5 @@
 {
-  "name": "moderanger",
+  "name": "carmen",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -11,8 +11,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "midi": "npm run build:cli --silent && node packages/compiler/dist/cli/main.js compile",
-    "build:core": "tsc -p packages/core/tsconfig.build.json",
-    "build:compiler": "tsc -p packages/compiler/tsconfig.build.json",
+    "build:core": "npm run build --workspace carmen-core",
+    "build:compiler": "npm run build --workspace carmen-cli",
     "build:cli": "npm run build:core && npm run build:compiler"
   },
   "private": true,

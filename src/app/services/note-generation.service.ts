@@ -1,1 +1,1 @@
-export * from '@moderanger/core/services/note-generation.service';
+export * from 'carmen-core/services/note-generation.service';

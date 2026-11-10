@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p site/app
           cp -r docs/user/. site/
-          cp -r dist/moderanger/browser/. site/app/
+          cp -r dist/carmen/browser/. site/app/
           touch site/.nojekyll
 
       - name: Publish to gh-pages

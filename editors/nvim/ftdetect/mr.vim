@@ -1,4 +1,4 @@
-" ftdetect/mr.vim — asigna filetype=mr a los ficheros .mr de Mode Ranger.
+" ftdetect/mr.vim — asigna filetype=mr a los ficheros .mr de Carmen.
 " Instalación: añade esta carpeta al 'runtimepath' (ver ../README.md).
 "
 " Se fuerza el filetype (en lugar de 'setfiletype') porque algunos

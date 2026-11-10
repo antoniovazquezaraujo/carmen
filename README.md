@@ -1,16 +1,20 @@
-# Mode Ranger
+<p align="center">
+  <img src="src/assets/brand/carmen.png" alt="Carmen — keyboard logo" width="620">
+</p>
+
+# Carmen
 
 Harmony studio with a component-based GUI (parts, structural blocks, content libraries and a melody editor) and a canonical text format, **`.mr`**, to save and load songs. The text is the canonical representation of a song; the GUI is its guided view.
 
-[![CI](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/moderanger/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/moderanger/)
-[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/moderanger/app/)
+[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
 
 Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
 
 ## Play in the browser
 
-The latest release runs at **<https://antoniovazquezaraujo.github.io/moderanger/app/>**; no installation required. The user documentation stays at the site root.
+The current web build runs at **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no installation required. The user documentation stays at the site root.
 
 ## Quickstart
 
@@ -29,16 +33,16 @@ Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules
 
 ## MIDI compiler (experimental)
 
-The repository ships a browser-free CLI, `moderanger`, that compiles a `.mr` song to a Standard MIDI File. The package metadata is prepared for publication as `@moderanger/cli`; once published, the global command will be:
+The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. The npm package is named `carmen-cli`; once it is published, the global command will be:
 
 ```sh
-npm install -g @moderanger/cli
+npm install -g carmen-cli
 
-moderanger compile cancion.mr              # writes cancion.mid
-moderanger compile cancion.mr -o salida.mid
-moderanger compile cancion.mr --json       # inspect the compiled events
-moderanger check cancion.mr                # validate without generating output
-moderanger version
+carmen compile cancion.mr              # writes cancion.mid
+carmen compile cancion.mr -o salida.mid
+carmen compile cancion.mr --json       # inspect the compiled events
+carmen check cancion.mr                # validate without generating output
+carmen version
 ```
 
 Until the package is published, build and run it from a clone:
@@ -51,7 +55,7 @@ node packages/compiler/dist/cli/main.js version
 cat cancion.mr | node packages/compiler/dist/cli/main.js compile - -o salida.mid
 ```
 
-`npm run midi -- cancion.mr` remains a development shortcut (it builds the CLI first). `moderanger-mid` is kept as a compatibility alias for `moderanger compile`. The compiler uses the same playback semantics as the app (parts, structural blocks, content libraries, repeats, settings, operations, patterns, chords and arpeggios). MIDI is not audio: open the `.mid` in a DAW or render it with a synthesizer such as FluidSynth. See [`docs/developer/analysis/compilador-midi-mvp.md`](docs/developer/analysis/compilador-midi-mvp.md) for the current limitations.
+`npm run midi -- cancion.mr` remains a development shortcut (it builds the CLI first). The CLI exposes a single `carmen` binary with `compile`, `check`, `version` and `help`. The compiler uses the same playback semantics as the app (parts, structural blocks, content libraries, repeats, settings, operations, patterns, chords and arpeggios). MIDI is not audio: open the `.mid` in a DAW or render it with a synthesizer such as FluidSynth. See [`docs/developer/analysis/compilador-midi-mvp.md`](docs/developer/analysis/compilador-midi-mvp.md) for the current limitations.
 
 ## The `.mr` language
 
@@ -78,8 +82,8 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 
 ## Documentation
 
-- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/moderanger/app/)** — run the latest release in the browser.
-- 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/moderanger/)** — language manual, syntax cheatsheet and usage guide.
+- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in the browser.
+- 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
 - ✅ **[Manual validation v1](docs/developer/testing/validacion-manual-v1.md)** — step-by-step checklist.

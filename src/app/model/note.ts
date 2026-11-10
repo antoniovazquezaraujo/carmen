@@ -1,1 +1,1 @@
-export * from '@moderanger/core/note';
+export * from 'carmen-core/note';

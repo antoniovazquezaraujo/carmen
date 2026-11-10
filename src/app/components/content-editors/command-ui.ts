@@ -17,7 +17,7 @@ export interface VariableOption {
     value: string;
 }
 
-/** `INV` → `Inv`, `PATTERN_GAP` → `Pattern gap`. */
+/** `INV` → `Inv`, `SHIFTSTART` → `Shiftstart`. */
 export function commandTypeLabel(type: string): string {
     const words = type.toLowerCase().replace(/_/g, ' ');
     return words.charAt(0).toUpperCase() + words.slice(1);
@@ -26,6 +26,7 @@ export function commandTypeLabel(type: string): string {
 /** Descripciones breves de los ajustes para la ayuda contextual de la GUI. */
 const COMMAND_DESCRIPTIONS: Record<string, string> = {
     OCT: 'Base octave used to interpret melody degrees.',
+    OCTAVE_PATTERN: 'Repeats the block melody at octave offsets relative to OCT (e.g. 1 0 -1 2).',
     SCALE: 'Scale used to turn degrees into notes.',
     GAP: 'Distance between generated chord notes.',
     PLAYMODE: 'How notes are generated: single note, chord, arpeggio…',
@@ -35,7 +36,9 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     SHIFTSTART: 'First note in the octave-shift window.',
     SHIFTSIZE: 'Number of notes in the shift window.',
     SHIFTVALUE: 'Octaves added to the window; may be negative.',
-    PATTERN_GAP: 'Pattern separator (deprecated; no effect).',
+    INTENSITY: 'Default intensity (MIDI velocity 1–127) for the generated notes.',
+    INTENSITY_PATTERN: 'Cyclic intensity pattern for the generated notes (e.g. 20 10 5).',
+    INTENSITY_RAMP: 'Linear intensity ramp over generated notes: start, end, from, to.',
     PATTERN: 'Pattern melody used instead of normal generation.',
     DECORATION: 'Ornaments applied to chord or arpeggio notes.',
     SHIFT: 'Octave-shift window: Start, Size and Value together.'
@@ -158,7 +161,13 @@ export function filterVariables(
     playModeNames: readonly string[],
     scaleNames: readonly string[]
 ): VariableOption[] {
-    if (command.type === CommandType.PATTERN || command.type === CommandType.DECORATION) {
+    if (
+        command.type === CommandType.PATTERN ||
+        command.type === CommandType.OCTAVE_PATTERN ||
+        command.type === CommandType.DECORATION ||
+        command.type === CommandType.INTENSITY_PATTERN ||
+        command.type === CommandType.INTENSITY_RAMP
+    ) {
         return [...stringVariables];
     }
     return available.filter(variable => {
@@ -183,7 +192,16 @@ export function defaultCommandValue(
     if (type === CommandType.SCALE) {
         return scaleNames[0] || 'WHITE';
     }
-    if (type === CommandType.PATTERN || type === CommandType.DECORATION) {
+    if (type === CommandType.INTENSITY) {
+        return 90;
+    }
+    if (
+        type === CommandType.PATTERN ||
+        type === CommandType.OCTAVE_PATTERN ||
+        type === CommandType.DECORATION ||
+        type === CommandType.INTENSITY_PATTERN ||
+        type === CommandType.INTENSITY_RAMP
+    ) {
         return '';
     }
     return 0;

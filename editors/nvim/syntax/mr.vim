@@ -1,4 +1,4 @@
-" syntax/mr.vim — resaltado del formato .mr de Mode Ranger.
+" syntax/mr.vim — resaltado del formato .mr de Carmen.
 "
 " Cubre la sintaxis de la Fase 1 del ADR-001:
 "   - cabecera: song / version / repeats / bpm
@@ -60,7 +60,8 @@ syn keyword mrInstrument PIANO
 
 " Comandos después de mrEnum/mrScale para que PATTERN mande como comando.
 syn keyword mrCommand OCT SCALE GAP PLAYMODE WIDTH INV INVERSION KEY
-      \ SHIFTSTART SHIFTSIZE SHIFTVALUE PATTERN_GAP PATTERN VARY ASSIGN
+      \ SHIFTSTART SHIFTSIZE SHIFTVALUE INTENSITY INTENSITY_PATTERN INTENSITY_RAMP
+      \ PATTERN VARY ASSIGN
 
 syn match   mrVariable "\$[A-Za-z_][A-Za-z0-9_]*"
 

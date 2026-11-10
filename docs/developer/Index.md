@@ -1,15 +1,15 @@
-# 🎼 Wiki de Mode Ranger — Índice principal
+# 🎼 Wiki de Carmen — Índice principal
 
-Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para navegarse como wiki (Obsidian, VS Code, GitHub).
+Bienvenido a la documentación técnica de **Carmen**. Está pensada para navegarse como wiki (Obsidian, VS Code, GitHub).
 
 ## 🏗️ Arquitectura y diseño
-- [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura del proyecto]]
+- [[README|Arquitectura actual del proyecto]]
 - [[design/propuesta-sintaxis-mr|Propuesta de sintaxis `.mr` v1 (histórica)]]
 - [[analysis/sintaxis-mr-implementada|Sintaxis `.mr` v1 implementada (histórica)]]
 - [[design/propuesta-bibliotecas-contenido|Propuesta: bibliotecas de contenido (melodías, presets y procedures)]]
 - [[design/propuesta-bloques-reutilizables|Propuesta histórica: bloques reutilizables (`blocks` + `use`)]] *(sustituida)*
 - [[design/compilador-mr-a-midi|Propuesta: compilador `.mr` → MIDI (CLI)]]
-- [[analysis/codigo-v2-sin-cablear|Inventario del código v2 sin cablear]]
+- [[analysis/codigo-v2-sin-cablear|Inventario histórico del código v2 (eliminado)]]
 - [[analysis/angular-21-modernization|Modernización a Angular 21 y Node 22]]
 
 ## 🎯 Decisiones
@@ -39,6 +39,7 @@ Bienvenido a la documentación técnica de **Mode Ranger**. Está pensada para n
 - [[release/Release_Process|Proceso de release y despliegue]]
 
 ## 📚 Histórico
+- [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura histórica (ModernRanger)]]
 - [[analysis/limpieza-post-merge|Limpieza post-merge]]
 - [[analysis/saneo-bloque-b|Saneo Bloque B]]
 - [[refactors/REFACTORING-SUMMARY|Resúmenes de refactor (histórico)]]

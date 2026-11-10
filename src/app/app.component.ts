@@ -14,7 +14,7 @@ import { SongEditorComponent } from './components/song-editor/song-editor.compon
     imports: [CommonModule, SongEditorComponent]
 })
 export class AppComponent implements OnInit {
-  title = 'moderanger';
+  title = 'carmen';
   public currentSong = new Song();
   public isAudioReady = false;
   public theme$: Observable<Theme>;

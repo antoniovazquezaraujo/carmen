@@ -3,7 +3,8 @@
 - **Fecha:** 2026-10-03
 - **Autor:** ROBER (full-stack TS/Angular)
 - **Rama:** `integration/testing-things-cleanup` (base `main` @ `f93eda5`, merge de `testing-things`)
-- **Contexto:** limpieza post-merge. **No se ha eliminado ningún fichero de este inventario**; el objetivo es dar información para que DANI decida cablear, conservar o eliminar.
+- **Estado:** **resuelto** (2026-11-08). Se eliminó el código v2 y los servicios huérfanos inventariados aquí (`chore/remove-unwired-v2`). Se conservan el flujo vivo (`global-state`, `note-generation-unified`), `error-handler.service.ts` y la API `carmen-core/music-element-utils` con su test. Este documento queda como histórico.
+- **Contexto:** limpieza post-merge. El inventario sirvió para decidir qué cablear, conservar o eliminar.
 
 ## Metodología
 

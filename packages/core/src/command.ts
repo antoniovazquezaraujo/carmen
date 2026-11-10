@@ -4,9 +4,12 @@ import { ScaleTypes } from './scale';
 import { NoteData } from './note';
 import { parseBlockNotes } from './mr/notes.parser';
 import { parseDecorationItems } from './mr/decoration.parser';
+import { DEFAULT_VELOCITY, isVelocity, parseVelocityPattern, parseVelocityRamp } from './velocity';
+import { parseOctavePattern } from './octave-pattern';
 
 export enum CommandType {
     OCT = 'OCT',
+    OCTAVE_PATTERN = 'OCTAVE_PATTERN',
     SCALE = 'SCALE',
     GAP = 'GAP',
     PLAYMODE = 'PLAYMODE',
@@ -16,7 +19,9 @@ export enum CommandType {
     SHIFTSTART = 'SHIFTSTART',
     SHIFTSIZE = 'SHIFTSIZE',
     SHIFTVALUE = 'SHIFTVALUE',
-    PATTERN_GAP = 'PATTERN_GAP',
+    INTENSITY = 'INTENSITY',
+    INTENSITY_PATTERN = 'INTENSITY_PATTERN',
+    INTENSITY_RAMP = 'INTENSITY_RAMP',
     PATTERN = 'PATTERN',
     DECORATION = 'DECORATION'
 }
@@ -67,9 +72,15 @@ export class Command {
         return this._value;
     }
 
-    /** PATTERN y DECORATION guardan su valor como string (melodía/items). */
+    /** PATTERN, DECORATION y los perfiles de intensidad guardan su valor como string. */
     private isStringValued(): boolean {
-        return this.type === CommandType.PATTERN || this.type === CommandType.DECORATION;
+        return (
+            this.type === CommandType.PATTERN ||
+            this.type === CommandType.OCTAVE_PATTERN ||
+            this.type === CommandType.DECORATION ||
+            this.type === CommandType.INTENSITY_PATTERN ||
+            this.type === CommandType.INTENSITY_RAMP
+        );
     }
 
     setVariable(name: string | null): void {
@@ -124,6 +135,21 @@ export class Command {
         const rawValue = this.value;
         let value: any = rawValue;
 
+        if (this.type === CommandType.OCTAVE_PATTERN) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.octavePattern = null;
+                return;
+            }
+            try {
+                player.octavePattern = parseOctavePattern(text);
+            } catch (e) {
+                console.error(`[Command OCTAVE_PATTERN] Invalid pattern "${text}":`, e);
+                player.octavePattern = null;
+            }
+            return;
+        }
+
         if (this.type === CommandType.PATTERN) {
             const patternString = String(value);
             if (patternString.trim() === '') {
@@ -152,6 +178,36 @@ export class Command {
             } catch (e) {
                 console.error(`[Command DECORATION] Failed to parse decoration string "${decorationString}":`, e);
                 player.currentDecoration = null;
+            }
+            return;
+        }
+
+        if (this.type === CommandType.INTENSITY_PATTERN) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.velocityPattern = null;
+                return;
+            }
+            try {
+                player.velocityPattern = parseVelocityPattern(text);
+            } catch (e) {
+                console.error(`[Command INTENSITY_PATTERN] Invalid pattern "${text}":`, e);
+                player.velocityPattern = null;
+            }
+            return;
+        }
+
+        if (this.type === CommandType.INTENSITY_RAMP) {
+            const text = String(value);
+            if (text.trim() === '') {
+                player.velocityRamp = null;
+                return;
+            }
+            try {
+                player.velocityRamp = parseVelocityRamp(text);
+            } catch (e) {
+                console.error(`[Command INTENSITY_RAMP] Invalid ramp "${text}":`, e);
+                player.velocityRamp = null;
             }
             return;
         }
@@ -195,7 +251,11 @@ export class Command {
             case CommandType.SHIFTSTART: player.shiftStart = value; break;
             case CommandType.SHIFTSIZE: player.shiftSize = value; break;
             case CommandType.SHIFTVALUE: player.shiftValue = value; break;
-            case CommandType.PATTERN_GAP: player.decorationGap = value; break;
+            case CommandType.INTENSITY: {
+                const numeric = Number(value);
+                player.velocity = isVelocity(numeric) ? numeric : DEFAULT_VELOCITY;
+                break;
+            }
         }
     }
     

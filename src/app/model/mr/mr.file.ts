@@ -1,1 +1,1 @@
-export * from '@moderanger/core/mr/mr.file';
+export * from 'carmen-core/mr/mr.file';

@@ -74,8 +74,11 @@ const createEngineStub = (): EngineStub => {
 
 const decoration = (value: string): Command => new Command({ type: CommandType.DECORATION, value });
 
-/** Reproduce el primer evento de un bloque de una sola nota y captura los disparos. */
-const firstEventCalls = async (commands: Command[]): Promise<unknown[][]> => {
+/** La velocity MIDI por defecto (90) se pasa a Tone como 0–1. */
+const DEFAULT_TONE_VELOCITY = 90 / 127;
+
+/** Reproduce el primer evento de un bloque y captura los disparos. */
+const firstEventCalls = async (commands: Command[], notes = '4n:0'): Promise<unknown[][]> => {
   const stub = createEngineStub();
   const player = new SongPlayer(
     stub.engine,
@@ -86,7 +89,7 @@ const firstEventCalls = async (commands: Command[]): Promise<unknown[][]> => {
   const block = part.items[0] as Block;
   const melody = new Melody();
   melody.label = 'Tema';
-  melody.content.notes = '4n:0';
+  melody.content.notes = notes;
   block.melody = melody;
   const preset = new Preset();
   preset.label = 'Ajustes';
@@ -109,7 +112,7 @@ describe('SongPlayer · DECORATION (traza de reproducción)', () => {
 
     // Acorde [60,63] (grados 0 y 2); adorno [0,7] en grados: 60,72,63,75;
     // evento `4n`, mismo instante.
-    expect(calls).toEqual([['instrument-1', [60, 72, 63, 75], '4n', 0]]);
+    expect(calls).toEqual([['instrument-1', [60, 72, 63, 75], '4n', 0, DEFAULT_TONE_VELOCITY]]);
   });
 
   it('CHORD: la duración del item no cambia el disparo (metadato)', async () => {
@@ -137,10 +140,10 @@ describe('SongPlayer · DECORATION (traza de reproducción)', () => {
 
     // Arpegio [60,63] decorado en grados: [60,72,63,75]; 0,5 s de evento entre 4 = 0,125 s.
     expect(calls).toEqual([
-      ['instrument-1', 60, '0.125s', 0],
-      ['instrument-1', 72, '0.125s', 0.125],
-      ['instrument-1', 63, '0.125s', 0.25],
-      ['instrument-1', 75, '0.125s', 0.375]
+      ['instrument-1', 60, '0.125s', 0, DEFAULT_TONE_VELOCITY],
+      ['instrument-1', 72, '0.125s', 0.125, DEFAULT_TONE_VELOCITY],
+      ['instrument-1', 63, '0.125s', 0.25, DEFAULT_TONE_VELOCITY],
+      ['instrument-1', 75, '0.125s', 0.375, DEFAULT_TONE_VELOCITY]
     ]);
   });
 
@@ -161,12 +164,21 @@ describe('SongPlayer · DECORATION (traza de reproducción)', () => {
     expect(explicitDurations).toEqual(shorthand);
   });
 
+  it('pasa la velocity @ a Tone como rango 0–1', async () => {
+    const calls = await firstEventCalls(
+      [new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' })],
+      '4n:0@34'
+    );
+
+    expect(calls).toEqual([['instrument-1', 60, '4n', 0, 34 / 127]]);
+  });
+
   it('PLAYMODE SINGLE: sin acorde no hay adorno ni cambios en el disparo', async () => {
     const calls = await firstEventCalls([
       new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
       decoration('0 7')
     ]);
 
-    expect(calls).toEqual([['instrument-1', 60, '4n', 0]]);
+    expect(calls).toEqual([['instrument-1', 60, '4n', 0, DEFAULT_TONE_VELOCITY]]);
   });
 });

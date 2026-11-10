@@ -347,8 +347,8 @@ part Piano
     {
         id: 'glass-orbit',
         title: 'Glass Orbit',
-        description: 'A pattern-driven orbit where variables change the mode and octave while it plays.',
-        tags: ['Pattern', 'Variables', 'Operations'],
+        description: 'An eight-pass orbit of decorated chords, with two presets and a procedure that shifts mode, scale and key.',
+        tags: ['Chords', 'Decoration', 'Variables'],
         bpm: 108,
         mr: `song "Glass Orbit"
 version 2
@@ -356,37 +356,59 @@ repeats 2
 bpm 108
 
 vars
-  $oct = 3
-  $mode = ASCENDING
-  $scale = BLUE
+  $oct = 1
+  $mode = CHORD
+  $scale = WHITE
+  $tone = 0
 
 melodies
-  melody Orbit
+  melody a
     notes
-      8n:0
-      8n:2
-      8n:4
-      8n:6
+      2n:0
+
+  melody b
+    notes
+      2n:1
 
 presets
-  preset OrbitAjustes
+  preset a
     OCT $oct
     SCALE $scale
     PLAYMODE $mode
-    WIDTH 2
+    WIDTH 4
     GAP 3
-    PATTERN 4t:0 4t:-1 4t:2 4t:-2
+    DECORATION 2n:-1 1n:1
+    KEY $tone
+
+  preset b
+    OCT $oct
+    SCALE $scale
+    PLAYMODE $mode
+    WIDTH 4
+    GAP -1
+    DECORATION 2n:0 1n:3
+    KEY $tone
 
 procedures
-  procedure OrbitProcedimiento
-    VARY $oct 1
-    ASSIGN $mode EVEN_ASC_ODD_DESC
+  procedure a
+    VARY $mode 1
+    VARY $scale 2
+    VARY $tone 3
 
 part Glass
-  block Orbit repeats 2
-    preset OrbitAjustes
-    procedure OrbitProcedimiento
-    melody Orbit
+  block Orbit repeats 8
+    preset a
+    procedure a
+    melody a
+
+    block Orbit
+      preset a
+      melody b
+
+  block Orbit repeats 8
+    preset b
+    procedure a
+    melody b
 `
     },
     {
@@ -556,17 +578,16 @@ part Contrabajo
     {
         id: 'clockwork',
         title: 'Clockwork',
-        description: 'A mechanical single-note pattern that opens into an odd/even arpeggio.',
+        description: 'A mechanical clockwork of single-note patterns, echo arpeggios and a closing chord.',
         tags: ['Pattern', 'Single notes', 'Odd/even'],
         bpm: 120,
         mr: `song Clockwork
 version 2
 repeats 2
-bpm 120
 
 melodies
-  melody Main
-    notes default 16n
+  melody A
+    notes default 4n
       0
       2
       4
@@ -574,33 +595,61 @@ melodies
       4
       2
 
-  melody Echo
+  melody B
     notes
-      4n:0
-      4n:2
+      1n:0
+      1n:2
+      1n:0
+      1n:5
+      1n:3
+      1n:6
+
+  melody C
+    notes
+      1n:0
+      1n:-1
+      1n:-2
 
 presets
-  preset MainAjustes
+  preset A
     SCALE PENTA
     OCT 3
     PLAYMODE SINGLE
-    PATTERN 8n:0 8n:2 8n:4 8n:2
+    PATTERN 8n:0 8n:2 8n:5 8n:3
+    KEY 0
 
-  preset EchoAjustes
+  preset B
     SCALE BLUE
-    OCT 2
+    OCT 0
     PLAYMODE ODD_ASC_EVEN_DESC
-    WIDTH 4
-    GAP 2
+    WIDTH 3
+    GAP 7
+    KEY 2
+
+  preset C
+    SCALE BLUE
+    OCT 3
+    PLAYMODE ODD_ASC_EVEN_DESC
+    WIDTH 3
+    GAP 1
+    KEY 4
 
 part Piano
-  block Main
-    preset MainAjustes
-    melody Main
+  block Main repeats 2
+    preset A
+    melody A
 
-  block Echo
-    preset EchoAjustes
-    melody Echo
+    block Echo
+      preset B
+      melody B
+
+  block END
+    preset C
+    melody C
+
+  block Main repeats 2
+    preset B
+    melody A
 `
     },
     {

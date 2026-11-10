@@ -1,1 +1,1 @@
-export * from '@moderanger/core/content';
+export * from 'carmen-core/content';

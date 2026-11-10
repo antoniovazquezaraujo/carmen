@@ -12,6 +12,8 @@ import { InstrumentType } from '../instrument-type';
 import { Block } from '../block';
 import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
+import { isVelocity, parseVelocityPattern, parseVelocityRamp, printVelocityPattern, printVelocityRamp } from '../velocity';
+import { parseOctavePattern, printOctavePattern } from '../octave-pattern';
 import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames, PlayMode } from '../play.mode';
@@ -197,6 +199,13 @@ function emitBlock(lines: string[], block: Block, level: number, song: Song): vo
     lines.push(`${bodyIndent}preset ${formatName(block.preset.label)}`);
     bodyEmitted = true;
   }
+  if (block.overrides.length > 0) {
+    lines.push(`${bodyIndent}overrides`);
+    block.overrides.forEach(setting => {
+      lines.push(`${bodyIndent}  ${formatCommand(setting, `los overrides del bloque ${formatName(block.label)}`)}`);
+    });
+    bodyEmitted = true;
+  }
   if (block.procedure !== undefined) {
     assertLibraryReference(song.procedures, block.procedure, 'procedure');
     lines.push(`${bodyIndent}procedure ${formatName(block.procedure.label)}`);
@@ -284,6 +293,14 @@ function formatCommand(command: Command, context: string): string {
       }
       return `PLAYMODE ${name}`;
     }
+    case CommandType.OCTAVE_PATTERN: {
+      try {
+        return `OCTAVE_PATTERN ${printOctavePattern(parseOctavePattern(String(command.value)))}`;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new MrSerializeError(`OCTAVE_PATTERN inválido en ${context}: ${detail}`);
+      }
+    }
     case CommandType.PATTERN: {
       const pattern = String(command.value).trim();
       if (pattern === '') {
@@ -307,6 +324,29 @@ function formatCommand(command: Command, context: string): string {
         return `DECORATION ${canonicalDecoration(decoration)}`;
       } catch (error) {
         throw wrapDecorationErrorInContext(context, error);
+      }
+    }
+    case CommandType.INTENSITY: {
+      const value = command.value;
+      if (typeof value !== 'number' || !isVelocity(value)) {
+        throw new MrSerializeError(`intensidad inválida '${String(value)}' en ${context}: usa un entero entre 1 y 127`);
+      }
+      return `INTENSITY ${value}`;
+    }
+    case CommandType.INTENSITY_PATTERN: {
+      try {
+        return `INTENSITY_PATTERN ${printVelocityPattern(parseVelocityPattern(String(command.value)))}`;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new MrSerializeError(`INTENSITY_PATTERN inválido en ${context}: ${detail}`);
+      }
+    }
+    case CommandType.INTENSITY_RAMP: {
+      try {
+        return `INTENSITY_RAMP ${printVelocityRamp(parseVelocityRamp(String(command.value)))}`;
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new MrSerializeError(`INTENSITY_RAMP inválida en ${context}: ${detail}`);
       }
     }
     default: {

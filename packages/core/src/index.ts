@@ -1,5 +1,5 @@
 /**
- * Núcleo puro de Mode Ranger: modelo, `.mr` y generación de notas.
+ * Núcleo puro de Carmen: modelo, `.mr` y generación de notas.
  *
  * No importa Angular, Tone ni APIs de navegador/Node. Lo consumen la app y el
  * compilador MIDI.
@@ -16,6 +16,7 @@ export * from './keyboard';
 export * from './melody';
 export * from './music-element-utils';
 export * from './note';
+export * from './octave-pattern';
 export * from './octaved-grade';
 export * from './operation';
 export * from './part';
@@ -25,6 +26,7 @@ export * from './play.state';
 export * from './scale';
 export * from './song';
 export * from './variable.context';
+export * from './velocity';
 export * from './mr';
 export * from './services/note-generation.service';
 export * from './services/note-generation-unified.service';

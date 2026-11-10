@@ -16,7 +16,7 @@
 
 > **Implementación (2026-10-29):** el MVP está implementado con un núcleo puro (`packages/compiler/src/compile-core.ts`) que replica la orquestación de `SongPlayer` sin Angular, Tone ni motor de audio; ver `docs/developer/analysis/compilador-midi-mvp.md`.
 >
-> **Actualización (2026-10-30):** la separación en `packages/core` + `packages/compiler` está hecha. La interfaz final es `moderanger compile` (paquete `@moderanger/cli`), con `moderanger check`, `moderanger version` y `moderanger-mid` como alias de compatibilidad. Los ejemplos de §7.1 se conservan como propuesta original.
+> **Actualización (2026-10-30):** la separación en `packages/core` + `packages/compiler` está hecha. La interfaz final es `carmen compile` (paquete `carmen-cli`), con `carmen check`, `carmen version` y `carmen help`; hay un único binario `carmen`. Los ejemplos de §7.1 se conservan como propuesta original.
 
 ---
 

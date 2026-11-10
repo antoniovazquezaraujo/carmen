@@ -1,5 +1,5 @@
 /**
- * Jest config para el núcleo de Mode Ranger (Angular 13 / TS 4.5 / Node 16).
+ * Jest config para el núcleo de Carmen (Angular 13 / TS 4.5 / Node 16).
  *
  * - ts-jest compila TS a CommonJS con `src/tsconfig.jest.json`.
  * - Los specs viven junto al código con la convención `*.jest.spec.ts`
@@ -24,8 +24,8 @@ module.exports = {
   },
   moduleNameMapper: {
     // Paquetes del workspace.
-    '^@moderanger/core$': '<rootDir>/packages/core/src/index.ts',
-    '^@moderanger/core/(.*)$': '<rootDir>/packages/core/src/$1',
+    '^carmen-core$': '<rootDir>/packages/core/src/index.ts',
+    '^carmen-core/(.*)$': '<rootDir>/packages/core/src/$1',
     // Resuelve los imports absolutos `src/...` (baseUrl de tsconfig.json),
     // que Jest no conoce por sí solo. Necesario para specs de componentes.
     '^src/(.*)$': '<rootDir>/src/$1',
@@ -34,6 +34,7 @@ module.exports = {
     '^@angular/forms$': '<rootDir>/src/__mocks__/angular-forms.ts',
     '^primeng/.*$': '<rootDir>/src/__mocks__/primeng.ts',
     '^@angular/cdk/overlay$': '<rootDir>/src/__mocks__/cdk-overlay.ts',
+    '^@angular/cdk/drag-drop$': '<rootDir>/src/__mocks__/cdk-drag-drop.ts',
     '^@angular/core$': '<rootDir>/src/__mocks__/angular-core.ts'
   },
   setupFilesAfterEnv: ['<rootDir>/src/jest.setup.ts'],
@@ -42,7 +43,6 @@ module.exports = {
     'packages/core/src/**/*.ts',
     'packages/compiler/src/**/*.ts',
     'src/app/model/song.player.ts',
-    'src/app/features/generation/note-pattern-processor.service.ts',
     '!packages/**/__tests__/**',
     '!src/app/**/__tests__/**',
     '!src/app/**/__mocks__/**'

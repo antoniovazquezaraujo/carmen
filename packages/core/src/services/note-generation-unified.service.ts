@@ -78,6 +78,8 @@ export class NoteGenerationUnifiedService {
   private readonly FALLBACK_DURATION: NoteDuration = '16n';
   
   private readonly VALID_DURATIONS: NoteDuration[] = ['1n', '2n', '4n', '8n', '16n', '4t', '8t'];
+  /** Compases en 4/4: `1m`, `2m`, `120m`... (entero positivo, sin ceros a la izquierda). */
+  private readonly MEASURE_DURATION = /^[1-9][0-9]*m$/;
   private readonly VALID_NOTE_RANGE = { min: -127, max: 127 };
   
   // ============= MUSIC ELEMENT FACTORIES =============
@@ -420,14 +422,18 @@ export class NoteGenerationUnifiedService {
   private validateDuration(duration: NoteDuration): NoteValidationResult {
     const issues: string[] = [];
     
-    if (!this.VALID_DURATIONS.includes(duration)) {
-      issues.push(`Duration must be one of: ${this.VALID_DURATIONS.join(', ')}`);
+    if (!this.isValidDuration(duration)) {
+      issues.push(`Duration must be one of: ${this.VALID_DURATIONS.join(', ')}, or a positive measure count (1m, 2m...)`);
     }
     
     return {
       isValid: issues.length === 0,
       issues
     };
+  }
+
+  private isValidDuration(duration: NoteDuration | string): boolean {
+    return this.VALID_DURATIONS.includes(duration as NoteDuration) || this.MEASURE_DURATION.test(duration);
   }
   
   private validateSingleNote(note: SingleNote): NoteValidationResult {

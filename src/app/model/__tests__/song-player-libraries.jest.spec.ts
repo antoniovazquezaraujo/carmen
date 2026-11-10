@@ -155,4 +155,170 @@ describe('SongPlayer · bibliotecas de contenido', () => {
 
     expect(VariableContext.getValue('x')).toBe(2);
   });
+
+  it('aplica overrides solo a las notas propias y restaura el preset para hijos y hermanos', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyA = melody('A', '4n:0');
+    const melodyB = melody('B', '4n:0');
+    song.melodies = [melodyA, melodyB];
+    song.presets = [
+      preset('Base', [
+        new Command({ type: CommandType.OCT, value: 2 }),
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
+        new Command({ type: CommandType.INTENSITY, value: 90 })
+      ])
+    ];
+
+    const part = new Part();
+    const blockA = new Block();
+    blockA.label = 'A';
+    blockA.preset = song.presets[0];
+    blockA.overrides = [
+      new Command({ type: CommandType.OCT, value: 3 }),
+      new Command({ type: CommandType.INTENSITY, value: 40 })
+    ];
+    blockA.melody = melodyA;
+    const child = new Block();
+    child.label = 'Hijo';
+    child.melody = melodyB;
+    blockA.children = [child];
+    const sibling = new Block();
+    sibling.label = 'Hermano';
+    sibling.preset = song.presets[0];
+    sibling.melody = melodyB;
+    part.items = [blockA, sibling];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    expect(stub.triggerCalls().map(call => call[1])).toEqual([72, 60, 60]);
+    expect(stub.triggerCalls().map(call => call[4])).toEqual([40 / 127, 90 / 127, 90 / 127]);
+  });
+
+  it('OCTAVE_PATTERN repite la melodía del bloque y deja intactos los hijos', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyA = melody('A', '4n:0');
+    const melodyB = melody('B', '4n:2');
+    song.melodies = [melodyA, melodyB];
+    song.presets = [
+      preset('P', [
+        new Command({ type: CommandType.OCT, value: 2 }),
+        new Command({ type: CommandType.OCTAVE_PATTERN, value: '1 0' }),
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' })
+      ])
+    ];
+
+    const part = new Part();
+    const blockA = new Block();
+    blockA.label = 'A';
+    blockA.preset = song.presets[0];
+    blockA.melody = melodyA;
+    const child = new Block();
+    child.label = 'Hijo';
+    child.melody = melodyB;
+    blockA.children = [child];
+    part.items = [blockA];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    expect(stub.triggerCalls().map(call => call[1])).toEqual([72, 60, 63]);
+  });
+
+  it('aplica INTENSITY_RAMP a las notas generadas del bloque', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyRamp = melody('Ramp', '4n:0 4n:1 4n:2');
+    song.melodies = [melodyRamp];
+    song.presets = [
+      preset('P', [
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' }),
+        new Command({ type: CommandType.INTENSITY_RAMP, value: '1 3 20 60' })
+      ])
+    ];
+
+    const part = new Part();
+    const block = new Block();
+    block.label = 'Ramp';
+    block.preset = song.presets[0];
+    block.melody = melodyRamp;
+    part.items = [block];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    expect(stub.triggerCalls().map(call => call[4])).toEqual([20 / 127, 40 / 127, 60 / 127]);
+  });
+
+  it('la velocity del preset solo afecta a su bloque, no a hijos ni hermanos', async () => {
+    const stub = createEngineStub();
+    const player = new SongPlayer(
+      stub.engine,
+      new NoteGenerationService(new NoteGenerationUnifiedService()),
+      new GlobalStateService()
+    );
+
+    const song = new Song();
+    const melodyA = melody('A');
+    const melodyB = melody('B');
+    song.melodies = [melodyA, melodyB];
+    song.presets = [
+      preset('P', [
+        new Command({ type: CommandType.INTENSITY, value: 20 }),
+        new Command({ type: CommandType.PLAYMODE, value: 'SINGLE' })
+      ])
+    ];
+
+    const part = new Part();
+    const blockA = new Block();
+    blockA.label = 'A';
+    blockA.preset = song.presets[0];
+    blockA.melody = melodyA;
+    const child = new Block();
+    child.label = 'Hijo';
+    child.melody = melodyA;
+    blockA.children = [child];
+    const blockB = new Block();
+    blockB.label = 'B';
+    blockB.melody = melodyB;
+    part.items = [blockA, blockB];
+
+    await player.playPart(part, song);
+    const loop = stub.getLoopCallback();
+    for (let tick = 0; tick < 20; tick++) {
+      loop(tick * 0.05);
+    }
+
+    const velocities = stub.triggerCalls().map(call => call[4]);
+    expect(velocities).toEqual([20 / 127, 90 / 127, 90 / 127]);
+  });
 });

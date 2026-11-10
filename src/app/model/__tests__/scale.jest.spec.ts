@@ -64,14 +64,14 @@ describe('Scale.getTunnednoteDatas', () => {
 
 describe('Scale.gradeToChord', () => {
   it('convierte un grado suelto a su nota MIDI sin decoración', () => {
-    const notes = whiteScale.gradeToChord(0, 0, 0, 0, 0, 0, 0, '');
+    const notes = whiteScale.gradeToChord(0, 0, 0, 0, 0, 0, 0);
 
     expect(notes).toHaveLength(1);
     expect(notes[0].note).toBe(36);
   });
 
   it('aplica la tonalidad (KEY) a las notas resultantes', () => {
-    const notes = whiteScale.gradeToChord(0, 0, 2, 0, 0, 0, 0, '');
+    const notes = whiteScale.gradeToChord(0, 0, 2, 0, 0, 0, 0);
 
     expect(notes[0].note).toBe(38);
   });

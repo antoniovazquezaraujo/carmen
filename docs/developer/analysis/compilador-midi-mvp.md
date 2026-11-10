@@ -3,7 +3,7 @@
 - **Fecha:** 2026-10-29
 - **Autor:** DANI (coordinación y arquitectura)
 - **Rama:** `docs/midi-compiler`
-- **Estado:** MVP funcional con **núcleo puro** (sin Angular ni Tone), paquetes `@moderanger/core` + `@moderanger/cli` y CLI compilado. Pendiente de publicación npm y validación manual.
+- **Estado:** MVP funcional con **núcleo puro** (sin Angular ni Tone), paquetes `carmen-core` + `carmen-cli` y CLI compilado. Pendiente de publicación npm y validación manual.
 - **Referencias:**
   - `docs/developer/design/compilador-mr-a-midi.md` (propuesta)
   - `docs/developer/adr/ADR-003-compilador-midi.md` (decisiones)
@@ -17,17 +17,17 @@
 Un CLI que lee un `.mr`, lo compila con la semántica del reproductor y escribe un **Standard MIDI File tipo 1**:
 
 ```sh
-moderanger compile cancion.mr
-moderanger compile cancion.mr -o salida.mid
-moderanger compile cancion.mr --json
-moderanger check cancion.mr
-moderanger version
-cat cancion.mr | moderanger compile - -o salida.mid
+carmen compile cancion.mr
+carmen compile cancion.mr -o salida.mid
+carmen compile cancion.mr --json
+carmen check cancion.mr
+carmen version
+cat cancion.mr | carmen compile - -o salida.mid
 ```
 
 Desde el repo, sin instalar el paquete global, se usa `node packages/compiler/dist/cli/main.js <comando>`; `npm run midi -- cancion.mr` sigue siendo el atajo de desarrollo que compila antes de ejecutar.
 
-El paquete `@moderanger/cli` declara los `bin` `moderanger` y `moderanger-mid` (alias de compatibilidad). La instalación global (`npm install -g @moderanger/cli`) queda pendiente de publicar el paquete y `@moderanger/core`.
+El paquete `carmen-cli` declara un único `bin`: `carmen`. La instalación global (`npm install -g carmen-cli`) queda pendiente de publicar el paquete y `carmen-core`.
 
 ### Opciones
 
@@ -39,7 +39,7 @@ El paquete `@moderanger/cli` declara los `bin` `moderanger` y `moderanger-mid` (
 | `--quiet` | Silencia el resumen y los warnings |
 | `-h, --help` | Ayuda de `compile` |
 
-`moderanger check <song.mr>` valida el documento y admite `--quiet` y `-h/--help`. `moderanger version` (o `--version`) muestra la versión global.
+`carmen check <song.mr>` valida el documento y admite `--quiet` y `-h/--help`. `carmen version` (o `--version`) muestra la versión global.
 
 ### Códigos de salida
 
@@ -113,10 +113,10 @@ El player web avanza con un scheduler de **96n** y redondea duraciones no repres
 | Resolución | 960 PPQ por defecto (`--ppq` configurable) |
 | Formato | SMF tipo 1; pista 0 conductora + una pista por part |
 | Instrumento | Programa 0 (Acoustic Grand Piano), canal = índice de part |
-| Velocidad | 90 fija |
+| Intensidad (velocity MIDI) | 90 por defecto; mandan `@`, `INTENSITY`, `INTENSITY_PATTERN` y `INTENSITY_RAMP` del `.mr` |
 | Compás | 4/4 fijo |
 | Notas fuera de 0–127 | Se transportan por octavas (conservan la clase de altura) y se emite un warning |
-| `PATTERN_GAP` | Se ignora, como en el player |
+| `PATTERN_GAP` | Eliminado (2026-11-08); el compilador ya no lo acepta |
 | Duraciones de item de `DECORATION` | Se copia el comportamiento del player (metadato) |
 | Variables string como nota | Se copia el comportamiento del player (silencio si no se expanden) |
 | Variables globales | El compilador hace snapshot/restore; no deja estado si se usa como librería |
@@ -144,7 +144,7 @@ Suite completa en verde (82 suites), cobertura por encima del umbral y `npm run 
 
 ## 5. Limitaciones y deuda técnica
 
-1. **Hay que compilar el CLI.** `npm run midi` ejecuta `npm run build:cli` automáticamente; para usar el binario directo hay que compilar antes. Los `bin` apuntan a `dist/cli/main.js` y `dist/cli/legacy.js`.
+1. **Hay que compilar el CLI.** `npm run midi` ejecuta `npm run build:cli` automáticamente; para usar el binario directo hay que compilar antes. El `bin` apunta a `dist/cli/main.js`.
 2. **Duraciones exactas vs scheduler web.** Ver §2.3; es una diferencia deliberada y documentada.
 3. **MIDI no es audio.** Para oírlo hace falta un sintetizador/DAW. La fase WAV queda fuera del MVP.
 4. **Warnings del motor** (por ejemplo, variables indefinidas) se imprimen por `console.warn`; con `--quiet` se silencian, pero no se convierten en errores.
@@ -154,5 +154,5 @@ Suite completa en verde (82 suites), cobertura por encima del umbral y `npm run 
 ## 6. Próximos pasos
 
 1. Validación manual del maintainer con canciones reales (incluido abrir el `.mid` en un DAW).
-2. Publicar `@moderanger/core` y `@moderanger/cli` en npm (scope `@moderanger`) y comprobar `npm install -g @moderanger/cli`.
+2. Publicar `carmen-core` y `carmen-cli` en npm y comprobar `npm install -g carmen-cli`.
 3. Fase opcional: WAV con FluidSynth o sintetizador propio.

@@ -112,7 +112,7 @@
 
 - [ ] **9.1.** Abre un `.mr` con el plugin opt-in:
   ```sh
-  nvim --clean --cmd 'set runtimepath+=/ruta/a/moderanger/editors/nvim' /tmp/opencode/validacion-v1/validacion-v1.mr
+  nvim --clean --cmd 'set runtimepath+=/ruta/a/carmen/editors/nvim' /tmp/opencode/validacion-v1/validacion-v1.mr
   ```
 - [ ] **9.2.** `:set filetype?` → `filetype=mr`; `:set shiftwidth?` → `shiftwidth=2`; `:set expandtab?` → `expandtab`; `:set commentstring?` → `commentstring=# %s`.
 - [ ] **9.3.** `:syntax list mrCommand` (y `mrSection`, `mrVariable`, `mrDuration`, `mrEnum`) listan grupos de resaltado.
@@ -120,7 +120,7 @@
 
 ## 10. Caso 10 — Drag & drop de bloques (fix/block-dnd, 2026-10-05)
 
-- [ ] **10.1.** Partiendo de `anidado.mr` (o de bloques con hijos), comprueba que **solo los bloques hijos** muestran el asa `⋮⋮` a la izquierda del desplegable; el bloque raíz del árbol no la muestra.
+- [ ] **10.1.** Partiendo de `anidado.mr` (o de bloques con hijos), comprueba que **todos los bloques** muestran el asa `⋮⋮` a la izquierda del desplegable: los raíz usan el drag CDK y los hijos el drag de PrimeNG.
 - [ ] **10.2.** Arrastra un bloque **desde el asa** y suéltalo entre dos líneas del mismo padre: se reordena y, al guardar el `.mr`, el nuevo orden persiste.
 - [ ] **10.3.** Arrástralo y suéltalo **sobre la cabecera de otro bloque**: se anida en él y el destino se expande para mostrar el bloque movido.
 - [ ] **10.4.** Suéltalo en la línea **superior/inferior** del árbol de un bloque con contenido: pasa a ser el primer/último hijo (no desaparece) y persiste al guardar.
@@ -129,6 +129,13 @@
 - [ ] **10.7.** Arrastra un bloque y **suéltalo sobre sí mismo**: no ocurre nada (el drop se ignora).
 - [ ] **10.8.** Deja el ratón sobre el asa `⋮⋮` hasta que aparezca el tooltip **Drag to move block**. Inicia el drag desde el asa, suéltalo (reordena o cambia de árbol) y aleja el ratón **sin volver a pasar por el asa**: el tooltip **no** debe quedar visible. Repite con un drag cancelado (soltar fuera de una zona válida o pulsar `Esc`).
 - [ ] **10.9.** Comprueba que el tooltip vuelve a aparecer al hacer hover normal en el asa y desaparece al salir; los tooltips de los botones (`Add Block`, `Remove Block`, `Duplicate Block`) siguen funcionando.
+- [ ] **10.10.** Arrastra un bloque raíz desde su asa y suéltalo por encima/debajo de otro bloque de la misma part: cambia el orden y persiste al guardar y recargar el `.mr`.
+- [ ] **10.11.** Arrastra un bloque raíz a otra part (con o sin bloques): aparece en la posición soltada, desaparece de la part de origen y persiste al guardar.
+- [ ] **10.12.** Arrastra un bloque raíz a una part vacía: la part deja de mostrar “No blocks yet” y el bloque queda como único hijo raíz.
+- [ ] **10.13.** Arrastra un bloque raíz y suéltalo sobre la **cabecera** de otro bloque: la cabecera se resalta al apuntarla, el bloque pasa a ser su último hijo y el destino se expande.
+- [ ] **10.14.** Intenta soltar un bloque sobre su propia cabecera o sobre la de un descendiente: no debe anidarse ni crearse un ciclo.
+- [ ] **10.15.** Arrastra un bloque hijo a la zona discontinua **Drop here to move it to the top level** del fondo de su propia part o de otra: sale del padre y queda como bloque raíz de la part de destino.
+- [ ] **10.16.** Durante el drag, la zona de primer nivel mide al menos 34px de alto y se resalta en verde; las líneas de inserción del árbol se ven gruesas (4px, 6px al apuntar) y el drop se aplica al soltar.
 - [ ] **10.10.** No aparecen errores nuevos en la consola del navegador durante las pruebas.
 
 ## 11. Caso 11 — Guías de jerarquía del árbol (feat/block-tree-guides, 2026-10-05)
@@ -136,7 +143,7 @@
 - [ ] **11.1.** Carga un `.mr` con al menos **tres niveles** de anidación (p. ej. `Piano > Nivel1 > Nivel2 > Nivel3`) y expande hasta el último nivel.
 - [ ] **11.2.** Cada nivel muestra una **línea vertical gris tenue** (continúa por toda la lista de hijos, sin invadir cabeceras) y cada bloque anidado recibe un **conector horizontal corto** desde esa línea hacia su asa de arrastre, con ~1px de separación.
 - [ ] **11.3.** Los bloques **raíz** (tanto de un bloque con contenido propio como de un contenedor clásico) **no** tienen conector: la guía solo cuelga de los padres anidados.
-- [ ] **11.4.** Las guías no generan *layout shift*: las asas, nombres y editores de melodía conservan su posición; el droppoint de 12px y el asa `⋮⋮` del fix #79 siguen igual (ver caso 10).
+- [ ] **11.4.** Las guías no generan *layout shift*: las asas, nombres y editores de melodía conservan su posición; el droppoint mide 16px de alto y su línea 4px (6px activa), y el asa `⋮⋮` del fix #79 sigue igual (ver caso 10).
 - [ ] **11.5.** Pasa el ratón y haz clic sobre las líneas: no seleccionan ni bloquean nada; el drag & drop sigue funcionando (reordenar, anidar y soltar de nuevo con los casos 10.2–10.4).
 - [ ] **11.6.** No aparecen errores nuevos en la consola del navegador.
 
@@ -145,7 +152,7 @@
 - [ ] **12.1.** Carga `ramal.mr` (anexo A): `Raiz > Block4` con Commands (`OCT`, `SCALE`) y Operations (`VARY`) pobladas y cuatro hijos (`Block5`, `Block6`, `Block7`, `Block9`); `Block10` con Commands/Operations pero **sin** hijos; `Block11 > Block12`; y la parte `Bajo` con `SueltoA` (Commands/Operations + hijo `NietoA`) y `SueltoB`.
 - [ ] **12.2.** La guía de los hijos de `Block4` **sube hasta su asa** `≡`: arranca a la altura del icono y baja continua por delante de Commands y Operations hasta la lista de hijos (sin cortes en los bordes de las filas).
 - [ ] **12.3.** Lo mismo en la raíz de contenedor `SueltoA` (su header no lleva el conector de los nodos anidados, pero el ramal llega igualmente al asa).
-- [ ] **12.4.** `Block10` (Commands/Operations sin hijos) **no** muestra ninguna línea suelta; la raíz `Raiz` (sin asa) tampoco recibe ramal.
+- [ ] **12.4.** `Block10` (Commands/Operations sin hijos) **no** muestra ninguna línea suelta; la raíz `Raiz` (asa CDK) tampoco recibe el ramal de hijos.
 - [ ] **12.5.** El ramal no genera *layout shift*: asas, nombres, controles y editores conservan su posición, y el conector horizontal del bloque superior sigue presente.
 - [ ] **12.6.** Repite los drags del caso 10 (reordenar y soltar entre árboles): siguen funcionando y no aparecen errores nuevos en consola.
 
@@ -157,7 +164,7 @@
 - [ ] **13.4.** `.part-info` a 88px: el nombre de la parte se sigue viendo y editando con comodidad.
 - [ ] **13.5.** Las guías del árbol siguen alineadas (la guía sube hasta el asa y el conector empalma con ella) y el DnD (#79) y el tooltip del asa (#83) funcionan igual.
 - [ ] **13.6.** No aparecen errores nuevos en la consola del navegador.
-- [ ] **13.7.** Combos auto-fit (`field-sizing`): el select de tipo de comando mide ~59px con `OCT` y crece con opciones largas (`PLAYMODE` ~95px, `PATTERN_GAP` ~111px) sin pasar de 140px; el combo de duración por defecto se mueve entre 40 y 80px; los selects de variables quedan entre 60 y 160px. La flecha nativa y el texto se ven en los casos normales; por encima del máximo el texto se recorta sin elipsis (limitación aceptada).
+- [ ] **13.7.** Combos auto-fit (`field-sizing`): el select de tipo de comando mide ~59px con `OCT` y crece con opciones largas (`PLAYMODE` ~95px, `DECORATION` ~105px) sin pasar de 140px; el combo de duración por defecto se mueve entre 40 y 80px; los selects de variables quedan entre 60 y 160px. La flecha nativa y el texto se ven en los casos normales; por encima del máximo el texto se recorta sin elipsis (limitación aceptada).
 
 ## 14. Caso 14 — Commands/Operations en texto libre (style/commands-free-text, 2026-10-06)
 

@@ -16,8 +16,20 @@ en el cuerpo con `app-block-content-links`.
   [style]="{'height': 'auto', 'overflow-y': 'auto'}">
   <ng-template let-node pTemplate="default">
     <div class="block-content" [class.block-content--playing]="isBlockPlaying(node)">
-      <div class="block-header">
-        @if (canDrag(node)) {
+      <div class="block-header" [attr.data-block-id]="node.id">
+        @if (isRootNode(node) && rootDraggable) {
+          <span
+            class="header-item block-root-drag-handle"
+            cdkDragHandle
+            draggable="false"
+            (dragstart)="$event.preventDefault(); $event.stopPropagation()"
+            pTooltip="Drag to move block"
+            [tooltipDisabled]="rootDragging"
+            tooltipPosition="top"
+            aria-hidden="true">
+            <i class="pi pi-bars"></i>
+          </span>
+        } @else if (canDrag(node)) {
           <span
             class="header-item block-drag-handle"
             pTooltip="Drag to move block"
@@ -39,38 +51,6 @@ en el cuerpo con `app-block-content-links`.
             placeholder="Block {{node.id}}"
             [attr.aria-label]="'Block name'">
         </span>
-
-        <!-- Chips informativos de contenido: clic para navegar a la definición. -->
-        @if (node.melody) {
-          <button type="button"
-            class="block-content-chip"
-            [pTooltip]="'Edit melody ' + node.melody.label"
-            tooltipPosition="top"
-            (click)="navigateTo('melody', node.melody.label)">
-            <i class="pi pi-volume-up" aria-hidden="true"></i>
-            <span>{{ node.melody.label }}</span>
-          </button>
-        }
-        @if (node.preset) {
-          <button type="button"
-            class="block-content-chip"
-            [pTooltip]="'Edit preset ' + node.preset.label"
-            tooltipPosition="top"
-            (click)="navigateTo('preset', node.preset.label)">
-            <i class="pi pi-sliders-h" aria-hidden="true"></i>
-            <span>{{ node.preset.label }}</span>
-          </button>
-        }
-        @if (node.procedure) {
-          <button type="button"
-            class="block-content-chip"
-            [pTooltip]="'Edit procedure ' + node.procedure.label"
-            tooltipPosition="top"
-            (click)="navigateTo('procedure', node.procedure.label)">
-            <i class="pi pi-bolt" aria-hidden="true"></i>
-            <span>{{ node.procedure.label }}</span>
-          </button>
-        }
 
         <span class="header-item repetitions-container">
           <span class="repetitions-label" style="margin-right: 2px; font-size: 12px;">×</span>

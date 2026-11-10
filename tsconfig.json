@@ -15,10 +15,10 @@
     "baseUrl": "./",
     "esModuleInterop": true,
     "paths": {
-      "@moderanger/core": [
+      "carmen-core": [
         "packages/core/src/index.ts"
       ],
-      "@moderanger/core/*": [
+      "carmen-core/*": [
         "packages/core/src/*"
       ]
     },

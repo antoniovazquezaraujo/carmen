@@ -33,6 +33,7 @@ import { MR_FORMAT_VERSION, SongDocument } from './mr.types';
 import { NoteEvent, parseNoteEvents, printNoteEvent } from './notes.parser';
 import { canonicalDecoration } from './decoration.parser';
 import { durationToSeconds } from '../duration';
+import { isVelocity, parseVelocityRamp } from '../velocity';
 
 // ---------------------------------------------------------------------------
 // Léxico estructural
@@ -40,6 +41,7 @@ import { durationToSeconds } from '../duration';
 
 const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandType>([
   ['OCT', CommandType.OCT],
+  ['OCTAVE_PATTERN', CommandType.OCTAVE_PATTERN],
   ['SCALE', CommandType.SCALE],
   ['GAP', CommandType.GAP],
   ['PLAYMODE', CommandType.PLAYMODE],
@@ -49,7 +51,9 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
   ['SHIFTSTART', CommandType.SHIFTSTART],
   ['SHIFTSIZE', CommandType.SHIFTSIZE],
   ['SHIFTVALUE', CommandType.SHIFTVALUE],
-  ['PATTERN_GAP', CommandType.PATTERN_GAP],
+  ['INTENSITY', CommandType.INTENSITY],
+  ['INTENSITY_PATTERN', CommandType.INTENSITY_PATTERN],
+  ['INTENSITY_RAMP', CommandType.INTENSITY_RAMP],
   ['PATTERN', CommandType.PATTERN],
   ['DECORATION', CommandType.DECORATION],
   // Alias de entrada por compatibilidad con la gramática antigua; el
@@ -59,6 +63,7 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
 
 const COMMAND_NAMES: readonly string[] = [
   'OCT',
+  'OCTAVE_PATTERN',
   'SCALE',
   'GAP',
   'PLAYMODE',
@@ -68,10 +73,17 @@ const COMMAND_NAMES: readonly string[] = [
   'SHIFTSTART',
   'SHIFTSIZE',
   'SHIFTVALUE',
-  'PATTERN_GAP',
+  'INTENSITY',
+  'INTENSITY_PATTERN',
+  'INTENSITY_RAMP',
   'PATTERN',
   'DECORATION'
 ];
+
+/** Comandos retirados: se reconocen solo para dar un error de migración claro. */
+const REMOVED_COMMANDS: ReadonlyMap<string, string> = new Map([
+  ['PATTERN_GAP', "'PATTERN_GAP' se eliminó y no tiene reemplazo directo; usa 'DECORATION' para adornar acordes/arpegios"]
+]);
 
 const INSTRUMENT_KEYS: readonly string[] = Object.keys(InstrumentType);
 
@@ -695,6 +707,7 @@ class MrDocumentParser {
 
   private parseBlockBody(block: Block, bodyIndent: number, partIndex: number, blockPath: readonly number[]): void {
     const references = new Set<string>();
+    let hasOverrides = false;
     for (;;) {
       const line = this.peek();
       if (!line || line.indent < bodyIndent) {
@@ -730,6 +743,17 @@ class MrDocumentParser {
           }
           block.procedure = procedure;
         }
+      } else if (word === 'overrides') {
+        if (hasOverrides) {
+          throw errorAt(line, line.indent + 1, `el bloque ya tiene una sección 'overrides'`);
+        }
+        const words = splitLineWords(line.code, line.number, line.indent);
+        if (words.length !== 1) {
+          throw errorAt(line, line.indent + 1, `'overrides' no admite texto; escribe los ajustes en las líneas siguientes`);
+        }
+        hasOverrides = true;
+        this.advance();
+        this.parseBlockOverrides(block, line, bodyIndent);
       } else if (word === 'block') {
         this.advance();
         block.children.push(this.parseBlock(line, partIndex, [...blockPath, block.children.length]));
@@ -741,9 +765,29 @@ class MrDocumentParser {
         throw errorAt(
           line,
           line.indent + 1,
-          `clave desconocida '${word}' dentro de un bloque; se esperaba 'preset', 'procedure', 'melody' o 'block'`
+          `clave desconocida '${word}' dentro de un bloque; se esperaba 'preset', 'overrides', 'procedure', 'melody' o 'block'`
         );
       }
+    }
+  }
+
+  private parseBlockOverrides(block: Block, sectionLine: SourceLine, sectionIndent: number): void {
+    const commandIndent = sectionIndent + 2;
+    let count = 0;
+    for (;;) {
+      const line = this.peek();
+      if (!line || line.indent < commandIndent) {
+        break;
+      }
+      if (line.indent > commandIndent) {
+        throw errorAt(line, 1, `indentación inesperada (${line.indent} espacios): los overrides van con ${commandIndent} espacios`);
+      }
+      this.advance();
+      block.overrides.push(this.parseCommand(line));
+      count++;
+    }
+    if (count === 0) {
+      throw errorAt(sectionLine, sectionLine.indent + 1, `'overrides' requiere al menos un ajuste`);
     }
   }
 
@@ -881,6 +925,10 @@ class MrDocumentParser {
       throw errorAt(line, line.indent + 1, `comando no reconocido '${line.code}'; los comandos se escriben en mayúsculas (OCT, SCALE, …)`);
     }
     const keyword = match[1];
+    const removed = REMOVED_COMMANDS.get(keyword);
+    if (removed !== undefined) {
+      throw errorAt(line, line.indent + 1, removed);
+    }
     const type = COMMAND_TYPES.get(keyword);
     if (type === undefined) {
       throw errorAt(line, line.indent + 1, `comando desconocido '${keyword}'; comandos válidos: ${COMMAND_NAMES.join(', ')}`);
@@ -914,6 +962,48 @@ class MrDocumentParser {
     if (type === CommandType.DECORATION) {
       const decoration = canonicalDecoration(rest, { line: line.number, column: restColumn });
       return new Command({ type, value: decoration });
+    }
+    if (type === CommandType.INTENSITY_PATTERN) {
+      const patternWords = splitLineWords(rest, line.number, restColumn - 1);
+      if (patternWords.length === 0) {
+        throw errorAt(line, restColumn, `INTENSITY_PATTERN requiere al menos una intensidad (p. ej. INTENSITY_PATTERN 20 10 5)`);
+      }
+      const values = patternWords.map(word => {
+        const value = word.quoted ? null : parseCanonicalInteger(word.text);
+        if (value === null || !isVelocity(value)) {
+          throw errorAt(line, word.column, `intensidad inválida '${word.text}': usa enteros entre 1 y 127`);
+        }
+        return value;
+      });
+      return new Command({ type, value: values.join(' ') });
+    }
+    if (type === CommandType.INTENSITY_RAMP) {
+      const rampWords = splitLineWords(rest, line.number, restColumn - 1);
+      if (rampWords.length !== 4) {
+        throw errorAt(line, restColumn, `INTENSITY_RAMP necesita 4 enteros: nota inicial, nota final, intensidad inicial e intensidad final`);
+      }
+      const raw = rampWords.map(word => word.text).join(' ');
+      try {
+        parseVelocityRamp(raw);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw errorAt(line, restColumn, `INTENSITY_RAMP no es válida: ${detail}`);
+      }
+      return new Command({ type, value: raw });
+    }
+    if (type === CommandType.OCTAVE_PATTERN) {
+      const patternWords = splitLineWords(rest, line.number, restColumn - 1);
+      if (patternWords.length === 0) {
+        throw errorAt(line, restColumn, `OCTAVE_PATTERN necesita al menos una octava (p. ej. OCTAVE_PATTERN 1 0 -1 2)`);
+      }
+      const values = patternWords.map(word => {
+        const value = word.quoted ? null : parseCanonicalInteger(word.text);
+        if (value === null) {
+          throw errorAt(line, word.column, `octava inválida '${word.text}': usa enteros (p. ej. 1 0 -1 2)`);
+        }
+        return value;
+      });
+      return new Command({ type, value: values.join(' ') });
     }
     const words = splitLineWords(rest, line.number, restColumn - 1);
     if (words.length !== 1) {
@@ -949,6 +1039,9 @@ class MrDocumentParser {
     const value = parseCanonicalInteger(word.text);
     if (value === null) {
       throw errorAt(line, word.column, `${keyword} requiere un entero (recibido '${word.text}') o una variable $válida`);
+    }
+    if (type === CommandType.INTENSITY && !isVelocity(value)) {
+      throw errorAt(line, word.column, `INTENSITY debe estar entre 1 y 127 (recibido ${value})`);
     }
     return new Command({ type, value });
   }

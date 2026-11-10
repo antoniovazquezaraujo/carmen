@@ -7,6 +7,7 @@ import { InstrumentType } from '../../../services/audio-engine.service';
 import { VariableContext } from '../../variable.context';
 import { MrParseError } from '../mr.errors';
 import { parseSong } from '../mr.parser';
+import { serializeSong } from '../mr.serializer';
 
 /** Primer bloque de la primera parte del texto `.mr` dado. */
 function firstBlockOfSong(text: string): Block {
@@ -183,6 +184,19 @@ procedures
     expect(document.song.procedures.map(p => p.label)).toEqual(['Proc']);
     expect(document.song.procedures[0].operations[0]).toBeInstanceOf(VaryOperation);
     expect(document.song.procedures[0].operations[1]).toBeInstanceOf(AssignOperation);
+  });
+
+  it('rechaza PATTERN_GAP con un error de migración hacia DECORATION', () => {
+    const error = expectParseError(`song "X"
+version 2
+
+presets
+  preset P
+    PATTERN_GAP 1
+`);
+
+    expect(error.message).toContain("'PATTERN_GAP' se eliminó");
+    expect(error.message).toContain('DECORATION');
   });
 
   it('permite el mismo nombre en bibliotecas distintas', () => {
@@ -382,5 +396,105 @@ part P
     expect(expectParseError('blocks\n  block R\n').message).toContain("la sección 'blocks' ya no existe");
     expect(expectParseError('part P\n  use R\n').message).toContain("'use' ya no existe");
     expect(expectParseError('part P\n  block B\n    use R\n').message).toContain("'use' ya no existe");
+  });
+});
+
+describe('parseSong: overrides locales de bloque', () => {
+  it('parsea la sección overrides y la serializa en orden canónico', () => {
+    const document = parseSong(`song "Overrides"
+version 2
+
+presets
+  preset Base
+    OCT 2
+
+part Piano
+  block A
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+`);
+
+    const block = document.song.parts[0].items[0];
+    expect(block.overrides.map(setting => setting.type)).toEqual([
+      CommandType.OCT,
+      CommandType.INTENSITY
+    ]);
+    expect(block.overrides.map(setting => setting.value)).toEqual([3, 40]);
+
+    const text = serializeSong(document);
+    expect(text).toContain('  block A\n    preset Base\n    overrides\n      OCT 3\n      INTENSITY 40\n');
+  });
+
+  it('rechaza overrides vacíos y comandos mal indentados', () => {
+    expect(expectParseError('part Piano\n  block A\n    overrides\n').message).toContain(
+      'al menos un ajuste'
+    );
+    expect(expectParseError('part Piano\n  block A\n    overrides\n        OCT 3\n').message).toContain(
+      'indentación inesperada'
+    );
+  });
+});
+
+describe('parseSong: patrón de octavas', () => {
+  it('parsea y serializa OCTAVE_PATTERN con enteros relativos', () => {
+    const document = parseSong(`song "Octavas"
+version 2
+
+presets
+  preset P
+    OCT 2
+    OCTAVE_PATTERN 1 0 -1 2
+`);
+
+    const settings = document.song.presets[0].settings;
+    expect(settings.map(setting => setting.type)).toEqual([
+      CommandType.OCT,
+      CommandType.OCTAVE_PATTERN
+    ]);
+    expect(settings[1].value).toBe('1 0 -1 2');
+    expect(serializeSong(document)).toContain('OCTAVE_PATTERN 1 0 -1 2');
+  });
+
+  it('rechaza valores que no son enteros', () => {
+    expect(expectParseError('presets\n  preset P\n    OCTAVE_PATTERN 1 x -1\n').message).toContain(
+      "octava inválida 'x'"
+    );
+  });
+});
+
+describe('parseSong: intensidad y perfil de velocidad', () => {
+  it('parsea INTENSITY, INTENSITY_PATTERN y INTENSITY_RAMP y los serializa', () => {
+    const document = parseSong(`song "X"
+version 2
+
+presets
+  preset P
+    INTENSITY 20
+    INTENSITY_PATTERN 20 10 5
+    INTENSITY_RAMP 4 11 20 60
+`);
+
+    const settings = document.song.presets[0].settings;
+    expect(settings.map(setting => setting.type)).toEqual([
+      CommandType.INTENSITY,
+      CommandType.INTENSITY_PATTERN,
+      CommandType.INTENSITY_RAMP
+    ]);
+    expect(settings.map(setting => setting.value)).toEqual([20, '20 10 5', '4 11 20 60']);
+
+    const text = serializeSong(document);
+    expect(text).toContain('INTENSITY 20');
+    expect(text).toContain('INTENSITY_PATTERN 20 10 5');
+    expect(text).toContain('INTENSITY_RAMP 4 11 20 60');
+  });
+
+  it('rechaza velocidades y rampas inválidas', () => {
+    expect(expectParseError('presets\n  preset P\n    INTENSITY 0\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY 128\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_PATTERN 20 0 5\n').message).toContain('entre 1 y 127');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_RAMP 4 11 20\n').message).toContain('4 enteros');
+    expect(expectParseError('presets\n  preset P\n    INTENSITY_RAMP 11 4 20 60\n').message).toContain('no puede ser mayor');
   });
 });

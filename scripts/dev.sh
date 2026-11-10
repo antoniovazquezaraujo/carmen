@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Start the Mode Ranger dev server with the project's Node 22 toolchain.
+# Start the Carmen dev server with the project's Node 22 toolchain.
 # Usage: ./scripts/dev.sh [ng serve options]
 #
 set -euo pipefail

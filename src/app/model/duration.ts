@@ -1,1 +1,1 @@
-export * from '@moderanger/core/duration';
+export * from 'carmen-core/duration';

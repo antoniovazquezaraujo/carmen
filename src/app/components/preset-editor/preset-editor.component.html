@@ -1,6 +1,8 @@
 <div class="block-container">
   <div class="commands-row">
-    <span class="block-section-icon" pTooltip="Settings" tooltipPosition="top" aria-label="Settings" role="img">&#9881;</span>
+    @if (showSectionIcon) {
+      <span class="block-section-icon" pTooltip="Settings" tooltipPosition="top" aria-label="Settings" role="img">&#9881;</span>
+    }
     <div class="container-wrapper commands-container">
       @for (command of preset.settings; track command) {
         <div class="command">
@@ -95,6 +97,83 @@
                   [defaultDuration]="currentDefaultDuration"
                   (notesChange)="onDecorationValueChange($event, command)">
                 </app-melody-editor>
+              }
+            }
+            @case (commandTypes.INTENSITY) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select intensity variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <input type="number"
+                  class="command-value number-input"
+                  [ngModel]="command.value"
+                  (ngModelChange)="handleValueInput($event, command)"
+                  min="1"
+                  max="127"
+                  step="1">
+              }
+            }
+            @case (commandTypes.INTENSITY_PATTERN) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select intensity pattern variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <input type="text"
+                  class="command-value intensity-pattern-input"
+                  [ngModel]="command.value"
+                  (ngModelChange)="handleValueInput($event, command)"
+                  placeholder="20 10 5"
+                  aria-label="Intensity pattern">
+              }
+            }
+            @case (commandTypes.INTENSITY_RAMP) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select intensity ramp variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <input type="text"
+                  class="command-value intensity-ramp-input"
+                  [ngModel]="command.value"
+                  (ngModelChange)="handleValueInput($event, command)"
+                  placeholder="4 11 20 60"
+                  aria-label="Intensity ramp">
+              }
+            }
+            @case (commandTypes.OCTAVE_PATTERN) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select octave pattern variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <input type="text"
+                  class="command-value octave-pattern-input"
+                  [ngModel]="command.value"
+                  (ngModelChange)="handleValueInput($event, command)"
+                  placeholder="1 0 -1 2"
+                  aria-label="Octave pattern">
               }
             }
             @default {

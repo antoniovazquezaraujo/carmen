@@ -1,14 +1,45 @@
 # Changelog
 
-All notable changes to **Mode Ranger**. Format based on
+All notable changes to **Carmen**. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-10
+
 ### Added
 
-- **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/moderanger/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
+- **Carmen logo**: added the final keyboard wordmark to `src/assets/brand/` and the README (English and Spanish).
+- **Examples**: added **Glass Orbit** and refreshed **Clockwork**; the Examples panel keeps twelve complete songs.
+- **Block preset overrides**: a block can keep a shared preset and add an `overrides` section with local settings. Overrides apply after the base preset and only to the block's own notes; children and siblings keep the base preset. The block editor exposes them as an inline settings row with a sliders icon and a plus button.
+- **Octave pattern**: presets accept `OCTAVE_PATTERN` (e.g. `1 0 -1 2`) to repeat the block's own generated melody at octave offsets relative to `OCT`. Child blocks are unaffected; the pattern repeats on each block pass and works in both playback and the MIDI compiler.
+- **Top-level block drag & drop**: blocks at the first level of a part now have a drag handle. They can be reordered within the part, moved to another part, or dropped on another block's header to nest as its last child. Child blocks keep the existing tree drag & drop for reordering and nesting.
+- **Unparent nested blocks**: a nested block can be dropped on a wide dashed top-level zone at the bottom of a part to move it out of its parent. Tree insertion lines are thicker (4px, 6px when active) for easier targeting.
+- **Live web app**: the production build is published on GitHub Pages at <https://antoniovazquezaraujo.github.io/carmen/app/>; the user documentation stays at the site root. Pushing a `v*` tag (or running the workflow manually) deploys the app under `/app/`.
+- **Intensity**: melody notes accept `@1–127` (also on groups), and presets accept `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP`. Playback and the MIDI compiler carry the intensity as MIDI velocity; the profile counts generated notes in playback order, and an explicit `@` wins over ramp/pattern. The melody editor shows and preserves intensities. The intensity profile is local to the block that declares it: it applies to that block's own notes and the previous profile is restored before children/siblings; other preset settings keep persisting.
+
+### Changed
+
+- Playing block and content-library headers use a lighter background and fill the full row; the curved left accent that looked like an open bracket is removed.
+- **Rebranding to Carmen**: the product name, app title, README, user docs and GitHub URLs now use Carmen. The `.mr` format and `--mr-*` identifiers remain unchanged.
+- **npm packages and CLI**: the workspace packages are now `carmen-core` and `carmen-cli`; the CLI installs a single `carmen` binary (`compile`, `check`, `version`, `help`). The legacy `moderanger-mid` alias is removed. The Angular build output moved to `dist/carmen/browser`, and the web release asset is now `carmen-web.zip`.
+- Block headers no longer duplicate the content edit action with chips; the pencil buttons next to the melody/preset/procedure selects remain the shortcut to their library entry.
+- The duration wheel and default-duration selectors now include `2m` and `4m`; `1m` is omitted because it equals `1n` in 4/4. Other measure counts can still be written in the `.mr` text.
+- Scale variables in the variables panel now use the same selector as presets, including the degree-ring preview of each scale on hover.
+- A melody's own default duration now prevails over the global default while editing that melody; the visible "Default duration" label in the content library became a tooltip on the selector.
+
+### Fixed
+
+- Measure durations (`1m`, `2m`, ...) now work in every play mode, groups and the MIDI compiler. The parser already accepted them, but the note-generation validation rejected them for chords/arpeggios and silently replaced the event with a rest; a measure is four beats (4/4).
+
+### Removed
+
+- `PATTERN_GAP` removed from the language, parser/serializer, player, GUI, corpus and user documentation. It was a deprecated no-op; a `.mr` file that still contains it now fails with a migration error pointing to `DECORATION`.
+
+### Internal
+
+- Removed the unwired v2 melody-editor/player prototype, its services and tests, plus the unused `config`, `keyboard` and `unsaved-changes` code (~5.2k LOC). The live `global-state` and `note-generation-unified` services, `error-handler.service.ts` and the `@moderanger/core/music-element-utils` API with its test are kept.
 
 ## [1.0.0] - 2026-11-08
 

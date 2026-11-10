@@ -1,1 +1,1 @@
-export * from '@moderanger/core/command.notes';
+export * from 'carmen-core/command.notes';

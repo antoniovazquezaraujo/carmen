@@ -71,6 +71,8 @@ export class ContentLibraryComponent implements OnChanges, OnInit, OnDestroy {
         { kind: 'procedure', label: 'Procedures' }
     ];
     readonly availableDurations: ReadonlyArray<NoteDuration> = [
+        '4m',
+        '2m',
         '1n',
         '2n',
         '4n',
@@ -178,6 +180,11 @@ export class ContentLibraryComponent implements OnChanges, OnInit, OnDestroy {
 
     countFor(kind: ContentKind): number {
         return contentList(this.song, kind).length;
+    }
+
+    /** Duración propia de la melodía para el editor embebido (validada al parsear). */
+    melodyDefaultDuration(melody: Melody): NoteDuration | undefined {
+        return melody.defaultDuration as NoteDuration | undefined;
     }
 
     isExpanded(entry: ContentEntry): boolean {

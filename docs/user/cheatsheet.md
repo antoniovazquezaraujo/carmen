@@ -61,13 +61,28 @@ part Piano instrument PIANO
 - `procedures`: `procedure <name>` plus operations (`VARY`, `ASSIGN`).
 - Libraries are leaves: they contain no blocks and no references to other library entries.
 - A block is structure only: optional `preset`, `procedure` and `melody` references plus child blocks. No inline `notes`/`commands`/`operations`.
-- Per pass: preset settings → procedure operations → melody notes → child blocks. `repeats` repeats the full pass, children included.
+- A block can add local preset tweaks without copying the preset:
+
+```mr
+block Verse
+  preset ThemeAjustes
+  overrides
+    OCT 3
+    INTENSITY 40
+  melody Theme
+```
+
+`overrides` applies only to the block's own notes; children keep the base preset.
+- In the GUI, drag a block by its handle to reorder it within a part or move it to another part. Drop it on another block's header to nest it as the last child. Child blocks can also be dragged to reorder or nest them.
+- Drop a nested block on the dashed **Drop here to move it to the top level** zone at the bottom of a part to unparent it.
+- Per pass: preset settings → block overrides → procedure operations → melody notes → child blocks. `repeats` repeats the full pass, children included.
 - Format 2 has no `blocks` section and no `use`: blocks are never referenced and there is no reader for `version 1`.
 
 ## Notes
 
 - One event per line inside `notes`; groups fit on their own line.
 - `duration:grade` (`4n:0`), rests `s`, negative grades (`-7`), groups `4n:( 0 2 )`, note variables `8t:$grade`.
+- Intensity with `@`: `4n:0@34` (MIDI velocity 1–127), or on a group `4n:( 0 2 )@40`; children without their own `@` inherit it.
 - Without an explicit duration an event inherits from its group. In `notes` sections groups **inherit**; inside a `PATTERN` groups **subdivide** (children without a duration split the remaining time).
 
 ## Durations
@@ -87,6 +102,7 @@ part Piano instrument PIANO
 | Setting | Purpose | Example |
 |---|---|---|
 | `OCT` | Base octave | `OCT 2` |
+| `OCTAVE_PATTERN` | Repeat the block's own melody at octave offsets | `OCTAVE_PATTERN 1 0 -1 2` |
 | `SCALE` | Active scale | `SCALE BLACK` |
 | `GAP` | Gap between chord notes | `GAP 2` |
 | `PLAYMODE` | How grades sound | `PLAYMODE ASCENDING` |
@@ -94,11 +110,17 @@ part Piano instrument PIANO
 | `INV` | Inversion | `INV 1` |
 | `KEY` | Transposition in semitones | `KEY 0` |
 | `SHIFTSTART`/`SHIFTSIZE`/`SHIFTVALUE` | Shift chord window by whole octaves | `SHIFTSIZE 3` |
+| `INTENSITY` | Default intensity (MIDI velocity) | `INTENSITY 20` |
+| `INTENSITY_PATTERN` | Cyclic intensity pattern | `INTENSITY_PATTERN 20 10 5` |
+| `INTENSITY_RAMP` | Linear intensity ramp over generated notes | `INTENSITY_RAMP 4 11 20 60` |
 | `PATTERN` | Pattern melody (or `$variable`) | `PATTERN 4t:0 4t:2` |
 | `DECORATION` | Decoration added to each chord note (offsets in scale degrees) | `DECORATION 4t:0 8t:-2` |
-| `PATTERN_GAP` | Deprecated: pattern decoration gap (no effect) | `PATTERN_GAP 1` |
+
+The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 
 Numeric settings accept `$variable`.
+
+`OCTAVE_PATTERN` is relative to `OCT` and applies only to the block's own melody: `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` plays the sequence in octaves 3, 2, 1, 4. Child blocks keep their own octave/pattern.
 
 ## Procedures
 

@@ -116,3 +116,14 @@ Criterios de aceptación añadidos:
 - `moderanger version` y `moderanger help` funcionan sin argumentos adicionales.
 - `moderanger-mid cancion.mr` sigue funcionando como alias.
 - `npm pack --workspace @moderanger/cli --dry-run` incluye `dist` y declara los dos `bin`.
+
+## 9. Addendum (2026-11-08): paquetes y binario Carmen
+
+Los paquetes se renombran antes de la primera publicación en npm, ya que nunca se publicaron y no hay consumidores que migrar:
+
+- Paquetes: **`carmen-core`** y **`carmen-cli`** (sin scope).
+- Binario único: **`carmen`**, con los subcomandos `compile`, `check`, `version` y `help`.
+- Se elimina **`moderanger-mid`**: era un alias de compatibilidad sin usuarios publicados.
+- La instalación prevista es `npm install -g carmen-cli`.
+
+El addendum de 2026-10-30 se conserva como histórico de la decisión anterior.

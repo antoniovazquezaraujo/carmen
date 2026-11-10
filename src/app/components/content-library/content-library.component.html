@@ -85,8 +85,12 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
                 <div class="library-entry-body library-entry-body--melody">
                   <div class="content-melody-row">
                     <div class="content-duration-row">
-                      <span class="content-duration-label">Default duration</span>
-                      <select class="content-duration-select" [(ngModel)]="melody.defaultDuration" aria-label="Default duration">
+                      <select
+                        class="content-duration-select"
+                        [(ngModel)]="melody.defaultDuration"
+                        pTooltip="Default duration for this melody (overrides the global default)"
+                        tooltipPosition="top"
+                        aria-label="Default duration">
                         <option [ngValue]="undefined">—</option>
                         @for (duration of availableDurations; track duration) {
                           <option [ngValue]="duration">{{ duration }}</option>
@@ -98,7 +102,8 @@ resto de paneles. Cada entrada navega y resalta desde los chips de bloque.
                       [id]="'library-melody-' + melody.id"
                       [(ngModel)]="melody.notes"
                       [blockId]="melody.id"
-                      [showVariableIcon]="true">
+                      [showVariableIcon]="true"
+                      [defaultDurationOverride]="melodyDefaultDuration(melody)">
                     </app-melody-editor-wrapper>
                   </div>
                 </div>

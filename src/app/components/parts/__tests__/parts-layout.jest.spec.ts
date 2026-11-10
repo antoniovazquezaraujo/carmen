@@ -1,7 +1,17 @@
 /**
  * Lógica pura del splitter de parts: reparto, clamps y crecimiento sin tope.
  */
-import { clampBoundary, KEYBOARD_RESIZE_STEP, MIN_PART_WIDTH } from '../parts-layout';
+import { Block } from 'src/app/model/block';
+import { Part } from 'src/app/model/part';
+import {
+    clampBoundary,
+    containsBlock,
+    findBlockById,
+    KEYBOARD_RESIZE_STEP,
+    MIN_PART_WIDTH,
+    moveBlockBetween,
+    moveBlockWithin
+} from '../parts-layout';
 
 describe('parts-layout · reparto de anchos', () => {
     it('mueve el borde la distancia pedida manteniendo la suma (sin topar mínimo)', () => {
@@ -51,5 +61,64 @@ describe('parts-layout · reparto de anchos', () => {
     it('expone constantes coherentes con el contrato de UI', () => {
         expect(MIN_PART_WIDTH).toBe(260);
         expect(KEYBOARD_RESIZE_STEP).toBe(20);
+    });
+});
+
+describe('parts-layout · movimiento de bloques raíz', () => {
+    it('reordena dentro de la misma part', () => {
+        const blocks = ['A', 'B', 'C'];
+
+        moveBlockWithin(blocks, 0, 2);
+
+        expect(blocks).toEqual(['B', 'C', 'A']);
+    });
+
+    it('no cambia nada si el índice de origen y destino coincide', () => {
+        const blocks = ['A', 'B', 'C'];
+
+        moveBlockWithin(blocks, 1, 1);
+
+        expect(blocks).toEqual(['A', 'B', 'C']);
+    });
+
+    it('mueve un bloque de una part a otra en la posición indicada', () => {
+        const source = ['A', 'B', 'C'];
+        const target = ['D', 'E'];
+
+        moveBlockBetween(source, target, 1, 1);
+
+        expect(source).toEqual(['A', 'C']);
+        expect(target).toEqual(['D', 'B', 'E']);
+    });
+});
+
+describe('parts-layout · anidación de bloques', () => {
+    it('detecta un bloque y sus descendientes, pero no a sus ancestros', () => {
+        const root = new Block();
+        const child = new Block();
+        const grandchild = new Block();
+        child.children = [grandchild];
+        root.children = [child];
+
+        expect(containsBlock(root, root)).toBe(true);
+        expect(containsBlock(root, child)).toBe(true);
+        expect(containsBlock(root, grandchild)).toBe(true);
+        expect(containsBlock(child, root)).toBe(false);
+    });
+
+    it('encuentra un bloque anidado por id en cualquier part', () => {
+        const firstRoot = new Block();
+        const nested = new Block();
+        firstRoot.children = [nested];
+        const firstPart = new Part();
+        firstPart.items = [firstRoot];
+
+        const secondRoot = new Block();
+        const secondPart = new Part();
+        secondPart.items = [secondRoot];
+
+        expect(findBlockById([firstPart, secondPart], nested.id)).toBe(nested);
+        expect(findBlockById([firstPart, secondPart], secondRoot.id)).toBe(secondRoot);
+        expect(findBlockById([firstPart, secondPart], -1)).toBeNull();
     });
 });

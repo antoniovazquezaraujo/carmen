@@ -173,6 +173,28 @@ describe('VariableDeclarationComponent · variables string', () => {
     expect(template).toContain('playModeDescription(newVariable.value)');
   });
 
+  it('edita una variable de escala con el selector y actualiza el contexto', () => {
+    const component = new VariableDeclarationComponent(fakeZone(), fakeCdr() as unknown as ChangeDetectorRef);
+    VariableContext.setValue('scale', 'WHITE');
+    rebuildList(component);
+
+    expect(component.scaleValue(declaredVariables(component)[0].value)).toBe('WHITE');
+    expect(component.scaleValue('')).toBe(component.scaleNames[0]);
+
+    component.onScaleSelected(0, 'BLACK');
+
+    expect(VariableContext.getValue('scale')).toBe('BLACK');
+  });
+
+  it('muestra el selector de escalas al crear y al editar variables de escala', () => {
+    const template = fs.readFileSync(path.resolve(__dirname, '../variable-declaration.component.html'), 'utf8');
+
+    expect(template.match(/<app-scale-select/g)).toHaveLength(2);
+    expect(template).toContain('[options]="scaleNames"');
+    expect(template).toContain('(valueChange)="onNewScaleSelected($event)"');
+    expect(template).toContain('(valueChange)="onScaleSelected(i, $event)"');
+  });
+
   it('addVariable crea una variable de texto con el valor indicado', () => {
     const component = new VariableDeclarationComponent(fakeZone(), fakeCdr() as unknown as ChangeDetectorRef);
     component.newVariable = { name: 'motivo', value: '4t:0', type: 'string' };

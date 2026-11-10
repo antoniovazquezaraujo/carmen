@@ -56,6 +56,8 @@ import {
 })
 export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     @Input() preset: Preset = new Preset();
+    /** Permite ocultar el icono de ajustes cuando se embebe en un bloque. */
+    @Input() showSectionIcon = true;
 
     readonly commandTypes = CommandType;
     readonly syntheticShift = 'SHIFT';
@@ -131,7 +133,10 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     removeCommand(command: Command): void {
-        this.preset.settings = this.preset.settings.filter(setting => setting !== command);
+        const index = this.preset.settings.indexOf(command);
+        if (index >= 0) {
+            this.preset.settings.splice(index, 1);
+        }
         this.cdr.detectChanges();
     }
 
@@ -165,15 +170,16 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         event.stopPropagation();
 
         if (command.isVariable) {
-            const resolvedString =
-                command.type === CommandType.PATTERN || command.type === CommandType.DECORATION
-                    ? String(command.value ?? '')
-                    : '';
+            const isStringValue =
+                command.type === CommandType.PATTERN ||
+                command.type === CommandType.OCTAVE_PATTERN ||
+                command.type === CommandType.DECORATION ||
+                command.type === CommandType.INTENSITY_PATTERN ||
+                command.type === CommandType.INTENSITY_RAMP;
+            const resolvedString = isStringValue ? String(command.value ?? '') : '';
             command.isVariable = false;
             command.setValue(
-                command.type === CommandType.PATTERN || command.type === CommandType.DECORATION
-                    ? resolvedString
-                    : this.getDefaultValueForCommandType(command.type)
+                isStringValue ? resolvedString : this.getDefaultValueForCommandType(command.type)
             );
         } else {
             this.updateAvailableVariables();
@@ -247,7 +253,13 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
             }
             return;
         }
-        if (command.type === CommandType.PATTERN || command.type === CommandType.DECORATION) {
+        if (
+            command.type === CommandType.PATTERN ||
+            command.type === CommandType.OCTAVE_PATTERN ||
+            command.type === CommandType.DECORATION ||
+            command.type === CommandType.INTENSITY_PATTERN ||
+            command.type === CommandType.INTENSITY_RAMP
+        ) {
             command.isVariable = false;
         }
         command.setValue(this.getDefaultValueForCommandType(command.type));

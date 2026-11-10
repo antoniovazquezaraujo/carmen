@@ -62,6 +62,41 @@ describe('notes.parser: eventos del DSL', () => {
     }
   });
 
+  it('acepta duraciones de compás y las conserva al imprimir', () => {
+    const events = parseNoteEvents('1m:0 2m:s 1m:( 0 2 )');
+    const editor = parseBlockNotesForEditor('1m:0');
+
+    expect(events[0]).toMatchObject({ kind: 'atom', duration: '1m', grade: 0 });
+    expect(events[1]).toMatchObject({ kind: 'atom', duration: '2m', rest: true });
+    expect(events[2]).toMatchObject({ kind: 'group', duration: '1m' });
+    expect(events.map(printNoteEvent)).toEqual(['1m:0', '2m:s', '1m:( 0 2 )']);
+    expect(editor.noteData[0]).toMatchObject({ type: 'note', duration: '1m', note: 0 });
+    expect(editor.noteData[0].toString()).toBe('1m:0');
+  });
+
+  it('acepta velocidades @ y las conserva en el modelo y en el editor', () => {
+    const events = parseNoteEvents('4n:0@34 8t:( 0@20 2 )@40 s@10');
+    const editor = parseBlockNotesForEditor('4n:0@34');
+
+    expect(events[0]).toMatchObject({ kind: 'atom', duration: '4n', grade: 0, velocity: 34 });
+    expect(events[1]).toMatchObject({ kind: 'group', duration: '8t', velocity: 40 });
+    if (events[1].kind === 'group') {
+      expect(events[1].children[0]).toMatchObject({ velocity: 20 });
+    }
+    expect(events[2]).toMatchObject({ kind: 'atom', rest: true, velocity: 10 });
+    expect(events.map(printNoteEvent)).toEqual(['4n:0@34', '8t:( 0@20 2 )@40', 's@10']);
+    expect(editor.noteData[0]).toMatchObject({ type: 'note', duration: '4n', velocity: 34 });
+    expect(editor.noteData[0].toString()).toBe('4n:0@34');
+  });
+
+  it('rechaza velocidades fuera de rango o mal formadas', () => {
+    expectParseError('4n:0@0');
+    expectParseError('4n:0@128');
+    expectParseError('4n:0@');
+    expectParseError('@34');
+    expectParseError('4n:0@34@40');
+  });
+
   it('admite grupos vacíos', () => {
     const [group] = parseNoteEvents('2n:()');
 

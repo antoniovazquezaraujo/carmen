@@ -78,6 +78,7 @@ Siempre usar el formato `NOMBRE: respuesta` al presentar resultados al usuario.
 
 - **NUNCA** inventar respuestas técnicas que correspondan a un experto.
 - **NUNCA** commitear directamente a `develop`/`main`: rama `feature/...` o `fix/...` + PR.
+- **NUNCA** mergear un PR a `develop`/`main` sin que el mantenedor lo haya probado y dado el OK explícito. El agente puede crear rama, commits y PR; el merge espera su validación. Un “dale” a implementar no autoriza el merge automático.
 - **SIEMPRE** leer `instructions/` y `CONTRIBUTING.md` antes de actuar.
 - **SIEMPRE** ejecutar `npm test` y `npm run build` antes de dar algo por terminado.
 - **MANTENER** `docs/user` y `docs/developer` actualizadas; `CHANGELOG.md` para cambios relevantes.

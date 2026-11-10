@@ -17,6 +17,13 @@ const latestElements = (service: MelodyEditorService): MusicElement[] => {
 };
 
 describe('MelodyEditorService · duración de grupo', () => {
+  it('conserva las velocidades @ al cargar y volver a emitir la melodía', () => {
+    const service = new MelodyEditorService();
+    service.loadFromNoteData(parseBlockNotesForEditor('4n:0@34 8t:( 0@20 2 )@40').noteData);
+
+    expect(NoteData.toStringArray(service.toNoteData())).toBe('4n:0@34 8t:( 0@20 2 )@40');
+  });
+
   it('cambiar la duración del grupo no toca a los hijos (ni undefined ni explícitos)', () => {
     const service = new MelodyEditorService();
     service.loadFromNoteData(parseBlockNotesForEditor('8n:( 0 2 4t:5 )').noteData);

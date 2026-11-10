@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { VariableContext } from '@moderanger/core';
+import { VariableContext } from 'carmen-core';
 import { compileSongText } from '../compile-midi';
 import { CompiledSong } from '../types';
 
@@ -53,6 +53,135 @@ describe('compilador MIDI · eventos musicales', () => {
             { tick: 0, durationTicks: 960, midi: 60, velocity: 90 },
             { tick: 960, durationTicks: 960, midi: 63, velocity: 90 },
             { tick: 1920, durationTicks: 320, midi: 67, velocity: 90 }
+        ]);
+    });
+
+    it('respeta la velocity @ de la nota y INTENSITY del preset', async () => {
+        const explicit = await compile('4n:0@34');
+        expect(explicit.parts[0].notes[0].velocity).toBe(34);
+
+        const preset = await compile('4n:0 4n:2', {
+            preset: ['INTENSITY 20', 'INTENSITY_PATTERN 20 10 5']
+        });
+        expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
+    });
+
+    it('aplica overrides solo al bloque propio y los restaura para hijos y hermanos', async () => {
+        const song = await compileSongText(`song Overrides
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+  melody B
+    notes
+      4n:0
+
+presets
+  preset Base
+    OCT 2
+    PLAYMODE SINGLE
+    INTENSITY 90
+
+part Piano
+  block A
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+    melody A
+    block Hijo
+      melody B
+  block Hermano
+    preset Base
+    melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([72, 60, 60]);
+        expect(song.parts[0].notes.map(note => note.velocity)).toEqual([40, 90, 90]);
+        expect(song.parts[0].notes.map(note => note.tick)).toEqual([0, 960, 1920]);
+    });
+
+    it('OCTAVE_PATTERN repite la melodía propia y no afecta a los hijos', async () => {
+        const song = await compileSongText(`song Octavas
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+      4n:1
+  melody B
+    notes
+      4n:2
+
+presets
+  preset P
+    OCT 2
+    OCTAVE_PATTERN 1 0 -1 2
+    PLAYMODE SINGLE
+
+part Piano
+  block A
+    preset P
+    melody A
+    block Hijo
+      melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([
+            72, 74,
+            60, 62,
+            48, 50,
+            84, 86,
+            63
+        ]);
+        expect(song.parts[0].notes.map(note => note.tick)).toEqual([
+            0, 960,
+            1920, 2880,
+            3840, 4800,
+            5760, 6720,
+            7680
+        ]);
+    });
+
+    it('aplica INTENSITY solo al bloque que usa el preset, no a hijos ni hermanos', async () => {
+        const song = await compileSongText(`song Aislada
+version 2
+
+melodies
+  melody A
+    notes
+      4n:0
+  melody B
+    notes
+      4n:2
+
+presets
+  preset P
+    INTENSITY 20
+    PLAYMODE SINGLE
+
+part Piano
+  block A
+    preset P
+    melody A
+    block Hijo
+      melody A
+  block B
+    melody B
+`);
+
+        expect(song.parts[0].notes.map(note => note.velocity)).toEqual([20, 90, 90]);
+    });
+
+    it('compila duraciones de compás en 4/4', async () => {
+        const song = await compile('1m:0\n2m:2');
+
+        expect(song.parts[0].notes).toEqual([
+            { tick: 0, durationTicks: 3840, midi: 60, velocity: 90 },
+            { tick: 3840, durationTicks: 7680, midi: 63, velocity: 90 }
         ]);
     });
 

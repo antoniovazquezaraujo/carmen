@@ -11,7 +11,7 @@
 
 ## 1. Contexto y decisión
 
-`PATTERN` expande cada nota del bloque **antes** del playmode (melodía con duraciones reescaladas). Faltaba un adorno **por nota del acorde ya formado**. La opción acordada (B) mantiene `PATTERN` intacto y añade `DECORATION`; `PATTERN_GAP` queda como campo heredado **sin efecto** (deprecado).
+`PATTERN` expande cada nota del bloque **antes** del playmode (melodía con duraciones reescaladas). Faltaba un adorno **por nota del acorde ya formado**. La opción acordada (B) mantiene `PATTERN` intacto y añade `DECORATION`; `PATTERN_GAP` quedó como campo heredado **sin efecto** y se eliminó del lenguaje el 2026-11-08.
 
 ## 2. Sintaxis y canonicalización
 
@@ -41,7 +41,7 @@ PATTERN (expande la nota) → playmode/WIDTH/GAP/INV/octava/tonalidad/SHIFT (gra
 - Cada grado `g` del acorde/arpegio se sustituye por `{ g + offset_i }` **en grados de escala** por cada item, con la **duración literal** del item (`4t` por defecto, sin reescalar) guardada como metadato de la nota. El resultado queda siempre dentro de la escala activa. Si algún item es `0`, la nota original se conserva como ese item; si no hay `0`, desaparece.
 - **CHORD:** las notas decoradas suenan simultáneas (el motor usa la duración del evento para el acorde); las duraciones literales de los items quedan como metadato de cada nota.
 - **ARPEGGIO:** los items decoran **cada posición** del arpegio en orden; el motor reparte la duración total del evento entre todas las notas emitidas (cada item añade una rebanada), y la duración literal del item queda como metadato. Se eligió decorar **después** de arpeggiar (posiciones): mantiene los adornos agrupados por nota emitida (estructura original) y evita que los modos pares/impares o `DESC_ASC` mezclen o inviertan los items de cada nota.
-- **Timing v1:** en ambos playmodes el reparto temporal lo decide el motor (evento para CHORD; partes iguales entre las notas emitidas para arpegio). Las duraciones de item **no mandan hoy en el tiempo**: la guía (`manual.md`/`manual_es.md`, limitación 12) y la traza de `song-player-decoration.jest.spec.ts` lo fijan como comportamiento real.
+- **Timing v1:** en ambos playmodes el reparto temporal lo decide el motor (evento para CHORD; partes iguales entre las notas emitidas para arpegio). Las duraciones de item **no mandan hoy en el tiempo**: la guía (`manual.md`/`manual_es.md`, limitación 11) y la traza de `song-player-decoration.jest.spec.ts` lo fijan como comportamiento real.
 - **PLAYMODE SINGLE:** no hay acorde → `DECORATION` se ignora (igual que `WIDTH`/`INV`/`SHIFT`).
 - **PATTERN + DECORATION:** `PATTERN` expande primero; cada nota expandida genera su acorde/arpegio y se decora.
 - **Origen (highlight):** el `NoteData` emitido (`chord`/`arpeggio`) conserva su `sourcePath`/`sourceBlockId`; el adorno no altera el resaltado.
@@ -101,9 +101,9 @@ PATTERN (expande la nota) → playmode/WIDTH/GAP/INV/octava/tonalidad/SHIFT (gra
 
 ## 8. Validación y pendientes
 
-- **Validación (Bicho):** completada para el comando. `npm test` (642), `npm run test:cov` (umbrales), `npm run build` y CI en verde; ejemplos de `mr.docs-guia` canónicos e idempotentes; corpus sin cambios. Guía corregida: las duraciones de item son metadato en v1 (limitación 12 en ambos manuales).
+- **Validación (Bicho):** completada para el comando. `npm test` (642), `npm run test:cov` (umbrales), `npm run build` y CI en verde; ejemplos de `mr.docs-guia` canónicos e idempotentes; corpus sin cambios. Guía corregida: las duraciones de item son metadato en v1 (limitación 11 en ambos manuales).
 - **Hallazgo aparte (no bloquea):** al recargar una canción con `$variable`, el panel de variables avisa transitoriamente (`Variable … no longer exists or is inaccessible`). Es preexistente (mismo aviso con `PATTERN $var` en `develop`; mecanismo genérico en `block-commands.component.ts`, commit `36a479e`); no lo introduce `DECORATION`.
-- `PATTERN_GAP` sigue aceptándose al leer y guardar por compatibilidad; no se toca.
+- `PATTERN_GAP` se eliminó del lenguaje, el modelo, la GUI y el corpus el 2026-11-08. Un `.mr` que aún lo contenga falla con un error de migración que remite a `DECORATION`.
 
 ## 9. Ajuste: offsets en grados de escala (`fix/decoration-scale-degrees`)
 

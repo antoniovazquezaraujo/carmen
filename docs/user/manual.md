@@ -102,7 +102,7 @@ General rules:
 | Section order | Header, then `vars`, then `melodies`, then `presets`, then `procedures`, then parts. Within a block the canonical order is `preset` → `procedure` → `melody` → child blocks. |
 | Extension | `.mr` files; the file name is proposed when saving from the song name. |
 
-Reserved words (quote them if used as a name): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`.
+Reserved words (quote them if used as a name): `song`, `version`, `repeats`, `bpm`, `vars`, `part`, `block`, `instrument`, `notes`, `commands`, `operations`, `blocks`, `use`, `melodies`, `melody`, `presets`, `preset`, `procedures`, `procedure`, `overrides`.
 
 ### 3.1. Header
 
@@ -238,8 +238,38 @@ In the GUI, parts live in the **Parts** row, below the variables and content pan
 - `repeats 0` is valid: the block stays silent (useful to mute without deleting).
 - Nested blocks go **one level (2 spaces) deeper** than their parent.
 - A block may contain at most one `preset`, one `procedure` and one `melody` reference, plus any number of child blocks. References are optional: a block can be only structure.
-- There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections.
+- A block may also have an optional `overrides` section with local preset settings. They are applied after the referenced preset and only to the block's own notes; child blocks keep the base preset. `overrides` can also be used without a referenced preset.
+- There is **no inline content** inside a block: no `notes`, `commands` or `operations` sections. `overrides` is only a local preset layer, not inline note content.
 - In the visual tree, each nesting level is marked with a **subtle vertical guide** and a **short connector** to every block, so the hierarchy is readable at a glance.
+- Drag a block from its handle (`⋮⋮`) to reorder it within its part or move it to another part. Drop it on another block's header to nest it as that block's last child. Child blocks can also be dragged to reorder them or nest them inside another block. Dropping a block between two blocks changes its position.
+- To move a nested block back to the top level of a part, drag it to the dashed **Drop here to move it to the top level** zone at the bottom of the target part.
+
+A block can reuse a preset and tweak only a few settings locally:
+
+```mr
+song Overrides
+version 2
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+presets
+  preset Base
+    OCT 2
+    INTENSITY 90
+
+part Piano
+  block Tema
+    preset Base
+    overrides
+      OCT 3
+      INTENSITY 40
+    melody Tema
+```
+
+The overrides only affect the notes of `Tema`; its child blocks keep `Base`. The allowed lines are the same preset settings listed in section 3.3. In the GUI they appear as an inline row in the block body, marked with a sliders icon; use its `+` button to add a setting.
 
 ```mr
 song Estructura
@@ -276,13 +306,18 @@ part Piano
 For each pass of a block:
 
 1. the settings of its `preset` are applied, in order;
-2. the operations of its `procedure` are executed, in order;
-3. the notes of its `melody` are played (if present);
-4. its child blocks run, in order.
+2. the settings of its `overrides` are applied, in order;
+3. the operations of its `procedure` are executed, in order;
+4. the notes of its `melody` are played (if present);
+5. its child blocks run, in order.
 
 `repeats` repeats the complete pass, including child blocks. Content entries have no repetitions of their own: repetition belongs to the block. To repeat a melody inside a block, add a child block that references it (or repeat the parent block).
 
-Settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
+Base preset settings and operations **persist** after the block, exactly as they did when they lived inline. Operations are executed on every pass; a `VARY` is not a frozen value. Stop and the natural end restore the variables.
+
+Block `overrides` are an exception: they are applied only for the block's own notes and then the player returns to the post-base-preset state before its child blocks or siblings run.
+
+The **intensity profile** is the exception: `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP` are local to the block that declares them. They apply only to that block's own notes and the previous profile is restored afterwards, before its child blocks or siblings run. If a preset declares any intensity setting, its local profile starts from the defaults (90, no pattern/ramp), so it does not inherit an old pattern or ramp.
 
 Because a melody stores notes and not a rendered result, the same melody can sound different in blocks with different presets or harmonic contexts. That is intentional.
 
@@ -301,6 +336,10 @@ A duration is an integer (no leading zeros), a unit and a colon:
 | `n` | note (score values) | `1n` whole, `2n` half, `4n` quarter, `8n` eighth |
 | `t` | triplet | `4t`, `8t` |
 | `m` | measure | `1m`, `2m` |
+
+A measure is **four beats** (4/4; there is no time-signature setting yet), so `1m` equals one whole note and `2m` lasts two measures.
+
+A note can also carry an **intensity** with `@`: `4n:0@34` (MIDI velocity 1–127). It applies to the source event and to every note generated from it (chord, arpeggio, pattern, decoration) unless an inner value overrides it. A group can carry it too: `4n:( 0 2 )@40`; children without their own `@` inherit it. `@` is intensity, not duration.
 
 It is written attached to the event: `4n:0`, `8t:s`, `2n:( 0 2 )`. The duration is **optional**: if missing, it inherits from the enclosing group; at root level it uses `notes default` and, if absent, the playback fallback (`16n`).
 
@@ -327,7 +366,7 @@ Rules: the group opens and closes **on the same line**; an unclosed group is a s
 
 Inside a `PATTERN`, groups **subdivide**: children with an explicit duration keep it and children without a duration split the remaining time; the content must fit the group (otherwise it is a measure error with `line:column`). In a melody's `notes` section, by contrast, groups inherit the group duration.
 
-In the visual editor, a note without its own duration **does not show it** (it inherits from the group). Hovering the note activates the duration area (no symbol): the wheel over it changes the duration and, from then on, it stays explicit and visible. The cycle includes the **empty** state: wheel past `1n`/`8t` and the note goes back to having no duration (inherited).
+In the visual editor, a note without its own duration **does not show it** (it inherits from the group). Hovering the note activates the duration area (no symbol): the wheel over it changes the duration and, from then on, it stays explicit and visible. The cycle includes the **empty** state: wheel past `4m`/`8t` and the note goes back to having no duration (inherited). The wheel offers `4m` and `2m`; `1m` is not in the wheel because it equals `1n` in 4/4, and other measure counts can be written in the `.mr` text.
 
 ### 4.5. Note variables
 
@@ -354,6 +393,8 @@ part Piano
 ```
 
 Without `notes default`, a root event with no duration uses the `16n` fallback. Events inside a group always inherit the group duration, whether or not `notes default` is present.
+
+In the GUI, each melody's default duration is set from the content library. When a melody defines one, it overrides the global default duration of the toolbar while that melody is being edited; melodies without their own default keep using the global one.
 
 ### 4.7. Notes from a whole variable: `notes $variable`
 
@@ -416,6 +457,7 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 | Setting | Playback effect | Accepted values | Example |
 |---|---|---|---|
 | `OCT` | Base octave of the notes | integer or `$variable` | `OCT 2` |
+| `OCTAVE_PATTERN` | Repeats the block's own generated melody at octave offsets relative to `OCT` | integer list (can be negative) or `$variable` | `OCTAVE_PATTERN 1 0 -1 2` |
 | `SCALE` | Active scale | `WHITE`, `BLUE`, `RED`, `BLACK`, `PENTA`, `TONES`, `FULL` or `$variable` | `SCALE BLACK` |
 | `GAP` | Gap (in scale degrees) between chord notes | integer or `$variable` | `GAP 2` |
 | `PLAYMODE` | How grades are played: chord, arpeggios, random, single note... | `CHORD`, `ASCENDING`, `DESCENDING`, `ASC_DESC`, `DESC_ASC`, `EVEN_ASC_ODD_ASC`, `EVEN_ASC_ODD_DESC`, `EVEN_DESC_ODD_DESC`, `EVEN_DESC_ODD_ASC`, `ODD_ASC_EVEN_ASC`, `ODD_ASC_EVEN_DESC`, `ODD_DESC_EVEN_DESC`, `ODD_DESC_EVEN_ASC`, `RANDOM`, `SINGLE` or `$variable` | `PLAYMODE ASCENDING` |
@@ -425,7 +467,9 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 | `SHIFTSTART` | First chord note affected by the shift | integer or `$variable` | `SHIFTSTART 0` |
 | `SHIFTSIZE` | Number of notes affected by the shift | integer or `$variable` | `SHIFTSIZE 3` |
 | `SHIFTVALUE` | Octaves added to shifted notes | integer or `$variable` | `SHIFTVALUE 1` |
-| `PATTERN_GAP` | Deprecated: pattern decoration separation (no effect; use `DECORATION`) | integer or `$variable` | `PATTERN_GAP 1` |
+| `INTENSITY` | Default intensity of generated notes (MIDI velocity) | integer 1–127 or `$variable` | `INTENSITY 20` |
+| `INTENSITY_PATTERN` | Cyclic intensity pattern | positive integer list | `INTENSITY_PATTERN 20 10 5` |
+| `INTENSITY_RAMP` | Linear intensity ramp over generated notes | start note, end note, start intensity, end intensity | `INTENSITY_RAMP 4 11 20 60` |
 | `PATTERN` | Pattern melody (full sublanguage, one line); it is applied **before** the playmode, so it combines with chords/arpeggios; or a string variable | melody or `$variable` | `PATTERN 4t:0 4t:-1 4t:3` |
 | `DECORATION` | Decoration added to **each chord/arpeggio note**: for every item, a `{ degree + offset }` note | items `offset` (scale degrees) or `duration:offset`, or `$variable` | `DECORATION 4t:0 8t:-2` |
 
@@ -437,8 +481,9 @@ Notes:
 - `PATTERN` is **independent from the playmode**: when present, it expands every note before the playmode generates its sound (chord, arpeggio, random...). Without `PATTERN`, nothing changes. Its melody is written on one line (durations, rests and groups allowed).
 - In a numeric setting, the `$variable` is resolved at playback time; it must contain a number.
 - `SHIFTSTART`, `SHIFTSIZE` and `SHIFTVALUE` add whole octaves to the chord notes in the window `[SHIFTSTART, SHIFTSTART+SHIFTSIZE)` (0-based, on the final chord order after `INV`). The window is clamped to the chord, `SHIFTSIZE 0` does nothing and a negative `SHIFTVALUE` lowers the affected notes. They shape the generated chord/arpeggio; with `PLAYMODE SINGLE` there is no chord, so they have no effect (same as `WIDTH`/`INV`).
-- `PATTERN_GAP` is **deprecated**: it is read and saved for compatibility, but it has no effect; chord decoration is done with `DECORATION`.
 - `DECORATION` decorates **each note of the generated chord/arpeggio** (after `WIDTH`/`GAP`/`INV`/`SHIFT`): every item replaces the note with `{ degree + offset }`, where `offset` is measured **in scale degrees** (the same unit as the notes, `PATTERN`, `WIDTH` and `GAP`). The item duration (`4t` by default) is kept as the note metadata, never rescaled. A `0` item keeps the original note; without any `0` it disappears. Items are a flat list (no groups). With `PLAYMODE SINGLE` there is no chord, so it has no effect. **The timing is decided by the playmode, not by the item durations**: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes (each item adds a slice); item durations are metadata today.
+- `INTENSITY`, `INTENSITY_PATTERN` and `INTENSITY_RAMP` define the intensity profile: `INTENSITY` is the base, the pattern cycles over generated notes, the ramp overrides in its range and a note's own `@` wins over both. The values are MIDI velocities (1–127). Ramp ranges count generated notes in playback order, 1-based; each emitted note counts (chord/arpeggio notes individually), rests do not, and the count restarts on each block repetition. The ramp is linear, rounded and clamped to 1–127. The profile is local to the block (see §3.6); child blocks and siblings recover the previous profile.
+- `OCTAVE_PATTERN` repeats the block's **own** generated melody once per listed offset, in order, after `PATTERN` and the playmode have generated the notes. `0` keeps the current octave, `1` is one octave up and negative values go down; offsets are relative to `OCT`, so `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` sounds in octaves 3, 2, 1 and 4. Child blocks are not affected. The intensity profile is applied to the expanded sequence in playback order, and the cycle repeats on every block pass (`repeats` multiplies it).
 
 Example with all settings:
 
@@ -463,7 +508,9 @@ presets
     SHIFTSTART 0
     SHIFTSIZE 3
     SHIFTVALUE 1
-    PATTERN_GAP 1
+    INTENSITY 80
+    INTENSITY_PATTERN 80 60 40
+    INTENSITY_RAMP 1 4 40 100
     PATTERN 4t:0 4t:-1 4t:3
     DECORATION 0 -2 6
 
@@ -545,7 +592,7 @@ Declared in `vars` and used in any preset, melody or procedure. The name is `$` 
 
 - Strings with spaces or quotes are always double-quoted; inside them `\"` and `\\` are escaped.
 - Scale and playmode values are recognized case-insensitively and canonicalized to UPPERCASE: `$scale = black` is saved as `$scale = BLACK`.
-- In the app, the collapsible **Variables** panel (above the parts row) lists and edits all four types: number, scale, playmode and string (melodies/patterns, edited as text).
+- In the app, the collapsible **Variables** panel (above the parts row) lists and edits all four types: number, scale, playmode and string (melodies/patterns, edited as text). Scale variables use the same selector as presets, with a degree-ring preview of each scale on hover.
 - When you press Apply or load a `.mr` file, the variables declared in the text are synchronized with the app (created and removed).
 - Variables are alive during playback: `VARY`/`ASSIGN` change them. When saving, the **current value** is written at that moment, which normally matches the declared one if you have not played with operations.
 
@@ -658,12 +705,11 @@ In the `.mr` view, errors appear below the text with their `line, column`; click
 4. **Multiline groups.** Not allowed; a group must open and close on its line.
 5. **Literal chords and arpeggios.** They are not written in the text; `PLAYMODE` generates them from grades, scale and settings.
 6. **Variables panel.** Collapsible and collapsed by default, above the parts row; lists and edits all four types (number, scale, playmode and string). String variables are edited as plain text.
-7. **`PATTERN_GAP` deprecated.** It is read and saved for compatibility but has no effect; chord decoration uses `DECORATION`.
-8. **Instruments.** Only `PIANO`.
-9. **`pulse` and `beatsPerBar`.** Not serialized.
-10. **One parse error at a time.** The parser stops at the first error; the dialog is ready to show more.
-11. **No autosave or "Save as".** `.mr` is the only format and the file name is derived from the song name.
-12. **`DECORATION` item durations are metadata.** The playmode decides the timing: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes. The explicit item durations (`4t:0`, `8t:-2`) are stored in the model and the `.mr`, but they do not change the sound.
+7. **Instruments.** Only `PIANO`.
+8. **`pulse` and `beatsPerBar`.** Not serialized.
+9. **One parse error at a time.** The parser stops at the first error; the dialog is ready to show more.
+10. **No autosave or "Save as".** `.mr` is the only format and the file name is derived from the song name.
+11. **`DECORATION` item durations are metadata.** The playmode decides the timing: `CHORD` sounds all the decorated notes together for the event duration, and arpeggios split the event duration evenly among the emitted notes. The explicit item durations (`4t:0`, `8t:-2`) are stored in the model and the `.mr`, but they do not change the sound.
 
 ---
 
@@ -781,7 +827,6 @@ presets
     SCALE $scale
     PLAYMODE SINGLE
     PATTERN 4t:0 4t:2 4t:-1
-    PATTERN_GAP 1
 
   preset EcoAjustes
     OCT 1

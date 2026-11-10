@@ -10,7 +10,7 @@ import {
     Player,
     Song,
     VariableContext
-} from '@moderanger/core';
+} from 'carmen-core';
 
 /**
  * Unidad de ejecución musical: un bloque en una pasada concreta.
@@ -21,6 +21,7 @@ import {
 interface ExecutionUnit {
     block: Block;
     settings: Command[];
+    overrides: Command[];
     operations: BaseOperation[];
     includeNotes: boolean;
 }
@@ -30,6 +31,8 @@ export interface RawNoteEvent {
     time: number;
     duration: number;
     midi: number;
+    /** Velocity MIDI 1–127; `undefined` = la del preset o 90. */
+    velocity?: number;
 }
 
 export interface RawPart {
@@ -55,11 +58,26 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
     const noteDatas: NoteData[] = [];
 
     units.forEach(unit => {
-        unit.settings.forEach(setting => setting.execute(player));
-        unit.operations.forEach(operation => operation.execute());
-        const melody = unit.block.melody;
-        if (unit.includeNotes && melody && melody.notes.trim()) {
-            noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+        const velocityScope = player.beginVelocityProfileScope(unit.settings);
+        const octaveScope = player.beginOctavePatternScope();
+        try {
+            unit.settings.forEach(setting => setting.execute(player));
+            const overrideScope = unit.overrides.length > 0 ? player.snapshotPresetState() : null;
+            try {
+                unit.overrides.forEach(setting => setting.execute(player));
+                unit.operations.forEach(operation => operation.execute());
+                const melody = unit.block.melody;
+                if (unit.includeNotes && melody && melody.notes.trim()) {
+                    noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
+                }
+            } finally {
+                if (overrideScope) {
+                    player.restorePresetState(overrideScope);
+                }
+            }
+        } finally {
+            player.endOctavePatternScope(octaveScope);
+            player.endVelocityProfileScope(velocityScope);
         }
     });
 
@@ -79,6 +97,7 @@ function buildExecutionUnits(part: Part): ExecutionUnit[] {
             units.push({
                 block,
                 settings: block.preset?.settings ?? [],
+                overrides: block.overrides ?? [],
                 operations: block.procedure?.operations ?? [],
                 includeNotes: block.melody !== undefined
             });
@@ -108,13 +127,18 @@ function appendNoteData(noteData: NoteData, start: number, duration: number, eve
     switch (noteData.type) {
         case 'note':
             if (noteData.note !== undefined) {
-                events.push({ time: start, duration, midi: noteData.note });
+                events.push({ time: start, duration, midi: noteData.note, velocity: noteData.velocity });
             }
             return;
         case 'chord':
             (noteData.noteDatas ?? []).forEach(child => {
                 if (child.note !== undefined) {
-                    events.push({ time: start, duration, midi: child.note });
+                    events.push({
+                        time: start,
+                        duration,
+                        midi: child.note,
+                        velocity: child.velocity ?? noteData.velocity
+                    });
                 }
             });
             return;
@@ -128,7 +152,8 @@ function appendNoteData(noteData: NoteData, start: number, duration: number, eve
                 events.push({
                     time: start + index * singleDuration,
                     duration: singleDuration,
-                    midi: child.note as number
+                    midi: child.note as number,
+                    velocity: child.velocity ?? noteData.velocity
                 });
             });
             return;

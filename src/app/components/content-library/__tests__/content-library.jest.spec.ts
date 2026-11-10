@@ -55,6 +55,11 @@ function blockWithMelody(value: Melody): Block {
 }
 
 describe('ContentLibraryComponent · CRUD', () => {
+  it('usa un fondo de reproducción más claro y sin el acento curvo', () => {
+    expect(styles).toContain('background-color: #2f2b26');
+    expect(styles).not.toContain('inset 3px 0 0 #8faebc');
+  });
+
   it('crea entradas con nombre libre en la biblioteca activa', () => {
     const song = new Song();
     const component = createComponent(song);
@@ -241,6 +246,12 @@ describe('ContentLibraryComponent · template', () => {
   it('el borrado en uso lista bloques y avisa de que limpia referencias', () => {
     expect(template).toContain('Delete content and references');
     expect(template).toContain('Deleting it also clears those references.');
+  });
+
+  it('la duración por defecto es un tooltip y la melodía manda sobre la global', () => {
+    expect(template).not.toContain('>Default duration<');
+    expect(template).toContain('pTooltip="Default duration for this melody (overrides the global default)"');
+    expect(template).toContain('[defaultDurationOverride]="melodyDefaultDuration(melody)"');
   });
 
   it('mantiene duración y notas en una sola fila compacta', () => {

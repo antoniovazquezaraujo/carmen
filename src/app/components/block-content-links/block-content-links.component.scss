@@ -44,3 +44,28 @@
     font-size: 0.75rem !important;
   }
 }
+
+
+/* Overrides locales del bloque: editor inline, como una fila más de ajustes. */
+.overrides-inline-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 24px;
+  padding: 1px 0;
+}
+
+.overrides-icon {
+  flex: 0 0 18px;
+  padding-top: 3px;
+  color: #8a8176;
+}
+
+.overrides-icon .pi {
+  font-size: 0.8rem;
+}
+
+.overrides-editor {
+  flex: 1;
+  min-width: 0;
+}

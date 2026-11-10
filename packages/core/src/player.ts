@@ -9,11 +9,33 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { OctavedGrade } from "./octaved-grade";
 import { NoteGenerationUnifiedService } from "./services/note-generation-unified.service";
 import { DecorationItem } from "./mr/decoration.parser";
+import { DEFAULT_VELOCITY, isVelocityProfileCommand, VelocityProfile, VelocityRamp } from "./velocity";
 
 // Define missing constants (assuming default values, adjust if needed)
 const DEFAULT_BPM = 120;
 const MIN_BPM = 30;
 const MAX_BPM = 240;
+
+/** Instantánea de los ajustes que puede cambiar un preset/override. */
+export interface PlayerPresetState {
+    scale: ScaleTypes;
+    tonality: number;
+    timbre: number;
+    density: number;
+    inversion: number;
+    octave: number;
+    gap: number;
+    shiftStart: number;
+    shiftSize: number;
+    shiftValue: number;
+    velocity: number;
+    velocityPattern: number[] | null;
+    velocityRamp: VelocityRamp | null;
+    playMode: PlayMode;
+    currentPattern: NoteData[] | null;
+    currentDecoration: DecorationItem[] | null;
+    octavePattern: number[] | null;
+}
 
 type InstrumentId = string;
 
@@ -36,9 +58,114 @@ export class Player {
     shiftStart = 0;
     shiftSize = 0;
     shiftValue = 0;
-    decorationGap?: number = undefined;
-    decorationPattern?: string = undefined;
+    /** Intensidad base del preset (velocity MIDI 1–127). */
+    velocity: number = DEFAULT_VELOCITY;
+    /** Patrón cíclico de intensidades; `null` = sin patrón. */
+    velocityPattern: number[] | null = null;
+    /** Rampa de intensidad sobre notas generadas; `null` = sin rampa. */
+    velocityRamp: VelocityRamp | null = null;
+    /** Octavas de `OCTAVE_PATTERN`; `null` = sin expansión. */
+    octavePattern: number[] | null = null;
     playMode: PlayMode = PlayMode.CHORD;
+
+    /** Copia del perfil de intensidad (para ámbitos locales de bloque). */
+    snapshotVelocityProfile(): VelocityProfile {
+        return {
+            velocity: this.velocity,
+            velocityPattern: this.velocityPattern ? [...this.velocityPattern] : null,
+            velocityRamp: this.velocityRamp ? { ...this.velocityRamp } : null
+        };
+    }
+
+    restoreVelocityProfile(profile: VelocityProfile): void {
+        this.velocity = profile.velocity;
+        this.velocityPattern = profile.velocityPattern ? [...profile.velocityPattern] : null;
+        this.velocityRamp = profile.velocityRamp ? { ...profile.velocityRamp } : null;
+    }
+
+    resetVelocityProfile(): void {
+        this.velocity = DEFAULT_VELOCITY;
+        this.velocityPattern = null;
+        this.velocityRamp = null;
+    }
+
+    /**
+     * Si el preset declara algún ajuste de intensidad, lo aplica como perfil
+     * local del bloque: parte de defaults y devuelve el perfil anterior en
+     * `endVelocityProfileScope`. Sin ajustes de intensidad no hay ámbito y se
+     * conserva el perfil heredado.
+     */
+    beginVelocityProfileScope(commands: readonly { type: string }[]): VelocityProfile | null {
+        if (!commands.some(command => isVelocityProfileCommand(command.type))) {
+            return null;
+        }
+        const snapshot = this.snapshotVelocityProfile();
+        this.resetVelocityProfile();
+        return snapshot;
+    }
+
+    endVelocityProfileScope(snapshot: VelocityProfile | null): void {
+        if (snapshot) {
+            this.restoreVelocityProfile(snapshot);
+        }
+    }
+
+    /**
+     * `OCTAVE_PATTERN` es local al bloque: el comando lo fija durante la
+     * pasada y se restaura antes de los hijos/hermanos.
+     */
+    beginOctavePatternScope(): number[] | null {
+        const snapshot = this.octavePattern ? [...this.octavePattern] : null;
+        this.octavePattern = null;
+        return snapshot;
+    }
+
+    endOctavePatternScope(snapshot: number[] | null): void {
+        this.octavePattern = snapshot ? [...snapshot] : null;
+    }
+
+    /** Instantánea para aplicar overrides locales y restaurarlos después. */
+    snapshotPresetState(): PlayerPresetState {
+        return {
+            scale: this.scale,
+            tonality: this.tonality,
+            timbre: this.timbre,
+            density: this.density,
+            inversion: this.inversion,
+            octave: this.octave,
+            gap: this.gap,
+            shiftStart: this.shiftStart,
+            shiftSize: this.shiftSize,
+            shiftValue: this.shiftValue,
+            velocity: this.velocity,
+            velocityPattern: this.velocityPattern ? [...this.velocityPattern] : null,
+            velocityRamp: this.velocityRamp ? { ...this.velocityRamp } : null,
+            playMode: this.playMode,
+            currentPattern: this.currentPattern ? [...this.currentPattern] : null,
+            currentDecoration: this.currentDecoration ? [...this.currentDecoration] : null,
+            octavePattern: this.octavePattern ? [...this.octavePattern] : null
+        };
+    }
+
+    restorePresetState(state: PlayerPresetState): void {
+        this.scale = state.scale;
+        this.tonality = state.tonality;
+        this.timbre = state.timbre;
+        this.density = state.density;
+        this.inversion = state.inversion;
+        this.octave = state.octave;
+        this.gap = state.gap;
+        this.shiftStart = state.shiftStart;
+        this.shiftSize = state.shiftSize;
+        this.shiftValue = state.shiftValue;
+        this.velocity = state.velocity;
+        this.velocityPattern = state.velocityPattern ? [...state.velocityPattern] : null;
+        this.velocityRamp = state.velocityRamp ? { ...state.velocityRamp } : null;
+        this.playMode = state.playMode;
+        this.currentPattern = state.currentPattern ? [...state.currentPattern] : null;
+        this.currentDecoration = state.currentDecoration ? [...state.currentDecoration] : null;
+        this.octavePattern = state.octavePattern ? [...state.octavePattern] : null;
+    }
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;
     currentPattern: NoteData[] | null = null;

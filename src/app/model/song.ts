@@ -1,1 +1,1 @@
-export * from '@moderanger/core/song';
+export * from 'carmen-core/song';

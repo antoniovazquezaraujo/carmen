@@ -194,9 +194,13 @@ describe('guías de jerarquía del árbol de bloques (CSS)', () => {
     expect(ruleBody(css, '.p-tree .p-tree-root-children .block-header')).toBe('');
   });
 
-  it('mantiene el droppoint de 12px y el header sin scroll interno (parts-resizable)', () => {
+  it('mantiene el droppoint de 16px y el header sin scroll interno (parts-resizable)', () => {
     const droppoint = ruleBody(css, '.p-tree .p-tree-node-droppoint');
-    expect(declaration(droppoint, 'height')).toBe('12px !important');
+    const line = ruleBody(css, '.p-tree .p-tree-node-droppoint::after');
+    const active = ruleBody(css, '.p-tree .p-tree-node-droppoint.p-tree-node-droppoint-active::after');
+    expect(declaration(droppoint, 'height')).toBe('16px !important');
+    expect(declaration(line, 'height')).toBe('4px');
+    expect(declaration(active, 'height')).toBe('6px');
 
     // El header del bloque envuelve (wrap) en vez de scrollear en horizontal:
     // necesario para que quepa en parts estrechas (feat/parts-resizable).

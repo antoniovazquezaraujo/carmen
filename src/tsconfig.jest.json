@@ -4,10 +4,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "paths": {
-      "@moderanger/core": ["packages/core/src/index.ts"],
-      "@moderanger/core/*": ["packages/core/src/*"],
+      "carmen-core": ["packages/core/src/index.ts"],
+      "carmen-core/*": ["packages/core/src/*"],
       "@angular/cdk/tree": ["node_modules/@angular/cdk/types/tree.d.ts"],
       "@angular/cdk/overlay": ["node_modules/@angular/cdk/types/overlay.d.ts"],
+      "@angular/cdk/drag-drop": ["node_modules/@angular/cdk/types/drag-drop.d.ts"],
       "primeng/*": ["node_modules/primeng/types/primeng-*.d.ts"]
     },
     "types": [

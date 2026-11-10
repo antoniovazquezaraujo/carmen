@@ -1,4 +1,4 @@
-# 🚀 Proceso de release y despliegue (Mode Ranger)
+# 🚀 Proceso de release y despliegue (Carmen)
 
 Este documento describe los procesos automatizados del repositorio para publicar la **documentación de usuario** y las **versiones** de la aplicación.
 
@@ -21,7 +21,7 @@ La documentación pública (`docs/user/`) se publica sola con `.github/workflows
 
 **¿Qué tienes que hacer?** Nada. Cada push a `develop` que toque `docs/user/**` copia esa carpeta a la rama `gh-pages`, y GitHub Pages sirve:
 
-👉 <https://antoniovazquezaraujo.github.io/moderanger/>
+👉 <https://antoniovazquezaraujo.github.io/carmen/>
 
 (La fuente de Pages está configurada a la rama `gh-pages`, raíz `/`.)
 
@@ -29,7 +29,7 @@ La documentación pública (`docs/user/`) se publica sola con `.github/workflows
 
 `.github/workflows/deploy-web-app.yml` compila la app con `--base-href ./` y la publica en:
 
-👉 <https://antoniovazquezaraujo.github.io/moderanger/app/>
+👉 <https://antoniovazquezaraujo.github.io/carmen/app/>
 
 Se dispara al empujar un tag `v*` o manualmente con `workflow_dispatch`. El workflow reconstruye el sitio completo: documentación en la raíz y app en `/app/`. El workflow de documentación conserva la última app publicada cuando solo cambian los docs.
 
@@ -63,7 +63,7 @@ git push origin v0.1.0
 ### ¿Qué ocurre entonces?
 1. GitHub crea una **Release** oficial con el **changelog automático** (notas generadas desde los commits/PRs).
 2. Compila la app (`npm ci` → tests → `ng build --base-href ./`).
-3. Empaqueta `dist/moderanger/browser` en `moderanger-web.zip` y lo adjunta a la Release.
+3. Empaqueta `dist/carmen/browser` en `carmen-web.zip` y lo adjunta a la Release.
 
 ---
 
@@ -77,7 +77,7 @@ git push origin v0.1.0
 
 ## 4. Publicación de los paquetes npm del CLI
 
-Los paquetes `@moderanger/core` y `@moderanger/cli` son publicables, pero la publicación es un paso manual (requiere sesión de npm con 2FA y permisos sobre el scope `@moderanger`).
+Los paquetes `carmen-core` y `carmen-cli` son publicables, pero la publicación es un paso manual (requiere sesión de npm con 2FA y permisos de publicación).
 
 **Paso 1: Versiones y verificación**
 ```bash
@@ -85,30 +85,30 @@ Los paquetes `@moderanger/core` y `@moderanger/cli` son publicables, pero la pub
 npm ci
 npm test
 npm run build
-npm pack --workspace @moderanger/core --dry-run
-npm pack --workspace @moderanger/cli --dry-run
+npm pack --workspace carmen-core --dry-run
+npm pack --workspace carmen-cli --dry-run
 ```
 
-Comprueba que los tarballs incluyen `dist/`, `README.md`, `LICENSE` y los `bin` `moderanger` / `moderanger-mid`.
+Comprueba que los tarballs incluyen `dist/`, `README.md`, `LICENSE` y el `bin` `carmen`.
 
 **Paso 2: Publicar primero el core**
 ```bash
 npm login
-npm publish --workspace @moderanger/core --access public
+npm publish --workspace carmen-core --access public
 ```
 
 **Paso 3: Publicar el CLI**
 ```bash
-npm publish --workspace @moderanger/cli --access public
+npm publish --workspace carmen-cli --access public
 ```
 
-`@moderanger/cli` depende de la versión exacta de `@moderanger/core`, así que el core debe estar publicado antes.
+`carmen-cli` depende de la versión exacta de `carmen-core`, así que el core debe estar publicado antes.
 
 **Paso 4: Smoke test global**
 ```bash
-npm install -g @moderanger/cli
-moderanger version
-moderanger compile cancion.mr -o cancion.mid
-moderanger check cancion.mr
-moderanger-mid --version
+npm install -g carmen-cli
+carmen version
+carmen compile cancion.mr -o cancion.mid
+carmen check cancion.mr
+carmen help
 ```
