@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/brand/carmen-logo.svg" alt="Carmen — keyboard wordmark" width="620">
+</p>
+
 # Carmen
 
 Harmony studio with a component-based GUI (parts, structural blocks, content libraries and a melody editor) and a canonical text format, **`.mr`**, to save and load songs. The text is the canonical representation of a song; the GUI is its guided view.

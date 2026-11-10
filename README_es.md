@@ -1,4 +1,8 @@
 [🇬🇧 Read in English](README.md)
+<p align="center">
+  <img src="src/assets/brand/carmen-logo.svg" alt="Carmen — logotipo de teclado" width="620">
+</p>
+
 # Carmen
 
 Estudio de armonía con GUI de componentes (partes, bloques, editor de melodía) y un formato de texto canónico, **`.mr`**, para guardar y cargar canciones. El texto es la representación canónica de la canción; la GUI es su vista guiada.

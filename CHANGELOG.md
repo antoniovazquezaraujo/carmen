@@ -17,6 +17,7 @@ All notable changes to **Carmen**. Format based on
 
 ### Changed
 
+- Added a refined vector keyboard wordmark for Carmen, with badge and light/dark variants.
 - Playing block and content-library headers use a lighter background and fill the full row; the curved left accent that looked like an open bracket is removed.
 - **Rebranding to Carmen**: the product name, app title, README, user docs and GitHub URLs now use Carmen. The `.mr` format and `--mr-*` identifiers remain unchanged.
 - **npm packages and CLI**: the workspace packages are now `carmen-core` and `carmen-cli`; the CLI installs a single `carmen` binary (`compile`, `check`, `version`, `help`). The legacy `moderanger-mid` alias is removed. The Angular build output moved to `dist/carmen/browser`, and the web release asset is now `carmen-web.zip`.
