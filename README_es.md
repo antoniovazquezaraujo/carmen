@@ -15,7 +15,7 @@ Estado: **lenguaje `.mr` v2** (2026-11-05, `version 2`). El formato 2 añade bib
 
 ## Probar en el navegador
 
-La última release está publicada en **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no hace falta instalar nada. La documentación de usuario sigue en la raíz del sitio.
+La build web actual está publicada en **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no hace falta instalar nada. La documentación de usuario sigue en la raíz del sitio.
 
 ## Quickstart
 
@@ -55,7 +55,7 @@ Se edita en la GUI, en la vista avanzada de texto (botón `.mr`) o con cualquier
 
 ## Documentación
 
-- 🎹 **[Aplicación web](https://antoniovazquezaraujo.github.io/carmen/app/)** — ejecuta la última release en el navegador.
+- 🎹 **[Aplicación web](https://antoniovazquezaraujo.github.io/carmen/app/)** — ejecuta la build web actual en el navegador.
 - 🌐 **[Documentación de usuario](https://antoniovazquezaraujo.github.io/carmen/)** — manual del lenguaje, chuleta de sintaxis y guía de uso.
 - 📘 **[Manual del lenguaje `.mr`](docs/user/manual.md)** — referencia completa (también en el sitio publicado).
 - 🧑‍💻 **[Wiki de desarrollo](docs/developer/README.md)** — arquitectura, ADRs, análisis, auditorías, diseño y proceso de release.

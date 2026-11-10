@@ -14,7 +14,7 @@ Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-leve
 
 ## Play in the browser
 
-The latest release runs at **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no installation required. The user documentation stays at the site root.
+The current web build runs at **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no installation required. The user documentation stays at the site root.
 
 ## Quickstart
 
@@ -33,7 +33,7 @@ Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules
 
 ## MIDI compiler (experimental)
 
-The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. It is published as `carmen-cli`; once published, the global command will be:
+The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. The npm package is named `carmen-cli`; once it is published, the global command will be:
 
 ```sh
 npm install -g carmen-cli
@@ -82,7 +82,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 
 ## Documentation
 
-- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the latest release in the browser.
+- 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in the browser.
 - 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).

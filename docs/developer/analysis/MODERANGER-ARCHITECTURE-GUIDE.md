@@ -1,5 +1,7 @@
 # 🎼 ModernRanger - Guía Completa de Arquitectura
 
+> **Documento histórico (2025).** Describe la arquitectura de **ModernRanger**, el nombre anterior del proyecto. No es la guía vigente; para la arquitectura actual consulta [`docs/developer/README.md`](../README.md) y los ADR.
+
 ## **📖 Índice de Contenidos**
 
 1. [🎯 ¿Qué es ModernRanger?](#1-qué-es-modernranger)

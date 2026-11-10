@@ -3,7 +3,7 @@
 Bienvenido a la documentación técnica de **Carmen**. Está pensada para navegarse como wiki (Obsidian, VS Code, GitHub).
 
 ## 🏗️ Arquitectura y diseño
-- [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura del proyecto]]
+- [[README|Arquitectura actual del proyecto]]
 - [[design/propuesta-sintaxis-mr|Propuesta de sintaxis `.mr` v1 (histórica)]]
 - [[analysis/sintaxis-mr-implementada|Sintaxis `.mr` v1 implementada (histórica)]]
 - [[design/propuesta-bibliotecas-contenido|Propuesta: bibliotecas de contenido (melodías, presets y procedures)]]
@@ -39,6 +39,7 @@ Bienvenido a la documentación técnica de **Carmen**. Está pensada para navega
 - [[release/Release_Process|Proceso de release y despliegue]]
 
 ## 📚 Histórico
+- [[analysis/MODERANGER-ARCHITECTURE-GUIDE|Guía de arquitectura histórica (ModernRanger)]]
 - [[analysis/limpieza-post-merge|Limpieza post-merge]]
 - [[analysis/saneo-bloque-b|Saneo Bloque B]]
 - [[refactors/REFACTORING-SUMMARY|Resúmenes de refactor (histórico)]]

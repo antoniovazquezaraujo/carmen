@@ -36,7 +36,7 @@ Carmen es una app **Angular 21 + TypeScript 5.9** con un núcleo desacoplado:
 
 - ✔️ **[Índice principal](Index.md)**
 - **Análisis y estado**: [`analysis/`](analysis/) — backlog, arquitectura, fases `.mr`, limpieza y [modernización a Angular 21](analysis/angular-21-modernization.md).
-- **Decisiones**: [`adr/`](adr/) — ADR-001 (texto canónico), ADR-002 (bloques reutilizables) y ADR-003 (compilador MIDI).
+- **Decisiones**: [`adr/`](adr/) — ADR-001 (texto canónico), ADR-002 (bloques reutilizables), ADR-003 (compilador MIDI) y ADR-004 (bibliotecas de contenido).
 - **Diseño**: [`design/`](design/) — propuesta de sintaxis aprobada, compilador `.mr` → MIDI y [UI refresh Warm Studio](design/ui-refresh-warm-studio.md).
 - **Auditorías**: [`audits/`](audits/) — `testing-things`, ramas pendientes.
 - **Refactors históricos**: [`refactors/`](refactors/).
