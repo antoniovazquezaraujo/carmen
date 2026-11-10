@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/brand/carmen.png" alt="Carmen — logotipo de teclado" width="620">
+</p>
+
 [🇬🇧 Read in English](README.md)
 # Carmen
 
