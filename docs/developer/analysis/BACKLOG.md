@@ -1,7 +1,7 @@
 # 📋 Backlog de Carmen
 
-- **Actualizado:** 2026-11-08
-- **Estado:** **v1.0.0 publicada** (2026-11-08). `develop` es la rama de integración y `main` refleja la release.
+- **Actualizado:** 2026-11-10
+- **Estado:** la última release etiquetada es **v1.0.0** (2026-11-08); `main` la contiene y `develop` acumula los cambios posteriores aún sin release.
 - **Contexto:** las bibliotecas de contenido (`.mr` v2) sustituyen a los bloques reutilizables; la base está en Angular 21 / Node 22 y el CLI MIDI ya está integrado.
 - **Uso:** este documento resume el roadmap. Los bugs y propuestas concretas viven preferentemente como issues de GitHub; aquí se decide qué entra, en qué orden y qué queda aparcado.
 
@@ -43,6 +43,7 @@
 - **Limpieza de ramas** (2026-11-08): 16 worktrees de ramas mergeadas o cerradas eliminados; ramas locales/remotas antiguas limpiadas.
 - **Angular 21 / Node 22 / TypeScript 5.9 / PrimeNG 21 / Jest 30**, application builder (`@angular/build`), componentes standalone, control flow y retirada de dependencias obsoletas.
 - **Paquetes y CLI Carmen** (2026-11-08): renombrados a `carmen-core` y `carmen-cli`; binario único `carmen` (`compile`, `check`, `version`, `help`) y retirado el alias `moderanger-mid`.
+- **Logo y ejemplos** (2026-11-10): logo final del teclado en el README (EN/ES) y refresco de Glass Orbit y Clockwork; la galería mantiene 12 canciones.
 - **CLI MIDI y CLI unificado** (`compile`, `check`, `version`, `help`), con núcleo puro sin Angular/Tone.
 - **Warm Studio UI**, tema claro/oscuro persistente, panel de ejemplos, guía contextual de ayuda y bibliotecas de contenido en la GUI.
 

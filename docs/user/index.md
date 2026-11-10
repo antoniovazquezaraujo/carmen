@@ -1,6 +1,6 @@
 # Carmen
 
-**[Open the app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the latest release in your browser.
+**[Open the app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in your browser.
 
 **Carmen** is a harmony studio: an editor to compose songs with parts, structural blocks and arpeggios, plus a text language — **`.mr`** — that is the canonical representation of every song. The GUI is a guided view of that text.
 

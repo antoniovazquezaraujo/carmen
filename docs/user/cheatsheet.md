@@ -113,10 +113,10 @@ block Verse
 | `INTENSITY` | Default intensity (MIDI velocity) | `INTENSITY 20` |
 | `INTENSITY_PATTERN` | Cyclic intensity pattern | `INTENSITY_PATTERN 20 10 5` |
 | `INTENSITY_RAMP` | Linear intensity ramp over generated notes | `INTENSITY_RAMP 4 11 20 60` |
-
-The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 | `PATTERN` | Pattern melody (or `$variable`) | `PATTERN 4t:0 4t:2` |
 | `DECORATION` | Decoration added to each chord note (offsets in scale degrees) | `DECORATION 4t:0 8t:-2` |
+
+The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 
 Numeric settings accept `$variable`.
 
