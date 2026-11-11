@@ -5,17 +5,17 @@ Carmen can compile a `.mr` song to a **Standard MIDI File** without opening the 
 ## Requirements
 
 - Node 22 or newer.
-- The global CLI package `carmen-cli` (planned publication), or a clone of the repository with dependencies installed (`npm ci`).
+- The published `carmen-cli` package, or a clone of the repository with dependencies installed (`npm ci`).
 
 ## Install
 
-Once `carmen-cli` is published:
+Install the CLI globally:
 
 ```sh
 npm install -g carmen-cli
 ```
 
-Until then, build the CLI from a clone:
+You can also build the CLI from a clone:
 
 ```sh
 npm run build:cli

@@ -33,7 +33,7 @@ Or just `./scripts/dev.sh`: it sets up Node 22, runs `npm ci` when `node_modules
 
 ## MIDI compiler (experimental)
 
-The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. The npm package is named `carmen-cli`; once it is published, the global command will be:
+The repository ships a browser-free CLI, `carmen`, that compiles a `.mr` song to a Standard MIDI File. It is published on npm as `carmen-cli`:
 
 ```sh
 npm install -g carmen-cli
@@ -45,7 +45,7 @@ carmen check cancion.mr                # validate without generating output
 carmen version
 ```
 
-Until the package is published, build and run it from a clone:
+You can also build and run it from a clone:
 
 ```sh
 npm run build:cli
