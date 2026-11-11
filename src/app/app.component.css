@@ -21,8 +21,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex: 0 0 64px;
-    min-height: 64px;
+    flex: 0 0 96px;
+    min-height: 96px;
     padding: 0 24px;
     border-bottom: 1px solid var(--mr-border);
     background: rgba(255, 253, 248, 0.78);
@@ -38,37 +38,15 @@
     user-select: none;
 }
 
-.brand-mark {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--mr-accent-solid) 0%, var(--mr-accent-solid-hover) 100%);
-    color: #fffdf8;
-    box-shadow: 0 5px 14px rgba(15, 118, 110, 0.24);
-    font-family: var(--mr-font-display);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-}
-
-.brand-copy {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.brand-name {
-    color: var(--mr-ink);
-    font-family: var(--mr-font-display);
-    font-size: 21px;
-    font-weight: 600;
-    letter-spacing: -0.025em;
-    line-height: 1.1;
+.brand-logo {
+    display: block;
+    width: auto;
+    height: 80px;
 }
 
 .brand-tagline {
+    padding-left: 11px;
+    border-left: 1px solid var(--mr-border);
     color: var(--mr-muted);
     font-size: 9px;
     font-weight: 700;
@@ -233,9 +211,13 @@
 
 @media (max-width: 640px) {
     .app-topbar {
-        flex-basis: 58px;
-        min-height: 58px;
+        flex-basis: 76px;
+        min-height: 76px;
         padding: 0 14px;
+    }
+
+    .brand-logo {
+        height: 64px;
     }
 
     .brand-tagline,

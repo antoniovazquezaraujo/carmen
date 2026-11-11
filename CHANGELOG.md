@@ -12,6 +12,7 @@ All notable changes to **Carmen**. Format based on
 
 ### Changed
 
+- **App header logo**: the web app now uses the Carmen keyboard wordmark in the top bar instead of the placeholder `C` mark, keeping its fixed black-and-white palette in both themes.
 - **Meridian example**: replaced with **Meridian Fugue**, a three-part fugue using octave patterns, intensity patterns and per-block overrides.
 
 ## [1.1.0] - 2026-11-10
