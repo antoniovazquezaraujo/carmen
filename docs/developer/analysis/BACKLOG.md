@@ -1,7 +1,7 @@
 # 📋 Backlog de Carmen
 
-- **Actualizado:** 2026-11-10
-- **Estado:** la última release etiquetada es **v1.1.0** (2026-11-10); `main` contiene la release y `develop` sigue como rama de integración.
+- **Actualizado:** 2026-11-12
+- **Estado:** la última release etiquetada es **v1.1.1** (2026-11-12); `main` contiene la release y `develop` sigue como rama de integración.
 - **Contexto:** las bibliotecas de contenido (`.mr` v2) sustituyen a los bloques reutilizables; la base está en Angular 21 / Node 22 y el CLI MIDI ya está integrado.
 - **Uso:** este documento resume el roadmap. Los bugs y propuestas concretas viven preferentemente como issues de GitHub; aquí se decide qué entra, en qué orden y qué queda aparcado.
 
@@ -10,16 +10,15 @@
 | # | Tema | Detalle | Esf. | Riesgo | Referencia |
 |---|---|---|---|---|---|
 | 1 | **Bug #121: las variables saltan al iniciar Play** | Las operaciones `VARY`/`ASSIGN` se aplican al construir la reproducción, no en su posición musical; el sidebar muestra el valor final desde el primer instante. Hay que decidir entre aplicación posicional o actualización visible diferida. | M | Medio | [#121](https://github.com/antoniovazquezaraujo/carmen/issues/121) |
-| 2 | **Publicar el CLI en npm** | `carmen-core` y `carmen-cli` siguen en `0.0.0` y no están publicados. Los tarballs se generan bien con `npm pack --dry-run`; falta la publicación manual con 2FA y el smoke test global. | S | Medio | `docs/developer/release/Release_Process.md` §4, `compilador-midi-mvp.md` |
-| 3 | **Expansión de melodías variables** | Una `$variable` string (`$motif = "4t:0"`) debería expandirse en reproducción como secuencia de eventos; hoy se sustituye por un silencio de su duración. Definir semántica de duración/reemplazo y el caso de grupos. | M | Medio | `pulido-bpm-variables.md` §8.3 |
-| 4 | **Instrumentos adicionales** | Ampliar `InstrumentType` (pads, órgano, bajo, campanas… y/o samplers), factoría tipo→Tone reutilizando instancias y selector de instrumento por parte en la GUI. | S/M | Bajo | [#14](https://github.com/antoniovazquezaraujo/carmen/issues/14), `audio-engine.service.ts` |
-| 5 | **Percusión (MVP: kit por grados)** | `instrument DRUMS` con mapa grado → pieza (bombo, caja, charles, toms, crash…), sintetizado con Tone y sin samples. Decidir si `PLAYMODE`/`PATTERN` aplican o se ignoran. | M | Medio | Conversación 2026-10-05 |
-| 6 | **Mezcla por parte** | Volumen, paneo y envolventes (ADSR) por parte. Prácticamente imprescindible si entra la percusión. | S | Bajo | Conversación 2026-10-05 |
-| 7 | **Mejoras UX de content libraries** | Navegación de usos en ambos sentidos (chip `×N` → bloques), buscador/filtro, duplicar-y-reasignar desde un bloque, importar/exportar entradas y audición individual. | S/M | Bajo | Conversación 2026-11-08 |
-| 8 | **Edición visual de intensidad** | Lane/controles para intensidad por nota, rampas y patrones sin editar `.mr`; hoy el perfil se configura en los ajustes del preset y `@` se escribe en el texto. | S/M | Bajo | Conversación 2026-11-08 |
-| 9 | **Repeticiones con primera/última pasada** | Añadir semántica de primera vez / última vez en las repeticiones de canción o bloque. | S | Bajo | [#8](https://github.com/antoniovazquezaraujo/carmen/issues/8) |
-| 10 | **Paridad de repeticiones de canción** | `main` recicla la secuencia extraída en las repeticiones; una rama archivada la reprocesaba. Ajuste pequeño si el producto lo pide. | S | Bajo | `docs/developer/audits/ramas-pendientes-vs-main.md` |
-| 11 | **Follow-ups de dependencias** | Reevaluar los overrides de `package-lock.json` y los avisos de Angular al migrar a Angular 22; no deben quedarse como deuda permanente. | S | Bajo | `npm-audit-2026-11.md` §6 |
+| 2 | **Expansión de melodías variables** | Una `$variable` string (`$motif = "4t:0"`) debería expandirse en reproducción como secuencia de eventos; hoy se sustituye por un silencio de su duración. Definir semántica de duración/reemplazo y el caso de grupos. | M | Medio | `pulido-bpm-variables.md` §8.3 |
+| 3 | **Instrumentos adicionales** | Ampliar `InstrumentType` (pads, órgano, bajo, campanas… y/o samplers), factoría tipo→Tone reutilizando instancias y selector de instrumento por parte en la GUI. | S/M | Bajo | [#14](https://github.com/antoniovazquezaraujo/carmen/issues/14), `audio-engine.service.ts` |
+| 4 | **Percusión (MVP: kit por grados)** | `instrument DRUMS` con mapa grado → pieza (bombo, caja, charles, toms, crash…), sintetizado con Tone y sin samples. Decidir si `PLAYMODE`/`PATTERN` aplican o se ignoran. | M | Medio | Conversación 2026-10-05 |
+| 5 | **Mezcla por parte** | Volumen, paneo y envolventes (ADSR) por parte. Prácticamente imprescindible si entra la percusión. | S | Bajo | Conversación 2026-10-05 |
+| 6 | **Mejoras UX de content libraries** | Navegación de usos en ambos sentidos (chip `×N` → bloques), buscador/filtro, duplicar-y-reasignar desde un bloque, importar/exportar entradas y audición individual. | S/M | Bajo | Conversación 2026-11-08 |
+| 7 | **Edición visual de intensidad** | Lane/controles para intensidad por nota, rampas y patrones sin editar `.mr`; hoy el perfil se configura en los ajustes del preset y `@` se escribe en el texto. | S/M | Bajo | Conversación 2026-11-08 |
+| 8 | **Repeticiones con primera/última pasada** | Añadir semántica de primera vez / última vez en las repeticiones de canción o bloque. | S | Bajo | [#8](https://github.com/antoniovazquezaraujo/carmen/issues/8) |
+| 9 | **Paridad de repeticiones de canción** | `main` recicla la secuencia extraída en las repeticiones; una rama archivada la reprocesaba. Ajuste pequeño si el producto lo pide. | S | Bajo | `docs/developer/audits/ramas-pendientes-vs-main.md` |
+| 10 | **Follow-ups de dependencias** | Reevaluar los overrides de `package-lock.json` y los avisos de Angular al migrar a Angular 22; no deben quedarse como deuda permanente. | S | Bajo | `npm-audit-2026-11.md` §6 |
 
 ## Aparcado
 
@@ -34,6 +33,8 @@
 - **Drag de bloques raíz** (2026-11-08): asa en bloques de primer nivel, reordenación dentro de la part, movimiento entre parts y anidación al soltar sobre la cabecera de otro bloque con Angular CDK. Los hijos de PrimeNG se pueden devolver al primer nivel con una zona de drop amplia; las líneas de inserción pasan a 4px (6px activas).
 - **Patrón de octavas** (2026-11-09): `OCTAVE_PATTERN` repite la melodía propia del bloque en desplazamientos de octava relativos a `OCT`; es local al bloque, funciona en reproducción y en el compilador MIDI y tiene editor en el preset.
 - **Overrides de preset por bloque** (2026-11-09): un bloque puede mantener un preset compartido y añadir ajustes locales (`overrides`) que solo afectan a sus notas propias; se restauran antes de hijos y hermanos. Parser, serializador, reproducción, compilador MIDI y editor de bloque actualizados.
+- **v1.1.1** (2026-11-12): logo final en la cabecera de la app, ejemplo **Meridian Fugue** y README con el contexto de **Música de partículas**.
+- **Publicación npm** (2026-11-11): `carmen-core@1.1.0` y `carmen-cli@1.1.0` publicados; instalación global y compilación MIDI verificadas.
 - **v1.1.0** (2026-11-10): release con overrides, `OCTAVE_PATTERN`, drag de bloques, logo, ejemplos y documentación actualizada.
 - **v1.0.0** (2026-11-08): primera release pública, ZIP web adjunto y workflow de release corregido; la protección de `main` exige ya el check de Node 22.
 - **Content libraries / `.mr` v2** (#142, ADR-004): `melodies`, `presets` y `procedures` reutilizables; bloques estructurales que referencian como máximo una entrada de cada tipo. Los PRs #139 y #140 (referencias anidadas con `use`) se cerraron por quedar sustituidos.
