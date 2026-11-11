@@ -6,6 +6,10 @@ All notable changes to **Carmen**. Format based on
 
 ## [Unreleased]
 
+### Added
+
+- **npm packages**: published `carmen-core@1.1.0` and `carmen-cli@1.1.0`; install the CLI with `npm install -g carmen-cli`.
+
 ### Changed
 
 - **Meridian example**: replaced with **Meridian Fugue**, a three-part fugue using octave patterns, intensity patterns and per-block overrides.

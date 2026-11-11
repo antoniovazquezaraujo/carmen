@@ -27,7 +27,7 @@ cat cancion.mr | carmen compile - -o salida.mid
 
 Desde el repo, sin instalar el paquete global, se usa `node packages/compiler/dist/cli/main.js <comando>`; `npm run midi -- cancion.mr` sigue siendo el atajo de desarrollo que compila antes de ejecutar.
 
-El paquete `carmen-cli` declara un único `bin`: `carmen`. La instalación global (`npm install -g carmen-cli`) queda pendiente de publicar el paquete y `carmen-core`.
+El paquete `carmen-cli` declara un único `bin`: `carmen`. La instalación global (`npm install -g carmen-cli`) está disponible desde la publicación de `carmen-core` y `carmen-cli` 1.1.0.
 
 ### Opciones
 
