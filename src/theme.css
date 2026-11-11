@@ -949,6 +949,10 @@ html[data-theme='dark'] .app-topbar {
   background: rgba(30, 26, 22, 0.84);
 }
 
+html[data-theme='dark'] .brand-logo {
+  filter: invert(1);
+}
+
 html[data-theme='dark'] .song-editor .song-header {
   background: rgba(30, 26, 22, 0.84);
 }
