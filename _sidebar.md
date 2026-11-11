@@ -1,0 +1,6 @@
+- [Home](index.md)
+- [Open the app](https://antoniovazquezaraujo.github.io/carmen/app/)
+- [`.mr` manual](manual.md)
+- [Manual (español)](manual_es.md)
+- [Syntax cheatsheet](cheatsheet.md)
+- [MIDI compiler](midi.md)
