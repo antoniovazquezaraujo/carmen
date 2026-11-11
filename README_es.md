@@ -64,7 +64,7 @@ Se edita en la GUI, en la vista avanzada de texto (botón `.mr``) o con cualquie
 ## Documentación
 
 - 🎹 **[Aplicación web](https://antoniovazquezaraujo.github.io/carmen/app/)** — ejecuta la build web actual en el navegador.
-- **[Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)** - base teórica.
+- 📖 **[Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)** — base teórica.
 - 🌐 **[Documentación de usuario](https://antoniovazquezaraujo.github.io/carmen/)** — manual del lenguaje, chuleta de sintaxis y guía de uso.
 - 📘 **[Manual del lenguaje `.mr`](docs/user/manual.md)** — referencia completa (también en el sitio publicado).
 - 🧑‍💻 **[Wiki de desarrollo](docs/developer/README.md)** — arquitectura, ADRs, análisis, auditorías, diseño y proceso de release.

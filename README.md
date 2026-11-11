@@ -89,7 +89,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 ## Documentation
 
 - 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in the browser.
-- **[Particle Music](https://github.com/antoniovazquezaraujo/particle-music)** — theoretical foundation.
+- 📖 **[Particle Music](https://github.com/antoniovazquezaraujo/particle-music)** — theoretical foundation.
 - 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
