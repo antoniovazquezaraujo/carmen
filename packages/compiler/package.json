@@ -1,12 +1,12 @@
 {
   "name": "carmen-cli",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "main": "dist/compile-midi.js",
   "bin": {
     "carmen": "dist/cli/main.js"
   },
   "dependencies": {
-    "carmen-core": "0.0.0"
+    "carmen-core": "1.1.0"
   },
   "types": "dist/compile-midi.d.ts",
   "scripts": {
