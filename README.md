@@ -1,6 +1,9 @@
 <p align="center">
   <img src="src/assets/brand/carmen.png" alt="Carmen — keyboard logo" width="620">
 </p>
+[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
 
 # Carmen
 
@@ -12,14 +15,7 @@ Broadly speaking, instead of describing a melody directly, note by note, *Carmen
 
 *Carmen* is the practical side of **Particle Music** (*Música de partículas*), a framework that explains harmony from mathematical structure and perception rather than tonal conventions. It attempts to separate music from people—that is, to remove every human influence from music: fashions, traditions, styles, methods and mechanisms that people have added to music throughout history. The idea is to take only the mathematical part of music and take absolutely nothing for granted.
 
-The goal is to show that music "works" by itself, without any human having to judge by ear whether something sounds more or less pleasant. Music works "in spite of" us, and the truth is that it is not a human invention but a discovery. Most of the techniques used to tell stories through music were already there; they only had to be used. And no: a major chord will never sound sad, nor a minor chord happy, even if musical fashions turn the world upside down. It is not possible, because music has a real foundation, as explained in **Particle Music**.
-
-[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
-[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
-
-- [Particle Music repository](https://github.com/antoniovazquezaraujo/particle-music)
-- [Download the latest PDF (Spanish and English)](https://github.com/antoniovazquezaraujo/particle-music/releases/latest)
+The goal is to show that music "works" by itself, without any human having to judge by ear whether something sounds more or less pleasant. Music works "in spite of" us, and the truth is that it is not a human invention but a discovery. Most of the techniques used to tell stories through music were already there; they only had to be used. And no: a major chord will never sound sad, nor a minor chord happy, even if musical fashions turn the world upside down. It is not possible, because music has a real foundation, as explained in [Particle Music](https://github.com/antoniovazquezaraujo/particle-music).
 
 ## Play in the browser
 
@@ -92,6 +88,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 ## Documentation
 
 - 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in the browser.
+- **[Particle Music](https://github.com/antoniovazquezaraujo/particle-music)** — theoretical foundation.
 - 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).

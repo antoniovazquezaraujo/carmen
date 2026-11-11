@@ -1,6 +1,9 @@
 <p align="center">
   <img src="src/assets/brand/carmen.png" alt="Carmen — logotipo de teclado" width="620">
 </p>
+[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
+[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
 
 [🇬🇧 Read in English](README.md)
 # Carmen
@@ -15,13 +18,7 @@ Las escalas utilizadas son las más usadas en la armonía occidental, aunque tam
 
 _Carmen_ es la parte práctica de **Música de partículas**, un marco que explica la armonía desde la estructura matemática y la percepción, no desde las convenciones tonales. En el se intenta separar la música de las personas, es decir, eliminar toda influencia humana en la música, todas las modas, las tradiciones, los estilos, los métodos y los mecanismos que las personas han ido agregando a la música a través de la historia. Se trata de tomar solamente la parte matemática de la música y no dar por supuesto absolutamente nada.
 
-El objetivo es demostrar que la música "funciona" por sí misma, sin necesidad de que ningún humano catalogue con su oido si algo suena más o menos agradable. La música funciona "a pesar" de nosotros y lo cierto es que no es un invento del ser humano, sino un descubrimiento. La mayoría de técnicas que se han utilizado para contar historias a través de la música ya estaban ahí, solamente había que usarlas. Y no, un acorde mayor nunca va a sonar triste y uno menor alegre, aunque las modas musicales pongan el mundo del revés. No es posible. Porque la música tiene una base real, como se explica en **Música de partículas**.
-
-[![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
-[![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
-- [Repositorio de Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)
-- [Descargar el último PDF (español e inglés)](https://github.com/antoniovazquezaraujo/particle-music/releases/latest)
+El objetivo es demostrar que la música "funciona" por sí misma, sin necesidad de que ningún humano catalogue con su oido si algo suena más o menos agradable. La música funciona "a pesar" de nosotros y lo cierto es que no es un invento del ser humano, sino un descubrimiento. La mayoría de técnicas que se han utilizado para contar historias a través de la música ya estaban ahí, solamente había que usarlas. Y no, un acorde mayor nunca va a sonar triste y uno menor alegre, aunque las modas musicales pongan el mundo del revés. No es posible. Porque la música tiene una base real, como se explica en [Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)
 
 ## Probar en el navegador
 
@@ -66,6 +63,7 @@ Se edita en la GUI, en la vista avanzada de texto (botón `.mr``) o con cualquie
 ## Documentación
 
 - 🎹 **[Aplicación web](https://antoniovazquezaraujo.github.io/carmen/app/)** — ejecuta la build web actual en el navegador.
+- **[Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)** - base teórica.
 - 🌐 **[Documentación de usuario](https://antoniovazquezaraujo.github.io/carmen/)** — manual del lenguaje, chuleta de sintaxis y guía de uso.
 - 📘 **[Manual del lenguaje `.mr`](docs/user/manual.md)** — referencia completa (también en el sitio publicado).
 - 🧑‍💻 **[Wiki de desarrollo](docs/developer/README.md)** — arquitectura, ADRs, análisis, auditorías, diseño y proceso de release.
