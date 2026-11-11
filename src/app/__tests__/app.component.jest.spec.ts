@@ -5,7 +5,7 @@ const template = fs.readFileSync(path.resolve(__dirname, '../app.component.html'
 const component = fs.readFileSync(path.resolve(__dirname, '../app.component.ts'), 'utf8');
 const index = fs.readFileSync(path.resolve(__dirname, '../../index.html'), 'utf8');
 const theme = fs.readFileSync(path.resolve(__dirname, '../../theme.css'), 'utf8');
-const logo = fs.readFileSync(path.resolve(__dirname, '../../assets/brand/carmen-logo.svg'), 'utf8');
+const logo = fs.readFileSync(path.resolve(__dirname, '../../assets/brand/carmen.svg'), 'utf8');
 
 describe('App shell · theme selector', () => {
     it('ofrece un botón accesible para alternar el tema', () => {
@@ -38,13 +38,13 @@ describe('App shell · theme selector', () => {
 
 describe('App shell · brand', () => {
     it('usa el wordmark de Carmen en la cabecera', () => {
-        expect(template).toContain('src="assets/brand/carmen-logo.svg"');
+        expect(template).toContain('src="assets/brand/carmen.svg"');
         expect(template).toContain('alt="Carmen"');
-        expect(logo).not.toContain('fill="#ffffff"');
+        expect(logo).toContain('fill="#ffffff"');
     });
 
-    it('adapta el wordmark al tema oscuro', () => {
-        expect(theme).toContain("html[data-theme='dark'] .brand-logo");
-        expect(theme).toContain('filter: invert(1)');
+    it('mantiene la paleta fija del wordmark en ambos temas', () => {
+        expect(theme).not.toContain("html[data-theme='dark'] .brand-logo");
+        expect(theme).not.toContain('filter: invert(1)');
     });
 });
