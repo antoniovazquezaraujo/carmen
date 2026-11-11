@@ -13,6 +13,15 @@ Estudio de armonía con GUI de componentes (partes, bloques, editor de melodía)
 
 Estado: **lenguaje `.mr` v2** (2026-11-05, `version 2`). El formato 2 añade bibliotecas globales `melodies`, `presets` y `procedures`; los bloques son estructurales y referencian ese contenido.
 
+## Por qué nace Carmen
+
+Carmen es la parte práctica de **Música de partículas**, un marco que explica la armonía desde la estructura matemática y la percepción, no desde las convenciones tonales. El documento explica de dónde salen las escalas y las partículas, por qué la app se organiza así y por qué este modelo no está pensado para escribir música tonal «normal».
+
+Si el sistema de notas te resulta nuevo, empieza por el documento:
+
+- [Repositorio de Música de partículas](https://github.com/antoniovazquezaraujo/particle-music)
+- [Descargar el último PDF (español e inglés)](https://github.com/antoniovazquezaraujo/particle-music/releases/latest)
+
 ## Probar en el navegador
 
 La build web actual está publicada en **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no hace falta instalar nada. La documentación de usuario sigue en la raíz del sitio.

@@ -12,6 +12,15 @@ Harmony studio with a component-based GUI (parts, structural blocks, content lib
 
 Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
 
+## Why Carmen exists
+
+Carmen is the practical side of **Particle Music** (*Música de partículas*), a framework that describes musical harmony from mathematical structure and perception rather than traditional tonal conventions. The document explains where the scales and particles come from, why the app is organised around them and why this model is not intended for writing conventional tonal music.
+
+If the note system is new to you, start with the theory document:
+
+- [Particle Music repository](https://github.com/antoniovazquezaraujo/particle-music)
+- [Download the latest PDF (Spanish and English)](https://github.com/antoniovazquezaraujo/particle-music/releases/latest)
+
 ## Play in the browser
 
 The current web build runs at **<https://antoniovazquezaraujo.github.io/carmen/app/>**; no installation required. The user documentation stays at the site root.
