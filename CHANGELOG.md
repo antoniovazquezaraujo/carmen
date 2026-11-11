@@ -6,6 +6,10 @@ All notable changes to **Carmen**. Format based on
 
 ## [Unreleased]
 
+### Changed
+
+- **Meridian example**: replaced with **Meridian Fugue**, a three-part fugue using octave patterns, intensity patterns and per-block overrides.
+
 ## [1.1.0] - 2026-11-10
 
 ### Added

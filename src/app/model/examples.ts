@@ -803,51 +803,125 @@ part Piano
     },
     {
         id: 'meridian',
-        title: 'Meridian',
-        description: 'A wide whole-tone line answered by a descending inversion in the upper octave.',
-        tags: ['ASC/DESC', 'Inversion', 'Nested block'],
+        title: 'Meridian Fugue',
+        description: 'A three-part fugue built from three melodies, octave patterns and per-block overrides.',
+        tags: ['Fugue', 'Three parts', 'Overrides'],
         bpm: 110,
-        mr: `song Meridian
+        mr: `song "Meridian Fugue"
 version 2
-repeats 2
 bpm 110
 
 melodies
-  melody Line
+  melody A
     notes
-      4n:0
-      4n:2
-      4n:4
-      4n:2
+      2n:4
+      1n:2
+      2n:0
+      2n:-2
 
-  melody Answer
-    notes
-      8n:4
-      8n:2
-      8n:0
-      8n:-2
+  melody B
+    notes default 2n
+      1
+      4
+      5
+
+  melody C
+    notes default 1n
+      2
+      5
+      3
 
 presets
-  preset LineAjustes
-    SCALE TONES
-    OCT 2
-    PLAYMODE ASC_DESC
-    WIDTH 4
-    GAP 2
-    INV 2
+  preset A
+    PLAYMODE EVEN_ASC_ODD_DESC
+    OCT 4
+    INTENSITY_PATTERN 10 20 30 40 50 80 100 110
+    GAP 3
 
-  preset AnswerAjustes
-    PLAYMODE DESC_ASC
+  preset B
+    PLAYMODE ODD_ASC_EVEN_ASC
     OCT 3
+    INTENSITY_PATTERN 10 20 30 40 50 80 100 110
+    GAP 4
 
-part Piano
-  block Line
-    preset LineAjustes
-    melody Line
+  preset C
+    OCT 0
+    OCTAVE_PATTERN 3 2 1
+    WIDTH 2
+    PATTERN 2n:1 4n:-1
+    INTENSITY_PATTERN 40 50 90 120
 
-    block Answer
-      preset AnswerAjustes
-      melody Answer
+  preset D
+    OCT 0
+    OCTAVE_PATTERN 3 2 1
+    WIDTH 3
+    PATTERN 2n:-1 4n:1
+    INTENSITY_PATTERN 40 50 90 120
+
+part
+  block repeats 2
+    preset B
+    melody A
+
+  block
+    preset D
+    melody C
+
+  block
+    preset D
+    overrides
+      DECORATION 4n:2 4n:1
+    melody C
+
+part
+  block repeats 2
+    preset B
+    overrides
+      OCT 0
+    melody A
+
+  block
+    preset D
+    overrides
+      OCT -1
+      PLAYMODE EVEN_ASC_ODD_ASC
+      INV 3
+      PATTERN 4n:1 4n:0
+    melody C
+
+  block
+    preset D
+    overrides
+      OCT -1
+      PLAYMODE EVEN_ASC_ODD_ASC
+      INV 2
+      PATTERN 4n:-1 4n:1 4n:0
+    melody C
+
+part
+  block repeats 2
+    preset B
+    overrides
+      OCT 0
+    melody A
+
+  block
+    preset D
+    overrides
+      OCT 0
+      PLAYMODE EVEN_ASC_ODD_ASC
+      INV 2
+      PATTERN 4n:3 4n:2
+    melody C
+
+  block
+    preset D
+    overrides
+      OCT 0
+      PLAYMODE ODD_DESC_EVEN_ASC
+      INV 1
+      PATTERN 4n:4 4n:3
+    melody C
 `
     },
     {
