@@ -2,15 +2,21 @@
   <img src="src/assets/brand/carmen.png" alt="Carmen — keyboard logo" width="620">
 </p>
 
-# Carmen
-
-Harmony studio with a component-based GUI (parts, structural blocks, content libraries and a melody editor) and a canonical text format, **`.mr`**, to save and load songs. The text is the canonical representation of a song; the GUI is its guided view.
-
 [![CI](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/antoniovazquezaraujo/carmen/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-0078D4)](https://antoniovazquezaraujo.github.io/carmen/)
 [![Web app](https://img.shields.io/badge/web%20app-open-0f766e)](https://antoniovazquezaraujo.github.io/carmen/app/)
 
-Status: **`.mr` language v2** (2026-11-05, `version 2`). Format 2 adds song-level `melodies`, `presets` and `procedures` libraries; blocks are structural and reference that content.
+# Carmen
+
+*Carmen* is an unusual sequencer with algorithmic capabilities. It is built on a musical programming language in which music is expressed through **`.mr`** documents (Music Representation) that describe musical harmony with extraordinary concision.
+
+The web version of *Carmen* lets you create music and listen to it online, while the `carmen` command compiles an **`.mr`** file it generates (and that the user can modify freely) and converts it to MIDI, the most widely used fully open music description format.
+
+Broadly speaking, instead of describing a melody directly, note by note, *Carmen* lets you specify the core notes of the melody and have the system add or modify notes to form harmonic structures. The same applies to arpeggios, bass lines, chords and patterns. It uses no notation beyond the numbering of the notes—though they are not really notes, but scale degrees. This gives impressive flexibility for modulations and experiments of every kind. The scales used are the most common in Western harmony, although they are not called by the same names; they have simpler names and a very clear graphical representation.
+
+*Carmen* is the practical side of **Particle Music** (*Música de partículas*), a framework that explains harmony from mathematical structure and perception rather than tonal conventions. It attempts to separate music from people—that is, to remove every human influence from music: fashions, traditions, styles, methods and mechanisms that people have added to music throughout history. The idea is to take only the mathematical part of music and take absolutely nothing for granted.
+
+The goal is to show that music "works" by itself, without any human having to judge by ear whether something sounds more or less pleasant. Music works "in spite of" us, and the truth is that it is not a human invention but a discovery. Most of the techniques used to tell stories through music were already there; they only had to be used. And no: a major chord will never sound sad, nor a minor chord happy, even if musical fashions turn the world upside down. It is not possible, because music has a real foundation, as explained in [Particle Music](https://github.com/antoniovazquezaraujo/particle-music).
 
 ## Play in the browser
 
@@ -83,6 +89,7 @@ Edit it in the GUI, in the advanced text view (`.mr` button) or with any editor;
 ## Documentation
 
 - 🎹 **[Web app](https://antoniovazquezaraujo.github.io/carmen/app/)** — run the current web build in the browser.
+- 📖 **[Particle Music](https://github.com/antoniovazquezaraujo/particle-music)** — theoretical foundation.
 - 🌐 **[User documentation](https://antoniovazquezaraujo.github.io/carmen/)** — language manual, syntax cheatsheet and usage guide.
 - 📘 **[`.mr` language manual](docs/user/manual.md)** — full reference (also on the published site).
 - 🧑‍💻 **[Developer wiki](docs/developer/README.md)** — architecture, ADRs, analysis, audits, design and release process (in Spanish).
