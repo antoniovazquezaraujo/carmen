@@ -33,6 +33,7 @@
 - **Drag de bloques raíz** (2026-11-08): asa en bloques de primer nivel, reordenación dentro de la part, movimiento entre parts y anidación al soltar sobre la cabecera de otro bloque con Angular CDK. Los hijos de PrimeNG se pueden devolver al primer nivel con una zona de drop amplia; las líneas de inserción pasan a 4px (6px activas).
 - **Patrón de octavas** (2026-11-09): `OCTAVE_PATTERN` repite la melodía propia del bloque en desplazamientos de octava relativos a `OCT`; es local al bloque, funciona en reproducción y en el compilador MIDI y tiene editor en el preset.
 - **Overrides de preset por bloque** (2026-11-09): un bloque puede mantener un preset compartido y añadir ajustes locales (`overrides`) que solo afectan a sus notas propias; se restauran antes de hijos y hermanos. Parser, serializador, reproducción, compilador MIDI y editor de bloque actualizados.
+- **Dock & Doll** (2026-11-12): nuevo ejemplo lento de dos partes con melodías copiadas, decoraciones y anchos variables; la galería pasa a 13 canciones.
 - **v1.1.1** (2026-11-12): logo final en la cabecera de la app, ejemplo **Meridian Fugue** y README con el contexto de **Música de partículas**.
 - **Publicación npm** (2026-11-11): `carmen-core@1.1.0` y `carmen-cli@1.1.0` publicados; instalación global y compilación MIDI verificadas.
 - **v1.1.0** (2026-11-10): release con overrides, `OCTAVE_PATTERN`, drag de bloques, logo, ejemplos y documentación actualizada.

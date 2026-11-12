@@ -1044,6 +1044,82 @@ part
         preset B
         melody C
 `
+    },
+    {
+        id: 'dock-and-doll',
+        title: 'Dock & Doll',
+        description: 'A slow two-part blue study with copied melodies, decorations and shifting widths.',
+        tags: ['BLUE', 'Decorations', 'Two parts'],
+        bpm: 30,
+        mr: `song "Dock & Doll"
+version 2
+repeats 4
+bpm 30
+
+melodies
+  melody "Melody 1"
+    notes default 2n
+      -1
+
+  melody "Melody 1 copy"
+    notes default 2n
+      2
+
+  melody "Melody 1 copy copy"
+    notes default 2n
+      3
+
+presets
+  preset "Preset 1"
+    WIDTH 1
+    PLAYMODE EVEN_ASC_ODD_ASC
+    INV 1
+    PATTERN 4n:0 4n:2 4n:1
+    DECORATION 4n:1 4n:3
+    SCALE BLUE
+
+  preset "Preset 1 copy"
+    WIDTH 1
+    PLAYMODE EVEN_ASC_ODD_ASC
+    INV 1
+    PATTERN 4n:0 4n:2 4n:1
+    DECORATION 4n:1 4n:3
+    SCALE BLUE
+
+  preset "Preset 2"
+    OCT -1
+    WIDTH 3
+    PLAYMODE EVEN_ASC_ODD_ASC
+    GAP 3
+    PATTERN 4n:0 8n:2
+    SCALE BLUE
+
+part
+  block repeats 4
+    preset "Preset 2"
+    melody "Melody 1"
+
+  block repeats 4
+    preset "Preset 2"
+    melody "Melody 1 copy"
+
+  block repeats 4
+    preset "Preset 1 copy"
+    melody "Melody 1 copy copy"
+
+part
+  block repeats 4
+    preset "Preset 1"
+    melody "Melody 1"
+
+  block repeats 4
+    preset "Preset 1"
+    melody "Melody 1 copy"
+
+  block repeats 4
+    preset "Preset 1 copy"
+    melody "Melody 1 copy copy"
+`
     }
 ];
 
