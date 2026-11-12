@@ -6,6 +6,10 @@ All notable changes to **Carmen**. Format based on
 
 ## [Unreleased]
 
+### Added
+
+- **Dock & Doll**: added a slow two-part example with copied melodies, decorations and shifting widths; the gallery now has thirteen songs.
+
 ## [1.1.1] - 2026-11-12
 
 ### Added
