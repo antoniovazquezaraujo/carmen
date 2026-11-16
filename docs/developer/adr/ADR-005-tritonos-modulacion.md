@@ -1,6 +1,6 @@
-# ADR-005: Tritonos, modulación por anclaje y vistas pentatónicas
+# ADR-005: Tritonos, modulación por anclaje y ocultación de tritonos
 
-- **Estado:** Propuesto (2026-11-15). Diseño sin implementar.
+- **Estado:** Propuesto (2026-11-15, revisado 2026-11-16). Diseño sin implementar.
 - **Fecha:** 2026-11-15
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)
@@ -23,7 +23,7 @@ WHITE, BLUE, RED, BLACK, PENTA, TONES, FULL
 Esta representación tiene tres limitaciones para el trabajo armónico:
 
 1. Cambiar de escala exige conocer y escribir la key de destino, aunque el usuario solo quiera conservar una parte de la estructura del estado anterior.
-2. PENTA se trata como una escala más, pero no tiene tritonos ni centro tritonal propio. Su identidad depende de la escala de la que se considera una vista.
+2. PENTA se trata como una escala más, pero no tiene tritonos ni centro tritonal propio.
 3. No existe una operación de alto nivel que diga “conserva este tritono y alinéalo con este otro de la escala destino”.
 
 El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos cambios sin obligar al usuario a manejar nombres de notas ni keys.
@@ -46,13 +46,14 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
 
    Los ordinales se cuentan de abajo arriba: `1` es el tritono más bajo.
 5. **La key no se introduce a mano en `MODULATE`.** Es una consecuencia del anclaje.
-6. **PENTA no es una escala primaria.** Es una vista de una escala padre, normalmente WHITE o BLUE.
-7. **La ocultación de tritonos es una operación de vista**, no una modulación:
+6. **No se introduce PENTA como escala ni como vista nueva.** La primitiva del nuevo modelo es `HIDE_TRITONE`; el estatus de la escala `PENTA` existente queda fuera de este ADR.
+7. **La ocultación de tritonos es un ajuste de preset**, no una operación de procedimiento:
    - `HIDE_TRITONE LOW|HIGH`
    - `HIDE_TRITONES`
    - `UNHIDE`
-8. **El MVP de ocultación se limita a WHITE y BLUE.** RED, TONES y BLACK pueden permitirse como caso experimental, pero sus resultados no se consideran pentatónicas clásicas.
-9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y las vistas no las eliminan.
+   Para que sea local a un bloque se usará `overrides`, igual que `SCALE`.
+8. **El MVP de ocultación se limita a WHITE y BLUE.** RED, TONES y BLACK quedan aparcados: sus resultados no se consideran pentatónicas clásicas y no se implementan de momento.
+9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
 
 ## 3. Representación de escalas y tritonos
 
@@ -62,7 +63,6 @@ Con raíz `0`, las escalas actuales producen estos inicios:
 
 | Escala | Inicios de tritono (mod 6) |
 |---|---|
-| PENTA | ∅ |
 | WHITE | `{3}` |
 | BLUE | `{2,4}` |
 | RED | `{1,5}` |
@@ -79,7 +79,7 @@ Los pares reales, antes de normalizar, son:
 | TONES | `(0,6)`, `(2,8)`, `(4,10)` |
 | BLACK | `(1,7)`, `(2,8)`, `(4,10)`, `(5,11)` |
 
-Los pares son no ordenados: `(3,9)` y `(9,3)` describen el mismo tritono.
+Los pares son no ordenados: `(3,9)` y `(9,3)` describen el mismo tritono. PENTA queda fuera de este ADR: no se usa como primitiva y su estatus en el lenguaje actual se decidirá por separado.
 
 ### 3.2. Patrones de distancia
 
@@ -92,7 +92,6 @@ Al normalizar en el ciclo de 6 posiciones, los patrones de separación son:
 | RED | `2,4` |
 | TONES | `2,2,2` |
 | BLACK | `1,2,1,2` |
-| PENTA | — |
 
 BLUE y RED comparten patrón circular; lo que cambia es la fase/key. TONES y BLACK tienen patrones propios.
 
@@ -146,11 +145,12 @@ destino: 1..m
 
 Todas son válidas si los ordinales existen. La tabla exhaustiva de comandos puede generarse a partir de esa regla; no es necesario mantener una tabla manual en el ADR.
 
-## 5. Vistas y ocultación de tritonos
+## 5. Ocultación de tritonos
 
 ### 5.1. Comandos
 
 ```text
+HIDE_TRITONE
 HIDE_TRITONE LOW
 HIDE_TRITONE HIGH
 HIDE_TRITONES
@@ -158,13 +158,17 @@ UNHIDE
 ```
 
 - Ocultar un tritono significa retirar sus dos notas de la vista sonora.
+- `HIDE_TRITONE` sin argumento se usa en escalas con un solo tritono.
+- `LOW` y `HIGH` se refieren al tritono más bajo y más alto del padre.
+- `HIDE_TRITONES` oculta todos los tritonos del padre.
 - La escala padre, su key y su centro siguen existiendo.
 - `UNHIDE` recupera el padre completo.
-- `LOW` y `HIGH` se refieren al tritono más bajo y más alto del padre.
+- Si se cambia de escala mientras hay tritonos ocultos, la ocultación sigue activa hasta `UNHIDE`; `LOW`/`HIGH` se reinterpretan sobre el nuevo padre.
+- `HIDE_TRITONE` es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
 
 ### 5.2. WHITE y BLUE en el MVP
 
-WHITE tiene un único tritono. Ocultarlo deja cinco notas: es una vista pentatónica.
+WHITE tiene un único tritono. Ocultarlo deja cinco notas.
 
 BLUE tiene dos. Ocultar uno deja cinco notas con el otro tritono todavía presente; ocultar ambos deja tres notas sin tritonos.
 
@@ -175,21 +179,21 @@ BLUE tiene dos. Ocultar uno deja cinco notas con el otro tritono todavía presen
 | BLUE | `HIDE_TRITONE HIGH` | 5 notas, conserva el tritono bajo |
 | BLUE | `HIDE_TRITONES` | 3 notas, sin tritonos |
 
-En BLUE, las dos primeras vistas conservan uno de los dos tritonos y la tercera elimina ambos. No se identifican aquí con nombres externos como “pentatónica del diablo”: ese nombre no tiene una definición cerrada en este ADR. Con las tablas actuales, el patrón `{0,2,4,6,9}` tiene dos transposiciones dentro de BLUE (`{0,2,5,8,10}` y `{0,2,4,7,10}`), pero no coincide con las vistas que se obtienen ocultando un tritono completo. Es una decisión abierta.
+El MVP no introduce nombres externos para estas vistas. RED, TONES y BLACK quedan aparcados: el resultado de ocultar tritonos puede ser útil experimentalmente, pero no se considera una pentatónica clásica.
 
-### 5.3. PENTA como vista
+### 5.3. Ejemplos
 
-PENTA no se implementa como una escala primaria. Se obtiene de un padre:
+WHITE con el tritono oculto:
 
 ```text
 SCALE WHITE
-KEY F
+KEY 5
 HIDE_TRITONE
 ```
 
-El padre es WHITE en F; la vista resultante es una pentatónica. Las tres perspectivas pentatónicas de WHITE se seleccionan cambiando la key del padre antes de ocultar el tritono.
+`KEY` sigue siendo numérico. `KEY F` no forma parte de la sintaxis actual; admitir nombres de nota sería una extensión separada, no decidida en este ADR.
 
-Para BLUE:
+BLUE ocultando uno de sus dos tritonos:
 
 ```text
 SCALE BLUE
@@ -203,16 +207,16 @@ SCALE BLUE
 HIDE_TRITONE HIGH
 ```
 
-La escala padre conserva el centro tonal; la vista solo decide qué notas suenan.
+La escala padre conserva el centro tonal; la ocultación solo decide qué notas suenan.
 
 ## 6. Alcance en el lenguaje
 
-Propuesta inicial, pendiente de validar al implementar:
-
-- `MODULATE` es una **operación de procedimiento**. Ocurre en un punto del tiempo y cambia el estado armónico.
-- `HIDE_TRITONE`/`HIDE_TRITONES`/`UNHIDE` son operaciones de **vista**, aplicables a un bloque o a una pasada; no cambian la escala padre.
+- `MODULATE` es una **operación de procedimiento**: ocurre en un punto del tiempo y cambia la escala y la key actuales.
+- `HIDE_TRITONE`/`HIDE_TRITONES`/`UNHIDE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
 - `SCALE` y `KEY` siguen siendo los ajustes de bajo nivel del preset.
-- La serialización debe conservar el padre de la vista; no basta con guardar “PENTA”.
+- No se introduce PENTA como escala ni como vista nueva en este ADR.
+- La serialización debe conservar el ajuste de ocultación y la relación con su padre.
+- Es probable que este cambio requiera `.mr` v3, aunque pueda ser compatible con archivos v2.
 
 ## 7. Alternativas consideradas
 
@@ -221,9 +225,9 @@ Propuesta inicial, pendiente de validar al implementar:
 | Seguir usando solo `SCALE` + `KEY` | Obliga a conocer la key y no expresa qué tritono se conserva. Se mantiene como bajo nivel, no como interfaz principal. |
 | `MODULATE <destino>` sin ancla | Vuelve a introducir empates de key; no es determinista. |
 | `KEEP`/`AS` con nombres de notas | El usuario no debe manejar nombres de notas; además, el tritono es reversible y el nombre del extremo es ambiguo. |
-| PENTA como sexta escala primaria | No tiene centro tritonal propio y su key depende del padre. Se sustituye por una vista. |
-| Ocultar tritonos en todas las escalas como MVP | RED, TONES y BLACK producen resultados extraños (3, 4, 2 o 0 notas); quedan como experimental. |
-| `NEAR`/`FAR`/`MID` como única interfaz | Útil como azúcar, pero no sustituye el control exacto del ancla; se deja para una fase posterior. |
+| PENTA como escala nueva | No tiene centro tritonal propio; se descarta en este ADR. |
+| Ocultar tritonos en todas las escalas como MVP | RED, TONES y BLACK producen resultados extraños; quedan como experimental. |
+| `NEAR`/`FAR`/`MID` como interfaz | Se descarta por ahora; no sustituye al control exacto del ancla. |
 
 ## 8. Consecuencias
 
@@ -231,7 +235,7 @@ Propuesta inicial, pendiente de validar al implementar:
 
 - El usuario puede modular sin conocer la key.
 - El ancla de tritonos hace explícito qué se conserva, añade y elimina.
-- PENTA deja de ser una escala ambigua y pasa a ser una vista con padre.
+- La ocultación es un ajuste pequeño y reutilizable, no una nueva escala.
 - El modelo es determinista y testeable sobre clases de altura.
 - `SCALE`/`KEY` siguen disponibles para control fino.
 
@@ -239,35 +243,33 @@ Propuesta inicial, pendiente de validar al implementar:
 
 - Hay que ampliar parser, serializador, modelo, player y compilador MIDI.
 - La key exacta no queda determinada solo por los tritonos; hay que resolverla con las notas reales.
-- La serialización de una vista PENTA necesita guardar el padre y la máscara.
-- La GUI debe indicar que se está en una vista, no en una escala completa.
-- El alcance de `HIDE` y `MODULATE` dentro de bloques y procedimientos aún no está cerrado.
+- La serialización de `HIDE_TRITONE` y de su relación con el padre necesita una representación canónica.
+- La GUI debe indicar que hay notas ocultas y cuáles.
+- El alcance exacto de `HIDE` dentro de presets y `overrides` aún no está cerrado.
+- `.mr` v3 puede ser necesario para expresar la relación completa entre escala, key y notas ocultas.
 
 ## 9. Cuestiones abiertas
 
-1. ¿`MODULATE` es una operación de procedimiento o una directiva de bloque?
-2. ¿`HIDE_TRITONE` es local al bloque, a la pasada o al preset?
-3. ¿Cómo se serializa una vista: `VIEW PENTA OF WHITE` o `SCALE WHITE` + `HIDE_TRITONE`?
-4. ¿Se permite ocultar tritonos en RED, TONES y BLACK desde el principio o quedan detrás de una opción experimental?
-5. ¿La key exacta se deriva de las notas reales, de la rotación de tritonos o de ambas?
-6. ¿Se mantiene `UNHIDE` o basta con volver a `SCALE`/`MODULATE`?
-7. ¿Se añaden alias cualitativos (`NEAR`, `MID`, `FAR`) o se posponen?
-8. ¿“Pentatónica del diablo” se refiere a un patrón concreto o a cualquier vista de cinco notas con un tritono?
-9. ¿Esto exige `.mr` v3 o puede entrar como extensión opcional de v2?
+1. **Key exacta.** La rotación de tritonos se calcula mod 6. Para obtener la key concreta hay que resolver las notas reales: dos keys separadas por 6 semitonos pueden compartir el mismo patrón de tritonos. Falta decidir si la key se deriva de las notas, de la rotación o de una regla mixta.
+2. **Ocultación al cambiar de escala.** Si hay `HIDE_TRITONE LOW` y el nuevo padre no tiene ese ordinal, ¿qué ocurre? ¿Se ignora, se oculta todo o se conserva el ordinal anterior?
+3. **Serialización de `HIDE`.** ¿Se guarda como ajuste del preset, como `override` del bloque o como una vista separada?
+4. **Alcance en `.mr`.** ¿v3 obligatorio o extensión compatible de v2?
+5. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte; no se decide en este ADR.
 
 ## 10. Plan de implementación propuesto
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir una utilidad pura de tritonos: inicios mod 6, rotación, fijos/añadidos/quitados.
-3. Extender parser y serializador con `MODULATE` y las operaciones de vista.
+3. Extender parser y serializador con `MODULATE` y los ajustes `HIDE_TRITONE`/`UNHIDE`.
 4. Extender el player y el compilador MIDI con paridad de comportamiento.
 5. Añadir tests de:
    - WHITE → BLUE con anclas 1→1 y 1→2;
    - BLUE → WHITE;
-   - ocultar LOW/HIGH en BLUE;
-   - PENTA como vista de WHITE;
+   - `HIDE_TRITONE` en WHITE;
+   - ocultar `LOW`/`HIGH` y ambos en BLUE;
+   - persistencia de la ocultación al cambiar de escala;
    - serialización y round-trip.
-6. Añadir la representación visual de la vista y del padre en la GUI.
+6. Añadir la representación visual de las notas ocultas en la GUI.
 7. Documentar la sintaxis en `docs/user/manual.md` y `docs/user/cheatsheet.md`.
 
 ## 11. Referencias
