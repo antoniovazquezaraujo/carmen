@@ -57,6 +57,7 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
 10. **La key exacta se calcula con las notas reales**, no solo con el patrón mod 6. Los inicios mod 6 identifican el tritono; los inicios reales `0..11` fijan la key.
 11. **El cambio se documentará en `.mr` v3**, aunque sea compatible con archivos v2.
 12. **La ocultación se serializa donde se declara**: si está en un preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
+13. **Ocultar tritonos no es un mute posterior**: la escala visible se recalcula antes de generar. Arpegios, `WIDTH`, `GAP`, `INV`, `PATTERN`, `DECORATION` y `OCTAVE_PATTERN` deben trabajar sobre las notas visibles, no sobre la escala padre completa.
 
 ## 3. Representación de escalas y tritonos
 
@@ -165,8 +166,22 @@ UNHIDE
 - Si se cambia de escala mientras hay tritonos ocultos, la ocultación sigue activa hasta `UNHIDE`; `LOW`/`HIGH` se reinterpretan sobre el nuevo padre.
 - `HIDE_TRITONE` es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
 - La ocultación se serializa donde se declara: si está en el preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
+- **No es un mute posterior.** Las notas ocultas desaparecen de la escala visible y todos los comandos de generación se recalculan sobre ella.
 
-### 5.2. WHITE y BLUE en el MVP
+### 5.2. Impacto en la generación
+
+Ocultar tritonos cambia la escala que ven los comandos posteriores:
+
+- `WIDTH` y `GAP` cuentan y seleccionan notas visibles.
+- Los arpegios solo recorren notas visibles.
+- `PATTERN`, `DECORATION` y `OCTAVE_PATTERN` se aplican sobre la escala visible.
+- `INV` y las operaciones de inversión no pueden recolocar una nota oculta.
+- Una nota explícita que caiga en una nota oculta no puede sonar; queda por decidir si se convierte en silencio o se omite.
+- Si `HIDE` está en `overrides`, afecta a las notas propias del bloque; los hijos conservan la escala base, como el resto de overrides.
+- Si está en el preset, afecta a todos los bloques que lo usan.
+
+La cuestión de fondo es si la escala visible se **reindexa** (0..n-1, como una escala de 5 notas) o si conserva los índices originales con huecos. Afecta a cómo se leen las notas explícitas y a cómo cuentan `WIDTH`/`GAP`.
+### 5.3. WHITE y BLUE en el MVP
 
 WHITE tiene un único tritono. Ocultarlo deja cinco notas.
 
@@ -181,7 +196,7 @@ BLUE tiene dos. Ocultar uno deja cinco notas con el otro tritono todavía presen
 
 El MVP no introduce nombres externos para estas vistas. RED, TONES y BLACK quedan aparcados: el resultado de ocultar tritonos puede ser útil experimentalmente, pero no se considera una pentatónica clásica.
 
-### 5.3. Ejemplos
+### 5.4. Ejemplos
 
 WHITE con el tritono oculto:
 
@@ -236,6 +251,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 - El usuario puede modular sin conocer la key.
 - El ancla de tritonos hace explícito qué se conserva, añade y elimina.
 - La ocultación es un ajuste pequeño y reutilizable, no una nueva escala.
+- Todas las generaciones derivadas usan la escala visible, evitando huecos silenciosos en arpegios y acordes.
 - El modelo es determinista y testeable sobre clases de altura.
 - `SCALE`/`KEY` siguen disponibles para control fino.
 
@@ -253,6 +269,8 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 1. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte, no decidida en este ADR. De momento `KEY` sigue siendo numérico.
 2. **Estatus de la escala PENTA actual.** No forma parte del modelo nuevo, pero su deprecación o conservación en `.mr` se decidirá por separado.
 3. **Detalle de serialización de `HIDE`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
+4. **Reindexación de la escala visible.** ¿Las notas visibles se renumeran `0..n-1` como una escala nueva, o se conservan los índices originales con huecos? Afecta a las notas explícitas, `WIDTH`, `GAP` y `DECORATION`.
+5. **Notas explícitas ocultas.** Si una melodía contiene una nota que ha quedado oculta, ¿se convierte en silencio, se omite o se redirige a la nota visible más cercana?
 
 ## 10. Plan de implementación propuesto
 
@@ -265,6 +283,8 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
    - BLUE → WHITE;
    - `HIDE_TRITONE` en WHITE;
    - ocultar `LOW`/`HIGH` y ambos en BLUE;
+   - arpegios, `WIDTH`, `GAP` y `PATTERN` usando solo notas visibles;
+   - notas explícitas que caen en una nota oculta;
    - persistencia de la ocultación al cambiar de escala;
    - serialización y round-trip.
 6. Añadir la representación visual de las notas ocultas en la GUI.
