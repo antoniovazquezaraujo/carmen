@@ -17,6 +17,7 @@ Bienvenido a la documentación técnica de **Carmen**. Está pensada para navega
 - [[adr/ADR-002-bloques-reutilizables|ADR-002: Bloques reutilizables (`blocks` + `use`)]] *(sustituido)*
 - [[adr/ADR-003-compilador-midi|ADR-003: Compilador `.mr` → MIDI (MVP)]]
 - [[adr/ADR-004-bibliotecas-contenido|ADR-004: Bibliotecas de contenido y bloques estructurales]]
+- [[adr/ADR-005-tritonos-modulacion|ADR-005: Tritonos, modulación por anclaje y ocultación de tritonos]]
 
 ## ✨ Fases y estado
 - [[analysis/mr-fase2-vista-texto|Fase 2: vista de texto en la app]]
