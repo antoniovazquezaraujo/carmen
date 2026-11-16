@@ -14,7 +14,8 @@
     "build:core": "npm run build --workspace carmen-core",
     "build:compiler": "npm run build --workspace carmen-cli",
     "build:cli": "npm run build:core && npm run build:compiler",
-    "lab:tritones": "npm run build:core --silent && node scripts/tritone-lab.cjs"
+    "lab:tritones": "npm run build:core --silent && node scripts/tritone-lab.cjs",
+    "lab:audio": "node scripts/tritone-lab-server.cjs"
   },
   "private": true,
   "dependencies": {
