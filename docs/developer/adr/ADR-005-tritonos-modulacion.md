@@ -1,6 +1,6 @@
 # ADR-005: Tritonos, modulación por anclaje y ocultación de tritonos
 
-- **Estado:** Propuesto (2026-11-15, revisado 2026-11-16). Diseño sin implementar.
+- **Estado:** Propuesto (2026-11-15, revisado 2026-11-16). Diseño sin implementar; objetivo `.mr` v3.
 - **Fecha:** 2026-11-15
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)
@@ -54,6 +54,9 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`.
 8. **El MVP de ocultación se limita a WHITE y BLUE.** RED, TONES y BLACK quedan aparcados: sus resultados no se consideran pentatónicas clásicas y no se implementan de momento.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
+10. **La key exacta se calcula con las notas reales**, no solo con el patrón mod 6. Los inicios mod 6 identifican el tritono; los inicios reales `0..11` fijan la key.
+11. **El cambio se documentará en `.mr` v3**, aunque sea compatible con archivos v2.
+12. **La ocultación se serializa donde se declara**: si está en un preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
 
 ## 3. Representación de escalas y tritonos
 
@@ -99,40 +102,36 @@ BLUE y RED comparten patrón circular; lo que cambia es la fase/key. TONES y BLA
 
 ### 4.1. Semántica
 
-Sea `S` el conjunto de inicios del origen y `T` el del destino, ordenados de menor a mayor.
+Sea `S` el conjunto de **inicios reales** del origen y `T` el del destino, ordenados de menor a mayor. Los inicios reales están en `0..11`.
 
 Para `MODULATE destino FROM i TO j`:
 
 ```text
-s = S[i-1]
-t = T[j-1]
-k = (s - t) mod 6
-T_k = { (x + k) mod 6 : x ∈ T }
-
-fijos    = S ∩ T_k
-añadidos = T_k \ S
-quitados = S \ T_k
+s = inicio real del tritono origen
+t = inicio real del ordinal destino
+k = (s - t) mod 12
+T_k = { (x + k) mod 12 : x ∈ T }
 ```
 
-La rotación `k` fija la fase de los tritonos del destino. La key exacta se resuelve después aplicando las notas reales del patrón; el modelo de tritonos por sí solo no distingue una key de otra separada por una octava.
+`T_k` se vuelve a normalizar por pares para comparar tritonos. La `k` resultante es la key exacta.
 
 ### 4.2. Ejemplo
 
-Partiendo de WHITE `{3}`:
+Partiendo de WHITE `(3,9)`:
 
 ```text
 MODULATE BLUE FROM 1 TO 2
 ```
 
 - origen: `s = 3`
-- destino: ordinal 2 de BLUE, `t = 4`
-- rotación: `k = (3 - 4) mod 6 = 5`
-- destino rotado: `{1,3}`
-- fijos: `{3}`
-- añadidos: `{1}`
+- destino: ordinal 2 de BLUE, inicio real `t = 4`
+- key: `k = (3 - 4) mod 12 = 11`
+- destino desplazado: `(1,7)`, `(3,9)`
+- fijos: `(3,9)`
+- añadidos: `(1,7)`
 - quitados: ∅
 
-El usuario no escribe la key; el anclaje la determina.
+El usuario no escribe la key; el anclaje la determina. El `k` mod 6 solo indicaba la fase del patrón; el `k` mod 12 es la transposición real.
 
 ### 4.3. Espacio de comandos
 
@@ -159,12 +158,13 @@ UNHIDE
 
 - Ocultar un tritono significa retirar sus dos notas de la vista sonora.
 - `HIDE_TRITONE` sin argumento se usa en escalas con un solo tritono.
-- `LOW` y `HIGH` se refieren al tritono más bajo y más alto del padre.
+- `LOW` y `HIGH` se refieren al tritono más bajo y más alto del padre. Siempre existen si la escala tiene al menos un tritono: en WHITE el único tritono es a la vez `LOW` y `HIGH`.
 - `HIDE_TRITONES` oculta todos los tritonos del padre.
 - La escala padre, su key y su centro siguen existiendo.
 - `UNHIDE` recupera el padre completo.
 - Si se cambia de escala mientras hay tritonos ocultos, la ocultación sigue activa hasta `UNHIDE`; `LOW`/`HIGH` se reinterpretan sobre el nuevo padre.
 - `HIDE_TRITONE` es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
+- La ocultación se serializa donde se declara: si está en el preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
 
 ### 5.2. WHITE y BLUE en el MVP
 
@@ -215,8 +215,8 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 - `HIDE_TRITONE`/`HIDE_TRITONES`/`UNHIDE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
 - `SCALE` y `KEY` siguen siendo los ajustes de bajo nivel del preset.
 - No se introduce PENTA como escala ni como vista nueva en este ADR.
-- La serialización debe conservar el ajuste de ocultación y la relación con su padre.
-- Es probable que este cambio requiera `.mr` v3, aunque pueda ser compatible con archivos v2.
+- La serialización conserva el ajuste de ocultación exactamente donde se ha declarado: preset o override.
+- Este cambio se documentará en `.mr` v3, aunque pueda ser compatible con archivos v2.
 
 ## 7. Alternativas consideradas
 
@@ -242,28 +242,26 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 ### Costes y riesgos
 
 - Hay que ampliar parser, serializador, modelo, player y compilador MIDI.
-- La key exacta no queda determinada solo por los tritonos; hay que resolverla con las notas reales.
-- La serialización de `HIDE_TRITONE` y de su relación con el padre necesita una representación canónica.
+- La key exacta requiere usar los inicios reales `0..11`; el patrón mod 6 no basta.
+- La serialización de `HIDE_TRITONE` necesita una forma canónica dentro de `.mr` v3.
 - La GUI debe indicar que hay notas ocultas y cuáles.
-- El alcance exacto de `HIDE` dentro de presets y `overrides` aún no está cerrado.
-- `.mr` v3 puede ser necesario para expresar la relación completa entre escala, key y notas ocultas.
+- La forma canónica exacta de serializar `HIDE` dentro de un preset o de un `override` aún no está cerrada.
+- `.mr` v3 será necesario para expresar la relación completa entre escala, key y notas ocultas.
 
-## 9. Cuestiones abiertas
+## 9. Decisiones pendientes
 
-1. **Key exacta.** La rotación de tritonos se calcula mod 6. Para obtener la key concreta hay que resolver las notas reales: dos keys separadas por 6 semitonos pueden compartir el mismo patrón de tritonos. Falta decidir si la key se deriva de las notas, de la rotación o de una regla mixta.
-2. **Ocultación al cambiar de escala.** Si hay `HIDE_TRITONE LOW` y el nuevo padre no tiene ese ordinal, ¿qué ocurre? ¿Se ignora, se oculta todo o se conserva el ordinal anterior?
-3. **Serialización de `HIDE`.** ¿Se guarda como ajuste del preset, como `override` del bloque o como una vista separada?
-4. **Alcance en `.mr`.** ¿v3 obligatorio o extensión compatible de v2?
-5. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte; no se decide en este ADR.
+1. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte, no decidida en este ADR. De momento `KEY` sigue siendo numérico.
+2. **Estatus de la escala PENTA actual.** No forma parte del modelo nuevo, pero su deprecación o conservación en `.mr` se decidirá por separado.
+3. **Detalle de serialización de `HIDE`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
 
 ## 10. Plan de implementación propuesto
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
-2. Añadir una utilidad pura de tritonos: inicios mod 6, rotación, fijos/añadidos/quitados.
+2. Añadir una utilidad pura de tritonos: inicios mod 6 para patrones, inicios reales mod 12 para la key, rotación y cálculo de fijos/añadidos/quitados.
 3. Extender parser y serializador con `MODULATE` y los ajustes `HIDE_TRITONE`/`UNHIDE`.
 4. Extender el player y el compilador MIDI con paridad de comportamiento.
 5. Añadir tests de:
-   - WHITE → BLUE con anclas 1→1 y 1→2;
+   - WHITE → BLUE con anclas 1→1 y 1→2, comprobando la key exacta;
    - BLUE → WHITE;
    - `HIDE_TRITONE` en WHITE;
    - ocultar `LOW`/`HIGH` y ambos en BLUE;
