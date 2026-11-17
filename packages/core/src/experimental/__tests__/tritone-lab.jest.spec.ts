@@ -56,29 +56,41 @@ describe('tritone lab', () => {
         expect(() => modulate('WHITE', 'BLUE', 1, 3)).toThrow(RangeError);
     });
 
-    it('hides the only WHITE tritone and reindexes the visible scale', () => {
+    it('hides one note of the only WHITE tritone and reindexes the visible scale', () => {
         const result = hideTritones('WHITE', 'LOW');
 
-        expect(result.notes).toEqual([0, 2, 5, 7, 10]);
-        expect(result.notes).toHaveLength(5);
+        expect(result.hiddenNotes).toEqual([3]);
+        expect(result.notes).toEqual([0, 2, 5, 7, 9, 10]);
+        expect(result.notes).toHaveLength(6);
         expect(result.tritones).toEqual([]);
     });
 
-    it('hides one BLUE tritone and leaves the other', () => {
-        const low = hideTritones('BLUE', 'LOW');
-        const high = hideTritones('BLUE', 'HIGH');
+    it('hides either endpoint of a BLUE tritone', () => {
+        const low = hideTritones('BLUE', 'LOW', 'LOW');
+        const lowUpper = hideTritones('BLUE', 'LOW', 'HIGH');
+        const high = hideTritones('BLUE', 'HIGH', 'LOW');
 
-        expect(low.notes).toEqual([0, 4, 5, 7, 10]);
+        expect(low.hiddenNotes).toEqual([2]);
+        expect(low.notes).toEqual([0, 4, 5, 7, 8, 10]);
         expect(low.tritones).toEqual([[4, 10]]);
-        expect(high.notes).toEqual([0, 2, 5, 7, 8]);
+        expect(lowUpper.hiddenNotes).toEqual([8]);
+        expect(lowUpper.notes).toEqual([0, 2, 4, 5, 7, 10]);
+        expect(lowUpper.tritones).toEqual([[4, 10]]);
+        expect(high.hiddenNotes).toEqual([4]);
+        expect(high.notes).toEqual([0, 2, 5, 7, 8, 10]);
         expect(high.tritones).toEqual([[2, 8]]);
     });
 
-    it('can hide all BLUE tritones', () => {
-        const result = hideTritones('BLUE', 'ALL');
+    it('can hide one note of each BLUE tritone', () => {
+        const lower = hideTritones('BLUE', 'ALL', 'LOW');
+        const upper = hideTritones('BLUE', 'ALL', 'HIGH');
 
-        expect(result.notes).toEqual([0, 5, 7]);
-        expect(result.notes).toHaveLength(3);
-        expect(result.tritones).toEqual([]);
+        expect(lower.hiddenNotes).toEqual([2, 4]);
+        expect(lower.notes).toEqual([0, 5, 7, 8, 10]);
+        expect(lower.notes).toHaveLength(5);
+        expect(lower.tritones).toEqual([]);
+        expect(upper.hiddenNotes).toEqual([8, 10]);
+        expect(upper.notes).toEqual([0, 2, 4, 5, 7]);
+        expect(upper.tritones).toEqual([]);
     });
 });

@@ -31,10 +31,12 @@ console.log('\nHidden tritones\n');
 for (const selection of ['LOW', 'HIGH', 'ALL']) {
   const hidden = hideTritones('BLUE', selection);
   console.log(
-    `BLUE ${selection.padEnd(4)} visible={${hidden.notes.join(',')}} ` +
-    `remaining=${pairList(hidden.tritones)}`
+    `BLUE ${selection.padEnd(4)} hide=${hidden.hiddenNotes.join(',')} ` +
+    `visible={${hidden.notes.join(',')}} remaining=${pairList(hidden.tritones)}`
   );
 }
 
-const white = hideTritones('WHITE', 'LOW');
-console.log(`WHITE LOW  visible={${white.notes.join(',')}} remaining=${pairList(white.tritones)}`);
+const whiteLower = hideTritones('WHITE', 'LOW', 'LOW');
+const whiteUpper = hideTritones('WHITE', 'LOW', 'HIGH');
+console.log(`WHITE LOW  hide=${whiteLower.hiddenNotes.join(',')} visible={${whiteLower.notes.join(',')}} remaining=${pairList(whiteLower.tritones)}`);
+console.log(`WHITE HIGH hide=${whiteUpper.hiddenNotes.join(',')} visible={${whiteUpper.notes.join(',')}} remaining=${pairList(whiteUpper.tritones)}`);

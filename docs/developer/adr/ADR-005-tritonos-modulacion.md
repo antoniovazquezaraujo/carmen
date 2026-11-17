@@ -47,9 +47,9 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
    Los ordinales se cuentan de abajo arriba: `1` es el tritono más bajo.
 5. **La key no se introduce a mano en `MODULATE`.** Es una consecuencia del anclaje.
 6. **No se introduce PENTA como escala ni como vista nueva.** La primitiva del nuevo modelo es `HIDE_TRITONE`; el estatus de la escala `PENTA` existente queda fuera de este ADR.
-7. **La ocultación de tritonos es un ajuste de preset**, no una operación de procedimiento:
-   - `HIDE_TRITONE LOW|HIGH`
-   - `HIDE_TRITONES`
+7. **La ocultación de tritonos es un ajuste de preset**, no una operación de procedimiento. Ocultar un tritono retira **una sola de sus dos notas**, no ambas; el lado que se oculta (inferior o superior) es un parámetro:
+   - `HIDE_TRITONE <ordinal> LOW|HIGH`
+   - `HIDE_TRITONES LOW|HIGH`
    - `UNHIDE`
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`.
 8. **El MVP de ocultación se limita a WHITE y BLUE.** RED, TONES y BLACK quedan aparcados: sus resultados no se consideran pentatónicas clásicas y no se implementan de momento.
@@ -150,17 +150,15 @@ Todas son válidas si los ordinales existen. La tabla exhaustiva de comandos pue
 ### 5.1. Comandos
 
 ```text
-HIDE_TRITONE
-HIDE_TRITONE LOW
-HIDE_TRITONE HIGH
-HIDE_TRITONES
+HIDE_TRITONE <ordinal> LOW|HIGH
+HIDE_TRITONES LOW|HIGH
 UNHIDE
 ```
 
-- Ocultar un tritono significa retirar sus dos notas de la vista sonora.
-- `HIDE_TRITONE` sin argumento se usa en escalas con un solo tritono.
-- `LOW` y `HIGH` se refieren al tritono más bajo y más alto del padre. Siempre existen si la escala tiene al menos un tritono: en WHITE el único tritono es a la vez `LOW` y `HIGH`.
-- `HIDE_TRITONES` oculta todos los tritonos del padre.
+- Ocultar un tritono significa retirar **una de sus dos notas** de la vista sonora. El tritono deja de existir; no hace falta retirar las dos.
+- El ordinal selecciona el tritono; `LOW`/`HIGH` selecciona qué extremo se oculta.
+- En WHITE hay un solo tritono: su ordinal es 1 y cualquiera de sus dos lados sirve.
+- `HIDE_TRITONES LOW|HIGH` oculta el mismo lado de todos los tritonos del padre.
 - La escala padre, su key y su centro siguen existiendo.
 - `UNHIDE` recupera el padre completo.
 - Si se cambia de escala mientras hay tritonos ocultos, la ocultación sigue activa hasta `UNHIDE`; `LOW`/`HIGH` se reinterpretan sobre el nuevo padre.
@@ -175,7 +173,7 @@ Ocultar tritonos cambia la escala que ven los comandos posteriores:
 - `WIDTH` y `GAP` cuentan y seleccionan notas visibles.
 - Los arpegios solo recorren notas visibles.
 - `PATTERN`, `DECORATION` y `OCTAVE_PATTERN` se aplican sobre la escala visible.
-- `INV` y las operaciones de inversión no pueden recolocar una nota oculta.
+- `INV` y las operaciones de inversión trabajan sobre la escala visible; las notas ocultas ya no forman parte de ella.
 - Los grados de las notas se refieren siempre a la escala visible reindexada `0..n-1`. Una nota explícita no cae en silencio ni se redirige: apunta a otro grado visible y, por tanto, a otra nota.
 - Si `HIDE` está en `overrides`, afecta a las notas propias del bloque; los hijos conservan la escala base, como el resto de overrides.
 - Si está en el preset, afecta a todos los bloques que lo usan.
@@ -184,27 +182,28 @@ En la práctica, es como cambiar a una escala con menos grados: las notas siguen
 
 ### 5.3. WHITE y BLUE en el MVP
 
-WHITE tiene un único tritono. Ocultarlo deja cinco notas.
+WHITE tiene un único tritono. Ocultar una de sus notas deja seis notas sin tritonos.
 
-BLUE tiene dos. Ocultar uno deja cinco notas con el otro tritono todavía presente; ocultar ambos deja tres notas sin tritonos.
+BLUE tiene dos. Ocultar una nota de uno deja seis notas con el otro tritono todavía presente; ocultar una nota de cada uno deja cinco notas sin tritonos.
 
 | Escala | Acción | Resultado |
 |---|---|---|
-| WHITE | `HIDE_TRITONE` | 5 notas, sin tritonos |
-| BLUE | `HIDE_TRITONE LOW` | 5 notas, conserva el tritono alto |
-| BLUE | `HIDE_TRITONE HIGH` | 5 notas, conserva el tritono bajo |
-| BLUE | `HIDE_TRITONES` | 3 notas, sin tritonos |
+| WHITE | `HIDE_TRITONE 1 LOW` | 6 notas, sin tritonos |
+| WHITE | `HIDE_TRITONE 1 HIGH` | 6 notas, sin tritonos |
+| BLUE | `HIDE_TRITONE 1 LOW` | 6 notas, conserva el tritono alto |
+| BLUE | `HIDE_TRITONE 2 HIGH` | 6 notas, conserva el tritono bajo |
+| BLUE | `HIDE_TRITONES LOW` | 5 notas, sin tritonos |
 
 El MVP no introduce nombres externos para estas vistas. RED, TONES y BLACK quedan aparcados: el resultado de ocultar tritonos puede ser útil experimentalmente, pero no se considera una pentatónica clásica.
 
 ### 5.4. Ejemplos
 
-WHITE con el tritono oculto:
+WHITE con una nota del tritono oculta:
 
 ```text
 SCALE WHITE
 KEY 5
-HIDE_TRITONE
+HIDE_TRITONE 1 LOW
 ```
 
 `KEY` sigue siendo numérico. `KEY F` no forma parte de la sintaxis actual; admitir nombres de nota sería una extensión separada, no decidida en este ADR.
@@ -213,14 +212,14 @@ BLUE ocultando uno de sus dos tritonos:
 
 ```text
 SCALE BLUE
-HIDE_TRITONE LOW
+HIDE_TRITONE 1 LOW
 ```
 
 o:
 
 ```text
 SCALE BLUE
-HIDE_TRITONE HIGH
+HIDE_TRITONE 2 HIGH
 ```
 
 La escala padre conserva el centro tonal; la ocultación solo decide qué notas suenan.
@@ -270,6 +269,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 1. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte, no decidida en este ADR. De momento `KEY` sigue siendo numérico.
 2. **Estatus de la escala PENTA actual.** No forma parte del modelo nuevo, pero su deprecación o conservación en `.mr` se decidirá por separado.
 3. **Detalle de serialización de `HIDE`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
+4. **Sintaxis final del lado oculto.** `HIDE_TRITONE <ordinal> LOW|HIGH` es la forma propuesta; falta decidir el valor por defecto y cómo se muestra en la GUI.
 
 ## 10. Plan de implementación propuesto
 
@@ -280,8 +280,8 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 5. Añadir tests de:
    - WHITE → BLUE con anclas 1→1 y 1→2, comprobando la key exacta;
    - BLUE → WHITE;
-   - `HIDE_TRITONE` en WHITE;
-   - ocultar `LOW`/`HIGH` y ambos en BLUE;
+   - `HIDE_TRITONE 1 LOW|HIGH` en WHITE;
+   - ocultar una nota de cada tritono en BLUE, con ambos lados;
    - arpegios, `WIDTH`, `GAP` y `PATTERN` usando solo las notas visibles reindexadas;
    - notas explícitas reinterpretadas sobre la escala visible;
    - persistencia de la ocultación al cambiar de escala;

@@ -25,6 +25,7 @@ export interface TritoneScale {
 }
 
 export type HideSelection = 'LOW' | 'HIGH' | 'ALL';
+export type TritoneSide = 'LOW' | 'HIGH';
 
 export interface ModulationResult {
     readonly source: TritoneScaleName;
@@ -42,7 +43,9 @@ export interface ModulationResult {
 export interface HiddenScale {
     readonly name: TritoneScaleName;
     readonly selection: HideSelection;
+    readonly side: TritoneSide;
     readonly hiddenTritones: readonly TritonePair[];
+    readonly hiddenNotes: readonly number[];
     /** Visible notes in ascending order. Their index is the new visible degree. */
     readonly notes: readonly number[];
     readonly tritones: readonly TritonePair[];
@@ -158,11 +161,18 @@ export function modulate(
 /**
  * Hide one or all tritones of a scale.
  *
+ * Hiding a tritone removes only one of its two notes; either endpoint is
+ * enough to make the tritone disappear. `side` selects which endpoint:
+ * `LOW` removes the lower note, `HIGH` removes the upper note.
+ *
  * The returned notes are the visible scale in ascending order. Their array
- * index is the new visible degree: if the parent had 7 notes and two are hidden,
- * the visible degrees are 0..4.
+ * index is the new visible degree.
  */
-export function hideTritones(name: TritoneScaleName, selection: HideSelection): HiddenScale {
+export function hideTritones(
+    name: TritoneScaleName,
+    selection: HideSelection,
+    side: TritoneSide = 'LOW'
+): HiddenScale {
     const scale = TRITONE_SCALES[name];
     if (scale.tritones.length === 0) {
         throw new RangeError(`${name} has no tritones to hide`);
@@ -177,15 +187,16 @@ export function hideTritones(name: TritoneScaleName, selection: HideSelection): 
 
     const hiddenNotes = new Set<number>();
     for (const [start, end] of hiddenTritones) {
-        hiddenNotes.add(start);
-        hiddenNotes.add(end);
+        hiddenNotes.add(side === 'LOW' ? start : end);
     }
 
     const notes = scale.notes.filter(note => !hiddenNotes.has(note));
     return {
         name,
         selection,
+        side,
         hiddenTritones,
+        hiddenNotes: [...hiddenNotes].sort((left, right) => left - right),
         notes,
         tritones: findTritones(notes)
     };
