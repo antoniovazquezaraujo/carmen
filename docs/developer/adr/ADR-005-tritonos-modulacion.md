@@ -7,6 +7,7 @@
 - **Relacionado:**
   - `docs/developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md` (texto canónico)
   - `docs/developer/adr/ADR-004-bibliotecas-contenido.md` (bloques estructurales y bibliotecas)
+  - `docs/developer/adr/ADR-006-vistas-de-escala.md` (modelo general de vistas)
   - `docs/user/manual.md` (lenguaje `.mr` actual)
   - <https://github.com/antoniovazquezaraujo/particle-music> (marco teórico de Música de partículas)
 
@@ -46,11 +47,11 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
 
    Los ordinales se cuentan de abajo arriba: `1` es el tritono más bajo.
 5. **La key no se introduce a mano en `MODULATE`.** Es una consecuencia del anclaje.
-6. **No se introduce PENTA como escala ni como vista nueva.** La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas. El estatus de la escala `PENTA` existente queda fuera de este ADR.
+6. **No se introduce PENTA como escala ni como vista nueva.** La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas. El estatus de `PENTA` se resuelve en ADR-006: se deprecia como escala padre y se representa como vista.
 7. **La ocultación es un ajuste de preset**, no una operación de procedimiento. Se implementa colapsando los semitonos que contienen un extremo de tritono: de cada semitono sobrevive una sola nota. En WHITE y BLUE, con dos semitonos, hay cuatro vistas:
-   - `HIDE_TRITONES BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW`
-   - `UNHIDE`
-   Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta.
+   - `VIEW BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW`
+   - `VIEW NONE` (alias: `UNHIDE`)
+   Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta. El modelo general de vistas se fija en ADR-006.
 8. **El MVP de ocultación se limita a WHITE y BLUE.** RED y BLACK tienen cuatro semitonos y TONES no tiene ninguno, así que las cuatro vistas de dos semitonos no aplican. Quedan aparcados.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
 10. **La key exacta se calcula con las notas reales**, no solo con el patrón mod 6. Los inicios mod 6 identifican el tritono; los inicios reales `0..11` fijan la key.
@@ -159,7 +160,7 @@ Todas son válidas si los ordinales existen. La tabla exhaustiva de comandos pue
 
 ### 5.1. Semántica
 
-La ocultación no retira un extremo del tritono: **colapsa los semitonos que contienen un extremo de tritono**. De cada uno de esos semitonos sobrevive una sola nota; la otra desaparece de la escala visible.
+La ocultación no retira un extremo del tritono: **colapsa los semitonos que contienen un extremo de tritono**. De cada uno de esos semitonos sobrevive una sola nota; la otra desaparece de la escala visible. Este es un caso concreto de **vista de escala**; el modelo general está en ADR-006.
 
 En WHITE y BLUE hay exactamente dos semitonos y cada uno contiene un extremo de tritono. Por tanto hay cuatro vistas, según se conserve la nota inferior o superior de cada semitono, en orden ascendente:
 
@@ -176,19 +177,24 @@ La ocultación **no garantiza que desaparezcan todos los tritonos**: un tritono 
 
 ### 5.2. Comandos propuestos
 
+La vista se declara como un ajuste separado del padre; el modelo general está en ADR-006.
+
 ```text
-HIDE_TRITONES BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW
-UNHIDE
+SCALE WHITE
+VIEW BOTH_HIGH
+
+SCALE BLUE
+VIEW NONE
 ```
 
-- `BOTH_HIGH` = subir/subir; `BOTH_LOW` = bajar/bajar; `LOW_HIGH` = bajar/subir; `HIGH_LOW` = subir/bajar.
-- `UNHIDE` recupera el padre completo.
+- `VIEW BOTH_HIGH` = subir/subir; `BOTH_LOW` = bajar/bajar; `LOW_HIGH` = bajar/subir; `HIGH_LOW` = subir/bajar.
+- `VIEW NONE` recupera el padre completo; `UNHIDE` se mantiene como alias de compatibilidad.
 - La escala padre, su key y su centro siguen existiendo.
-- Si se cambia de escala mientras hay una vista activa, la ocultación sigue activa hasta `UNHIDE`; la vista se reinterpreta sobre el nuevo padre.
+- Si se cambia de escala mientras hay una vista activa, la vista sigue activa hasta `VIEW NONE`; se reinterpreta sobre el nuevo padre si es compatible (ADR-006, sección 5).
 - Es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
 - La ocultación se serializa donde se declara: si está en el preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
 - **No es un mute posterior.** Las notas ocultas desaparecen de la escala visible y todos los comandos de generación se recalculan sobre ella.
-- El nombre definitivo del comando y la forma de escalas con más de dos semitonos quedan pendientes (sección 9).
+- La sintaxis final de `VIEW` y la forma de escalas con más de dos semitonos quedan pendientes (ADR-006, sección 9).
 
 ### 5.3. Impacto en la generación
 
@@ -199,7 +205,7 @@ La vista visible cambia la escala que ven los comandos posteriores:
 - `PATTERN`, `DECORATION` y `OCTAVE_PATTERN` se aplican sobre la escala visible.
 - `INV` y las operaciones de inversión trabajan sobre la escala visible; las notas ocultas ya no forman parte de ella.
 - Los grados de las notas se refieren siempre a la escala visible reindexada `0..n-1`. Una nota explícita no cae en silencio ni se redirige: apunta a otro grado visible y, por tanto, a otra nota.
-- Si `HIDE` está en `overrides`, afecta a las notas propias del bloque; los hijos conservan la escala base, como el resto de overrides.
+- Si `VIEW` está en `overrides`, afecta a las notas propias del bloque; los hijos conservan la escala base, como el resto de overrides.
 - Si está en el preset, afecta a todos los bloques que lo usan.
 
 En la práctica, es como cambiar a una escala con menos grados: las notas siguen existiendo, pero los números indican otras notas. La escala visible se reindexa de `0` a `n-1`.
@@ -228,7 +234,7 @@ WHITE con la vista `BOTH_HIGH`:
 ```text
 SCALE WHITE
 KEY 5
-HIDE_TRITONES BOTH_HIGH
+VIEW BOTH_HIGH
 ```
 
 `KEY` sigue siendo numérico. `KEY F` no forma parte de la sintaxis actual; admitir nombres de nota sería una extensión separada, no decidida en este ADR.
@@ -237,7 +243,7 @@ BLUE con la vista `HIGH_LOW`, la única vista de BLUE que deja la escala sin tri
 
 ```text
 SCALE BLUE
-HIDE_TRITONES HIGH_LOW
+VIEW HIGH_LOW
 ```
 
 La escala padre conserva el centro tonal; la ocultación solo decide qué notas suenan.
@@ -245,7 +251,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 ## 6. Alcance en el lenguaje
 
 - `MODULATE` es una **operación de procedimiento**: ocurre en un punto del tiempo y cambia la escala y la key actuales.
-- `HIDE_TRITONES`/`UNHIDE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
+- `VIEW`/`VIEW NONE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
 - `SCALE` y `KEY` siguen siendo los ajustes de bajo nivel del preset.
 - No se introduce PENTA como escala ni como vista nueva en este ADR.
 - La serialización conserva el ajuste de ocultación exactamente donde se ha declarado: preset o override.
@@ -279,18 +285,18 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 
 - Hay que ampliar parser, serializador, modelo, player y compilador MIDI.
 - La key exacta requiere usar los inicios reales `0..11`; el patrón mod 6 no basta.
-- La serialización de `HIDE_TRITONES` necesita una forma canónica dentro de `.mr` v3.
+- La serialización de `VIEW` necesita una forma canónica dentro de `.mr` v3.
 - La GUI debe indicar que hay notas ocultas y cuáles.
 - Algunas vistas conservan un tritono; hay que decidir si se acepta o se exige una vista sin tritonos.
-- La forma canónica exacta de serializar `HIDE_TRITONES` dentro de un preset o de un `override` aún no está cerrada.
+- La forma canónica exacta de serializar `VIEW` dentro de un preset o de un `override` aún no está cerrada.
 - `.mr` v3 será necesario para expresar la relación completa entre escala, key y notas ocultas.
 
 ## 9. Decisiones pendientes
 
 1. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte, no decidida en este ADR. De momento `KEY` sigue siendo numérico.
 2. **Estatus de la escala PENTA actual.** No forma parte del modelo nuevo, pero su deprecación o conservación en `.mr` se decidirá por separado.
-3. **Detalle de serialización de `HIDE_TRITONES`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
-4. **Nombre y sintaxis final del comando.** `HIDE_TRITONES BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW` es la forma propuesta; falta decidir el valor por defecto y cómo se muestra en la GUI.
+3. **Detalle de serialización de `VIEW`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
+4. **Sintaxis final de `VIEW`.** Se fija en ADR-006, sección 9.
 5. **Escalas con más de dos semitonos.** RED y BLACK tienen cuatro; la sintaxis de cuatro parámetros o de un modo enumerado tendrá que decidirse antes de ampliar el MVP.
 6. **¿Se exige que la vista no tenga tritonos?** En el MVP hay vistas que conservan uno o dos. Si el producto exige “sin tritonos”, habrá que añadir una condición y reducir las combinaciones disponibles.
 
@@ -298,7 +304,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir una utilidad pura de tritonos y semitonos: inicios mod 6 para patrones, inicios reales mod 12 para la key, rotación, cálculo de fijos/añadidos/quitados y colapso de semitonos.
-3. Extender parser y serializador con `MODULATE` y los ajustes `HIDE_TRITONES`/`UNHIDE`.
+3. Extender parser y serializador con `MODULATE` y los ajustes `VIEW`/`VIEW NONE`/`UNHIDE`.
 4. Extender el player y el compilador MIDI con paridad de comportamiento.
 5. Añadir tests de:
    - WHITE → BLUE con anclas 1→1 y 1→2, comprobando la key exacta;
