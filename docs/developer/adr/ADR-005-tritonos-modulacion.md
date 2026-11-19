@@ -50,7 +50,7 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
 6. **PENTA se elimina como escala padre en `.mr` v3.** Su conjunto se representa como vista: se fija en ADR-006. La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas.
 7. **La ocultación es un ajuste de preset**, no una operación de procedimiento. Se implementa colapsando los semitonos que contienen un extremo de tritono: de cada semitono sobrevive una sola nota. En WHITE y BLUE, con dos semitonos, hay cuatro vistas:
    - `VIEW COLLAPSE_BOTH_LOW|COLLAPSE_BOTH_HIGH|COLLAPSE_LOW_HIGH|COLLAPSE_HIGH_LOW`
-   - `VIEW ALL` (alias: `UNHIDE`)
+   - `VIEW COLLAPSE_NONE` (alias: `UNHIDE`)
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta. El modelo general de vistas se fija en ADR-006.
 8. **El MVP de ocultación se limita a WHITE y BLUE.** RED y BLACK tienen cuatro semitonos y TONES no tiene ninguno, así que las cuatro vistas de dos semitonos no aplican. Quedan aparcados.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
@@ -184,13 +184,13 @@ SCALE WHITE
 VIEW COLLAPSE_BOTH_HIGH
 
 SCALE BLUE
-VIEW ALL
+VIEW COLLAPSE_NONE
 ```
 
 - `VIEW COLLAPSE_BOTH_HIGH` = subir/subir; `COLLAPSE_BOTH_LOW` = bajar/bajar; `COLLAPSE_LOW_HIGH` = bajar/subir; `COLLAPSE_HIGH_LOW` = subir/bajar.
-- `VIEW ALL` recupera el padre completo; `UNHIDE` se mantiene como alias de compatibilidad.
+- `VIEW COLLAPSE_NONE` recupera el padre completo; `UNHIDE` se mantiene como alias de compatibilidad.
 - La escala padre, su key y su centro siguen existiendo.
-- Si se cambia de escala mientras hay una vista activa, la vista sigue activa hasta `VIEW ALL`; se reinterpreta sobre el nuevo padre si es compatible (ADR-006, sección 5).
+- Si se cambia de escala mientras hay una vista activa, la vista sigue activa hasta `VIEW COLLAPSE_NONE`; se reinterpreta sobre el nuevo padre si es compatible (ADR-006, sección 5).
 - Es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
 - La ocultación se serializa donde se declara: si está en el preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
 - **No es un mute posterior.** Las notas ocultas desaparecen de la escala visible y todos los comandos de generación se recalculan sobre ella.
@@ -251,7 +251,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 ## 6. Alcance en el lenguaje
 
 - `MODULATE` es una **operación de procedimiento**: ocurre en un punto del tiempo y cambia la escala y la key actuales.
-- `VIEW`/`VIEW ALL` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
+- `VIEW`/`VIEW COLLAPSE_NONE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
 - `SCALE` y `KEY` siguen siendo los ajustes de bajo nivel del preset.
 - PENTA se elimina como escala padre en `.mr` v3 (ADR-006).
 - La serialización conserva el ajuste de ocultación exactamente donde se ha declarado: preset o override.
@@ -304,7 +304,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir una utilidad pura de tritonos y semitonos: inicios mod 6 para patrones, inicios reales mod 12 para la key, rotación, cálculo de fijos/añadidos/quitados y colapso de semitonos.
-3. Extender parser y serializador con `MODULATE` y los ajustes `VIEW`/`VIEW ALL`/`UNHIDE`.
+3. Extender parser y serializador con `MODULATE` y los ajustes `VIEW`/`VIEW COLLAPSE_NONE`/`UNHIDE`.
 4. Extender el player y el compilador MIDI con paridad de comportamiento.
 5. Añadir tests de:
    - WHITE → BLUE con anclas 1→1 y 1→2, comprobando la key exacta;
