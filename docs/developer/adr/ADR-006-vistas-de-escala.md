@@ -39,7 +39,7 @@ El modelo actual no puede expresar “esta escala, presentada así”. `SCALE` e
 6. **La identidad de una vista es `(padre, regla, selección)`.** Dos vistas con el mismo conjunto de notas pero distinto padre son vistas distintas. Ejemplo: PENTA como vista de WHITE y como vista de BLUE.
 7. **`VIEW` es un ajuste de preset/override, no una operación de procedimiento.**
    - `VIEW <vista>` activa una vista.
-   - `VIEW COLLAPSE_NONE` recupera la escala padre completa; es la forma canónica de “sin vista”. `UNHIDE` queda como alias de `VIEW COLLAPSE_NONE`.
+   - `VIEW COLLAPSE_NONE` recupera la escala padre completa; es la forma canónica de “sin vista”.
    - Se serializa donde se declara.
 8. **La vista es una lente.** Se resuelve contra el padre efectivo del ámbito. Un override puede cambiar `SCALE` y heredar `VIEW`; si la combinación es incompatible, se rechaza al cargar. En un cambio procedural (`MODULATE`, `$scale`), si el padre destino no admite la vista, esta se limpia a `VIEW COLLAPSE_NONE` y se avisa.
 9. **La primera familia es `SEMITONE_COLLAPSE`.** Colapsa cada semitono que toca un tritono dejando una sola nota. En WHITE y BLUE hay dos semitonos, así que hay cuatro vistas: `COLLAPSE_BOTH_HIGH`, `COLLAPSE_BOTH_LOW`, `COLLAPSE_LOW_HIGH`, `COLLAPSE_HIGH_LOW`. `COLLAPSE_NONE` es la identidad de la familia. Las vistas no tienen semitonos; pueden conservar tritonos, que se reportan.
@@ -106,7 +106,7 @@ VIEW COLLAPSE_NONE
 ```
 
 - `VIEW <vista>` activa una vista de la familia disponible para el padre efectivo.
-- `VIEW COLLAPSE_NONE` es la vista identidad: no colapsa nada, recupera la escala padre completa y es la forma canónica de “sin vista”. `UNHIDE` queda como alias de `VIEW COLLAPSE_NONE`.
+- `VIEW COLLAPSE_NONE` es la vista identidad: no colapsa nada, recupera la escala padre completa y es la forma canónica de “sin vista”.
 - La familia interna es `SEMITONE_COLLAPSE`; sus vistas usan el prefijo público `COLLAPSE_`.
 - `VIEW` puede recibir una variable (`VIEW $vista`) en una fase posterior.
 - La serialización canónica emite `VIEW COLLAPSE_NONE` cuando no hay vista.
@@ -166,7 +166,7 @@ PENTA se **elimina** como escala padre en `.mr` v3. No hay compatibilidad hacia 
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir el modelo puro `ScaleView` en `packages/core` (puede empezar en `experimental/tritone-lab.ts`).
-3. Extender parser y serializador con `VIEW`/`VIEW COLLAPSE_NONE`/`UNHIDE`.
+3. Extender parser y serializador con `VIEW`/`VIEW COLLAPSE_NONE`.
 4. Resolver la vista en el player y el compilador MIDI después de `SCALE` y antes de `KEY`.
 5. Tests:
    - las cuatro vistas `COLLAPSE_*` de WHITE y BLUE;
