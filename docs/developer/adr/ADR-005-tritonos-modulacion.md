@@ -47,10 +47,10 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
 
    Los ordinales se cuentan de abajo arriba: `1` es el tritono más bajo.
 5. **La key no se introduce a mano en `MODULATE`.** Es una consecuencia del anclaje.
-6. **No se introduce PENTA como escala ni como vista nueva.** La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas. El estatus de `PENTA` se resuelve en ADR-006: se deprecia como escala padre y se representa como vista.
+6. **PENTA se elimina como escala padre en `.mr` v3.** Su conjunto se representa como vista: se fija en ADR-006. La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas.
 7. **La ocultación es un ajuste de preset**, no una operación de procedimiento. Se implementa colapsando los semitonos que contienen un extremo de tritono: de cada semitono sobrevive una sola nota. En WHITE y BLUE, con dos semitonos, hay cuatro vistas:
-   - `VIEW BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW`
-   - `VIEW NONE` (alias: `UNHIDE`)
+   - `VIEW COLLAPSE_BOTH_LOW|COLLAPSE_BOTH_HIGH|COLLAPSE_LOW_HIGH|COLLAPSE_HIGH_LOW`
+   - `VIEW ALL` (alias: `UNHIDE`)
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta. El modelo general de vistas se fija en ADR-006.
 8. **El MVP de ocultación se limita a WHITE y BLUE.** RED y BLACK tienen cuatro semitonos y TONES no tiene ninguno, así que las cuatro vistas de dos semitonos no aplican. Quedan aparcados.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
@@ -83,7 +83,7 @@ Los pares reales, antes de normalizar, son:
 | TONES | `(0,6)`, `(2,8)`, `(4,10)` |
 | BLACK | `(1,7)`, `(2,8)`, `(4,10)`, `(5,11)` |
 
-Los pares son no ordenados: `(3,9)` y `(9,3)` describen el mismo tritono. PENTA queda fuera de este ADR: no se usa como primitiva y su estatus en el lenguaje actual se decidirá por separado.
+Los pares son no ordenados: `(3,9)` y `(9,3)` describen el mismo tritono. PENTA se elimina en `.mr` v3 (ADR-006): no se usa como primitiva.
 
 ### 3.2. Patrones de distancia
 
@@ -166,10 +166,10 @@ En WHITE y BLUE hay exactamente dos semitonos y cada uno contiene un extremo de 
 
 | Vista | Semitono 1 | Semitono 2 |
 |---|---|---|
-| `BOTH_HIGH` | superior | superior |
-| `BOTH_LOW` | inferior | inferior |
-| `LOW_HIGH` | inferior | superior |
-| `HIGH_LOW` | superior | inferior |
+| `COLLAPSE_BOTH_HIGH` | superior | superior |
+| `COLLAPSE_BOTH_LOW` | inferior | inferior |
+| `COLLAPSE_LOW_HIGH` | inferior | superior |
+| `COLLAPSE_HIGH_LOW` | superior | inferior |
 
 `HIGH` significa “se queda la nota superior del semitono”; `LOW`, “se queda la inferior”. La escala visible resultante no tiene semitonos y se reindexa de `0` a `n-1`.
 
@@ -181,16 +181,16 @@ La vista se declara como un ajuste separado del padre; el modelo general está e
 
 ```text
 SCALE WHITE
-VIEW BOTH_HIGH
+VIEW COLLAPSE_BOTH_HIGH
 
 SCALE BLUE
-VIEW NONE
+VIEW ALL
 ```
 
-- `VIEW BOTH_HIGH` = subir/subir; `BOTH_LOW` = bajar/bajar; `LOW_HIGH` = bajar/subir; `HIGH_LOW` = subir/bajar.
-- `VIEW NONE` recupera el padre completo; `UNHIDE` se mantiene como alias de compatibilidad.
+- `VIEW COLLAPSE_BOTH_HIGH` = subir/subir; `COLLAPSE_BOTH_LOW` = bajar/bajar; `COLLAPSE_LOW_HIGH` = bajar/subir; `COLLAPSE_HIGH_LOW` = subir/bajar.
+- `VIEW ALL` recupera el padre completo; `UNHIDE` se mantiene como alias de compatibilidad.
 - La escala padre, su key y su centro siguen existiendo.
-- Si se cambia de escala mientras hay una vista activa, la vista sigue activa hasta `VIEW NONE`; se reinterpreta sobre el nuevo padre si es compatible (ADR-006, sección 5).
+- Si se cambia de escala mientras hay una vista activa, la vista sigue activa hasta `VIEW ALL`; se reinterpreta sobre el nuevo padre si es compatible (ADR-006, sección 5).
 - Es un ajuste de preset, no una operación de procedimiento. Para que sea local a un bloque se usará `overrides`.
 - La ocultación se serializa donde se declara: si está en el preset, se guarda en el preset; si está en `overrides`, se guarda en el override.
 - **No es un mute posterior.** Las notas ocultas desaparecen de la escala visible y todos los comandos de generación se recalculan sobre ella.
@@ -216,34 +216,34 @@ WHITE tiene un tritono `(3,9)` y dos semitonos: `(2,3)` y `(9,10)`. BLUE tiene d
 
 | Escala | Vista | Se queda | Se oculta | Visible | Tritonos que quedan |
 |---|---|---|---|---|---|
-| WHITE | `BOTH_HIGH` | 3,10 | 2,9 | `{0,3,5,7,10}` C Eb F G Bb | ∅ |
-| WHITE | `BOTH_LOW` | 2,9 | 3,10 | `{0,2,5,7,9}` C D F G A | ∅ |
-| WHITE | `LOW_HIGH` | 2,10 | 3,9 | `{0,2,5,7,10}` C D F G Bb | ∅ |
-| WHITE | `HIGH_LOW` | 3,9 | 2,10 | `{0,3,5,7,9}` C Eb F G A | `(3,9)` |
-| BLUE | `BOTH_HIGH` | 5,8 | 4,7 | `{0,2,5,8,10}` | `(2,8)` |
-| BLUE | `BOTH_LOW` | 4,7 | 5,8 | `{0,2,4,7,10}` | `(4,10)` |
-| BLUE | `LOW_HIGH` | 4,8 | 5,7 | `{0,2,4,8,10}` | `(2,8)`, `(4,10)` |
-| BLUE | `HIGH_LOW` | 5,7 | 4,8 | `{0,2,5,7,10}` | ∅ |
+| WHITE | `COLLAPSE_BOTH_HIGH` | 3,10 | 2,9 | `{0,3,5,7,10}` C Eb F G Bb | ∅ |
+| WHITE | `COLLAPSE_BOTH_LOW` | 2,9 | 3,10 | `{0,2,5,7,9}` C D F G A | ∅ |
+| WHITE | `COLLAPSE_LOW_HIGH` | 2,10 | 3,9 | `{0,2,5,7,10}` C D F G Bb | ∅ |
+| WHITE | `COLLAPSE_HIGH_LOW` | 3,9 | 2,10 | `{0,3,5,7,9}` C Eb F G A | `(3,9)` |
+| BLUE | `COLLAPSE_BOTH_HIGH` | 5,8 | 4,7 | `{0,2,5,8,10}` | `(2,8)` |
+| BLUE | `COLLAPSE_BOTH_LOW` | 4,7 | 5,8 | `{0,2,4,7,10}` | `(4,10)` |
+| BLUE | `COLLAPSE_LOW_HIGH` | 4,8 | 5,7 | `{0,2,4,8,10}` | `(2,8)`, `(4,10)` |
+| BLUE | `COLLAPSE_HIGH_LOW` | 5,7 | 4,8 | `{0,2,5,7,10}` | ∅ |
 
 El MVP no introduce nombres externos para estas vistas. RED y BLACK tienen cuatro semitonos, y TONES no tiene ninguno: las cuatro vistas de dos semitonos no aplican y quedan aparcadas.
 
 ### 5.5. Ejemplos
 
-WHITE con la vista `BOTH_HIGH`:
+WHITE con la vista `COLLAPSE_BOTH_HIGH`:
 
 ```text
 SCALE WHITE
 KEY 5
-VIEW BOTH_HIGH
+VIEW COLLAPSE_BOTH_HIGH
 ```
 
 `KEY` sigue siendo numérico. `KEY F` no forma parte de la sintaxis actual; admitir nombres de nota sería una extensión separada, no decidida en este ADR.
 
-BLUE con la vista `HIGH_LOW`, la única vista de BLUE que deja la escala sin tritonos en el MVP:
+BLUE con la vista `COLLAPSE_HIGH_LOW`, la única vista de BLUE que deja la escala sin tritonos en el MVP:
 
 ```text
 SCALE BLUE
-VIEW HIGH_LOW
+VIEW COLLAPSE_HIGH_LOW
 ```
 
 La escala padre conserva el centro tonal; la ocultación solo decide qué notas suenan.
@@ -251,9 +251,9 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 ## 6. Alcance en el lenguaje
 
 - `MODULATE` es una **operación de procedimiento**: ocurre en un punto del tiempo y cambia la escala y la key actuales.
-- `VIEW`/`VIEW NONE` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
+- `VIEW`/`VIEW ALL` son **ajustes de preset**. Para que sean locales a un bloque se usan en `overrides`.
 - `SCALE` y `KEY` siguen siendo los ajustes de bajo nivel del preset.
-- No se introduce PENTA como escala ni como vista nueva en este ADR.
+- PENTA se elimina como escala padre en `.mr` v3 (ADR-006).
 - La serialización conserva el ajuste de ocultación exactamente donde se ha declarado: preset o override.
 - Este cambio se documentará en `.mr` v3, aunque pueda ser compatible con archivos v2.
 
@@ -264,7 +264,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 | Seguir usando solo `SCALE` + `KEY` | Obliga a conocer la key y no expresa qué tritono se conserva. Se mantiene como bajo nivel, no como interfaz principal. |
 | `MODULATE <destino>` sin ancla | Vuelve a introducir empates de key; no es determinista. |
 | `KEEP`/`AS` con nombres de notas | El usuario no debe manejar nombres de notas; además, el tritono es reversible y el nombre del extremo es ambiguo. |
-| PENTA como escala nueva | No tiene centro tritonal propio; se descarta en este ADR. |
+| PENTA como escala padre | Se elimina en `.mr` v3; no tiene centro tritonal propio y se representa como vista (ADR-006). |
 | Retirar solo un extremo del tritono | Deja vivo el semitono del otro extremo y no explica las cuatro vistas; se sustituye por el colapso de semitonos. |
 | Ocultar tritonos en todas las escalas como MVP | RED y BLACK tienen cuatro semitonos y TONES ninguno; las cuatro vistas de dos semitonos no aplican. |
 | `NEAR`/`FAR`/`MID` como interfaz | Se descarta por ahora; no sustituye al control exacto del ancla. |
@@ -294,7 +294,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 ## 9. Decisiones pendientes
 
 1. **Nombres de nota en `KEY`.** Admitir `KEY F` sería una extensión aparte, no decidida en este ADR. De momento `KEY` sigue siendo numérico.
-2. **Estatus de la escala PENTA actual.** No forma parte del modelo nuevo, pero su deprecación o conservación en `.mr` se decidirá por separado.
+2. **PENTA.** Se elimina como escala padre en `.mr` v3; el detalle está en ADR-006.
 3. **Detalle de serialización de `VIEW`.** Se guarda donde se declara; queda concretar la forma canónica exacta en `.mr` v3.
 4. **Sintaxis final de `VIEW`.** Se fija en ADR-006, sección 9.
 5. **Escalas con más de dos semitonos.** RED y BLACK tienen cuatro; la sintaxis de cuatro parámetros o de un modo enumerado tendrá que decidirse antes de ampliar el MVP.
@@ -304,7 +304,7 @@ La escala padre conserva el centro tonal; la ocultación solo decide qué notas 
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir una utilidad pura de tritonos y semitonos: inicios mod 6 para patrones, inicios reales mod 12 para la key, rotación, cálculo de fijos/añadidos/quitados y colapso de semitonos.
-3. Extender parser y serializador con `MODULATE` y los ajustes `VIEW`/`VIEW NONE`/`UNHIDE`.
+3. Extender parser y serializador con `MODULATE` y los ajustes `VIEW`/`VIEW ALL`/`UNHIDE`.
 4. Extender el player y el compilador MIDI con paridad de comportamiento.
 5. Añadir tests de:
    - WHITE → BLUE con anclas 1→1 y 1→2, comprobando la key exacta;

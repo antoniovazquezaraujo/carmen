@@ -19,8 +19,8 @@ El laboratorio de tritonos de ADR-005 encontró que la ocultación correcta no e
 
 La misma idea explica PENTA. Su conjunto `[0,2,5,7,10]` es exactamente:
 
-- `WHITE` con la vista `LOW_HIGH`;
-- `BLUE` con la vista `HIGH_LOW`.
+- `WHITE` con la vista `COLLAPSE_LOW_HIGH`;
+- `BLUE` con la vista `COLLAPSE_HIGH_LOW`.
 
 PENTA no tiene centro tritonal propio porque no es un padre: es una vista huérfana. Al existir como escala suelta ha perdido el padre y, con él, el contexto armónico.
 
@@ -39,12 +39,12 @@ El modelo actual no puede expresar “esta escala, presentada así”. `SCALE` e
 6. **La identidad de una vista es `(padre, regla, selección)`.** Dos vistas con el mismo conjunto de notas pero distinto padre son vistas distintas. Ejemplo: PENTA como vista de WHITE y como vista de BLUE.
 7. **`VIEW` es un ajuste de preset/override, no una operación de procedimiento.**
    - `VIEW <vista>` activa una vista.
-   - `VIEW NONE` la desactiva; `UNHIDE` se mantiene como alias de compatibilidad.
+   - `VIEW ALL` recupera la escala padre completa; es la forma canónica de “sin vista”. `UNHIDE` queda como alias de `VIEW ALL`.
    - Se serializa donde se declara.
-8. **La vista es una lente.** Se resuelve contra el padre efectivo del ámbito. Un override puede cambiar `SCALE` y heredar `VIEW`; si la combinación es incompatible, se rechaza al cargar. En un cambio procedural (`MODULATE`, `$scale`), si el padre destino no admite la vista, esta se limpia y se avisa.
-9. **La primera familia es `SEMITONE_COLLAPSE`.** Colapsa cada semitono que toca un tritono dejando una sola nota. En WHITE y BLUE hay dos semitonos, así que hay cuatro vistas: `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`. Las vistas no tienen semitonos; pueden conservar tritonos, que se reportan.
-10. **PENTA se deprecia como escala padre.** Es equivalente a `WHITE/LOW_HIGH` y `BLUE/HIGH_LOW`. Los archivos v2 siguen leyendo `SCALE PENTA` por compatibilidad; la serialización nueva emite `SCALE WHITE` + `VIEW LOW_HIGH` y una nota de deprecación. La eliminación se decidirá en una versión mayor.
-11. **La serialización es explícita.** `SCALE`, `KEY` y `VIEW` se guardan en el mismo ámbito; nunca se infiere la vista del conjunto de notas. `VIEW NONE` es la forma canónica de “sin vista”.
+8. **La vista es una lente.** Se resuelve contra el padre efectivo del ámbito. Un override puede cambiar `SCALE` y heredar `VIEW`; si la combinación es incompatible, se rechaza al cargar. En un cambio procedural (`MODULATE`, `$scale`), si el padre destino no admite la vista, esta se limpia a `VIEW ALL` y se avisa.
+9. **La primera familia es `SEMITONE_COLLAPSE`.** Colapsa cada semitono que toca un tritono dejando una sola nota. En WHITE y BLUE hay dos semitonos, así que hay cuatro vistas: `COLLAPSE_BOTH_HIGH`, `COLLAPSE_BOTH_LOW`, `COLLAPSE_LOW_HIGH`, `COLLAPSE_HIGH_LOW`. Las vistas no tienen semitonos; pueden conservar tritonos, que se reportan.
+10. **PENTA se elimina como escala padre.** No hay compatibilidad hacia atrás: `SCALE PENTA` deja de ser válido en `.mr` v3. La equivalencia sonora es `WHITE` + `COLLAPSE_LOW_HIGH` o `BLUE` + `COLLAPSE_HIGH_LOW`; el usuario debe elegir el padre explícitamente. El parser puede sugerir la vista equivalente en el error, pero no migra el archivo.
+11. **La serialización es explícita.** `SCALE`, `KEY` y `VIEW` se guardan en el mismo ámbito; nunca se infiere la vista del conjunto de notas. `VIEW ALL` es la forma canónica de “sin vista”.
 12. **La GUI muestra el padre y la vista efectivos**, las notas ocultas y los tritonos que quedan. Si una vista se limpia por incompatibilidad, se avisa.
 
 ## 3. Modelo formal
@@ -57,7 +57,7 @@ Sea `P = [p0, p1, ..., pn-1]` la escala padre, ordenada y relativa a la raíz 0.
 view(P, V) = [ p_i : i ∈ keepIndices(P, V) ]
 ```
 
-La escala efectiva con key `k` es:
+`VIEW ALL` es el caso identidad: `view(P, ALL) = P`. La escala efectiva con key `k` es:
 
 ```text
 effective(P, V, k) = transpose(view(P, V), k)
@@ -78,7 +78,7 @@ El orden es **`SCALE -> VIEW -> KEY`**. No es equivalente a aplicar la vista sob
 
 ### 3.3. La familia `SEMITONE_COLLAPSE`
 
-La regla busca los semitonos del padre y, para cada uno, conserva la nota inferior o la superior. En WHITE y BLUE hay dos semitonos, de modo que la selección es un par `[LOW|HIGH, LOW|HIGH]` y hay cuatro vistas.
+La regla busca los semitonos del padre y, para cada uno, conserva la nota inferior o la superior. En WHITE y BLUE hay dos semitonos, de modo que la selección es un par `[LOW|HIGH, LOW|HIGH]` y hay cuatro vistas: `COLLAPSE_BOTH_HIGH`, `COLLAPSE_BOTH_LOW`, `COLLAPSE_LOW_HIGH` y `COLLAPSE_HIGH_LOW`. `VIEW ALL` no es una vista de la familia: es la escala padre completa.
 
 Las cuatro vistas de WHITE y BLUE están tabuladas en ADR-005, sección 5.4. La invariante de la familia es que la vista no tiene semitonos. No garantiza que no queden tritonos: un tritono sobrevive si sus dos notas están entre las conservadas. El resultado se reporta, no se oculta.
 
@@ -87,28 +87,30 @@ Las cuatro vistas de WHITE y BLUE están tabuladas en ADR-005, sección 5.4. La 
 ```text
 PENTA = [0,2,5,7,10]
 WHITE = [0,2,3,5,7,9,10]
-WHITE/LOW_HIGH: semitonos (2,3) y (9,10) -> conserva 2 y 10 -> [0,2,5,7,10] = PENTA
+WHITE/COLLAPSE_LOW_HIGH: semitonos (2,3) y (9,10) -> conserva 2 y 10 -> [0,2,5,7,10] = PENTA
 BLUE = [0,2,4,5,7,8,10]
-BLUE/HIGH_LOW: semitonos (4,5) y (7,8) -> conserva 5 y 7 -> [0,2,5,7,10] = PENTA
+BLUE/COLLAPSE_HIGH_LOW: semitonos (4,5) y (7,8) -> conserva 5 y 7 -> [0,2,5,7,10] = PENTA
 ```
 
-Con `KEY 5`, la vista se aplica antes de la transposición y sigue coincidiendo con PENTA transpuesta. Si se aplicara después de transponer, `WHITE` + `KEY 5` con `LOW_HIGH` daría `[0,2,5,8,10]`, que no es PENTA.
+Con `KEY 5`, la vista se aplica antes de la transposición y sigue coincidiendo con PENTA transpuesta. Si se aplicara después de transponer, `WHITE` + `KEY 5` con `COLLAPSE_LOW_HIGH` daría `[0,2,5,8,10]`, que no es PENTA.
 
 ## 4. Sintaxis propuesta
 
 ```text
 SCALE WHITE
 KEY 5
-VIEW BOTH_HIGH
+VIEW COLLAPSE_BOTH_HIGH
 
 SCALE BLUE
-VIEW NONE
+VIEW ALL
 ```
 
 - `VIEW <vista>` activa una vista de la familia disponible para el padre efectivo.
-- `VIEW NONE` la desactiva; `UNHIDE` es un alias de compatibilidad.
+- `VIEW ALL` recupera la escala padre completa; es la forma canónica de “sin vista”. `UNHIDE` queda como alias de `VIEW ALL`.
+- La familia interna es `SEMITONE_COLLAPSE`; sus vistas usan el prefijo público `COLLAPSE_`.
+- No se añade `COLLAPSE_NONE`: sería un sinónimo de `VIEW ALL` y dos formas de decir lo mismo.
 - `VIEW` puede recibir una variable (`VIEW $vista`) en una fase posterior.
-- La serialización canónica emite `VIEW NONE` cuando no hay vista.
+- La serialización canónica emite `VIEW ALL` cuando no hay vista.
 - La sintaxis final del nombre de la vista y de las familias con más de dos semitonos queda pendiente (sección 9).
 
 ## 5. Interacción con modulación
@@ -116,7 +118,7 @@ VIEW NONE
 `MODULATE` es una operación de procedimiento que cambia el padre y la key. La vista es un ajuste de preset/override, no una operación.
 
 - Si el padre destino es compatible con la vista (misma familia y aridad), la vista se conserva y se reinterpreta sobre el nuevo padre. En el MVP: WHITE ↔ BLUE.
-- Si el padre destino no es compatible, la vista se limpia y se avisa. La GUI y la serialización muestran `VIEW NONE`.
+- Si el padre destino no es compatible, la vista se limpia a `VIEW ALL` y se avisa. La GUI y la serialización muestran `VIEW ALL`.
 - `MODULATE` no puede apuntar a una vista: el destino es siempre un padre. Si se quiere modular a un padre y luego aplicar una vista, son dos pasos.
 - Un cambio de `SCALE` por variable sigue la misma regla que `MODULATE`.
 
@@ -126,63 +128,64 @@ La vista es una lente y se resuelve contra el padre efectivo.
 
 - Un override puede cambiar solo `SCALE` y heredar `VIEW` del preset. Si el resultado es compatible, la vista se reinterpreta.
 - Si el resultado es incompatible, el override es inválido y se rechaza al cargar.
-- Un override puede declarar `VIEW NONE` para desactivar la vista del preset.
+- Un override puede declarar `VIEW ALL` para desactivar la vista del preset.
 - La serialización conserva `SCALE` y `VIEW` en el mismo ámbito; no se materializa la vista en cada bloque.
 
 ## 7. PENTA
 
-PENTA se deprecia como escala padre:
+PENTA se **elimina** como escala padre en `.mr` v3. No hay compatibilidad hacia atrás:
 
-- **Lectura v2:** `SCALE PENTA` se sigue aceptando; internamente se interpreta como `SCALE WHITE` + `VIEW LOW_HIGH` (padre canónico: WHITE).
-- **Serialización v3:** se emite `SCALE WHITE` + `VIEW LOW_HIGH`, con una nota de deprecación.
-- **Futuro:** la eliminación de `PENTA` del enum se decidirá en una versión mayor.
-- La elección de WHITE como padre canónico es arbitraria pero determinista: WHITE tiene un solo tritono y es el padre más simple. `BLUE/HIGH_LOW` produce las mismas notas, pero un contexto distinto.
+- `SCALE PENTA` deja de ser válido; el parser lo rechaza.
+- No se migran archivos automáticamente ni se emite una serialización compatible.
+- La equivalencia sonora documental es `WHITE` + `VIEW COLLAPSE_LOW_HIGH` o `BLUE` + `VIEW COLLAPSE_HIGH_LOW`; el usuario elige el padre.
+- El mensaje de error puede sugerir esas dos vistas, pero no se aplica ninguna migración automática.
+- La elección de WHITE como ejemplo canónico es arbitraria: WHITE tiene un solo tritono y es el padre más simple. `BLUE/COLLAPSE_HIGH_LOW` produce las mismas notas, pero un contexto distinto.
 
 ## 8. Alternativas consideradas
 
 | Alternativa | Motivo del descarte |
 |---|---|
 | Vista como escala nueva | Pierde el padre y el centro; es exactamente el problema de PENTA. |
-| `SCALE WHITE/BOTH_HIGH` compuesto | Mezcla padre y presentación; complica overrides y variables. |
+| `SCALE WHITE/COLLAPSE_BOTH_HIGH` compuesto | Mezcla padre y presentación; complica overrides y variables. |
 | `HIDE_TRITONES` como comando principal | Describe la operación, no el concepto; la vista es una capa, no una ocultación. |
 | Vista como mute posterior | La escala visible debe reindexarse antes de generar; un mute dejaría huecos. |
-| PENTA como padre | No tiene centro tritonal propio; es una vista huérfana. |
+| PENTA como padre | No tiene centro tritonal propio; es una vista huérfana y se elimina en v3. |
+| Mantener PENTA por compatibilidad | Se elimina sin migración automática; el error sugiere la vista equivalente. |
 | Vistas anidadas | La composición no es conmutativa y complica la serialización; una vista de una vista no aporta en el MVP. |
 
 ## 9. Decisiones pendientes
 
-1. **Nombre y sintaxis final de `VIEW`.** `VIEW BOTH_HIGH` es la forma propuesta; falta decidir si el nombre incluye la familia (`VIEW SEMITONE_COLLAPSE BOTH_HIGH`) y cómo se representan vistas con más de dos semitonos.
+1. **Nombre y sintaxis final de `VIEW`.** `VIEW COLLAPSE_HIGH_LOW` es la forma propuesta; falta decidir si el nombre incluye la familia (`VIEW SEMITONE_COLLAPSE HIGH_LOW`) y cómo se representan vistas con más de dos semitonos. `COLLAPSE_NONE` no se añade: `VIEW ALL` ya expresa “sin proyección”.
 2. **Familias futuras.** `SEMITONE_COLLAPSE` es la primera; ¿habrá `TRITONE_ENDPOINT`, `REMOVE_DEGREE`, etc.? El modelo debe permitirlo sin cambiar la sintaxis base.
 3. **Padres de cuatro semitonos.** RED y BLACK tienen cuatro semitonos; la selección de cuatro posiciones y la UI de 16 vistas quedan fuera del MVP.
 4. **Variables de vista.** ¿`VIEW $vista` desde el primer día o después?
-5. **PENTA.** Confirmar la migración a `WHITE/LOW_HIGH` y la nota de deprecación; decidir la versión de eliminación.
+5. **PENTA.** Confirmar el alcance de la eliminación (enum, parser, serializador, docs, ejemplos y GUI) y el texto del error que sugiere la vista equivalente.
 6. **GUI.** Cómo mostrar la vista, las notas ocultas y los tritonos restantes sin saturar el editor.
-7. **Modulación incompatible.** Confirmar que “limpiar + aviso” es el comportamiento deseado en vivo, frente a “rechazar la operación”.
 
 ## 10. Plan de implementación
 
 1. Aprobar este ADR y cerrar las cuestiones abiertas.
 2. Añadir el modelo puro `ScaleView` en `packages/core` (puede empezar en `experimental/tritone-lab.ts`).
-3. Extender parser y serializador con `VIEW`/`VIEW NONE`/`UNHIDE`.
+3. Extender parser y serializador con `VIEW`/`VIEW ALL`/`UNHIDE`.
 4. Resolver la vista en el player y el compilador MIDI después de `SCALE` y antes de `KEY`.
 5. Tests:
-   - las cuatro vistas de WHITE y BLUE;
+   - las cuatro vistas `COLLAPSE_*` de WHITE y BLUE;
    - identidad de vistas: mismo conjunto, distinto padre;
-   - `KEY` aplicada después de la vista (PENTA con `KEY 5`);
+   - `KEY` aplicada después de la vista (la vista de PENTA con `KEY 5`);
    - compatibilidad en overrides y modulación;
    - reindexado y comandos de generación sobre la vista;
    - serialización y round-trip;
-   - migración de PENTA.
+   - rechazo de `SCALE PENTA` con sugerencia de vista equivalente.
 6. GUI: selector de vista, notas ocultas, tritonos restantes y avisos de incompatibilidad.
 7. Documentar en `docs/user/manual.md` y `docs/user/cheatsheet.md`.
-8. Deprecar PENTA en una fase separada.
+8. Eliminar PENTA del enum, parser, serializador, docs y ejemplos (cambio rompedor de v3).
 
 ## 11. Consecuencias
 
 ### Positivas
 
 - Separa “qué escala soy” de “cómo la presento”.
-- Da contexto a PENTA sin convertirla en un padre artificial.
+- Elimina la ambigüedad de PENTA: las mismas notas se expresan como vista de un padre explícito.
 - Hace explícita la ocultación y evita mutes posteriores.
 - La vista es key-invariante y testeable.
 - El modelo admite nuevas familias sin rehacer el parser.
@@ -191,7 +194,7 @@ PENTA se deprecia como escala padre:
 
 - Hay que tocar parser, serializador, player, compilador y GUI.
 - La resolución de vistas en overrides y modulación añade reglas de compatibilidad.
-- PENTA necesita una migración compatible y una nota de deprecación.
+- PENTA desaparece: es un cambio rompedor para archivos v2 y obliga a actualizar ejemplos y documentación.
 - La serialización debe ser explícita; inferir la vista del conjunto de notas sería ambiguo.
 - `.mr` v3 será necesario para la forma canónica completa.
 
