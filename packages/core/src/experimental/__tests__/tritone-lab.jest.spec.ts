@@ -1,7 +1,9 @@
 import {
     formatModulation,
-    hideTritones,
+    formatSemitoneView,
+    hideSemitones,
     modulate,
+    SEMITONE_VIEW_SELECTIONS,
     TRITONE_SCALES,
     tritoneStarts
 } from '../tritone-lab';
@@ -56,41 +58,70 @@ describe('tritone lab', () => {
         expect(() => modulate('WHITE', 'BLUE', 1, 3)).toThrow(RangeError);
     });
 
-    it('hides one note of the only WHITE tritone and reindexes the visible scale', () => {
-        const result = hideTritones('WHITE', 'LOW');
+    it('derives the four WHITE semitone views', () => {
+        const views = SEMITONE_VIEW_SELECTIONS.map(selection => hideSemitones('WHITE', selection));
 
-        expect(result.hiddenNotes).toEqual([3]);
-        expect(result.notes).toEqual([0, 2, 5, 7, 9, 10]);
-        expect(result.notes).toHaveLength(6);
-        expect(result.tritones).toEqual([]);
+        expect(new Set(SEMITONE_VIEW_SELECTIONS.map(selection => selection.join('/'))).size).toBe(4);
+        expect(views.map(view => view.hiddenNotes)).toEqual([
+            [2, 9],
+            [3, 10],
+            [3, 9],
+            [2, 10]
+        ]);
+        expect(views.map(view => view.notes)).toEqual([
+            [0, 3, 5, 7, 10],
+            [0, 2, 5, 7, 9],
+            [0, 2, 5, 7, 10],
+            [0, 3, 5, 7, 9]
+        ]);
+        expect(views.map(view => view.semitones)).toEqual([[], [], [], []]);
+        expect(views.map(view => view.tritones)).toEqual([[], [], [], [[3, 9]]]);
     });
 
-    it('hides either endpoint of a BLUE tritone', () => {
-        const low = hideTritones('BLUE', 'LOW', 'LOW');
-        const lowUpper = hideTritones('BLUE', 'LOW', 'HIGH');
-        const high = hideTritones('BLUE', 'HIGH', 'LOW');
+    it('derives the four BLUE semitone views', () => {
+        const views = SEMITONE_VIEW_SELECTIONS.map(selection => hideSemitones('BLUE', selection));
 
-        expect(low.hiddenNotes).toEqual([2]);
-        expect(low.notes).toEqual([0, 4, 5, 7, 8, 10]);
-        expect(low.tritones).toEqual([[4, 10]]);
-        expect(lowUpper.hiddenNotes).toEqual([8]);
-        expect(lowUpper.notes).toEqual([0, 2, 4, 5, 7, 10]);
-        expect(lowUpper.tritones).toEqual([[4, 10]]);
-        expect(high.hiddenNotes).toEqual([4]);
-        expect(high.notes).toEqual([0, 2, 5, 7, 8, 10]);
-        expect(high.tritones).toEqual([[2, 8]]);
+        expect(views.map(view => view.hiddenNotes)).toEqual([
+            [4, 7],
+            [5, 8],
+            [5, 7],
+            [4, 8]
+        ]);
+        expect(views.map(view => view.notes)).toEqual([
+            [0, 2, 5, 8, 10],
+            [0, 2, 4, 7, 10],
+            [0, 2, 4, 8, 10],
+            [0, 2, 5, 7, 10]
+        ]);
+        expect(views.map(view => view.semitones)).toEqual([[], [], [], []]);
+        expect(views.map(view => view.tritones)).toEqual([
+            [[2, 8]],
+            [[4, 10]],
+            [
+                [2, 8],
+                [4, 10]
+            ],
+            []
+        ]);
     });
 
-    it('can hide one note of each BLUE tritone', () => {
-        const lower = hideTritones('BLUE', 'ALL', 'LOW');
-        const upper = hideTritones('BLUE', 'ALL', 'HIGH');
+    it('rejects semitone views outside the WHITE/BLUE MVP', () => {
+        expect(() => hideSemitones('RED', ['LOW', 'LOW'])).toThrow(RangeError);
+        expect(() => hideSemitones('TONES', [])).toThrow(RangeError);
+    });
 
-        expect(lower.hiddenNotes).toEqual([2, 4]);
-        expect(lower.notes).toEqual([0, 5, 7, 8, 10]);
-        expect(lower.notes).toHaveLength(5);
-        expect(lower.tritones).toEqual([]);
-        expect(upper.hiddenNotes).toEqual([8, 10]);
-        expect(upper.notes).toEqual([0, 2, 4, 5, 7]);
-        expect(upper.tritones).toEqual([]);
+    it('rejects selections with the wrong number of semitone choices', () => {
+        expect(() => hideSemitones('WHITE', ['LOW'])).toThrow(RangeError);
+        expect(() => hideSemitones('BLUE', ['LOW', 'HIGH', 'LOW'])).toThrow(RangeError);
+    });
+
+    it('formats a semitone view', () => {
+        const view = hideSemitones('WHITE', ['HIGH', 'HIGH']);
+        const report = formatSemitoneView(view);
+
+        expect(report).toContain('WHITE HIGH/HIGH');
+        expect(report).toContain('hide={2,9}');
+        expect(report).toContain('visible={0,3,5,7,10}');
+        expect(report).toContain('semitones=∅');
     });
 });

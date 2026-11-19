@@ -9,13 +9,22 @@
 const {
   TRITONE_SCALES,
   formatModulation,
-  hideTritones,
-  modulate
+  formatSemitoneView,
+  hideSemitones,
+  modulate,
+  SEMITONE_VIEW_SELECTIONS
 } = require('../packages/core/dist/experimental/tritone-lab.js');
 
 const pairList = pairs => pairs.length === 0
   ? '∅'
   : pairs.map(([start, end]) => `(${start},${end})`).join(' ');
+
+const VIEW_LABELS = {
+  'HIGH/HIGH': 'subir/subir',
+  'LOW/LOW': 'bajar/bajar',
+  'LOW/HIGH': 'bajar/subir',
+  'HIGH/LOW': 'subir/bajar'
+};
 
 console.log('Tritone patterns\n');
 for (const name of Object.keys(TRITONE_SCALES)) {
@@ -27,16 +36,11 @@ console.log('\nAnchored modulation\n');
 console.log(formatModulation(modulate('WHITE', 'BLUE', 1, 2)));
 console.log(formatModulation(modulate('BLUE', 'WHITE', 1, 1)));
 
-console.log('\nHidden tritones\n');
-for (const selection of ['LOW', 'HIGH', 'ALL']) {
-  const hidden = hideTritones('BLUE', selection);
-  console.log(
-    `BLUE ${selection.padEnd(4)} hide=${hidden.hiddenNotes.join(',')} ` +
-    `visible={${hidden.notes.join(',')}} remaining=${pairList(hidden.tritones)}`
-  );
+console.log('\nSemitone views (WHITE/BLUE)\n');
+for (const name of ['WHITE', 'BLUE']) {
+  for (const selection of SEMITONE_VIEW_SELECTIONS) {
+    const view = hideSemitones(name, selection);
+    const label = VIEW_LABELS[selection.join('/')];
+    console.log(`${label.padEnd(11)} ${formatSemitoneView(view)}`);
+  }
 }
-
-const whiteLower = hideTritones('WHITE', 'LOW', 'LOW');
-const whiteUpper = hideTritones('WHITE', 'LOW', 'HIGH');
-console.log(`WHITE LOW  hide=${whiteLower.hiddenNotes.join(',')} visible={${whiteLower.notes.join(',')}} remaining=${pairList(whiteLower.tritones)}`);
-console.log(`WHITE HIGH hide=${whiteUpper.hiddenNotes.join(',')} visible={${whiteUpper.notes.join(',')}} remaining=${pairList(whiteUpper.tritones)}`);

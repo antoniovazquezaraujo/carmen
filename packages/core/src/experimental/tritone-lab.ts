@@ -7,7 +7,8 @@
  * - a tritone is represented by its two pitch classes `(start, start + 6)`;
  * - a modulation anchors one source tritone to one destination tritone;
  * - the exact key is the real pitch-class distance, modulo 12;
- * - hiding a tritone removes both of its notes and reindexes the visible scale.
+ * - hiding collapses the semitones that touch a tritone: one note of each
+ *   semitone survives, which yields four semitone-free views in WHITE and BLUE.
  *
  * Run its tests with:
  *
@@ -16,7 +17,8 @@
 
 export type TritoneScaleName = 'WHITE' | 'BLUE' | 'RED' | 'TONES' | 'BLACK';
 
-export type TritonePair = readonly [number, number];
+export type NotePair = readonly [number, number];
+export type TritonePair = NotePair;
 
 export interface TritoneScale {
     readonly name: TritoneScaleName;
@@ -24,8 +26,11 @@ export interface TritoneScale {
     readonly tritones: readonly TritonePair[];
 }
 
-export type HideSelection = 'LOW' | 'HIGH' | 'ALL';
-export type TritoneSide = 'LOW' | 'HIGH';
+/** Which note of a semitone survives: the lower or the upper one. */
+export type SemitoneSide = 'LOW' | 'HIGH';
+
+/** One side per semitone, in ascending semitone order. */
+export type SemitoneSelection = readonly SemitoneSide[];
 
 export interface ModulationResult {
     readonly source: TritoneScaleName;
@@ -40,14 +45,16 @@ export interface ModulationResult {
     readonly removed: readonly TritonePair[];
 }
 
-export interface HiddenScale {
+export interface SemitoneView {
     readonly name: TritoneScaleName;
-    readonly selection: HideSelection;
-    readonly side: TritoneSide;
-    readonly hiddenTritones: readonly TritonePair[];
+    readonly selection: SemitoneSelection;
+    /** Notes removed from the parent scale. */
     readonly hiddenNotes: readonly number[];
     /** Visible notes in ascending order. Their index is the new visible degree. */
     readonly notes: readonly number[];
+    /** Semitones left in the visible scale; empty for every MVP view. */
+    readonly semitones: readonly NotePair[];
+    /** Tritones that survive in the visible scale. */
     readonly tritones: readonly TritonePair[];
 }
 
@@ -89,6 +96,26 @@ function findTritones(notes: readonly number[]): TritonePair[] {
     }
 
     return sortedPairs(pairs);
+}
+
+/**
+ * Adjacent pitch classes a semitone apart, as `[lower, upper]`.
+ *
+ * The MVP only uses WHITE and BLUE, whose semitones never wrap around 11..0,
+ * so the simple ascending scan is enough.
+ */
+function findSemitones(notes: readonly number[]): NotePair[] {
+    const pairs: NotePair[] = [];
+
+    for (let index = 0; index < notes.length - 1; index += 1) {
+        const note = notes[index];
+        const next = notes[index + 1];
+        if (next - note === 1) {
+            pairs.push([note, next]);
+        }
+    }
+
+    return pairs;
 }
 
 function buildScale(name: TritoneScaleName): TritoneScale {
@@ -159,58 +186,82 @@ export function modulate(
 }
 
 /**
- * Hide one or all tritones of a scale.
+ * Collapse the semitones that touch a tritone into pentatonic views.
  *
- * Hiding a tritone removes only one of its two notes; either endpoint is
- * enough to make the tritone disappear. `side` selects which endpoint:
- * `LOW` removes the lower note, `HIGH` removes the upper note.
+ * Hiding no longer removes one endpoint of the tritone: from each semitone,
+ * exactly one note survives (`LOW` keeps the lower note, `HIGH` keeps the
+ * upper one). The visible scale therefore has no semitones. WHITE and BLUE
+ * have two semitones each, so there are four views.
  *
- * The returned notes are the visible scale in ascending order. Their array
- * index is the new visible degree.
+ * The MVP only supports WHITE and BLUE. A tritone can survive a view when both
+ * of its notes are kept; `tritones` reports the remaining ones.
  */
-export function hideTritones(
+export function hideSemitones(
     name: TritoneScaleName,
-    selection: HideSelection,
-    side: TritoneSide = 'LOW'
-): HiddenScale {
+    selection: SemitoneSelection
+): SemitoneView {
+    if (name !== 'WHITE' && name !== 'BLUE') {
+        throw new RangeError(`${name} does not support semitone views in the MVP`);
+    }
+
     const scale = TRITONE_SCALES[name];
-    if (scale.tritones.length === 0) {
-        throw new RangeError(`${name} has no tritones to hide`);
+    const semitones = findSemitones(scale.notes);
+    if (selection.length !== semitones.length) {
+        throw new RangeError(
+            `${name} needs ${semitones.length} semitone choices, got ${selection.length}`
+        );
     }
 
-    const hiddenTritones =
-        selection === 'ALL'
-            ? scale.tritones
-            : selection === 'LOW'
-              ? [scale.tritones[0]]
-              : [scale.tritones[scale.tritones.length - 1]];
+    const hiddenNotes: number[] = [];
+    semitones.forEach(([low, high], index) => {
+        hiddenNotes.push(selection[index] === 'LOW' ? high : low);
+    });
+    const hidden = new Set(hiddenNotes);
 
-    const hiddenNotes = new Set<number>();
-    for (const [start, end] of hiddenTritones) {
-        hiddenNotes.add(side === 'LOW' ? start : end);
-    }
-
-    const notes = scale.notes.filter(note => !hiddenNotes.has(note));
+    const notes = scale.notes.filter(note => !hidden.has(note));
     return {
         name,
         selection,
-        side,
-        hiddenTritones,
         hiddenNotes: [...hiddenNotes].sort((left, right) => left - right),
         notes,
+        semitones: findSemitones(notes),
         tritones: findTritones(notes)
     };
 }
 
+/**
+ * The four MVP views, in the order both-up, both-down, down/up and up/down.
+ * `HIGH` keeps the upper note of a semitone; `LOW` keeps the lower one.
+ */
+export const SEMITONE_VIEW_SELECTIONS: readonly SemitoneSelection[] = [
+    ['HIGH', 'HIGH'],
+    ['LOW', 'LOW'],
+    ['LOW', 'HIGH'],
+    ['HIGH', 'LOW']
+];
+
+/** Small human-readable report for the lab. */
+export function formatSemitoneView(view: SemitoneView): string {
+    return [
+        `${view.name} ${view.selection.join('/')}`,
+        `hide={${view.hiddenNotes.join(',')}}`,
+        `visible={${view.notes.join(',')}}`,
+        `semitones=${formatPairs(view.semitones)}`,
+        `tritones=${formatPairs(view.tritones)}`
+    ].join(' ');
+}
+
+function formatPairs(items: readonly NotePair[]): string {
+    return items.length === 0 ? '∅' : items.map(([start, end]) => `(${start},${end})`).join(' ');
+}
+
 /** Small human-readable report for the lab. */
 export function formatModulation(result: ModulationResult): string {
-    const pairs = (items: readonly TritonePair[]): string =>
-        items.length === 0 ? '∅' : items.map(([start, end]) => `(${start},${end})`).join(' ');
     return [
         `${result.source} -> ${result.target} (${result.fromOrdinal}->${result.toOrdinal})`,
         `key=${result.key}`,
-        `fixed=${pairs(result.fixed)}`,
-        `added=${pairs(result.added)}`,
-        `removed=${pairs(result.removed)}`
+        `fixed=${formatPairs(result.fixed)}`,
+        `added=${formatPairs(result.added)}`,
+        `removed=${formatPairs(result.removed)}`
     ].join(' | ');
 }

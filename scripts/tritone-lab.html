@@ -65,14 +65,16 @@
   <p>
     Demo auditiva del modelo experimental de <strong>ADR-005</strong>. Las notas se
     representan por clases de altura <code>0–11</code> y se reproducen desde C4.
-    No es una integración en Carmen: solo sirve para comprobar de oído que el
-    anclaje y la ocultación de tritonos se comportan como esperamos.
+    La ocultación colapsa los semitonos que tocan los tritonos: de cada semitono
+    sobrevive una sola nota. WHITE y BLUE tienen dos semitonos, así que hay cuatro
+    vistas por escala. No es una integración en Carmen: solo sirve para comprobar
+    de oído que el anclaje y las vistas sin semitonos se comportan como esperamos.
   </p>
 
   <h2>Escalas completas</h2>
   <div class="grid" id="scales"></div>
 
-  <h2>Escalas con tritonos ocultos</h2>
+  <h2>Vistas sin semitonos</h2>
   <div class="grid" id="hidden"></div>
 
   <h2>Modulaciones ancladas</h2>
@@ -84,6 +86,7 @@
     <p class="note">
       Cada botón reproduce una secuencia ascendente. Las notas ocultas se han
       eliminado de la escala visible y los grados visibles se han reindexado.
+      Algunas vistas conservan un tritono; se muestra en el detalle.
     </p>
   </div>
 </main>
@@ -96,16 +99,33 @@
     BLACK: { notes: [1, 2, 4, 5, 7, 8, 10, 11], tritones: [[1, 7], [2, 8], [4, 10], [5, 11]] }
   };
 
-  const HIDDEN = [
-    { label: 'WHITE · ocultar nota 3', notes: [0, 2, 5, 7, 9, 10], detail: '6 grados visibles · sin tritonos' },
-    { label: 'WHITE · ocultar nota 9', notes: [0, 2, 3, 5, 7, 10], detail: '6 grados visibles · sin tritonos' },
-    { label: 'BLUE · LOW · ocultar 2', notes: [0, 4, 5, 7, 8, 10], detail: 'conserva (4,10)' },
-    { label: 'BLUE · LOW · ocultar 8', notes: [0, 2, 4, 5, 7, 10], detail: 'conserva (4,10)' },
-    { label: 'BLUE · HIGH · ocultar 4', notes: [0, 2, 5, 7, 8, 10], detail: 'conserva (2,8)' },
-    { label: 'BLUE · HIGH · ocultar 10', notes: [0, 2, 4, 5, 7, 8], detail: 'conserva (2,8)' },
-    { label: 'BLUE · ALL · ocultar 2 y 4', notes: [0, 5, 7, 8, 10], detail: '5 grados visibles · sin tritonos' },
-    { label: 'BLUE · ALL · ocultar 8 y 10', notes: [0, 2, 4, 5, 7], detail: '5 grados visibles · sin tritonos' }
+  const SEMITONE_CHOICES = [
+    { label: 'subir/subir', sides: ['HIGH', 'HIGH'] },
+    { label: 'bajar/bajar', sides: ['LOW', 'LOW'] },
+    { label: 'bajar/subir', sides: ['LOW', 'HIGH'] },
+    { label: 'subir/bajar', sides: ['HIGH', 'LOW'] }
   ];
+
+  function semitonesOf(notes) {
+    const set = new Set(notes);
+    return notes
+      .filter(note => set.has((note + 1) % 12))
+      .map(note => [note, (note + 1) % 12]);
+  }
+
+  function tritonesOf(notes) {
+    const set = new Set(notes);
+    return notes
+      .filter(note => note < (note + 6) % 12 && set.has((note + 6) % 12))
+      .map(note => [note, (note + 6) % 12]);
+  }
+
+  function buildSemitoneView(name, sides) {
+    const semitones = semitonesOf(SCALES[name].notes);
+    const hidden = semitones.map(([low, high], index) => sides[index] === 'LOW' ? high : low);
+    const notes = SCALES[name].notes.filter(note => !hidden.includes(note));
+    return { hidden, notes, tritones: tritonesOf(notes) };
+  }
 
   const MODULATIONS = [
     {
@@ -209,12 +229,15 @@
     });
   }
 
-  for (const hidden of HIDDEN) {
-    addButton(document.getElementById('hidden'), {
-      label: hidden.label,
-      detail: `${hidden.detail} · ${formatNotes(hidden.notes)}`,
-      play: () => playSequence(hidden.notes)
-    });
+  for (const name of ['WHITE', 'BLUE']) {
+    for (const choice of SEMITONE_CHOICES) {
+      const view = buildSemitoneView(name, choice.sides);
+      addButton(document.getElementById('hidden'), {
+        label: `${name} · ${choice.label}`,
+        detail: `oculta {${view.hidden.join(',')}} · ${formatNotes(view.notes)} · tritonos ${formatPairs(view.tritones)}`,
+        play: () => playSequence(view.notes)
+      });
+    }
   }
 
   for (const modulation of MODULATIONS) {
