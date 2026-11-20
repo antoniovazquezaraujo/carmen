@@ -1026,6 +1026,13 @@ class MrDocumentParser {
     }
     if (type === CommandType.SCALE) {
       const name = word.text.toUpperCase();
+      if (name === 'PENTA') {
+        throw errorAt(
+          line,
+          word.column,
+          `PENTA se eliminó en .mr v3; usa 'SCALE WHITE' + 'COLLAPSE LOW_HIGH' o 'SCALE BLUE' + 'COLLAPSE HIGH_LOW'`
+        );
+      }
       if (!Scale.getScaleNames().includes(name)) {
         throw errorAt(line, word.column, `escala desconocida '${word.text}'; valores válidos: ${Scale.getScaleNames().join(', ')} o $variable`);
       }

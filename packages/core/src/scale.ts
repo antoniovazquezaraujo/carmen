@@ -2,7 +2,7 @@ import { NoteData } from "./note";
 import { OctavedGrade } from "./octaved-grade";
 
 export enum ScaleTypes {
-    'WHITE', 'BLUE', 'RED', 'BLACK', 'PENTA', 'TONES', 'FULL'
+    'WHITE', 'BLUE', 'RED', 'BLACK', 'TONES', 'FULL'
 }
 
 export class Scale {
@@ -11,7 +11,6 @@ export class Scale {
         new Scale([0, 2, 4, 5, 7, 8, 10]),
         new Scale([0, 1, 4, 5, 7, 8, 11]),
         new Scale([1, 2, 4, 5, 7, 8, 10, 11]),
-        new Scale([0, 2, 5, 7, 10]),
         new Scale([0, 2, 4, 6, 8, 10]),
         new Scale([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
     ];
@@ -24,9 +23,8 @@ export class Scale {
             case 'BLUE': selectedScale = Scale.SCALES[1]; break;
             case 'RED': selectedScale = Scale.SCALES[2]; break;
             case 'BLACK': selectedScale = Scale.SCALES[3]; break;
-            case 'PENTA': selectedScale = Scale.SCALES[4]; break;
-            case 'TONES': selectedScale = Scale.SCALES[5]; break;
-            case 'FULL': selectedScale = Scale.SCALES[6]; break;
+            case 'TONES': selectedScale = Scale.SCALES[4]; break;
+            case 'FULL': selectedScale = Scale.SCALES[5]; break;
             default:
                 console.warn(`[Scale] getScaleByName: Name '${name}' not found, returning default (WHITE).`);
                 selectedScale = Scale.SCALES[0]; 
@@ -41,7 +39,7 @@ export class Scale {
     }
 
     static getScaleNames(): string[] {
-        return ['WHITE', 'BLUE', 'RED', 'BLACK', 'PENTA', 'TONES', 'FULL'];
+        return ['WHITE', 'BLUE', 'RED', 'BLACK', 'TONES', 'FULL'];
     }
 
     static getNoteName(noteOrder: number): string {

@@ -1,6 +1,6 @@
 # ADR-005: Tritonos, modulación por anclaje y ocultación por semitonos
 
-- **Estado:** Propuesto (2026-11-15, revisado 2026-11-16 y 2026-11-19). Diseño sin implementar; objetivo `.mr` v3.
+- **Estado:** Aceptado (2026-11-20). Vistas y ocultación implementadas en `.mr` v3; la modulación por anclaje (`MODULATE`) sigue pendiente.
 - **Fecha:** 2026-11-15
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)

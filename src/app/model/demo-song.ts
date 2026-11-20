@@ -6,7 +6,7 @@ import { Song } from 'src/app/model/song';
  * format 2 content libraries (melodies/presets) and structural blocks.
  */
 export const DEMO_SONG_MR = `song "Vodka"
-version 2
+version 3
 repeats 9
 
 melodies
@@ -112,7 +112,8 @@ presets
     WIDTH 3
     GAP -1
     KEY 3
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     OCT 4
 
 part Piano

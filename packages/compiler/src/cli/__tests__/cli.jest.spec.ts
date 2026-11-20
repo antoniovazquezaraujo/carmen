@@ -25,7 +25,7 @@ const runCli = (args: string[], input?: string) =>
 const writeSong = (file: string): void => {
     fs.writeFileSync(file, [
         'song CLI',
-        'version 2',
+        'version 3',
         '',
         'melodies',
         '  melody Tema',
@@ -76,7 +76,7 @@ describe('CLI carmen', () => {
         const input = path.join(dir, 'roto.mr');
         fs.writeFileSync(input, [
             'song Roto',
-            'version 2',
+            'version 3',
             '',
             'melodies',
             '  melody Tema',
@@ -100,7 +100,7 @@ describe('CLI carmen', () => {
         const input = path.join(dir, 'decoracion.mr');
         fs.writeFileSync(input, [
             'song Decoracion',
-            'version 2',
+            'version 3',
             '',
             'vars',
             '  $x = "-0 1"',
@@ -141,7 +141,7 @@ describe('CLI carmen', () => {
 
     it('check devuelve código 1 con un .mr inválido', () => {
         const input = path.join(dir, 'roto.mr');
-        fs.writeFileSync(input, 'song Roto\nversion 2\n\nmelodies\n  melody Tema\n    notes\n      4n:( 0 2\n');
+        fs.writeFileSync(input, 'song Roto\nversion 3\n\nmelodies\n  melody Tema\n    notes\n      4n:( 0 2\n');
 
         const result = runCli(['check', input]);
 

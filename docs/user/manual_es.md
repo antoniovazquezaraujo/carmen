@@ -1,6 +1,6 @@
-# Guía del lenguaje `.mr` (v2)
+# Guía del lenguaje `.mr` (v3)
 
-- **Estado:** formato 2, 2026-11-05 (`.mr` `version 2`).
+- **Estado:** formato 3, 2026-11-20 (`.mr` `version 3`).
 - **Dirigida a:** usuarios que escriben y editan canciones, no a implementadores.
 - **Qué cubre:** la sintaxis completa del fichero `.mr`, cómo suena, cómo se guarda/carga y los límites actuales.
 - **Referencias técnicas:** [ADR-001](../developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md) · [ADR-004](../developer/adr/ADR-004-bibliotecas-contenido.md) · [propuesta de bibliotecas de contenido](../developer/design/propuesta-bibliotecas-contenido.md) · [propuesta de sintaxis](../developer/design/propuesta-sintaxis-mr.md) · [sintaxis implementada](../developer/analysis/sintaxis-mr-implementada.md).
@@ -29,11 +29,11 @@ Consecuencias prácticas:
 
 ## 2. Ejemplo mínimo
 
-Esta es una canción completa de formato 2: nombre, una melodía en la biblioteca, una parte y un bloque que referencia la melodía.
+Esta es una canción completa de formato 3: nombre, una melodía en la biblioteca, una parte y un bloque que referencia la melodía.
 
 ```mr
 song Semilla
-version 2
+version 3
 
 melodies
   melody Origen
@@ -62,7 +62,7 @@ El esqueleto, de fuera hacia dentro, es:
 
 ```text
 song <nombre>          # cabecera: nombre de la canción
-version 2              # versión del formato (siempre 2)
+version 3              # versión del formato (siempre 2)
 repeats <n>            # opcional: repeticiones de canción (mínimo 1)
 bpm <n>                # opcional: tempo (30–240)
 
@@ -109,7 +109,7 @@ Palabras reservadas (hay que comillarlas si se usan como nombre): `song`, `versi
 | Línea | Obligatoria | Significado |
 |---|---|---|
 | `song <nombre>` | No (al guardar, sí) | Nombre de la canción. Sin ella se usa `Untitled Song`. Nombre vacío: `song ""`. |
-| `version 2` | No (al guardar, sí) | Versión del formato. Cualquier otra versión es un error explícito. |
+| `version 3` | No (al guardar, sí) | Versión del formato. Cualquier otra versión es un error explícito. |
 | `repeats <n>` | No | Repeticiones de canción (`n >= 1`). Se omite si vale 1. En la GUI es el campo *Repeat* (1–99). |
 | `bpm <n>` | No | Tempo en negras por minuto (30–240). Se omite si vale 120. En la GUI es el campo *BPM*. |
 
@@ -117,7 +117,7 @@ Orden al leer: `song` → `version` → `repeats`/`bpm` (estos dos en cualquier 
 
 ```mr
 song "Órbita"
-version 2
+version 3
 repeats 3
 bpm 108
 
@@ -138,7 +138,7 @@ Sección opcional y única, después de la cabecera y antes de la primera biblio
 
 ```mr
 song Variables
-version 2
+version 3
 
 vars
   $oct = 2
@@ -193,7 +193,7 @@ Ejemplo con las tres bibliotecas juntas:
 
 ```mr
 song Bibliotecas
-version 2
+version 3
 
 melodies
   melody Riff
@@ -248,7 +248,7 @@ Un bloque puede reutilizar un preset y cambiar solo algunos ajustes localmente:
 
 ```mr
 song Overrides
-version 2
+version 3
 
 melodies
   melody Tema
@@ -273,7 +273,7 @@ Los overrides solo afectan a las notas de `Tema`; sus bloques hijos conservan `B
 
 ```mr
 song Estructura
-version 2
+version 3
 
 melodies
   melody Padre
@@ -378,7 +378,7 @@ Una nota individual puede venir de una variable numérica: `4t:$grado` (con `$gr
 
 ```mr
 song Estructura
-version 2
+version 3
 
 melodies
   melody Tema
@@ -402,7 +402,7 @@ Una melodía puede tomar todas sus notas de una variable string (una melodía es
 
 ```mr
 song Eco
-version 2
+version 3
 
 vars
   $motif = "4n:0 4n:2 4n:4 4n:2"
@@ -458,7 +458,8 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 |---|---|---|---|
 | `OCT` | Octava base de las notas | entero o `$variable` | `OCT 2` |
 | `OCTAVE_PATTERN` | Repite la melodía propia del bloque en distintos desplazamientos de octava relativos a `OCT` | lista de enteros (pueden ser negativos) o `$variable` | `OCTAVE_PATTERN 1 0 -1 2` |
-| `SCALE` | Escala activa | `WHITE`, `BLUE`, `RED`, `BLACK`, `PENTA`, `TONES`, `FULL` o `$variable` | `SCALE BLACK` |
+| `SCALE` | Escala activa | `WHITE`, `BLUE`, `RED`, `BLACK`, `TONES`, `FULL` o `$variable` | `SCALE BLACK` |
+| `COLLAPSE` | Vista de la escala activa, antes de `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `NONE` o `$variable` | `COLLAPSE LOW_HIGH` |
 | `GAP` | Salto (en grados de la escala) entre las notas del acorde | entero o `$variable` | `GAP 2` |
 | `PLAYMODE` | Cómo se tocan los grados: acorde, arpegios, aleatorio, nota suelta… | `CHORD`, `ASCENDING`, `DESCENDING`, `ASC_DESC`, `DESC_ASC`, `EVEN_ASC_ODD_ASC`, `EVEN_ASC_ODD_DESC`, `EVEN_DESC_ODD_DESC`, `EVEN_DESC_ODD_ASC`, `ODD_ASC_EVEN_ASC`, `ODD_ASC_EVEN_DESC`, `ODD_DESC_EVEN_DESC`, `ODD_DESC_EVEN_ASC`, `RANDOM`, `SINGLE` o `$variable` | `PLAYMODE ASCENDING` |
 | `WIDTH` | Notas añadidas al acorde a partir de la raíz (además de ella) | entero o `$variable` | `WIDTH 3` |
@@ -476,6 +477,7 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 Notas:
 
 - `INVERSION` se acepta al leer como alias de `INV`, pero la forma canónica (la que se guarda) es siempre `INV`.
+- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota, así que la escala visible no tiene semitonos. `NONE` recupera el padre completo. WHITE y BLUE exponen cuatro vistas cada una; `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
 - `PLAYMODE SINGLE` toca cada nota suelta, sin acorde ni arpegio (útil con `PATTERN`).
 - En el editor, los playmodes se muestran con símbolos compactos: `○` marca las posiciones pares (0, 2, 4…), `●` las impares (1, 3, 5…) y las flechas indican la dirección de cada grupo. Pasa el ratón por el selector para ver la descripción completa; el `.mr` conserva los nombres canónicos.
 - `PATTERN` es **independiente del playmode**: si existe, expande cada nota antes de que el playmode genere su sonido (acorde, arpegio, aleatorio…). Si no hay `PATTERN`, nada cambia. Su melodía se escribe en una línea (duraciones, silencios y grupos admitidos).
@@ -489,7 +491,7 @@ Ejemplo con todos los ajustes:
 
 ```mr
 song "Panel de control"
-version 2
+version 3
 
 melodies
   melody Chequeo
@@ -551,7 +553,7 @@ Ejemplo (obsérvese que al guardar se normaliza a `VARY`/`ASSIGN`):
 
 ```mr
 song Procedimiento
-version 2
+version 3
 
 vars
   $oct = 2
@@ -661,14 +663,14 @@ Formato de presentación: `fichero.mr:línea:columna  error: mensaje`. Ejemplos:
 | 3 espacios de indentación | indentación impar |
 | `4n:( 0 2` | falta `)` para cerrar el grupo abierto en línea:columna |
 | `PLAYMODE` sin valor | PLAYMODE requiere un valor o una variable `$válida` |
-| `SCALE FUCSIA` | escala desconocida; valores válidos: WHITE, BLUE, RED, BLACK, PENTA, TONES, FULL |
+| `SCALE FUCSIA` | escala desconocida; valores válidos: WHITE, BLUE, RED, BLACK, TONES, FULL |
 | `VARY $oct` sin paso | VARY requiere `$variable` y un valor |
 | `$x *= 2` | la operación `*=` no existe en el modelo; usa `VARY $x <paso>` |
 | `$x` declarada dos veces | la variable `$x` ya está declarada |
 | `version 1` | versión de formato no soportada; este parser admite la versión 2 |
 | `bpm 20` | `bpm` debe estar entre 30 y 240 |
 | `notes $motif` con líneas debajo | `notes $motif` no admite líneas de eventos |
-| `blocks` después de una `part` | la sección `blocks` ya no existe en el formato 2 |
+| `blocks` después de una `part` | la sección `blocks` ya no existe en el formato 3 |
 | `use Riff` | `use` ya no existe: los bloques no se referencian |
 | `notes` dentro de un bloque | el contenido inline ya no existe; declara una melodía y referénciala |
 | `melody Nope` sin `melody Nope` en `melodies` | no existe la melodía `Nope`; definidas: … |
@@ -695,7 +697,7 @@ En la vista `.mr`, los errores aparecen bajo el texto con su `línea, columna`; 
 
 ---
 
-## 9. Limitaciones conocidas (formato 2)
+## 9. Limitaciones conocidas (formato 3)
 
 1. **Variables string como nota individual.** `8t:$motif` (con `$motif` string) suena como silencio de `8t`; no se expande el patrón. `notes $motif` en una melodía completa sí se sustituye al reproducir.
 2. **Repeat en caliente.** Cambiar las repeticiones con la reproducción en curso se aplica en el siguiente Play.
@@ -719,7 +721,7 @@ Los mismos ficheros viven en `src/app/model/mr/__tests__/corpus/` y se usan en l
 
 ```mr
 song Semilla
-version 2
+version 3
 
 melodies
   melody Origen
@@ -738,7 +740,7 @@ part Piano
 
 ```mr
 song "Canon de partículas"
-version 2
+version 3
 repeats 2
 
 melodies
@@ -800,7 +802,7 @@ part Piano
 
 ```mr
 song "Órbita"
-version 2
+version 3
 repeats 3
 
 vars
@@ -853,7 +855,7 @@ part Piano
 
 ```mr
 song Laboratorio
-version 2
+version 3
 
 vars
   $grado = -5
@@ -888,7 +890,7 @@ part Piano
 
 ```mr
 song Patrones
-version 2
+version 3
 
 vars
   $grado = -5
@@ -913,7 +915,7 @@ part Ritmos
 
 ```mr
 song Estructura
-version 2
+version 3
 
 vars
   $texto = "línea 1"
@@ -976,7 +978,7 @@ part Anidado
 
 ```mr
 song Bibliotecas
-version 2
+version 3
 
 melodies
   melody Riff
@@ -1025,7 +1027,7 @@ part Cuerdas
 
 ```mr
 song ""
-version 2
+version 3
 
 part
   block

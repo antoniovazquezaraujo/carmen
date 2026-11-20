@@ -31,7 +31,7 @@ export const EXAMPLE_SONGS: readonly ExampleSong[] = [
         tags: ['Canon', '11 cycles', 'Odd/even'],
         bpm: 120,
         mr: `song Karmel
-version 2
+version 3
 repeats 11
 
 melodies
@@ -57,7 +57,8 @@ presets
   preset AjustesA
     PLAYMODE ODD_ASC_EVEN_DESC
     WIDTH 3
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     GAP 9
     OCT 0
 
@@ -130,7 +131,7 @@ part Bajo
         tags: ['Chords', 'Decoration', 'Two parts'],
         bpm: 120,
         mr: `song Dodecaedro
-version 2
+version 3
 
 melodies
   melody A
@@ -264,7 +265,7 @@ part Bajo
         tags: ['Canon', '12 cycles', 'Decoration'],
         bpm: 120,
         mr: `song itemaneR
-version 2
+version 3
 repeats 12
 
 vars
@@ -284,7 +285,8 @@ presets
     WIDTH 4
     OCT -1
     GAP 3
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
 
   preset AjustesVKey
     DECORATION $v
@@ -292,7 +294,8 @@ presets
     WIDTH 4
     OCT -1
     GAP 3
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     KEY 2
 
   preset AjustesX
@@ -319,7 +322,8 @@ presets
     WIDTH 5
     OCT 1
     GAP 4
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     KEY 4
 
 part Piano
@@ -351,7 +355,7 @@ part Piano
         tags: ['Chords', 'Decoration', 'Variables'],
         bpm: 108,
         mr: `song "Glass Orbit"
-version 2
+version 3
 repeats 2
 bpm 108
 
@@ -418,7 +422,7 @@ part Glass
         tags: ['Blues', '9 cycles', 'Odd/even'],
         bpm: 120,
         mr: `song "OCR Blues"
-version 2
+version 3
 repeats 9
 
 melodies
@@ -582,7 +586,7 @@ part Contrabajo
         tags: ['Pattern', 'Single notes', 'Odd/even'],
         bpm: 120,
         mr: `song Clockwork
-version 2
+version 3
 repeats 2
 
 melodies
@@ -612,7 +616,8 @@ melodies
 
 presets
   preset A
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     OCT 3
     PLAYMODE SINGLE
     PATTERN 8n:0 8n:2 8n:5 8n:3
@@ -659,7 +664,7 @@ part Piano
         tags: ['Chord', 'Decoration', 'Inversion'],
         bpm: 72,
         mr: `song Nocturne
-version 2
+version 3
 repeats 2
 bpm 72
 
@@ -714,7 +719,7 @@ part Piano
         tags: ['Variables', 'Scale shift', 'Key'],
         bpm: 92,
         mr: `song Aurora
-version 2
+version 3
 repeats 1
 bpm 92
 
@@ -735,6 +740,7 @@ presets
   preset RiseAjustes
     OCT $oct
     SCALE $scale
+    COLLAPSE LOW_HIGH
     PLAYMODE $mode
     WIDTH 3
     GAP 2
@@ -742,6 +748,7 @@ presets
   preset RiseGlassAjustes
     OCT 3
     SCALE $scale
+    COLLAPSE LOW_HIGH
     PLAYMODE $mode
     WIDTH 3
     GAP 2
@@ -751,7 +758,7 @@ procedures
   procedure RiseProcedimiento
     VARY $oct 1
     ASSIGN $mode RANDOM
-    ASSIGN $scale PENTA
+    ASSIGN $scale WHITE
 
 part Aurora
   block Rise repeats 2
@@ -773,7 +780,7 @@ part Glass
         tags: ['Pattern', 'Decoration', 'Arpeggio'],
         bpm: 100,
         mr: `song Rainfall
-version 2
+version 3
 repeats 2
 bpm 100
 
@@ -808,7 +815,7 @@ part Piano
         tags: ['Fugue', 'Three parts', 'Overrides'],
         bpm: 110,
         mr: `song "Meridian Fugue"
-version 2
+version 3
 bpm 110
 
 melodies
@@ -931,7 +938,7 @@ part
         tags: ['Nested blocks', 'Odd/even', 'Seven cycles'],
         bpm: 120,
         mr: `song "Chinese shoes"
-version 2
+version 3
 repeats 7
 
 melodies
@@ -983,7 +990,8 @@ presets
     PLAYMODE EVEN_DESC_ODD_DESC
     WIDTH 5
     KEY 0
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     GAP 3
 
   preset D
@@ -991,7 +999,8 @@ presets
     PLAYMODE EVEN_DESC_ODD_DESC
     WIDTH 5
     KEY 3
-    SCALE PENTA
+    SCALE WHITE
+    COLLAPSE LOW_HIGH
     GAP 2
 
 part

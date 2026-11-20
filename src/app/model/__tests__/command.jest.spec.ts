@@ -9,6 +9,7 @@ interface FakePlayer {
   currentPattern: unknown;
   currentDecoration: DecorationItem[] | null;
   scale: ScaleTypes;
+  collapse: string;
   octave: number;
   gap: number;
   density: number;
@@ -17,6 +18,7 @@ interface FakePlayer {
   shiftStart: number;
   shiftSize: number;
   shiftValue: number;
+  selectScale(scale: ScaleTypes): void;
 }
 
 const createFakePlayer = (): FakePlayer => ({
@@ -24,6 +26,7 @@ const createFakePlayer = (): FakePlayer => ({
   currentPattern: null,
   currentDecoration: null,
   scale: ScaleTypes.WHITE,
+  collapse: 'NONE',
   octave: 0,
   gap: 0,
   density: 0,
@@ -31,7 +34,10 @@ const createFakePlayer = (): FakePlayer => ({
   tonality: 0,
   shiftStart: 0,
   shiftSize: 0,
-  shiftValue: 0
+  shiftValue: 0,
+  selectScale(scale: ScaleTypes): void {
+    this.scale = scale;
+  }
 });
 
 describe('Command: variables playMode/scale/pattern', () => {

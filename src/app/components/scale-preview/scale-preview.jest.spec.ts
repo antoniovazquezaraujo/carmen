@@ -25,7 +25,6 @@ describe('ScalePreviewComponent', () => {
     expect(degrees('BLUE')).toEqual([4, 5, 3, 6, 2, 7, 1]);
     expect(degrees('RED')).toEqual([4, 5, 3, 6, 2, 1, 7]);
     expect(degrees('BLACK')).toEqual([4, 5, 3, 6, 2, 7, 1, 8]);
-    expect(degrees('PENTA')).toEqual([3, 4, 2, 5, 1]);
     expect(degrees('TONES')).toEqual([4, 3, 5, 2, 6, 1]);
     expect(degrees('FULL')).toEqual([6, 7, 8, 5, 9, 4, 10, 3, 11, 2, 1, 12]);
   });

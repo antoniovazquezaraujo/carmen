@@ -25,7 +25,7 @@ function expectParseError(text: string): MrParseError {
 }
 
 const MINIMAL = `song "Semilla"
-version 2
+version 3
 
 melodies
   melody Origen
@@ -38,12 +38,12 @@ part "Piano"
     melody Origen
 `;
 
-describe('parseSong: documento mínimo (formato 2)', () => {
+describe('parseSong: documento mínimo (formato 3)', () => {
   it('construye Song + biblioteca + parte + bloque + referencia', () => {
     const document = parseSong(MINIMAL);
 
     expect(document.song.name).toBe('Semilla');
-    expect(document.meta).toEqual({ version: 2 });
+    expect(document.meta).toEqual({ version: 3 });
     expect(document.variables.size).toBe(0);
     expect(document.song.melodies).toHaveLength(1);
     expect(document.song.melodies[0].label).toBe('Origen');
@@ -67,28 +67,28 @@ describe('parseSong: documento mínimo (formato 2)', () => {
     expect(document.song.name).toBe('Untitled Song');
     expect(document.song.parts).toEqual([]);
     expect(document.song.melodies).toEqual([]);
-    expect(document.meta.version).toBe(2);
+    expect(document.meta.version).toBe(3);
   });
 
   it('sin song ni version usa los valores por defecto del modelo', () => {
     const document = parseSong('part "P"\n  block\n');
 
     expect(document.song.name).toBe('Untitled Song');
-    expect(document.meta).toEqual({ version: 2 });
+    expect(document.meta).toEqual({ version: 3 });
   });
 });
 
 describe('parseSong: cabecera', () => {
   it('lee repeats y bpm y los copia al modelo canónico', () => {
-    const document = parseSong('song "X"\nversion 2\nrepeats 3\nbpm 90\n');
+    const document = parseSong('song "X"\nversion 3\nrepeats 3\nbpm 90\n');
 
-    expect(document.meta).toEqual({ version: 2, repeats: 3, bpm: 90 });
+    expect(document.meta).toEqual({ version: 3, repeats: 3, bpm: 90 });
     expect(document.song.repeats).toBe(3);
     expect(document.song.bpm).toBe(90);
   });
 
   it('aplica los valores por defecto cuando no hay cabecera', () => {
-    const document = parseSong('song "X"\nversion 2\n');
+    const document = parseSong('song "X"\nversion 3\n');
 
     expect(document.meta.bpm).toBeUndefined();
     expect(document.song.bpm).toBe(120);
@@ -100,18 +100,18 @@ describe('parseSong: cabecera', () => {
     const error = expectParseError('song "X"\nversion 1\n');
 
     expect(error.position).toEqual({ line: 2, column: 9 });
-    expect(error.format('x.mr')).toBe('x.mr:2:9  error: versión de formato 1 no soportada; este parser admite la versión 2');
+    expect(error.format('x.mr')).toBe('x.mr:2:9  error: versión de formato 1 no soportada; este parser admite la versión 3');
   });
 
   it('valida rangos de repeats y bpm', () => {
-    expect(expectParseError('song "X"\nversion 2\nrepeats 0\n').message).toContain('repeats');
-    expect(expectParseError('song "X"\nversion 2\nbpm 20\n').message).toContain('entre 30 y 240');
-    expect(expectParseError('song "X"\nversion 2\nbpm 300\n').message).toContain('entre 30 y 240');
+    expect(expectParseError('song "X"\nversion 3\nrepeats 0\n').message).toContain('repeats');
+    expect(expectParseError('song "X"\nversion 3\nbpm 20\n').message).toContain('entre 30 y 240');
+    expect(expectParseError('song "X"\nversion 3\nbpm 300\n').message).toContain('entre 30 y 240');
   });
 
   it('exige el orden song → version → repeats/bpm', () => {
-    expect(expectParseError('version 2\nsong "X"\n').message).toContain('primera línea');
-    expect(expectParseError('song "X"\nrepeats 2\nversion 2\n').message).toContain('antes de');
+    expect(expectParseError('version 3\nsong "X"\n').message).toContain('primera línea');
+    expect(expectParseError('song "X"\nrepeats 2\nversion 3\n').message).toContain('antes de');
     expect(expectParseError('song "X"\nsong "Y"\n').message).toContain('ya está definido');
   });
 });
@@ -156,7 +156,7 @@ vars
 describe('parseSong: bibliotecas de contenido', () => {
   it('parsea las tres bibliotecas en orden', () => {
     const document = parseSong(`song "X"
-version 2
+version 3
 
 melodies
   melody M
@@ -188,7 +188,7 @@ procedures
 
   it('rechaza PATTERN_GAP con un error de migración hacia DECORATION', () => {
     const error = expectParseError(`song "X"
-version 2
+version 3
 
 presets
   preset P
@@ -402,7 +402,7 @@ part P
 describe('parseSong: overrides locales de bloque', () => {
   it('parsea la sección overrides y la serializa en orden canónico', () => {
     const document = parseSong(`song "Overrides"
-version 2
+version 3
 
 presets
   preset Base
@@ -440,7 +440,7 @@ part Piano
 describe('parseSong: patrón de octavas', () => {
   it('parsea y serializa OCTAVE_PATTERN con enteros relativos', () => {
     const document = parseSong(`song "Octavas"
-version 2
+version 3
 
 presets
   preset P
@@ -467,7 +467,7 @@ presets
 describe('parseSong: intensidad y perfil de velocidad', () => {
   it('parsea INTENSITY, INTENSITY_PATTERN y INTENSITY_RAMP y los serializa', () => {
     const document = parseSong(`song "X"
-version 2
+version 3
 
 presets
   preset P

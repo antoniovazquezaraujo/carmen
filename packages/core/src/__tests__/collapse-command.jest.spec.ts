@@ -3,7 +3,7 @@ import { parseSong } from '../mr/mr.parser';
 import { serializeSong } from '../mr/mr.serializer';
 
 const SONG = `song "Collapse"
-version 2
+version 3
 
 melodies
   melody Origen
@@ -37,9 +37,15 @@ describe('COLLAPSE command', () => {
         expect(() => parseSong(invalid)).toThrow(/collapse desconocido/);
     });
 
+    it('rejects PENTA with a migration message', () => {
+        const legacy = SONG.replace('SCALE WHITE', 'SCALE PENTA');
+
+        expect(() => parseSong(legacy)).toThrow(/PENTA se eliminó/);
+    });
+
     it('accepts and serializes a collapse variable', () => {
         const document = parseSong(`song "Collapse"
-version 2
+version 3
 
 vars
   $mode = BOTH_LOW

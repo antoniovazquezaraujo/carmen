@@ -1,6 +1,6 @@
 # Sintaxis `.mr` implementada y contrato de round-trip
 
-> **Nota (2026-11-05):** la implementación vigente usa `.mr` v2 (ADR-004), con bibliotecas de contenido y bloques estructurales. Este documento describe el contrato histórico de la v1.
+> **Nota (2026-11-20):** la implementación vigente usa `.mr` v3 (vistas de escala), con bibliotecas de contenido y bloques estructurales. Este documento describe el contrato histórico de la v1.
 
 
 - **Fecha:** 2026-10-03

@@ -6,6 +6,15 @@ All notable changes to **Carmen**. Format based on
 
 ## [Unreleased]
 
+### Added
+
+- **Scale views**: presets accept `COLLAPSE BOTH_HIGH|BOTH_LOW|LOW_HIGH|HIGH_LOW|NONE`. A view projects the active scale (defined on relative notes, before `KEY`), keeps the parent scale's tonic/key/center and reindexes the visible degrees. WHITE and BLUE expose four semitone-free views each.
+
+### Changed
+
+- **`.mr` format v3**: files now use `version 3`. The parser rejects `version 2` and earlier.
+- **PENTA removed**: `SCALE PENTA` is no longer valid. Use `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) to get the same notes with an explicit parent.
+
 ## [1.1.1] - 2026-11-12
 
 ### Added

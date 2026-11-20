@@ -247,7 +247,13 @@ export class Command {
         switch (this.type) {
             case CommandType.GAP: player.gap = value; break;
             case CommandType.OCT: player.octave = value; break;
-            case CommandType.SCALE: player.scale = value; break;
+            case CommandType.SCALE:
+                if (typeof player.selectScale === 'function') {
+                    player.selectScale(value);
+                } else {
+                    player.scale = value;
+                }
+                break;
             case CommandType.COLLAPSE: player.collapse = value; break;
             case CommandType.PLAYMODE: 
                 if (typeof value === 'number' && PlayMode[value] !== undefined) {

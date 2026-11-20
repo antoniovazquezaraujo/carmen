@@ -1,6 +1,6 @@
 # ADR-006: Vistas de escala
 
-- **Estado:** Propuesto (2026-11-19). Diseño sin implementar; objetivo `.mr` v3.
+- **Estado:** Aceptado (2026-11-20). Implementado en `.mr` v3.
 - **Fecha:** 2026-11-19
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)
