@@ -51,6 +51,19 @@ describe('ScalePreviewComponent', () => {
     expect(component.isHidden(3)).toBe(false);
   });
 
+  it('marca los grados ocultos de una vista RED', () => {
+    const component = new ScalePreviewComponent();
+    component.scale = 'RED';
+    component.collapseMode = 'BOTH_LOW';
+
+    expect(component.hiddenNotes).toEqual([1, 5, 8]);
+    expect(component.isHidden(2)).toBe(true); // degree 2 = semitone 1
+    expect(component.isHidden(4)).toBe(true); // degree 4 = semitone 5
+    expect(component.isHidden(6)).toBe(true); // degree 6 = semitone 8
+    expect(component.isHidden(1)).toBe(false);
+    expect(component.isHidden(3)).toBe(false);
+  });
+
   it('expone una etiqueta accesible con la escala y sus grados', () => {
     const component = new ScalePreviewComponent();
     component.scale = 'BLUE';

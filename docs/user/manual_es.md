@@ -477,7 +477,7 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 Notas:
 
 - `INVERSION` se acepta al leer como alias de `INV`, pero la forma canónica (la que se guarda) es siempre `INV`.
-- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota, así que la escala visible no tiene semitonos. `NONE` recupera el padre completo. WHITE y BLUE exponen cuatro vistas cada una; `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
+- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota. `NONE` recupera el padre completo. WHITE, BLUE, RED y BLACK exponen cuatro vistas cada una (los dos grupos de tritonos se mueven juntos); TONES no tiene semitonos, así que solo `NONE` tiene efecto; FULL no está soportada. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
 - `PLAYMODE SINGLE` toca cada nota suelta, sin acorde ni arpegio (útil con `PATTERN`).
 - En el editor, los playmodes se muestran con símbolos compactos: `○` marca las posiciones pares (0, 2, 4…), `●` las impares (1, 3, 5…) y las flechas indican la dirección de cada grupo. Pasa el ratón por el selector para ver la descripción completa; el `.mr` conserva los nombres canónicos.
 - `PATTERN` es **independiente del playmode**: si existe, expande cada nota antes de que el playmode genere su sonido (acorde, arpegio, aleatorio…). Si no hay `PATTERN`, nada cambia. Su melodía se escribe en una línea (duraciones, silencios y grupos admitidos).

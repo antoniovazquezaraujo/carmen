@@ -76,7 +76,7 @@
               } @else {
                 <app-scale-select
                   [value]="collapseMode(command)"
-                  [options]="collapseModeNames"
+                  [options]="collapseModesFor(command)"
                   [labels]="collapseModeLabels"
                   kind="collapse"
                   [parentScale]="collapseParentScale(command)"

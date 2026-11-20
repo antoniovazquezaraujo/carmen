@@ -30,6 +30,14 @@ describe('Player scale views', () => {
         expect(player.getSelectedNotes().map(note => note.note)).toEqual([60, 65, 70]);
     });
 
+    it('applies the RED per-tritone views', () => {
+        const player = createPlayer();
+        player.scale = ScaleTypes.RED;
+        player.collapse = 'BOTH_LOW';
+
+        expect(player.getCurrentScale().notes).toEqual([0, 4, 7, 11]);
+    });
+
     it('keeps the view when selectScale changes to a compatible parent', () => {
         const player = createPlayer();
         player.collapse = 'BOTH_HIGH';
@@ -45,7 +53,7 @@ describe('Player scale views', () => {
         player.collapse = 'BOTH_HIGH';
         const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-        player.selectScale(ScaleTypes.TONES);
+        player.selectScale(ScaleTypes.FULL);
 
         expect(player.collapse).toBe('NONE');
         expect(warn).toHaveBeenCalled();

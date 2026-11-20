@@ -29,10 +29,15 @@ export class ScaleSelectComponent {
         return this.labels[value] ?? value;
     }
 
+    /** Keeps the trigger valid when the current value is not available for the parent. */
+    get displayValue(): string {
+        return this.options.includes(this.value) ? this.value : (this.options[0] ?? this.value);
+    }
+
     get triggerAriaLabel(): string {
         return this.kind === 'collapse'
-            ? `Collapse view: ${this.labelFor(this.value)}`
-            : `Scale: ${this.labelFor(this.value)}`;
+            ? `Collapse view: ${this.labelFor(this.displayValue)}`
+            : `Scale: ${this.labelFor(this.displayValue)}`;
     }
 
     get listAriaLabel(): string {
@@ -63,7 +68,7 @@ export class ScaleSelectComponent {
         event.preventDefault();
         event.stopPropagation();
         this.open = !this.open;
-        this.hovered = this.open ? this.value : null;
+        this.hovered = this.open ? this.displayValue : null;
     }
 
     select(scale: string, event?: Event): void {
@@ -96,14 +101,14 @@ export class ScaleSelectComponent {
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             if (!this.open) {
                 this.open = true;
-                this.hovered = this.value;
+                this.hovered = this.displayValue;
                 event.preventDefault();
                 return;
             }
             const index = this.hovered ? this.options.indexOf(this.hovered) : -1;
             const direction = event.key === 'ArrowDown' ? 1 : -1;
             const next = (index + direction + this.options.length) % this.options.length;
-            this.hovered = this.options[next] ?? this.value;
+            this.hovered = this.options[next] ?? this.displayValue;
             event.preventDefault();
         }
     }

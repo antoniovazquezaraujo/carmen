@@ -7,7 +7,7 @@
     [attr.aria-expanded]="open"
     [attr.aria-label]="triggerAriaLabel"
     (click)="toggle($event)">
-    <span>{{ labelFor(value) }}</span>
+    <span>{{ labelFor(displayValue) }}</span>
     <i class="pi pi-chevron-down" aria-hidden="true"></i>
   </button>
 
@@ -27,8 +27,8 @@
           <button type="button"
             class="scale-option"
             role="option"
-            [class.scale-option--selected]="scale === value"
-            [attr.aria-selected]="scale === value"
+            [class.scale-option--selected]="scale === displayValue"
+            [attr.aria-selected]="scale === displayValue"
             (mouseenter)="hovered = scale"
             (focus)="hovered = scale"
             (click)="select(scale, $event)">

@@ -105,12 +105,55 @@ describe('tritone lab', () => {
         ]);
     });
 
-    it('rejects semitone views outside the WHITE/BLUE MVP', () => {
-        expect(() => hideSemitones('RED', ['LOW', 'LOW'])).toThrow(RangeError);
-        expect(() => hideSemitones('TONES', [])).toThrow(RangeError);
+    it('derives the four RED semitone views', () => {
+        const views = SEMITONE_VIEW_SELECTIONS.map(selection => hideSemitones('RED', selection));
+
+        expect(views.map(view => view.notes)).toEqual([
+            [0, 1, 5, 8],
+            [0, 4, 7, 11],
+            [0, 5, 7],
+            [1, 4, 8, 11]
+        ]);
+        expect(views.map(view => view.hiddenNotes)).toEqual([
+            [4, 7, 11],
+            [1, 5, 8],
+            [1, 4, 8, 11],
+            [0, 5, 7]
+        ]);
+        expect(views.map(view => view.semitones)).toEqual([[[0, 1]], [[11, 0]], [], []]);
     });
 
-    it('rejects selections with the wrong number of semitone choices', () => {
+    it('derives the four BLACK semitone views', () => {
+        const views = SEMITONE_VIEW_SELECTIONS.map(selection => hideSemitones('BLACK', selection));
+
+        expect(views.map(view => view.notes)).toEqual([
+            [2, 5, 8, 11],
+            [1, 4, 7, 10],
+            [1, 5, 7, 11],
+            [2, 4, 8, 10]
+        ]);
+        expect(views.map(view => view.hiddenNotes)).toEqual([
+            [1, 4, 7, 10],
+            [2, 5, 8, 11],
+            [2, 4, 8, 10],
+            [1, 5, 7, 11]
+        ]);
+        expect(views.map(view => view.semitones)).toEqual([[], [], [], []]);
+    });
+
+    it('treats TONES as the identity for every selection', () => {
+        const views = SEMITONE_VIEW_SELECTIONS.map(selection => hideSemitones('TONES', selection));
+
+        expect(views.map(view => view.notes)).toEqual([
+            [0, 2, 4, 6, 8, 10],
+            [0, 2, 4, 6, 8, 10],
+            [0, 2, 4, 6, 8, 10],
+            [0, 2, 4, 6, 8, 10]
+        ]);
+        expect(views.map(view => view.hiddenNotes)).toEqual([[], [], [], []]);
+    });
+
+    it('rejects selections with the wrong number of side choices', () => {
         expect(() => hideSemitones('WHITE', ['LOW'])).toThrow(RangeError);
         expect(() => hideSemitones('BLUE', ['LOW', 'HIGH', 'LOW'])).toThrow(RangeError);
     });
