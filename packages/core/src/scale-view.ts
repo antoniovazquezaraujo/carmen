@@ -43,6 +43,15 @@ export function isCollapseMode(value: string): value is CollapseMode {
     return COLLAPSE_MODE_NAMES.includes(value as CollapseMode);
 }
 
+/** `true` when the MVPs collapse family can project this parent. */
+export function canApplyCollapse(parentNotes: readonly number[], mode: CollapseMode): boolean {
+    if (mode === 'NONE') {
+        return true;
+    }
+    const parent = [...parentNotes].sort((left, right) => left - right);
+    return semitonesOf(parent).length === 2;
+}
+
 /**
  * Adjacent pitch classes a semitone apart, as `[lower, upper]`.
  *
