@@ -12,7 +12,7 @@ interface CompileFixture {
 }
 
 const compile = (notes: string, fixture: CompileFixture = {}): Promise<CompiledSong> => {
-    const lines = ['song Test', 'version 2'];
+    const lines = ['song Test', 'version 3'];
     if (fixture.header) {
         lines.push(fixture.header);
     }
@@ -66,9 +66,18 @@ describe('compilador MIDI · eventos musicales', () => {
         expect(preset.parts[0].notes.map(note => note.velocity)).toEqual([20, 10]);
     });
 
+    it('aplica COLLAPSE a la escala efectiva del compilador', async () => {
+        const song = await compile('4n:0\n4n:1\n4n:2', {
+            preset: ['SCALE WHITE', 'COLLAPSE LOW_HIGH', 'PLAYMODE SINGLE']
+        });
+
+        // WHITE + COLLAPSE LOW_HIGH = [0,2,5,7,10].
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([60, 62, 65]);
+    });
+
     it('aplica overrides solo al bloque propio y los restaura para hijos y hermanos', async () => {
         const song = await compileSongText(`song Overrides
-version 2
+version 3
 
 melodies
   melody A
@@ -105,7 +114,7 @@ part Piano
 
     it('OCTAVE_PATTERN repite la melodía propia y no afecta a los hijos', async () => {
         const song = await compileSongText(`song Octavas
-version 2
+version 3
 
 melodies
   melody A
@@ -148,7 +157,7 @@ part Piano
 
     it('aplica INTENSITY solo al bloque que usa el preset, no a hijos ni hermanos', async () => {
         const song = await compileSongText(`song Aislada
-version 2
+version 3
 
 melodies
   melody A
@@ -213,7 +222,7 @@ part Piano
 
     it('expande en orden preset → procedure → melody → hijos y repite la pasada completa', async () => {
         const text = `song Orden
-version 2
+version 3
 
 vars
   $oct = 1
@@ -252,7 +261,7 @@ part Piano
 
     it('resuelve notes $variable en las melodías antes de generar', async () => {
         const text = `song Variable
-version 2
+version 3
 
 vars
   $motif = "4n:0 4n:2"

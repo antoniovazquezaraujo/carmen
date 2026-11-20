@@ -4,7 +4,7 @@
 
 ```mr
 song "Song name"
-version 2
+version 3
 repeats 2        # song repetitions (1 = omitted)
 bpm 90           # tempo (120 = omitted)
 
@@ -76,7 +76,7 @@ block Verse
 - In the GUI, drag a block by its handle to reorder it within a part or move it to another part. Drop it on another block's header to nest it as the last child. Child blocks can also be dragged to reorder or nest them.
 - Drop a nested block on the dashed **Drop here to move it to the top level** zone at the bottom of a part to unparent it.
 - Per pass: preset settings → block overrides → procedure operations → melody notes → child blocks. `repeats` repeats the full pass, children included.
-- Format 2 has no `blocks` section and no `use`: blocks are never referenced and there is no reader for `version 1`.
+- Format 3 has no `blocks` section and no `use`: blocks are never referenced and there is no reader for `version 1`/`version 2`.
 
 ## Notes
 
@@ -104,6 +104,7 @@ block Verse
 | `OCT` | Base octave | `OCT 2` |
 | `OCTAVE_PATTERN` | Repeat the block's own melody at octave offsets | `OCTAVE_PATTERN 1 0 -1 2` |
 | `SCALE` | Active scale | `SCALE BLACK` |
+| `COLLAPSE` | Scale view applied before `KEY` | `COLLAPSE LOW_HIGH` |
 | `GAP` | Gap between chord notes | `GAP 2` |
 | `PLAYMODE` | How grades sound | `PLAYMODE ASCENDING` |
 | `WIDTH` | Extra chord notes | `WIDTH 3` |
@@ -119,6 +120,8 @@ block Verse
 The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies only to the block that declares it; children and siblings recover the previous profile. Other preset settings keep persisting.
 
 Numeric settings accept `$variable`.
+
+`COLLAPSE` accepts `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW` and `NONE`. It projects the active scale: semitones around each tritone keep one note, grouped by tritone. WHITE, BLUE, RED and BLACK expose four views each; TONES and FULL are accepted as no-ops for now (FULL's grouping rule is pending). `SCALE WHITE` + `COLLAPSE LOW_HIGH` replaces the removed `PENTA`.
 
 `OCTAVE_PATTERN` is relative to `OCT` and applies only to the block's own melody: `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` plays the sequence in octaves 3, 2, 1, 4. Child blocks keep their own octave/pattern.
 

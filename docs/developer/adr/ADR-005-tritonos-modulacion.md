@@ -1,6 +1,6 @@
 # ADR-005: Tritonos, modulación por anclaje y ocultación por semitonos
 
-- **Estado:** Propuesto (2026-11-15, revisado 2026-11-16 y 2026-11-19). Diseño sin implementar; objetivo `.mr` v3.
+- **Estado:** Aceptado (2026-11-20). Vistas y ocultación implementadas en `.mr` v3; la modulación por anclaje (`MODULATE`) sigue pendiente.
 - **Fecha:** 2026-11-15
 - **Autor:** DANI (coordinación y arquitectura)
 - **Decisores:** el usuario (producto) + DANI (arquitectura)
@@ -48,11 +48,11 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
    Los ordinales se cuentan de abajo arriba: `1` es el tritono más bajo.
 5. **La key no se introduce a mano en `MODULATE`.** Es una consecuencia del anclaje.
 6. **PENTA se elimina como escala padre en `.mr` v3.** Su conjunto se representa como vista: se fija en ADR-006. La primitiva del nuevo modelo es la **ocultación por semitonos**: colapsar cada semitono que toca un extremo de tritono dejando una sola de sus dos notas.
-7. **La ocultación es un ajuste de preset**, no una operación de procedimiento. Se implementa colapsando los semitonos que contienen un extremo de tritono: de cada semitono sobrevive una sola nota. En WHITE y BLUE, con dos semitonos, hay cuatro vistas:
+7. **La ocultación es un ajuste de preset**, no una operación de procedimiento. Se implementa colapsando los semitonos que contienen un extremo de tritono: de cada semitono sobrevive una sola nota. En WHITE y BLUE hay dos semitonos y cuatro vistas; RED y BLACK usan la misma familia agrupando sus tritonos en dos grupos (ADR-006):
    - `COLLAPSE BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW`
    - `COLLAPSE NONE`
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta. El modelo general de vistas se fija en ADR-006.
-8. **El MVP de ocultación se limita a WHITE y BLUE.** RED y BLACK tienen cuatro semitonos y TONES no tiene ninguno, así que las cuatro vistas de dos semitonos no aplican. Quedan aparcados.
+8. **El MVP de ocultación cubre WHITE, BLUE, RED y BLACK.** Las cuatro escalas tienen dos grupos de semitonos (por tritono o por par de tritonos) y exponen las mismas cuatro vistas. TONES y FULL se aceptan como no-op provisionales: sus modos no cambian la escala; la regla de FULL queda pendiente.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
 10. **La key exacta se calcula con las notas reales**, no solo con el patrón mod 6. Los inicios mod 6 identifican el tritono; los inicios reales `0..11` fijan la key.
 11. **El cambio se documentará en `.mr` v3.** No habrá compatibilidad hacia atrás para `PENTA`, que se elimina.
@@ -162,7 +162,7 @@ Todas son válidas si los ordinales existen. La tabla exhaustiva de comandos pue
 
 La ocultación no retira un extremo del tritono: **colapsa los semitonos que contienen un extremo de tritono**. De cada uno de esos semitonos sobrevive una sola nota; la otra desaparece de la escala visible. Este es un caso concreto de **vista de escala**; el modelo general está en ADR-006.
 
-En WHITE y BLUE hay exactamente dos semitonos y cada uno contiene un extremo de tritono. Por tanto hay cuatro vistas, según se conserve la nota inferior o superior de cada semitono, en orden ascendente:
+En WHITE y BLUE hay exactamente dos semitonos y cada uno contiene un extremo de tritono; RED y BLACK agrupan sus tritonos en dos grupos. En todos los casos hay cuatro vistas, según se conserve la nota inferior o superior de cada grupo, en orden ascendente:
 
 | Vista | Semitono 1 | Semitono 2 |
 |---|---|---|
@@ -225,7 +225,7 @@ WHITE tiene un tritono `(3,9)` y dos semitonos: `(2,3)` y `(9,10)`. BLUE tiene d
 | BLUE | `COLLAPSE LOW_HIGH` | 4,8 | 5,7 | `{0,2,4,8,10}` | `(2,8)`, `(4,10)` |
 | BLUE | `COLLAPSE HIGH_LOW` | 5,7 | 4,8 | `{0,2,5,7,10}` | ∅ |
 
-El MVP no introduce nombres musicales externos para estas vistas. RED y BLACK tienen cuatro semitonos, y TONES no tiene ninguno: las cuatro vistas de dos semitonos no aplican y quedan aparcadas.
+El MVP mantiene los cuatro nombres estructurales para todas las escalas soportadas; RED agrupa cada tritono con sus dos semitonos y BLACK empareja los tritonos que comparten semitonos. Las tablas completas de RED y BLACK están en ADR-006, sección 3.3. TONES y FULL se aceptan como no-op provisionales; la regla de FULL queda pendiente.
 
 ### 5.5. Ejemplos
 

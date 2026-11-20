@@ -18,7 +18,31 @@ import { ScalePreviewComponent } from '../scale-preview/scale-preview.component'
 export class ScaleSelectComponent {
     @Input() value = 'WHITE';
     @Input() options: readonly string[] = [];
+    /** `scale` renders a scale preview; `collapse` renders the view on a parent. */
+    @Input() kind: 'scale' | 'collapse' = 'scale';
+    @Input() parentScale = 'WHITE';
+    /** Optional display labels keyed by option value. */
+    @Input() labels: Readonly<Record<string, string>> = {};
     @Output() valueChange = new EventEmitter<string>();
+
+    labelFor(value: string): string {
+        return this.labels[value] ?? value;
+    }
+
+    /** Keeps the trigger valid when the current value is not available for the parent. */
+    get displayValue(): string {
+        return this.options.includes(this.value) ? this.value : (this.options[0] ?? this.value);
+    }
+
+    get triggerAriaLabel(): string {
+        return this.kind === 'collapse'
+            ? `Collapse view: ${this.labelFor(this.displayValue)}`
+            : `Scale: ${this.labelFor(this.displayValue)}`;
+    }
+
+    get listAriaLabel(): string {
+        return this.kind === 'collapse' ? 'Collapse views' : 'Scales';
+    }
 
     readonly overlayPositions: ConnectedPosition[] = [
         {
@@ -44,7 +68,7 @@ export class ScaleSelectComponent {
         event.preventDefault();
         event.stopPropagation();
         this.open = !this.open;
-        this.hovered = this.open ? this.value : null;
+        this.hovered = this.open ? this.displayValue : null;
     }
 
     select(scale: string, event?: Event): void {
@@ -77,14 +101,14 @@ export class ScaleSelectComponent {
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             if (!this.open) {
                 this.open = true;
-                this.hovered = this.value;
+                this.hovered = this.displayValue;
                 event.preventDefault();
                 return;
             }
             const index = this.hovered ? this.options.indexOf(this.hovered) : -1;
             const direction = event.key === 'ArrowDown' ? 1 : -1;
             const next = (index + direction + this.options.length) % this.options.length;
-            this.hovered = this.options[next] ?? this.value;
+            this.hovered = this.options[next] ?? this.displayValue;
             event.preventDefault();
         }
     }

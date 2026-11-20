@@ -69,7 +69,7 @@ A minimal song:
 
 ```mr
 song Semilla
-version 2
+version 3
 
 melodies
   melody Origen

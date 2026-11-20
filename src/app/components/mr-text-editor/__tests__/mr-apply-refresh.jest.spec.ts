@@ -71,7 +71,7 @@ jest.mock('@angular/core', () => {
 /** Ejemplo §6 del formato `.mr` (el mismo que reproduce el bug en la GUI). */
 const EXAMPLE = [
   'song "Prueba"',
-  'version 2',
+  'version 3',
   'repeats 2',
   'bpm 108',
   '',
@@ -105,7 +105,7 @@ const EXAMPLE = [
 /** `.mr` canónico con bibliotecas de contenido y referencias de bloque. */
 const BLOCKS_EXAMPLE = [
   'song Reutilizables',
-  'version 2',
+  'version 3',
   '',
   'melodies',
   '  melody Riff',
@@ -313,7 +313,7 @@ describe('SongEditorComponent · applyLoadedDocument (.mr)', () => {
   it('para el player antes de aplicar variables, sincroniza meta y emite la canción', () => {
     const { component, songPlayer, emitted } = createSongEditor(true);
     const document = parseSong(
-      ['song "Cargada"', 'version 2', 'repeats 3', 'bpm 90', 'vars', '  $mode = RANDOM', 'part Piano', ''].join('\n')
+      ['song "Cargada"', 'version 3', 'repeats 3', 'bpm 90', 'vars', '  $mode = RANDOM', 'part Piano', ''].join('\n')
     );
 
     component.applyLoadedDocument(document);
@@ -330,7 +330,7 @@ describe('SongEditorComponent · applyLoadedDocument (.mr)', () => {
 
   it('no para el player si no está sonando y sustituye la canción igualmente', () => {
     const { component, songPlayer, emitted } = createSongEditor(false);
-    const document = parseSong('song "X"\nversion 2\n');
+    const document = parseSong('song "X"\nversion 3\n');
 
     component.applyLoadedDocument(document);
 

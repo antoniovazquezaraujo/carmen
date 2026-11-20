@@ -4,7 +4,7 @@ import { serializeSong } from '../mr.serializer';
 import { findSourceEntryAtLine, findSourceEntryForNode, MrSourceMapEntry } from '../mr.source-map';
 
 const SOURCE = `song "Source map"
-version 2
+version 3
 
 vars
   $motif = "4t:0"

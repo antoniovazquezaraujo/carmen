@@ -12,7 +12,7 @@ function createDocument(name = 'X'): SongDocument {
   const song = new Song();
   song.name = name;
   song.parts = [];
-  return { song, variables: new Map(), meta: { version: 2 } };
+  return { song, variables: new Map(), meta: { version: 3 } };
 }
 
 function addPart(document: SongDocument, name: string, blocks: Block[]): Part {
@@ -56,7 +56,7 @@ describe('serializeSong: cabecera y layout', () => {
 
     expect(serializeSong(document)).toBe(
       `song Semilla
-version 2
+version 3
 
 melodies
   melody Origen
@@ -73,29 +73,29 @@ part Piano
 
   it('emite repeats desde Song y omite los valores por defecto', () => {
     const document = createDocument();
-    expect(serializeSong(document)).toBe('song X\nversion 2\n');
+    expect(serializeSong(document)).toBe('song X\nversion 3\n');
 
     document.song.repeats = 2;
-    document.meta = { version: 2, repeats: 2, bpm: 90 };
-    expect(serializeSong(document)).toBe('song X\nversion 2\nrepeats 2\nbpm 90\n');
+    document.meta = { version: 3, repeats: 2, bpm: 90 };
+    expect(serializeSong(document)).toBe('song X\nversion 3\nrepeats 2\nbpm 90\n');
   });
 
   it('ignora meta.repeats: Song.repeats es la fuente de verdad', () => {
     const document = createDocument();
-    document.meta = { version: 2, repeats: 5, bpm: 90 };
+    document.meta = { version: 3, repeats: 5, bpm: 90 };
 
-    expect(serializeSong(document)).toBe('song X\nversion 2\nbpm 90\n');
+    expect(serializeSong(document)).toBe('song X\nversion 3\nbpm 90\n');
   });
 
-  it('rechaza una versión distinta de la 2', () => {
+  it('rechaza una versión distinta de la 3', () => {
     const document = createDocument();
     document.meta = { version: 1 };
 
-    expect(expectSerializeError(document).message).toContain('versión de formato 2');
+    expect(expectSerializeError(document).message).toContain('versión de formato 3');
   });
 
   it('emite song "" para nombres vacíos y comillas cuando hacen falta', () => {
-    expect(serializeSong(createDocument(''))).toBe('song ""\nversion 2\n');
+    expect(serializeSong(createDocument(''))).toBe('song ""\nversion 3\n');
 
     const withSpaces = createDocument('Piano de cola');
     expect(serializeSong(withSpaces)).toContain('song "Piano de cola"');

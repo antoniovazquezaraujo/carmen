@@ -1,6 +1,6 @@
-# The `.mr` language manual (v2)
+# The `.mr` language manual (v3)
 
-- **Status:** format 2, 2026-11-05 (`.mr` `version 2`).
+- **Status:** format 3, 2026-11-20 (`.mr` `version 3`).
 - **Audience:** users who write and edit songs, not implementers.
 - **Scope:** the full syntax of a `.mr` file, how it sounds, how it is saved/loaded and the current limits.
 - **Technical references:** [ADR-001](../developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md) · [ADR-004](../developer/adr/ADR-004-bibliotecas-contenido.md) · [content libraries proposal](../developer/design/propuesta-bibliotecas-contenido.md) · [syntax proposal](../developer/design/propuesta-sintaxis-mr.md) · [implemented syntax](../developer/analysis/sintaxis-mr-implementada.md).
@@ -33,7 +33,7 @@ This is a complete format-2 song: name, one melody in the library, one part and 
 
 ```mr
 song Semilla
-version 2
+version 3
 
 melodies
   melody Origen
@@ -62,7 +62,7 @@ From the outside in, the skeleton is:
 
 ```text
 song <name>            # header: song name
-version 2              # format version (always 2)
+version 3              # format version (always 2)
 repeats <n>            # optional: song repetitions (minimum 1)
 bpm <n>                # optional: tempo (30-240)
 
@@ -109,7 +109,7 @@ Reserved words (quote them if used as a name): `song`, `version`, `repeats`, `bp
 | Line | Mandatory | Meaning |
 |---|---|---|
 | `song <name>` | No (yes when saving) | Song name. Without it, `Untitled Song` is used. Empty name: `song ""`. |
-| `version 2` | No (yes when saving) | Format version. Any other version is an explicit error. |
+| `version 3` | No (yes when saving) | Format version. Any other version is an explicit error. |
 | `repeats <n>` | No | Song repetitions (`n >= 1`). Omitted when 1. In the GUI it is the *Repeat* field (1-99). |
 | `bpm <n>` | No | Tempo in quarter notes per minute (30-240). Omitted when 120. In the GUI it is the *BPM* field. |
 
@@ -117,7 +117,7 @@ Reading order: `song` → `version` → `repeats`/`bpm` (the latter two in any o
 
 ```mr
 song "Órbita"
-version 2
+version 3
 repeats 3
 bpm 108
 
@@ -138,7 +138,7 @@ Optional, single section, after the header and before the first content library;
 
 ```mr
 song Variables
-version 2
+version 3
 
 vars
   $oct = 2
@@ -193,7 +193,7 @@ Example of the three libraries together:
 
 ```mr
 song Bibliotecas
-version 2
+version 3
 
 melodies
   melody Riff
@@ -248,7 +248,7 @@ A block can reuse a preset and tweak only a few settings locally:
 
 ```mr
 song Overrides
-version 2
+version 3
 
 melodies
   melody Tema
@@ -273,7 +273,7 @@ The overrides only affect the notes of `Tema`; its child blocks keep `Base`. The
 
 ```mr
 song Estructura
-version 2
+version 3
 
 melodies
   melody Padre
@@ -378,7 +378,7 @@ A single note can come from a numeric variable: `4t:$grado` (with `$grado = -5`,
 
 ```mr
 song Estructura
-version 2
+version 3
 
 melodies
   melody Tema
@@ -402,7 +402,7 @@ A melody can take all its notes from a string variable (a melody written with th
 
 ```mr
 song Eco
-version 2
+version 3
 
 vars
   $motif = "4n:0 4n:2 4n:4 4n:2"
@@ -458,7 +458,8 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 |---|---|---|---|
 | `OCT` | Base octave of the notes | integer or `$variable` | `OCT 2` |
 | `OCTAVE_PATTERN` | Repeats the block's own generated melody at octave offsets relative to `OCT` | integer list (can be negative) or `$variable` | `OCTAVE_PATTERN 1 0 -1 2` |
-| `SCALE` | Active scale | `WHITE`, `BLUE`, `RED`, `BLACK`, `PENTA`, `TONES`, `FULL` or `$variable` | `SCALE BLACK` |
+| `SCALE` | Active scale | `WHITE`, `BLUE`, `RED`, `BLACK`, `TONES`, `FULL` or `$variable` | `SCALE BLACK` |
+| `COLLAPSE` | Scale view applied to the active scale, before `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `NONE` or `$variable` | `COLLAPSE LOW_HIGH` |
 | `GAP` | Gap (in scale degrees) between chord notes | integer or `$variable` | `GAP 2` |
 | `PLAYMODE` | How grades are played: chord, arpeggios, random, single note... | `CHORD`, `ASCENDING`, `DESCENDING`, `ASC_DESC`, `DESC_ASC`, `EVEN_ASC_ODD_ASC`, `EVEN_ASC_ODD_DESC`, `EVEN_DESC_ODD_DESC`, `EVEN_DESC_ODD_ASC`, `ODD_ASC_EVEN_ASC`, `ODD_ASC_EVEN_DESC`, `ODD_DESC_EVEN_DESC`, `ODD_DESC_EVEN_ASC`, `RANDOM`, `SINGLE` or `$variable` | `PLAYMODE ASCENDING` |
 | `WIDTH` | Notes added to the chord from the root (besides it) | integer or `$variable` | `WIDTH 3` |
@@ -476,6 +477,7 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 Notes:
 
 - `INVERSION` is accepted when reading as an alias of `INV`, but the canonical form (what is saved) is always `INV`.
+- `COLLAPSE` projects the active scale: each semitone that touches a tritone keeps one note. `NONE` restores the full parent. WHITE, BLUE, RED and BLACK expose four views each (the two tritone groups move together). TONES and FULL are accepted as no-ops for now; FULL's grouping rule is still pending. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) replaces the removed `PENTA`.
 - `PLAYMODE SINGLE` plays each note on its own, without chord or arpeggio (useful with `PATTERN`).
 - In the editor, play modes are shown with compact symbols: `○` marks even positions (0, 2, 4...), `●` marks odd positions (1, 3, 5...) and the arrows show each group's direction. Hover the selector for the full description; `.mr` keeps the canonical names.
 - `PATTERN` is **independent from the playmode**: when present, it expands every note before the playmode generates its sound (chord, arpeggio, random...). Without `PATTERN`, nothing changes. Its melody is written on one line (durations, rests and groups allowed).
@@ -489,7 +491,7 @@ Example with all settings:
 
 ```mr
 song "Panel de control"
-version 2
+version 3
 
 melodies
   melody Chequeo
@@ -551,7 +553,7 @@ Example (saving normalizes to `VARY`/`ASSIGN`):
 
 ```mr
 song Procedimiento
-version 2
+version 3
 
 vars
   $oct = 2
@@ -661,14 +663,14 @@ Presentation format: `file.mr:line:column  error: message`. Examples:
 | 3 spaces of indentation | odd indentation |
 | `4n:( 0 2` | missing `)` to close the group opened at line:column |
 | `PLAYMODE` without a value | PLAYMODE requires a value or a valid `$variable` |
-| `SCALE FUCSIA` | unknown scale; valid values: WHITE, BLUE, RED, BLACK, PENTA, TONES, FULL |
+| `SCALE FUCSIA` | unknown scale; valid values: WHITE, BLUE, RED, BLACK, TONES, FULL |
 | `VARY $oct` without a step | VARY requires `$variable` and a value |
 | `$x *= 2` | operation `*=` does not exist in the model; use `VARY $x <step>` |
 | `$x` declared twice | variable `$x` is already declared |
-| `version 1` | unsupported format version; this parser supports version 2 |
+| `version 1` | unsupported format version; this parser supports version 3 |
 | `bpm 20` | `bpm` must be between 30 and 240 |
 | `notes $motif` with lines below | `notes $motif` does not accept event lines |
-| `blocks` after a `part` | the `blocks` section no longer exists in format 2 |
+| `blocks` after a `part` | the `blocks` section no longer exists in format 3 |
 | `use Riff` | `use` no longer exists: blocks are not referenced |
 | `notes` inside a block | inline content no longer exists; declare a melody and reference it |
 | `melody Nope` with no `melody Nope` in `melodies` | no melody named `Nope`; defined: ... |
@@ -697,7 +699,7 @@ In the `.mr` view, errors appear below the text with their `line, column`; click
 
 ---
 
-## 9. Known limitations (format 2)
+## 9. Known limitations (format 3)
 
 1. **String variables as a single note.** `8t:$motif` (with `$motif` a string) sounds as an `8t` rest; the pattern is not expanded. `notes $motif` on a whole melody does substitute during playback.
 2. **Live Repeat.** Changing repetitions while playing applies on the next Play.
@@ -721,7 +723,7 @@ The same files live in `src/app/model/mr/__tests__/corpus/` and are used by the 
 
 ```mr
 song Semilla
-version 2
+version 3
 
 melodies
   melody Origen
@@ -740,7 +742,7 @@ part Piano
 
 ```mr
 song "Canon de partículas"
-version 2
+version 3
 repeats 2
 
 melodies
@@ -802,7 +804,7 @@ part Piano
 
 ```mr
 song "Órbita"
-version 2
+version 3
 repeats 3
 
 vars
@@ -855,7 +857,7 @@ part Piano
 
 ```mr
 song Laboratorio
-version 2
+version 3
 
 vars
   $grado = -5
@@ -890,7 +892,7 @@ part Piano
 
 ```mr
 song Patrones
-version 2
+version 3
 
 vars
   $grado = -5
@@ -915,7 +917,7 @@ part Ritmos
 
 ```mr
 song Estructura
-version 2
+version 3
 
 vars
   $texto = "línea 1"
@@ -978,7 +980,7 @@ part Anidado
 
 ```mr
 song Bibliotecas
-version 2
+version 3
 
 melodies
   melody Riff
@@ -1027,7 +1029,7 @@ part Cuerdas
 
 ```mr
 song ""
-version 2
+version 3
 
 part
   block

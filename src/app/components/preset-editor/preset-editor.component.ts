@@ -31,6 +31,7 @@ import {
     buildAvailableVariables,
     buildStringVariables,
     canonicalDecorationValueOrRaw,
+    COLLAPSE_MODE_LABELS,
     commandTypeDescription,
     commandTypeLabel,
     createShiftCommands,
@@ -66,6 +67,8 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     private baseCommandTypeNames: string[] = Object.values(CommandType)
         .filter(type => !SHIFT_COMMAND_TYPES.includes(type as CommandType));
     playModeNames: string[] = [];
+    collapseModeNames: string[] = [];
+    readonly collapseModeLabels = COLLAPSE_MODE_LABELS;
     playModeOptions: PlayModeOption[] = [];
     scaleNames: string[] = [];
     availableVariables: VariableOption[] = [];
@@ -81,9 +84,10 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         private readonly cdr: ChangeDetectorRef,
         private readonly songPlayer: SongPlayer
     ) {
-        const { playModeNames, scaleNames } = resolveEditorOptions();
+        const { playModeNames, scaleNames, collapseModeNames } = resolveEditorOptions();
         this.playModeNames = playModeNames;
         this.scaleNames = scaleNames;
+        this.collapseModeNames = collapseModeNames;
         this.playModeOptions = buildPlayModeOptions(playModeNames);
     }
 
@@ -171,6 +175,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         if (command.isVariable) {
             const isStringValue =
+                command.type === CommandType.COLLAPSE ||
                 command.type === CommandType.PATTERN ||
                 command.type === CommandType.OCTAVE_PATTERN ||
                 command.type === CommandType.DECORATION ||
@@ -254,6 +259,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         if (
+            command.type === CommandType.COLLAPSE ||
             command.type === CommandType.PATTERN ||
             command.type === CommandType.OCTAVE_PATTERN ||
             command.type === CommandType.DECORATION ||
@@ -306,7 +312,34 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    isVariableOfType(variableName: string, type: 'number' | 'playmode' | 'scale'): boolean {
+    collapseMode(command: Command): string {
+        return String(command.value ?? 'NONE');
+    }
+
+    /** Parent scale effective at the COLLAPSE command, for the preview. */
+    collapseParentScale(command: Command): string {
+        const index = this.preset.settings.indexOf(command);
+        for (let i = index - 1; i >= 0; i -= 1) {
+            const setting = this.preset.settings[i];
+            if (setting.type !== CommandType.SCALE) {
+                continue;
+            }
+            const value = setting.value;
+            if (typeof value === 'string' && this.scaleNames.includes(value)) {
+                return value;
+            }
+        }
+        return this.scaleNames[0] || 'WHITE';
+    }
+
+    handleCollapseSelected(mode: string, command: Command): void {
+        if (command.type === CommandType.COLLAPSE) {
+            command.setValue(mode);
+            this.cdr.detectChanges();
+        }
+    }
+
+    isVariableOfType(variableName: string, type: 'number' | 'playmode' | 'scale' | 'collapse'): boolean {
         return isVariableOfType(variableName, type, this.playModeNames, this.scaleNames);
     }
 

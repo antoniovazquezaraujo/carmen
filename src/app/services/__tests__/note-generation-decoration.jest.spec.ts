@@ -65,6 +65,9 @@ const allInScale = (notes: Array<number | undefined>, scaleName: string): boolea
   return notes.every((note) => note !== undefined && scale.notes.includes((((note - 48) % 12) + 12) % 12));
 };
 
+const allInNotes = (notes: Array<number | undefined>, scaleNotes: number[]): boolean =>
+  notes.every((note) => note !== undefined && scaleNotes.includes((((note - 48) % 12) + 12) % 12));
+
 describe('NoteGenerationService · DECORATION (adorno del acorde)', () => {
   beforeEach(() => {
     VariableContext.context.clear();
@@ -307,13 +310,18 @@ describe('NoteGenerationService · DECORATION (adorno del acorde)', () => {
     expect(allInScale(black, 'BLACK')).toBe(true);
   });
 
-  it('CHORD: los grados se re-normalizan también en escalas de 5 notas (PENTA)', () => {
-    const result = generate([new Command({ type: CommandType.SCALE, value: 'PENTA' }), decoration('-2 6')]);
+  it('CHORD: los grados se re-normalizan también en vistas de 5 notas (COLLAPSE LOW_HIGH)', () => {
+    const result = generate([
+      new Command({ type: CommandType.SCALE, value: 'WHITE' }),
+      new Command({ type: CommandType.COLLAPSE, value: 'LOW_HIGH' }),
+      decoration('-2 6')
+    ]);
 
-    // PENTA [0,2,5,7,10]: -2 grados → octava inferior, grado 3 → 55;
+    // WHITE + COLLAPSE LOW_HIGH = [0,2,5,7,10]:
+    // -2 grados → octava inferior, grado 3 → 55;
     // +6 grados → una octava más grado 1 → 74.
     expect(notesOf(result)).toEqual([55, 74]);
-    expect(allInScale(notesOf(result), 'PENTA')).toBe(true);
+    expect(allInNotes(notesOf(result), [0, 2, 5, 7, 10])).toBe(true);
   });
 
   it('ARPEGGIO: decorar no altera el orden de EVEN_ASC_ODD_ASC', () => {

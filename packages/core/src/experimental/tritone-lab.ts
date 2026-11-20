@@ -8,7 +8,8 @@
  * - a modulation anchors one source tritone to one destination tritone;
  * - the exact key is the real pitch-class distance, modulo 12;
  * - hiding collapses the semitones that touch a tritone: one note of each
- *   semitone survives, which yields four semitone-free views in WHITE and BLUE.
+ *   semitone survives, grouped by tritone. WHITE, BLUE, RED and BLACK expose
+ *   four views; TONES has no semitones and is the identity.
  *
  * The pure collapse model lives in `../scale-view` (ADR-006); this lab adapts
  * it to the tritone-reporting shape used by the prototype.
@@ -174,25 +175,19 @@ const MODE_BY_SELECTION: Readonly<Record<string, CollapseMode>> = {
  * upper one). The visible scale therefore has no semitones. WHITE and BLUE
  * have two semitones each, so there are four views.
  *
- * The MVP only supports WHITE and BLUE. A tritone can survive a view when both
- * of its notes are kept; `tritones` reports the remaining ones.
+ * The family supports WHITE, BLUE, RED and BLACK. TONES has no semitones, so
+ * every mode is the identity. A tritone can survive a view when both of its
+ * notes are kept; `tritones` reports the remaining ones.
  */
 export function hideSemitones(
     name: TritoneScaleName,
     selection: SemitoneSelection
 ): SemitoneView {
-    if (name !== 'WHITE' && name !== 'BLUE') {
-        throw new RangeError(`${name} does not support semitone views in the MVP`);
+    if (selection.length !== 2) {
+        throw new RangeError(`${name} needs 2 side choices, got ${selection.length}`);
     }
 
     const scale = TRITONE_SCALES[name];
-    const semitones = semitonesOf(scale.notes);
-    if (selection.length !== semitones.length) {
-        throw new RangeError(
-            `${name} needs ${semitones.length} semitone choices, got ${selection.length}`
-        );
-    }
-
     const mode = MODE_BY_SELECTION[selection.join('/')];
     if (!mode) {
         throw new RangeError(`unsupported semitone selection ${selection.join('/')}`);
@@ -210,7 +205,7 @@ export function hideSemitones(
 }
 
 /**
- * The four MVP views, in the order both-up, both-down, down/up and up/down.
+ * The four views, in the order both-up, both-down, down/up and up/down.
  * `HIGH` keeps the upper note of a semitone; `LOW` keeps the lower one.
  */
 export const SEMITONE_VIEW_SELECTIONS: readonly SemitoneSelection[] = [

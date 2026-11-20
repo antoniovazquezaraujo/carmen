@@ -17,6 +17,7 @@ import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames } from '../play.mode';
 import { Scale } from '../scale';
+import { COLLAPSE_MODE_NAMES, isCollapseMode } from '../scale-view';
 import { DEFAULT_BPM, DEFAULT_REPEATS, MAX_BPM, MIN_BPM, MIN_REPEATS, Song } from '../song';
 import { VariableValue } from '../variable.context';
 import { MrParseError } from './mr.errors';
@@ -43,6 +44,7 @@ const COMMAND_TYPES: ReadonlyMap<string, CommandType> = new Map<string, CommandT
   ['OCT', CommandType.OCT],
   ['OCTAVE_PATTERN', CommandType.OCTAVE_PATTERN],
   ['SCALE', CommandType.SCALE],
+  ['COLLAPSE', CommandType.COLLAPSE],
   ['GAP', CommandType.GAP],
   ['PLAYMODE', CommandType.PLAYMODE],
   ['WIDTH', CommandType.WIDTH],
@@ -65,6 +67,7 @@ const COMMAND_NAMES: readonly string[] = [
   'OCT',
   'OCTAVE_PATTERN',
   'SCALE',
+  'COLLAPSE',
   'GAP',
   'PLAYMODE',
   'WIDTH',
@@ -399,6 +402,9 @@ class MrDocumentParser {
     }
     const upper = raw.toUpperCase();
     if (Scale.getScaleNames().includes(upper)) {
+      return upper;
+    }
+    if (isCollapseMode(upper)) {
       return upper;
     }
     if (getPlayModeNames().includes(upper)) {
@@ -1020,10 +1026,28 @@ class MrDocumentParser {
     }
     if (type === CommandType.SCALE) {
       const name = word.text.toUpperCase();
+      if (name === 'PENTA') {
+        throw errorAt(
+          line,
+          word.column,
+          `PENTA se eliminó en .mr v3; usa 'SCALE WHITE' + 'COLLAPSE LOW_HIGH' o 'SCALE BLUE' + 'COLLAPSE HIGH_LOW'`
+        );
+      }
       if (!Scale.getScaleNames().includes(name)) {
         throw errorAt(line, word.column, `escala desconocida '${word.text}'; valores válidos: ${Scale.getScaleNames().join(', ')} o $variable`);
       }
       return new Command({ type, value: name });
+    }
+    if (type === CommandType.COLLAPSE) {
+      const mode = word.text.toUpperCase();
+      if (!isCollapseMode(mode)) {
+        throw errorAt(
+          line,
+          word.column,
+          `collapse desconocido '${word.text}'; valores válidos: ${COLLAPSE_MODE_NAMES.join(', ')} o $variable`
+        );
+      }
+      return new Command({ type, value: mode });
     }
     if (type === CommandType.PLAYMODE) {
       const name = word.text.toUpperCase();

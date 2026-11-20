@@ -23,7 +23,7 @@ describe('Scale.getScaleByName', () => {
 
 describe('Scale.getScaleNames / getNumNotes', () => {
   it('conserva el orden de ScaleTypes', () => {
-    expect(Scale.getScaleNames()).toEqual(['WHITE', 'BLUE', 'RED', 'BLACK', 'PENTA', 'TONES', 'FULL']);
+    expect(Scale.getScaleNames()).toEqual(['WHITE', 'BLUE', 'RED', 'BLACK', 'TONES', 'FULL']);
   });
 
   it('getNumNotes devuelve el tamaño de la escala (0-based)', () => {

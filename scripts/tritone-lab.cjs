@@ -36,8 +36,8 @@ console.log('\nAnchored modulation\n');
 console.log(formatModulation(modulate('WHITE', 'BLUE', 1, 2)));
 console.log(formatModulation(modulate('BLUE', 'WHITE', 1, 1)));
 
-console.log('\nSemitone views (WHITE/BLUE)\n');
-for (const name of ['WHITE', 'BLUE']) {
+console.log('\nSemitone views (WHITE/BLUE/RED/BLACK)\n');
+for (const name of ['WHITE', 'BLUE', 'RED', 'BLACK']) {
   for (const selection of SEMITONE_VIEW_SELECTIONS) {
     const view = hideSemitones(name, selection);
     const label = VIEW_LABELS[selection.join('/')];

@@ -115,7 +115,7 @@ describe('round-trip: normalización de entradas no canónicas', () => {
   it('normaliza espacios, comentarios y comillas sobrantes', () => {
     const nonCanonical = `# comentario de cabecera
 song "Semilla"    # nombre
-version 2
+version 3
 
 melodies
   melody "Origen"
@@ -135,7 +135,7 @@ part "Piano"
 
   it('normaliza INVERSION a INV y el azúcar de operaciones a VARY/ASSIGN', () => {
     const text = `song Normaliza
-version 2
+version 3
 
 melodies
   melody M
@@ -168,7 +168,7 @@ part P
 
   it('reordena las referencias dentro del bloque a preset → procedure → melody → hijos', () => {
     const text = `song Orden
-version 2
+version 3
 
 melodies
   melody M
@@ -194,7 +194,7 @@ part P
 `;
 
     expect(serializeSong(parseSong(text))).toBe(`song Orden
-version 2
+version 3
 
 melodies
   melody M

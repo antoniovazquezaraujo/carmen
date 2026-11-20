@@ -63,6 +63,27 @@
                 </app-scale-select>
               }
             }
+            @case (commandTypes.COLLAPSE) {
+              @if (command.isVariable) {
+                <select class="command-type"
+                  [ngModel]="getSelectedValue(command)"
+                  (ngModelChange)="handleValueInput($event, command)">
+                  <option value="" disabled>Select Collapse variable</option>
+                  @for (variable of getFilteredVariables(command); track trackByVariable($index, variable)) {
+                    <option [value]="variable.value">{{variable.label}}</option>
+                  }
+                </select>
+              } @else {
+                <app-scale-select
+                  [value]="collapseMode(command)"
+                  [options]="collapseModeNames"
+                  [labels]="collapseModeLabels"
+                  kind="collapse"
+                  [parentScale]="collapseParentScale(command)"
+                  (valueChange)="handleCollapseSelected($event, command)">
+                </app-scale-select>
+              }
+            }
             @case (commandTypes.PATTERN) {
               @if (command.isVariable) {
                 <select class="command-type"
