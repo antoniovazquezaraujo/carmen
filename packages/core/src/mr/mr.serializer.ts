@@ -18,6 +18,7 @@ import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames, PlayMode } from '../play.mode';
 import { Scale } from '../scale';
+import { COLLAPSE_MODE_NAMES, isCollapseMode } from '../scale-view';
 import { DEFAULT_BPM, DEFAULT_REPEATS, MAX_BPM, MIN_BPM, MIN_REPEATS, Song } from '../song';
 import { MrParseError, MrSerializeError } from './mr.errors';
 import { DURATION_PATTERN, escapeMrString, formatName, IDENTIFIER_PATTERN } from './mr.text';
@@ -285,6 +286,15 @@ function formatCommand(command: Command, context: string): string {
       }
       return `SCALE ${name}`;
     }
+    case CommandType.COLLAPSE: {
+      const mode = String(command.value).toUpperCase();
+      if (!isCollapseMode(mode)) {
+        throw new MrSerializeError(
+          `COLLAPSE inválido '${String(command.value)}' en ${context}; valores válidos: ${COLLAPSE_MODE_NAMES.join(', ')}`
+        );
+      }
+      return `COLLAPSE ${mode}`;
+    }
     case CommandType.PLAYMODE: {
       const value = command.value;
       const name = typeof value === 'number' ? PlayMode[value] : String(value).toUpperCase();
@@ -385,6 +395,9 @@ function formatValue(value: string | number, context: string): string {
   }
   const upper = value.toUpperCase();
   if (Scale.getScaleNames().includes(upper)) {
+    return upper;
+  }
+  if (isCollapseMode(upper)) {
     return upper;
   }
   if (getPlayModeNames().includes(upper)) {

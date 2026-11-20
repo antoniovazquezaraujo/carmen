@@ -1,6 +1,7 @@
 import { VariableContext, ScaleType } from './variable.context';
 import { getPlayModeFromString, PlayMode } from './play.mode';
 import { ScaleTypes } from './scale';
+import { isCollapseMode } from './scale-view';
 import { NoteData } from './note';
 import { parseBlockNotes } from './mr/notes.parser';
 import { parseDecorationItems } from './mr/decoration.parser';
@@ -11,6 +12,7 @@ export enum CommandType {
     OCT = 'OCT',
     OCTAVE_PATTERN = 'OCTAVE_PATTERN',
     SCALE = 'SCALE',
+    COLLAPSE = 'COLLAPSE',
     GAP = 'GAP',
     PLAYMODE = 'PLAYMODE',
     INV = 'INV',
@@ -75,6 +77,7 @@ export class Command {
     /** PATTERN, DECORATION y los perfiles de intensidad guardan su valor como string. */
     private isStringValued(): boolean {
         return (
+            this.type === CommandType.COLLAPSE ||
             this.type === CommandType.PATTERN ||
             this.type === CommandType.OCTAVE_PATTERN ||
             this.type === CommandType.DECORATION ||
@@ -110,7 +113,7 @@ export class Command {
             this._value = value;
         } else {
             this.isVariable = false;
-            if (this.type === CommandType.SCALE && typeof value === 'string') {
+            if ((this.type === CommandType.SCALE || this.type === CommandType.COLLAPSE) && typeof value === 'string') {
                 this._value = String(value).toUpperCase();
             } else if (this.type === CommandType.PLAYMODE) {
                 if (typeof value === 'string') {
@@ -212,7 +215,16 @@ export class Command {
             return;
         }
         
-        if (this.type === CommandType.SCALE) {
+        if (this.type === CommandType.COLLAPSE) {
+             const mode = String(value).toUpperCase();
+             if (!isCollapseMode(mode)) {
+                 console.warn(`[Command] Invalid COLLAPSE mode resolved: ${mode}. Using COLLAPSE NONE.`);
+                 value = 'NONE';
+             } else {
+                 value = mode;
+             }
+        }
+        else if (this.type === CommandType.SCALE) {
              const scaleName = String(value).toUpperCase();
              const scaleEnumVal = ScaleTypes[scaleName as keyof typeof ScaleTypes];
              if (scaleEnumVal === undefined) {
@@ -236,6 +248,7 @@ export class Command {
             case CommandType.GAP: player.gap = value; break;
             case CommandType.OCT: player.octave = value; break;
             case CommandType.SCALE: player.scale = value; break;
+            case CommandType.COLLAPSE: player.collapse = value; break;
             case CommandType.PLAYMODE: 
                 if (typeof value === 'number' && PlayMode[value] !== undefined) {
                     // El patrón es independiente del playmode: no se toca aquí.
