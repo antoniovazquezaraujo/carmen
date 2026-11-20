@@ -66,6 +66,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
     private baseCommandTypeNames: string[] = Object.values(CommandType)
         .filter(type => !SHIFT_COMMAND_TYPES.includes(type as CommandType));
     playModeNames: string[] = [];
+    collapseModeNames: string[] = [];
     playModeOptions: PlayModeOption[] = [];
     scaleNames: string[] = [];
     availableVariables: VariableOption[] = [];
@@ -81,9 +82,10 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         private readonly cdr: ChangeDetectorRef,
         private readonly songPlayer: SongPlayer
     ) {
-        const { playModeNames, scaleNames } = resolveEditorOptions();
+        const { playModeNames, scaleNames, collapseModeNames } = resolveEditorOptions();
         this.playModeNames = playModeNames;
         this.scaleNames = scaleNames;
+        this.collapseModeNames = collapseModeNames;
         this.playModeOptions = buildPlayModeOptions(playModeNames);
     }
 
@@ -171,6 +173,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
 
         if (command.isVariable) {
             const isStringValue =
+                command.type === CommandType.COLLAPSE ||
                 command.type === CommandType.PATTERN ||
                 command.type === CommandType.OCTAVE_PATTERN ||
                 command.type === CommandType.DECORATION ||
@@ -254,6 +257,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
             return;
         }
         if (
+            command.type === CommandType.COLLAPSE ||
             command.type === CommandType.PATTERN ||
             command.type === CommandType.OCTAVE_PATTERN ||
             command.type === CommandType.DECORATION ||
@@ -306,7 +310,18 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         }
     }
 
-    isVariableOfType(variableName: string, type: 'number' | 'playmode' | 'scale'): boolean {
+    collapseMode(command: Command): string {
+        return String(command.value ?? 'NONE');
+    }
+
+    handleCollapseSelected(mode: string, command: Command): void {
+        if (command.type === CommandType.COLLAPSE) {
+            command.setValue(mode);
+            this.cdr.detectChanges();
+        }
+    }
+
+    isVariableOfType(variableName: string, type: 'number' | 'playmode' | 'scale' | 'collapse'): boolean {
         return isVariableOfType(variableName, type, this.playModeNames, this.scaleNames);
     }
 

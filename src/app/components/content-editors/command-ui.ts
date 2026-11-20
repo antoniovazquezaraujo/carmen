@@ -9,6 +9,7 @@
 import { Command, CommandType } from 'src/app/model/command';
 import { getPlayModeNames } from 'src/app/model/play.mode';
 import { Scale } from 'src/app/model/scale';
+import { COLLAPSE_MODE_NAMES, isCollapseMode } from 'src/app/model/scale-view';
 import { VariableContext } from 'src/app/model/variable.context';
 import { canonicalDecoration } from 'src/app/model/mr/decoration.parser';
 
@@ -28,6 +29,7 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     OCT: 'Base octave used to interpret melody degrees.',
     OCTAVE_PATTERN: 'Repeats the block melody at octave offsets relative to OCT (e.g. 1 0 -1 2).',
     SCALE: 'Scale used to turn degrees into notes.',
+    COLLAPSE: 'Scale view applied before KEY: collapses the semitones around tritones.',
     GAP: 'Distance between generated chord notes.',
     PLAYMODE: 'How notes are generated: single note, chord, arpeggio…',
     INV: 'Chord inversion: moves the first notes up an octave.',
@@ -94,10 +96,12 @@ export function canonicalDecorationValueOrRaw(value: string): string {
 export function resolveEditorOptions(): {
     playModeNames: string[];
     scaleNames: string[];
+    collapseModeNames: string[];
 } {
     return {
         playModeNames: getPlayModeNames(),
-        scaleNames: Scale.getScaleNames()
+        scaleNames: Scale.getScaleNames(),
+        collapseModeNames: [...COLLAPSE_MODE_NAMES]
     };
 }
 
@@ -108,7 +112,11 @@ export function buildAvailableVariables(
     return Array.from(VariableContext.context.entries())
         .filter(([, value]) => {
             if (typeof value === 'string') {
-                return playModeNames.includes(value) || scaleNames.includes(value);
+                return (
+                    playModeNames.includes(value) ||
+                    scaleNames.includes(value) ||
+                    isCollapseMode(value)
+                );
             }
             return typeof value === 'number';
         })
@@ -127,14 +135,15 @@ export function buildStringVariables(
         .filter(([, value]) =>
             typeof value === 'string' &&
             !playModeNames.includes(value) &&
-            !scaleNames.includes(value)
+            !scaleNames.includes(value) &&
+            !isCollapseMode(value)
         )
         .map(([name, value]) => ({ label: `${name} (${value})`, value: name }));
 }
 
 export function isVariableOfType(
     variableName: string,
-    type: 'number' | 'playmode' | 'scale',
+    type: 'number' | 'playmode' | 'scale' | 'collapse',
     playModeNames: readonly string[],
     scaleNames: readonly string[]
 ): boolean {
@@ -147,6 +156,9 @@ export function isVariableOfType(
     }
     if (type === 'scale') {
         return typeof value === 'string' && scaleNames.includes(value);
+    }
+    if (type === 'collapse') {
+        return typeof value === 'string' && isCollapseMode(value);
     }
     if (type === 'number') {
         return typeof value === 'number';
@@ -177,6 +189,9 @@ export function filterVariables(
         if (command.type === CommandType.SCALE) {
             return isVariableOfType(variable.value, 'scale', playModeNames, scaleNames);
         }
+        if (command.type === CommandType.COLLAPSE) {
+            return isVariableOfType(variable.value, 'collapse', playModeNames, scaleNames);
+        }
         return isVariableOfType(variable.value, 'number', playModeNames, scaleNames);
     });
 }
@@ -191,6 +206,9 @@ export function defaultCommandValue(
     }
     if (type === CommandType.SCALE) {
         return scaleNames[0] || 'WHITE';
+    }
+    if (type === CommandType.COLLAPSE) {
+        return 'NONE';
     }
     if (type === CommandType.INTENSITY) {
         return 90;
