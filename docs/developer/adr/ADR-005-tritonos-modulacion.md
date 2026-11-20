@@ -52,7 +52,7 @@ El objetivo de este ADR es fijar un modelo pequeño y formal para expresar esos 
    - `COLLAPSE BOTH_LOW|BOTH_HIGH|LOW_HIGH|HIGH_LOW`
    - `COLLAPSE NONE`
    Para que sea local a un bloque se usará `overrides`, igual que `SCALE`. La vista puede conservar algún tritono; el laboratorio lo reporta y la decisión de exigir “sin tritonos” queda abierta. El modelo general de vistas se fija en ADR-006.
-8. **El MVP de ocultación cubre WHITE, BLUE, RED y BLACK.** Las cuatro escalas tienen dos grupos de semitonos (por tritono o por par de tritonos) y exponen las mismas cuatro vistas. TONES no tiene semitonos: cualquier modo es identidad. FULL queda fuera hasta definir una regla propia.
+8. **El MVP de ocultación cubre WHITE, BLUE, RED y BLACK.** Las cuatro escalas tienen dos grupos de semitonos (por tritono o por par de tritonos) y exponen las mismas cuatro vistas. TONES y FULL se aceptan como no-op provisionales: sus modos no cambian la escala; la regla de FULL queda pendiente.
 9. **`SCALE` y `KEY` se mantienen** como herramientas de bajo nivel. `MODULATE` y la ocultación no las eliminan.
 10. **La key exacta se calcula con las notas reales**, no solo con el patrón mod 6. Los inicios mod 6 identifican el tritono; los inicios reales `0..11` fijan la key.
 11. **El cambio se documentará en `.mr` v3.** No habrá compatibilidad hacia atrás para `PENTA`, que se elimina.
@@ -225,7 +225,7 @@ WHITE tiene un tritono `(3,9)` y dos semitonos: `(2,3)` y `(9,10)`. BLUE tiene d
 | BLUE | `COLLAPSE LOW_HIGH` | 4,8 | 5,7 | `{0,2,4,8,10}` | `(2,8)`, `(4,10)` |
 | BLUE | `COLLAPSE HIGH_LOW` | 5,7 | 4,8 | `{0,2,5,7,10}` | ∅ |
 
-El MVP mantiene los cuatro nombres estructurales para todas las escalas soportadas; RED agrupa cada tritono con sus dos semitonos y BLACK empareja los tritonos que comparten semitonos. Las tablas completas de RED y BLACK están en ADR-006, sección 3.3. TONES es la identidad; FULL queda fuera.
+El MVP mantiene los cuatro nombres estructurales para todas las escalas soportadas; RED agrupa cada tritono con sus dos semitonos y BLACK empareja los tritonos que comparten semitonos. Las tablas completas de RED y BLACK están en ADR-006, sección 3.3. TONES y FULL se aceptan como no-op provisionales; la regla de FULL queda pendiente.
 
 ### 5.5. Ejemplos
 

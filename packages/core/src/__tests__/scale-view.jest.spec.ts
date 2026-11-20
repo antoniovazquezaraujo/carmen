@@ -157,14 +157,18 @@ describe('scale views', () => {
         expect(viewAfterKey.notes).toEqual([1, 3, 5, 8, 11]);
     });
 
-    it('rejects FULL and accepts the supported parents', () => {
+    it('treats FULL as a no-op and accepts the supported parents', () => {
         expect(canApplyCollapse(WHITE, 'BOTH_HIGH')).toBe(true);
         expect(canApplyCollapse(BLUE, 'BOTH_HIGH')).toBe(true);
         expect(canApplyCollapse(RED, 'BOTH_HIGH')).toBe(true);
         expect(canApplyCollapse(BLACK, 'BOTH_HIGH')).toBe(true);
         expect(canApplyCollapse(TONES, 'BOTH_HIGH')).toBe(true);
-        expect(canApplyCollapse(FULL, 'BOTH_HIGH')).toBe(false);
-        expect(() => collapseView(FULL, 'BOTH_HIGH')).toThrow(RangeError);
+        expect(canApplyCollapse(FULL, 'BOTH_HIGH')).toBe(true);
+
+        const full = collapseView(FULL, 'BOTH_HIGH');
+        expect(full.notes).toEqual(FULL);
+        expect(full.hiddenNotes).toEqual([]);
+        expect(full.groups).toEqual([]);
     });
 
     it('validates collapse mode names', () => {

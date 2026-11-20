@@ -51,10 +51,9 @@ export function canApplyCollapse(parentNotes: readonly number[], mode: CollapseM
     if (mode === 'NONE') {
         return true;
     }
-    if (semitonesOf(parentNotes).length === 0) {
-        return true;
-    }
-    return collapseGroups(parentNotes).length === 2;
+    const groups = collapseGroups(parentNotes);
+    // TONES and FULL have no supported groups for now: every mode is a no-op.
+    return groups.length === 0 || groups.length === 2;
 }
 
 /**
@@ -167,8 +166,8 @@ export function collapseGroups(notes: readonly number[]): NotePair[][] {
  * `NONE` returns the parent unchanged. The other modes require two groups of
  * semitone intervals; every interval in a group keeps the same side. The
  * visible notes are the union of the selected notes plus parent notes that are
- * not part of any semitone. TONES is the identity for every mode; FULL is not
- * supported.
+ * not part of any semitone. TONES and FULL have no supported groups for now,
+ * so every mode is a no-op; FULL's rule is still pending.
  */
 export function collapseView(parentNotes: readonly number[], mode: CollapseMode): ScaleView {
     const parent = [...parentNotes].sort((left, right) => left - right);
@@ -185,23 +184,21 @@ export function collapseView(parentNotes: readonly number[], mode: CollapseMode)
         };
     }
 
-    const semitones = semitonesOf(parent);
     const groups = collapseGroups(parent);
 
     if (groups.length === 0) {
-        if (semitones.length === 0) {
-            return {
-                family: 'SEMITONE_COLLAPSE',
-                mode,
-                notes: parent,
-                hiddenNotes: [],
-                semitones: [],
-                tritones: tritonesOf(parent),
-                groups: []
-            };
-        }
-        throw new RangeError(`COLLAPSE ${mode} is not supported for this scale`);
+        return {
+            family: 'SEMITONE_COLLAPSE',
+            mode,
+            notes: parent,
+            hiddenNotes: [],
+            semitones: semitonesOf(parent),
+            tritones: tritonesOf(parent),
+            groups: []
+        };
     }
+
+    const semitones = semitonesOf(parent);
 
     if (groups.length !== 2) {
         throw new RangeError(`COLLAPSE ${mode} needs exactly two groups; got ${groups.length}`);

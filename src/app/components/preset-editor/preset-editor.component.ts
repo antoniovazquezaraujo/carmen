@@ -332,12 +332,6 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         return this.scaleNames[0] || 'WHITE';
     }
 
-    /** TONES is the identity and FULL is unsupported: only NONE is meaningful. */
-    collapseModesFor(command: Command): string[] {
-        const parent = this.collapseParentScale(command);
-        return parent === 'TONES' || parent === 'FULL' ? ['NONE'] : this.collapseModeNames;
-    }
-
     handleCollapseSelected(mode: string, command: Command): void {
         if (command.type === CommandType.COLLAPSE) {
             command.setValue(mode);

@@ -48,16 +48,14 @@ describe('Player scale views', () => {
         expect(player.getCurrentScale().notes).toEqual([0, 2, 5, 8, 10]);
     });
 
-    it('clears the view when selectScale changes to an incompatible parent', () => {
+    it('keeps the view as a no-op on FULL', () => {
         const player = createPlayer();
         player.collapse = 'BOTH_HIGH';
-        const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
         player.selectScale(ScaleTypes.FULL);
 
-        expect(player.collapse).toBe('NONE');
-        expect(warn).toHaveBeenCalled();
-        warn.mockRestore();
+        expect(player.collapse).toBe('BOTH_HIGH');
+        expect(player.getCurrentScale().notes).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     });
 
     it('clears the view with COLLAPSE NONE', () => {
