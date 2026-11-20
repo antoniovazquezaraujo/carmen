@@ -48,7 +48,7 @@ El modelo actual no puede expresar “esta escala, presentada así”. `SCALE` e
    - BLACK: los tritonos que comparten los mismos dos semitonos forman un grupo (dos grupos).
    Cada grupo elige `LOW` o `HIGH` y se aplica a todos sus semitonos. Modos: `COLLAPSE BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`; `COLLAPSE NONE` es la identidad.
    - TONES no tiene semitonos: cualquier modo es identidad.
-   - FULL no tiene una asociación única tritono↔semitono: se acepta como no-op provisional hasta definir su regla.
+   - FULL no tiene una asociación única tritono↔semitono: es no-op definitivo; no se implementará una regla de agrupación.
    - Las vistas de WHITE/BLUE/BLACK no tienen semitonos; RED puede conservar el semitono del solape `11–0`/`0–1` según el modo.
 10. **PENTA se elimina como escala padre.** No hay compatibilidad hacia atrás: `SCALE PENTA` deja de ser válido en `.mr` v3. La equivalencia sonora es `WHITE` + `COLLAPSE LOW_HIGH` o `BLUE` + `COLLAPSE HIGH_LOW`; el usuario debe elegir el padre explícitamente. El parser puede sugerir la vista equivalente en el error, pero no migra el archivo.
 11. **La serialización es explícita.** `SCALE`, `KEY` y el comando de vista (`COLLAPSE ...`) se guardan en el mismo ámbito; nunca se infiere la vista del conjunto de notas. `COLLAPSE NONE` es la forma canónica de “sin vista”.
@@ -94,7 +94,7 @@ La regla agrupa los semitonos por tritono y forma dos grupos. Cada grupo elige `
 | RED | cada tritono (dos semitonos por tritono) |
 | BLACK | los dos pares de tritonos que comparten semitonos |
 | TONES | sin semitonos: identidad |
-| FULL | sin asociación única tritono↔semitono: no-op provisional |
+| FULL | sin asociación única tritono↔semitono: no-op definitivo |
 
 Las cuatro vistas de cada escala soportada:
 
@@ -141,7 +141,7 @@ COLLAPSE NONE
 
 `MODULATE` es una operación de procedimiento que cambia el padre y la key. La vista es un ajuste de preset/override, no una operación.
 
-- Si el padre destino es compatible con la vista (misma familia y dos grupos), la vista se conserva y se reinterpreta sobre el nuevo padre. En el MVP: WHITE, BLUE, RED y BLACK son compatibles; TONES y FULL son no-op provisionales.
+- Si el padre destino es compatible con la vista (misma familia y dos grupos), la vista se conserva y se reinterpreta sobre el nuevo padre. En el MVP: WHITE, BLUE, RED y BLACK son compatibles; TONES y FULL son no-op definitivos.
 - Si el padre destino no es compatible, la vista se limpia a `COLLAPSE NONE` y se avisa. La GUI y la serialización muestran `COLLAPSE NONE`.
 - `COLLAPSE NONE` es universal: no depende de la aridad del padre.
 - `MODULATE` no puede apuntar a una vista: el destino es siempre un padre. Si se quiere modular a un padre y luego aplicar una vista, son dos pasos.
@@ -183,7 +183,7 @@ PENTA se **elimina** como escala padre en `.mr` v3. No hay compatibilidad hacia 
 
 1. **Nombre y sintaxis final de `COLLAPSE`.** `COLLAPSE BOTH_HIGH|BOTH_LOW|LOW_HIGH|HIGH_LOW` y `COLLAPSE NONE` son la forma propuesta; falta decidir cómo se representan familias futuras.
 2. **Familias futuras.** `SEMITONE_COLLAPSE` es la primera; ¿habrá `TRITONE_ENDPOINT`, `REMOVE_DEGREE`, etc.? El modelo debe permitirlo sin cambiar la sintaxis base.
-3. **FULL.** No tiene una asociación única tritono↔semitono; se acepta como no-op provisional hasta definir una regla propia.
+3. **FULL.** No tiene una asociación única tritono↔semitono; es no-op definitivo y no se implementará una regla propia.
 4. **Variables de vista.** `COLLAPSE $modo` está soportado en el parser y la ejecución; falta decidir su presentación en la GUI.
 5. **PENTA.** Confirmar el alcance de la eliminación (enum, parser, serializador, docs, ejemplos y GUI) y el texto del error que sugiere la vista equivalente.
 6. **GUI.** Cómo mostrar la vista, las notas ocultas y los tritonos restantes sin saturar el editor. TONES y FULL se aceptan como no-op; la GUI puede indicarlo.

@@ -9,18 +9,48 @@
               <option [value]="type">{{typeLabel(type)}}</option>
             }
           </select>
-          @if (showOperationColon(operation)) {
-            <span class="command-label-sep" aria-hidden="true">:</span>
-          }
-          <select class="command-type"
-            [(ngModel)]="operation.variableName"
-            (ngModelChange)="onVariableSelected($event)"
-            [attr.data-operation-variable]="operation.variableName">
-            <option value="" disabled>Select variable</option>
-            @for (variable of availableVariables; track trackByVariable($index, variable)) {
-              <option [value]="variable.value">{{variable.label}}</option>
+          @if (operation.type !== 'MODULATE') {
+            @if (showOperationColon(operation)) {
+              <span class="command-label-sep" aria-hidden="true">:</span>
             }
-          </select>
+            <select class="command-type"
+              [(ngModel)]="operation.variableName"
+              (ngModelChange)="onVariableSelected($event)"
+              [attr.data-operation-variable]="operation.variableName">
+              <option value="" disabled>Select variable</option>
+              @for (variable of availableVariables; track trackByVariable($index, variable)) {
+                <option [value]="variable.value">{{variable.label}}</option>
+              }
+            </select>
+          }
+          @if (operation.type === 'MODULATE') {
+            <select class="command-type"
+              [(ngModel)]="operation.targetScale"
+              (ngModelChange)="onModulateChange()"
+              [attr.aria-label]="'Target scale'">
+              @for (scale of scaleNames; track scale) {
+                <option [value]="scale">{{scale}}</option>
+              }
+            </select>
+            <label class="command-value">
+              From
+              <input type="number"
+                class="number-input"
+                [(ngModel)]="operation.fromOrdinal"
+                (ngModelChange)="onModulateChange()"
+                min="1"
+                step="1">
+            </label>
+            <label class="command-value">
+              To
+              <input type="number"
+                class="number-input"
+                [(ngModel)]="operation.toOrdinal"
+                (ngModelChange)="onModulateChange()"
+                min="1"
+                step="1">
+            </label>
+          }
           @if (operation.type === 'ASSIGN') {
             @if (isVariableOfType(operation.variableName, 'scale')) {
               <select class="command-type"

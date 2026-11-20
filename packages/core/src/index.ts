@@ -25,6 +25,7 @@ export * from './play.mode';
 export * from './play.state';
 export * from './scale';
 export * from './scale-view';
+export * from './tritone-modulation';
 export * from './song';
 export * from './variable.context';
 export * from './velocity';

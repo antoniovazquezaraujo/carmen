@@ -162,6 +162,7 @@ procedures
   procedure Cambios
     VARY $oct 1
     ASSIGN $mode RANDOM
+    MODULATE BLUE FROM 1 TO 2
     ASSIGN $motif "8n:0 8n:2"
 
 part Piano
@@ -477,7 +478,7 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 Notas:
 
 - `INVERSION` se acepta al leer como alias de `INV`, pero la forma canónica (la que se guarda) es siempre `INV`.
-- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota. `NONE` recupera el padre completo. WHITE, BLUE, RED y BLACK exponen cuatro vistas cada una (los dos grupos de tritonos se mueven juntos). TONES y FULL se aceptan como no-op por ahora; la regla de agrupación de FULL sigue pendiente. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
+- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota. `NONE` recupera el padre completo. WHITE, BLUE, RED y BLACK exponen cuatro vistas cada una (los dos grupos de tritonos se mueven juntos). TONES y FULL son no-op por diseño. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
 - `PLAYMODE SINGLE` toca cada nota suelta, sin acorde ni arpegio (útil con `PATTERN`).
 - En el editor, los playmodes se muestran con símbolos compactos: `○` marca las posiciones pares (0, 2, 4…), `●` las impares (1, 3, 5…) y las flechas indican la dirección de cada grupo. Pasa el ratón por el selector para ver la descripción completa; el `.mr` conserva los nombres canónicos.
 - `PATTERN` es **independiente del playmode**: si existe, expande cada nota antes de que el playmode genere su sonido (acorde, arpegio, aleatorio…). Si no hay `PATTERN`, nada cambia. Su melodía se escribe en una línea (duraciones, silencios y grupos admitidos).
@@ -534,6 +535,9 @@ Un `procedure` es una colección ordenada y reutilizable de operaciones. Su cuer
 |---|---|---|---|
 | `VARY $variable paso` | Suma `paso` a la variable | entero (puede ser negativo) | `VARY $oct 1` |
 | `ASSIGN $variable valor` | Asigna un valor | número, escala, playmode o string entre comillas | `ASSIGN $mode RANDOM` |
+| `MODULATE <destino> FROM <origen> TO <destino>` | Ancla el tritono actual al tritono destino y cambia escala + `KEY` | nombre de escala y dos ordinales 1-based | `MODULATE BLUE FROM 1 TO 2` |
+
+`MODULATE` cambia la escala y la `KEY` actuales para el resto de la canción (o hasta el siguiente cambio de escala). Se escribe el ancla, no la key: `FROM` es el ordinal del tritono actual y `TO` el del tritono destino, contados de grave a agudo. La key exacta se deriva de las clases de altura reales; ver ADR-005.
 
 Azúcar de entrada (cómoda para escribir a mano, **nunca** se guarda así):
 
@@ -573,6 +577,7 @@ procedures
   procedure Cambios
     VARY $oct 1
     ASSIGN $mode RANDOM
+    MODULATE BLUE FROM 1 TO 2
 
 part Piano
   block Tema

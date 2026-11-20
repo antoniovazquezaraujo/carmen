@@ -163,6 +163,7 @@ procedures
     VARY $oct 1
     ASSIGN $mode RANDOM
     ASSIGN $motif "8n:0 8n:2"
+    MODULATE BLUE FROM 1 TO 2
 
 part Piano
   block Tema
@@ -477,7 +478,7 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 Notes:
 
 - `INVERSION` is accepted when reading as an alias of `INV`, but the canonical form (what is saved) is always `INV`.
-- `COLLAPSE` projects the active scale: each semitone that touches a tritone keeps one note. `NONE` restores the full parent. WHITE, BLUE, RED and BLACK expose four views each (the two tritone groups move together). TONES and FULL are accepted as no-ops for now; FULL's grouping rule is still pending. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) replaces the removed `PENTA`.
+- `COLLAPSE` projects the active scale: each semitone that touches a tritone keeps one note. `NONE` restores the full parent. WHITE, BLUE, RED and BLACK expose four views each (the two tritone groups move together). TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) replaces the removed `PENTA`.
 - `PLAYMODE SINGLE` plays each note on its own, without chord or arpeggio (useful with `PATTERN`).
 - In the editor, play modes are shown with compact symbols: `○` marks even positions (0, 2, 4...), `●` marks odd positions (1, 3, 5...) and the arrows show each group's direction. Hover the selector for the full description; `.mr` keeps the canonical names.
 - `PATTERN` is **independent from the playmode**: when present, it expands every note before the playmode generates its sound (chord, arpeggio, random...). Without `PATTERN`, nothing changes. Its melody is written on one line (durations, rests and groups allowed).
@@ -534,6 +535,9 @@ A `procedure` is an ordered, reusable collection of operations. Its body has one
 |---|---|---|---|
 | `VARY $variable step` | Adds `step` to the variable | integer (can be negative) | `VARY $oct 1` |
 | `ASSIGN $variable value` | Assigns a value | number, scale, playmode or quoted string | `ASSIGN $mode RANDOM` |
+| `MODULATE <target> FROM <from> TO <to>` | Anchors the current scale's tritone to a target tritone and changes scale + `KEY` | scale name and two 1-based ordinals | `MODULATE BLUE FROM 1 TO 2` |
+
+`MODULATE` changes the current scale and `KEY` for the rest of the song (or until another scale change). You write the anchor, not the key: `FROM` is the current scale's tritone ordinal and `TO` is the target scale's tritone ordinal, both counted from low to high. The exact key is derived from the real pitch classes; see ADR-005.
 
 Input sugar (handy for writing by hand, **never** stored like this):
 

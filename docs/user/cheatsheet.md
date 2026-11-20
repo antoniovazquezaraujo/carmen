@@ -121,7 +121,7 @@ The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies
 
 Numeric settings accept `$variable`.
 
-`COLLAPSE` accepts `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW` and `NONE`. It projects the active scale: semitones around each tritone keep one note, grouped by tritone. WHITE, BLUE, RED and BLACK expose four views each; TONES and FULL are accepted as no-ops for now (FULL's grouping rule is pending). `SCALE WHITE` + `COLLAPSE LOW_HIGH` replaces the removed `PENTA`.
+`COLLAPSE` accepts `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW` and `NONE`. It projects the active scale: semitones around each tritone keep one note, grouped by tritone. WHITE, BLUE, RED and BLACK expose four views each; TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` replaces the removed `PENTA`.
 
 `OCTAVE_PATTERN` is relative to `OCT` and applies only to the block's own melody: `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` plays the sequence in octaves 3, 2, 1, 4. Child blocks keep their own octave/pattern.
 
@@ -129,6 +129,7 @@ Numeric settings accept `$variable`.
 
 - `VARY $variable step` — increment/decrement (numbers) or cycle (scales/playmodes).
 - `ASSIGN $variable value` — assign.
+- `MODULATE <target> FROM <from> TO <to>` — anchor the current tritone to a target tritone; sets scale and `KEY` (the key is derived, not written).
 - Input sugar: `+=`, `-=`, `++`, `--`, `=` (never emitted).
 
 ## Melody editor shortcuts

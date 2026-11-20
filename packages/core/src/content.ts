@@ -8,7 +8,7 @@
  */
 import { BlockContent } from './block.content';
 import { cloneCommand, Command } from './command';
-import { BaseOperation, cloneOperation, VaryOperation } from './operation';
+import { BaseOperation, cloneOperation, ModulateOperation, VaryOperation } from './operation';
 
 /** Alias de dominio para una entrada de `Preset` (antes `Command`). */
 export type Setting = Command;
@@ -117,11 +117,21 @@ export class Procedure {
         return {
             id: this.id,
             label: this.label,
-            operations: this.operations.map(operation => ({
-                type: operation instanceof VaryOperation ? 'VARY' : 'ASSIGN',
-                variableName: operation.variableName,
-                value: operation.value
-            }))
+            operations: this.operations.map(operation => {
+                if (operation instanceof ModulateOperation) {
+                    return {
+                        type: 'MODULATE',
+                        targetScale: operation.targetScale,
+                        fromOrdinal: operation.fromOrdinal,
+                        toOrdinal: operation.toOrdinal
+                    };
+                }
+                return {
+                    type: operation instanceof VaryOperation ? 'VARY' : 'ASSIGN',
+                    variableName: operation.variableName,
+                    value: operation.value
+                };
+            })
         };
     }
 }

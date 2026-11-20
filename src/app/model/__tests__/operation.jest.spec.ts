@@ -4,9 +4,10 @@ import { getPlayModeNames } from '../play.mode';
 import { Scale } from '../scale';
 
 describe('OperationType (regresión post-merge)', () => {
-  it('sólo expone VARY y ASSIGN: INCREMENT/DECREMENT se unificaron en VARY', () => {
+  it('expone VARY, ASSIGN y MODULATE: INCREMENT/DECREMENT se unificaron en VARY', () => {
     expect(OperationType.VARY).toBe('VARY');
     expect(OperationType.ASSIGN).toBe('ASSIGN');
+    expect(OperationType.MODULATE).toBe('MODULATE');
     expect((OperationType as Record<string, unknown>)['INCREMENT']).toBeUndefined();
     expect((OperationType as Record<string, unknown>)['DECREMENT']).toBeUndefined();
   });

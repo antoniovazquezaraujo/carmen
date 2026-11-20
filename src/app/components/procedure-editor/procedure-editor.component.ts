@@ -15,9 +15,11 @@ import { Procedure } from 'src/app/model/content';
 import {
     AssignOperation,
     BaseOperation,
+    ModulateOperation,
     OperationType,
     VaryOperation
 } from 'src/app/model/operation';
+import { ScaleTypes } from 'src/app/model/scale';
 import { VariableContext } from 'src/app/model/variable.context';
 import {
     playModeDescription as playModeDescriptionText,
@@ -37,6 +39,9 @@ interface OperationView {
     type: OperationType;
     variableName: string;
     value: string | number;
+    targetScale?: string;
+    fromOrdinal?: number;
+    toOrdinal?: number;
 }
 
 /**
@@ -100,7 +105,24 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
             this.selectedVariable = this.availableVariables[0].value;
         }
         if (!this.selectedVariable) {
-            return;
+            if (this.availableVariables.length > 0) {
+                this.selectedVariable = this.availableVariables[0].value;
+            } else {
+                this.operations = [
+                    ...this.operations,
+                    {
+                        type: OperationType.MODULATE,
+                        variableName: '',
+                        value: 0,
+                        targetScale: this.scaleNames[0] || 'WHITE',
+                        fromOrdinal: 1,
+                        toOrdinal: 1
+                    }
+                ];
+                this.updateProcedureOperations();
+                this.cdr.detectChanges();
+                return;
+            }
         }
 
         let initialValue: string | number = 0;
@@ -134,6 +156,13 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     onOperationTypeChange(): void {
         this.operations.forEach(operation => {
+            if (
+                (operation.type === OperationType.ASSIGN || operation.type === OperationType.VARY) &&
+                !operation.variableName &&
+                this.availableVariables.length > 0
+            ) {
+                operation.variableName = this.availableVariables[0].value;
+            }
             if (operation.type === OperationType.ASSIGN) {
                 if (this.isVariableOfType(operation.variableName, 'scale')) {
                     operation.value = String(operation.value || this.scaleNames[0] || 'WHITE');
@@ -150,6 +179,15 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
                     typeof operation.value === 'number'
                         ? operation.value
                         : (parseInt(String(operation.value)) || 1);
+            } else if (operation.type === OperationType.MODULATE) {
+                operation.variableName = '';
+                operation.targetScale = operation.targetScale || this.scaleNames[0] || 'WHITE';
+                operation.fromOrdinal = Number.isInteger(operation.fromOrdinal)
+                    ? operation.fromOrdinal
+                    : 1;
+                operation.toOrdinal = Number.isInteger(operation.toOrdinal)
+                    ? operation.toOrdinal
+                    : 1;
             }
         });
         this.updateProcedureOperations();
@@ -158,6 +196,11 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     onVariableSelected(value: string): void {
         this.selectedVariable = value;
+        this.cdr.detectChanges();
+    }
+
+    onModulateChange(): void {
+        this.updateProcedureOperations();
         this.cdr.detectChanges();
     }
 
@@ -205,6 +248,16 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
 
     private initializeOperationsFromProcedure(): void {
         this.operations = this.procedure.operations.map(operation => {
+            if (operation instanceof ModulateOperation) {
+                return {
+                    type: OperationType.MODULATE,
+                    variableName: '',
+                    value: 0,
+                    targetScale: ScaleTypes[operation.targetScale],
+                    fromOrdinal: operation.fromOrdinal,
+                    toOrdinal: operation.toOrdinal
+                };
+            }
             let type: OperationType = OperationType.ASSIGN;
             if (operation instanceof VaryOperation) {
                 type = OperationType.VARY;
@@ -228,6 +281,16 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
             if (operation.type === OperationType.VARY) {
                 const step = typeof value === 'number' ? value : (parseInt(String(value)) || 1);
                 return new VaryOperation(variableName, step);
+            }
+
+            if (operation.type === OperationType.MODULATE) {
+                const targetName = operation.targetScale && this.scaleNames.includes(operation.targetScale)
+                    ? operation.targetScale
+                    : (this.scaleNames[0] || 'WHITE');
+                const targetScale = ScaleTypes[targetName as keyof typeof ScaleTypes];
+                const fromOrdinal = Number.isInteger(operation.fromOrdinal) ? operation.fromOrdinal! : 1;
+                const toOrdinal = Number.isInteger(operation.toOrdinal) ? operation.toOrdinal! : 1;
+                return new ModulateOperation(targetScale, fromOrdinal, toOrdinal);
             }
 
             if (this.isVariableOfType(variableName, 'scale')) {

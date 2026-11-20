@@ -1,5 +1,6 @@
 import { Melody, Preset, Procedure } from './content';
 import { Command, cloneCommand } from './command';
+import type { OperationPlayer } from './operation';
 
 /**
  * Resolución de referencias de contenido al clonar. `Song.clone` construye un
@@ -52,10 +53,10 @@ export class Block {
     }
 
     /** Ejecuta las operaciones del procedimiento referenciado (si existe). */
-    executeProcedure(): void {
+    executeProcedure(player?: OperationPlayer): void {
         this.procedure?.operations.forEach(operation => {
             try {
-                operation.execute();
+                operation.execute(player);
             } catch (error) {
                 console.error(`Error executing operation:`, error);
             }

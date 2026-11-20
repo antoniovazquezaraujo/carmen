@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Block } from '../../block';
 import { Melody, Preset, Procedure } from '../../content';
-import { AssignOperation, VaryOperation } from '../../operation';
+import { AssignOperation, ModulateOperation, VaryOperation } from '../../operation';
 import { Part } from '../../part';
 import { Song } from '../../song';
 import { parseSong } from '../mr.parser';
@@ -53,6 +53,14 @@ function procedureSnapshot(procedure: Procedure): unknown {
       }
       if (operation instanceof AssignOperation) {
         return { type: 'ASSIGN', variableName: operation.variableName, value: operation.value };
+      }
+      if (operation instanceof ModulateOperation) {
+        return {
+          type: 'MODULATE',
+          targetScale: operation.targetScale,
+          fromOrdinal: operation.fromOrdinal,
+          toOrdinal: operation.toOrdinal
+        };
       }
       return { type: operation.constructor.name };
     })

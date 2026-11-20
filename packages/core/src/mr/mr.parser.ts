@@ -13,11 +13,11 @@ import { InstrumentType } from '../instrument-type';
 import { Block } from '../block';
 import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
-import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
+import { AssignOperation, BaseOperation, ModulateOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames } from '../play.mode';
-import { Scale } from '../scale';
-import { COLLAPSE_MODE_NAMES, isCollapseMode } from '../scale-view';
+import { Scale, ScaleTypes } from '../scale';
+import { COLLAPSE_MODE_NAMES, isCollapseMode, tritonesOf } from '../scale-view';
 import { DEFAULT_BPM, DEFAULT_REPEATS, MAX_BPM, MIN_BPM, MIN_REPEATS, Song } from '../song';
 import { VariableValue } from '../variable.context';
 import { MrParseError } from './mr.errors';
@@ -1137,11 +1137,14 @@ class MrDocumentParser {
     }
     const match = /^([A-Z]+)(?:[ ]+(.*))?$/.exec(line.code);
     const keyword = match ? match[1] : '';
+    if (keyword === 'MODULATE') {
+      return this.parseModulateOperation(line, (match![2] ?? '').trim());
+    }
     if (keyword !== 'VARY' && keyword !== 'ASSIGN') {
       throw errorAt(
         line,
         line.indent + 1,
-        `operación desconocida '${firstWord(line.code)}'; se esperaba VARY, ASSIGN o el azúcar $var += 1 / $var-- / $var = valor`
+        `operación desconocida '${firstWord(line.code)}'; se esperaba VARY, ASSIGN, MODULATE o el azúcar $var += 1 / $var-- / $var = valor`
       );
     }
     const rest = (match![2] ?? '').trim();
@@ -1168,6 +1171,54 @@ class MrDocumentParser {
       return new AssignOperation(name, words[1].text);
     }
     return new AssignOperation(name, this.parseVariableValue(words[1].text, line, words[1].column));
+  }
+
+  private parseModulateOperation(line: SourceLine, rest: string): ModulateOperation {
+    const restColumn = line.indent + line.code.length - rest.length + 1;
+    const words = splitLineWords(rest, line.number, restColumn - 1);
+    if (words.length !== 5 || words[1].text !== 'FROM' || words[3].text !== 'TO') {
+      throw errorAt(
+        line,
+        restColumn,
+        'MODULATE requiere <escalaDestino> FROM <tritonoOrigen> TO <tritonoDestino> (p. ej. MODULATE BLUE FROM 1 TO 2)'
+      );
+    }
+    if (words[0].quoted) {
+      throw errorAt(line, words[0].column, 'MODULATE no admite la escala entre comillas');
+    }
+    const targetName = words[0].text.toUpperCase();
+    if (targetName === 'PENTA') {
+      throw errorAt(
+        line,
+        words[0].column,
+        `PENTA se eliminó en .mr v3; usa 'SCALE WHITE' + 'COLLAPSE LOW_HIGH' o 'SCALE BLUE' + 'COLLAPSE HIGH_LOW'`
+      );
+    }
+    if (!Scale.getScaleNames().includes(targetName)) {
+      throw errorAt(
+        line,
+        words[0].column,
+        `escala desconocida '${words[0].text}' en MODULATE; valores válidos: ${Scale.getScaleNames().join(', ')}`
+      );
+    }
+    const targetScale = ScaleTypes[targetName as keyof typeof ScaleTypes];
+    const fromOrdinal = words[2].quoted ? null : parseCanonicalInteger(words[2].text);
+    const toOrdinal = words[4].quoted ? null : parseCanonicalInteger(words[4].text);
+    if (fromOrdinal === null || fromOrdinal < 1) {
+      throw errorAt(line, words[2].column, `MODULATE FROM requiere un ordinal entero >= 1 (recibido '${words[2].text}')`);
+    }
+    if (toOrdinal === null || toOrdinal < 1) {
+      throw errorAt(line, words[4].column, `MODULATE TO requiere un ordinal entero >= 1 (recibido '${words[4].text}')`);
+    }
+    const targetTritones = tritonesOf(Scale.getScaleByType(targetScale).notes).length;
+    if (toOrdinal > targetTritones) {
+      throw errorAt(
+        line,
+        words[4].column,
+        `MODULATE TO ${toOrdinal} está fuera de rango: ${targetName} tiene ${targetTritones} tritonos`
+      );
+    }
+    return new ModulateOperation(targetScale, fromOrdinal, toOrdinal);
   }
 
   private parseSugarOperation(line: SourceLine): BaseOperation {

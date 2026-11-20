@@ -75,6 +75,58 @@ describe('compilador MIDI · eventos musicales', () => {
         expect(song.parts[0].notes.map(note => note.midi)).toEqual([60, 62, 65]);
     });
 
+    it('aplica MODULATE y conserva la nueva escala/key en el siguiente bloque', async () => {
+        const song = await compileSongText(`song Modulate
+version 3
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+procedures
+  procedure Cambio
+    MODULATE BLUE FROM 1 TO 2
+
+part Piano
+  block A
+    procedure Cambio
+    melody Tema
+  block B
+    melody Tema
+`);
+
+        // WHITE (3,9) -> BLUE (4,10): key 11; both blocks use the new state.
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([71, 71]);
+    });
+
+    it('conserva MODULATE al restaurar overrides del bloque', async () => {
+        const song = await compileSongText(`song Modulate
+version 3
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+procedures
+  procedure Cambio
+    MODULATE BLUE FROM 1 TO 2
+
+part Piano
+  block A
+    overrides
+      OCT 3
+    procedure Cambio
+    melody Tema
+  block B
+    melody Tema
+`);
+
+        // A uses OCT 3 + BLUE key 11; B restores OCT 2 but keeps BLUE key 11.
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([83, 71]);
+    });
+
     it('aplica overrides solo al bloque propio y los restaura para hijos y hermanos', async () => {
         const song = await compileSongText(`song Overrides
 version 3

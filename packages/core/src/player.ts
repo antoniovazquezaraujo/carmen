@@ -2,6 +2,7 @@ import { NoteData } from "./note";
 import { PlayMode } from "./play.mode";
 import { Scale, ScaleTypes, Tonality } from "./scale";
 import { canApplyCollapse, collapseView, CollapseMode } from "./scale-view";
+import { modulate as computeModulation, ModulationResult } from "./tritone-modulation";
 import { Block } from "./block";
 import { Preset } from "./content";
 import { InstrumentType } from "./instrument-type";
@@ -37,6 +38,13 @@ export interface PlayerPresetState {
     currentPattern: NoteData[] | null;
     currentDecoration: DecorationItem[] | null;
     octavePattern: number[] | null;
+}
+
+/** Estado que debe sobrevivir al restaurar los overrides: lo cambia MODULATE. */
+export interface PlayerModulationState {
+    scale: ScaleTypes;
+    tonality: number;
+    collapse: CollapseMode;
 }
 
 type InstrumentId = string;
@@ -170,6 +178,21 @@ export class Player {
         this.currentPattern = state.currentPattern ? [...state.currentPattern] : null;
         this.currentDecoration = state.currentDecoration ? [...state.currentDecoration] : null;
         this.octavePattern = state.octavePattern ? [...state.octavePattern] : null;
+    }
+
+    /** Instantánea de lo que MODULATE debe conservar tras restaurar overrides. */
+    snapshotModulationState(): PlayerModulationState {
+        return {
+            scale: this.scale,
+            tonality: this.tonality,
+            collapse: this.collapse
+        };
+    }
+
+    restoreModulationState(state: PlayerModulationState): void {
+        this.scale = state.scale;
+        this.tonality = state.tonality;
+        this.collapse = state.collapse;
     }
     instrumentType: InstrumentType;
     instrumentId: InstrumentId;
@@ -375,6 +398,17 @@ export class Player {
 
     getScale(): ScaleTypes {
         return this.scale;
+    }
+
+    /**
+     * Align the current scale's tritone `fromOrdinal` with the target scale's
+     * `toOrdinal` and derive the new key (ADR-005).
+     */
+    modulate(target: ScaleTypes, fromOrdinal: number, toOrdinal: number): ModulationResult {
+        const result = computeModulation(this.scale, target, fromOrdinal, toOrdinal, this.tonality);
+        this.selectScale(target);
+        this.tonality = result.key;
+        return result;
     }
 
     executePreset(preset: Preset): void {
