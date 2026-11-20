@@ -1,3 +1,4 @@
+import { Command, CommandType } from '../command';
 import { InstrumentType } from '../instrument-type';
 import { Player } from '../player';
 import { ScaleTypes } from '../scale';
@@ -49,6 +50,16 @@ describe('Player scale views', () => {
         expect(player.collapse).toBe('NONE');
         expect(warn).toHaveBeenCalled();
         warn.mockRestore();
+    });
+
+    it('clears the view with COLLAPSE NONE', () => {
+        const player = createPlayer();
+        player.collapse = 'LOW_HIGH';
+
+        new Command({ type: CommandType.COLLAPSE, value: 'NONE' }).execute(player);
+
+        expect(player.collapse).toBe('NONE');
+        expect(player.getCurrentScale().notes).toEqual([0, 2, 3, 5, 7, 9, 10]);
     });
 
     it('snapshots and restores the collapse mode', () => {

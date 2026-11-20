@@ -66,6 +66,7 @@ presets
     PLAYMODE ODD_ASC_EVEN_DESC
     WIDTH 3
     SCALE WHITE
+    COLLAPSE NONE
     GAP 6
     OCT 3
 
@@ -73,12 +74,14 @@ presets
     PLAYMODE EVEN_ASC_ODD_DESC
     WIDTH 4
     SCALE BLUE
+    COLLAPSE NONE
     GAP 3
     OCT 2
 
   preset AjustesAKey
     KEY 6
     SCALE BLUE
+    COLLAPSE NONE
 
   preset AjustesBOctDown
     OCT -1
@@ -305,6 +308,7 @@ presets
     OCT 3
     GAP 4
     SCALE BLACK
+    COLLAPSE NONE
     KEY 6
 
   preset AjustesXModo
@@ -314,6 +318,7 @@ presets
     OCT 2
     GAP 4
     SCALE BLACK
+    COLLAPSE NONE
     KEY 6
 
   preset AjustesXChord
@@ -625,6 +630,7 @@ presets
 
   preset B
     SCALE BLUE
+    COLLAPSE NONE
     OCT 0
     PLAYMODE ODD_ASC_EVEN_DESC
     WIDTH 3
@@ -633,6 +639,7 @@ presets
 
   preset C
     SCALE BLUE
+    COLLAPSE NONE
     OCT 3
     PLAYMODE ODD_ASC_EVEN_DESC
     WIDTH 3
@@ -726,6 +733,7 @@ bpm 92
 vars
   $mode = ASCENDING
   $scale = BLUE
+  $view = NONE
   $oct = 2
 
 melodies
@@ -740,7 +748,7 @@ presets
   preset RiseAjustes
     OCT $oct
     SCALE $scale
-    COLLAPSE LOW_HIGH
+    COLLAPSE $view
     PLAYMODE $mode
     WIDTH 3
     GAP 2
@@ -748,7 +756,7 @@ presets
   preset RiseGlassAjustes
     OCT 3
     SCALE $scale
-    COLLAPSE LOW_HIGH
+    COLLAPSE $view
     PLAYMODE $mode
     WIDTH 3
     GAP 2
@@ -759,6 +767,7 @@ procedures
     VARY $oct 1
     ASSIGN $mode RANDOM
     ASSIGN $scale WHITE
+    ASSIGN $view LOW_HIGH
 
 part Aurora
   block Rise repeats 2
@@ -975,6 +984,7 @@ presets
     INV 1
     KEY 0
     SCALE WHITE
+    COLLAPSE NONE
     GAP 1
 
   preset B

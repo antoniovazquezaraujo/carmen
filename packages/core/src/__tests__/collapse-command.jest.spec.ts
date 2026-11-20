@@ -1,6 +1,7 @@
 import { Command, CommandType } from '../command';
 import { parseSong } from '../mr/mr.parser';
 import { serializeSong } from '../mr/mr.serializer';
+import { VariableContext } from '../variable.context';
 
 const SONG = `song "Collapse"
 version 3
@@ -75,6 +76,20 @@ part "Piano"
         new Command({ type: CommandType.COLLAPSE, value: 'HIGH_LOW' }).execute(player);
 
         expect(player.collapse).toBe('HIGH_LOW');
+    });
+
+    it('resolves a collapse variable when executed', () => {
+        const snapshot = VariableContext.snapshot();
+        try {
+            VariableContext.setValue('view', 'HIGH_LOW');
+            const player = { collapse: 'NONE' };
+
+            new Command({ type: CommandType.COLLAPSE, value: 'view', isVariable: true }).execute(player);
+
+            expect(player.collapse).toBe('HIGH_LOW');
+        } finally {
+            VariableContext.restore(snapshot);
+        }
     });
 
     it('falls back to COLLAPSE NONE for an invalid mode', () => {
