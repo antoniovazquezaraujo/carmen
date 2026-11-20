@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tritone lab · Carmen</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #141210;
+      --surface: #1e1a16;
+      --surface-2: #27221c;
+      --border: #3a332b;
+      --ink: #f5efe4;
+      --muted: #a79b8c;
+      --accent: #5eead4;
+      --accent-ink: #0b3b35;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    main { max-width: 980px; margin: 0 auto; padding: 38px 22px 64px; }
+    h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 2.7rem); letter-spacing: -.03em; }
+    h2 { margin: 36px 0 12px; font-size: .95rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    p { color: var(--muted); line-height: 1.55; max-width: 760px; }
+    code { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    button {
+      min-height: 74px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+    }
+    button:hover, button:focus-visible {
+      border-color: var(--accent);
+      background: var(--surface-2);
+      outline: none;
+      transform: translateY(-1px);
+    }
+    button strong { display: block; margin-bottom: 4px; }
+    button small { color: var(--muted); line-height: 1.35; }
+    #status {
+      min-height: 24px;
+      margin-top: 24px;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+    .note { color: var(--muted); font-size: .85rem; }
+    .legend { border-top: 1px solid var(--border); margin-top: 38px; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Tritone lab</h1>
+  <p>
+    Demo auditiva del modelo experimental de <strong>ADR-005</strong>. Las notas se
+    representan por clases de altura <code>0–11</code> y se reproducen desde C4.
+    La ocultación colapsa los semitonos que tocan los tritonos: de cada semitono
+    sobrevive una sola nota. WHITE y BLUE tienen dos semitonos, así que hay cuatro
+    vistas por escala. No es una integración en Carmen: solo sirve para comprobar
+    de oído que el anclaje y las vistas sin semitonos se comportan como esperamos.
+  </p>
+
+  <h2>Escalas completas</h2>
+  <div class="grid" id="scales"></div>
+
+  <h2>Vistas sin semitonos</h2>
+  <div class="grid" id="hidden"></div>
+
+  <h2>Modulaciones ancladas</h2>
+  <div class="grid" id="modulations"></div>
+
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <div class="legend">
+    <p class="note">
+      Cada botón reproduce una secuencia ascendente. Las notas ocultas se han
+      eliminado de la escala visible y los grados visibles se han reindexado.
+      Algunas vistas conservan un tritono; se muestra en el detalle.
+    </p>
+  </div>
+</main>
+<script>
+  const SCALES = {
+    WHITE: { notes: [0, 2, 3, 5, 7, 9, 10], tritones: [[3, 9]] },
+    BLUE:  { notes: [0, 2, 4, 5, 7, 8, 10], tritones: [[2, 8], [4, 10]] },
+    RED:   { notes: [0, 1, 4, 5, 7, 8, 11], tritones: [[1, 7], [5, 11]] },
+    TONES: { notes: [0, 2, 4, 6, 8, 10], tritones: [[0, 6], [2, 8], [4, 10]] },
+    BLACK: { notes: [1, 2, 4, 5, 7, 8, 10, 11], tritones: [[1, 7], [2, 8], [4, 10], [5, 11]] }
+  };
+
+  const SEMITONE_CHOICES = [
+    { label: 'subir/subir', sides: ['HIGH', 'HIGH'] },
+    { label: 'bajar/bajar', sides: ['LOW', 'LOW'] },
+    { label: 'bajar/subir', sides: ['LOW', 'HIGH'] },
+    { label: 'subir/bajar', sides: ['HIGH', 'LOW'] }
+  ];
+
+  function semitonesOf(notes) {
+    const set = new Set(notes);
+    return notes
+      .filter(note => set.has((note + 1) % 12))
+      .map(note => [note, (note + 1) % 12]);
+  }
+
+  function tritonesOf(notes) {
+    const set = new Set(notes);
+    return notes
+      .filter(note => note < (note + 6) % 12 && set.has((note + 6) % 12))
+      .map(note => [note, (note + 6) % 12]);
+  }
+
+  function buildSemitoneView(name, sides) {
+    const semitones = semitonesOf(SCALES[name].notes);
+    const hidden = semitones.map(([low, high], index) => sides[index] === 'LOW' ? high : low);
+    const notes = SCALES[name].notes.filter(note => !hidden.includes(note));
+    return { hidden, notes, tritones: tritonesOf(notes) };
+  }
+
+  const MODULATIONS = [
+    {
+      label: 'WHITE → BLUE · FROM 1 TO 2',
+      source: 'WHITE',
+      target: 'BLUE',
+      key: 11,
+      fixed: [[3, 9]],
+      added: [[1, 7]],
+      removed: []
+    },
+    {
+      label: 'BLUE → WHITE · FROM 1 TO 1',
+      source: 'BLUE',
+      target: 'WHITE',
+      key: 11,
+      fixed: [[2, 8]],
+      added: [],
+      removed: [[4, 10]]
+    }
+  ];
+
+  const formatPairs = pairs => pairs.length === 0
+    ? '∅'
+    : pairs.map(([start, end]) => `(${start},${end})`).join(' ');
+
+  const formatNotes = notes => `{${notes.join(',')}}`;
+
+  function addButton(container, { label, detail, play }) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.innerHTML = `<strong>${label}</strong><small>${detail}</small>`;
+    button.addEventListener('click', play);
+    container.append(button);
+    return button;
+  }
+
+  let audioContext;
+  let activeOscillators = [];
+
+  function getAudioContext() {
+    if (!audioContext) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioContext = new AudioContextClass();
+    }
+    return audioContext;
+  }
+
+  function stopActive() {
+    for (const oscillator of activeOscillators) {
+      try { oscillator.stop(); } catch { /* already stopped */ }
+    }
+    activeOscillators = [];
+  }
+
+  function playNotes(notes, label) {
+    const context = getAudioContext();
+    context.resume();
+    stopActive();
+
+    const noteDuration = 0.24;
+    const gap = 0.06;
+    const startAt = context.currentTime + 0.05;
+    const master = context.createGain();
+    master.gain.value = 0.16;
+    master.connect(context.destination);
+
+    notes.forEach((pitchClass, index) => {
+      const oscillator = context.createOscillator();
+      const envelope = context.createGain();
+      const noteStart = startAt + index * (noteDuration + gap);
+      const noteEnd = noteStart + noteDuration;
+      const midi = 60 + pitchClass;
+      const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+
+      oscillator.type = 'triangle';
+      oscillator.frequency.value = frequency;
+      envelope.gain.setValueAtTime(0.0001, noteStart);
+      envelope.gain.exponentialRampToValueAtTime(1, noteStart + 0.012);
+      envelope.gain.exponentialRampToValueAtTime(0.0001, noteEnd);
+
+      oscillator.connect(envelope);
+      envelope.connect(master);
+      oscillator.start(noteStart);
+      oscillator.stop(noteEnd + 0.03);
+      activeOscillators.push(oscillator);
+    });
+
+    document.getElementById('status').textContent = `${label} → ${formatNotes(notes)}`;
+  }
+
+  function playSequence(notes) {
+    playNotes(notes, 'Secuencia');
+  }
+
+  for (const [name, scale] of Object.entries(SCALES)) {
+    addButton(document.getElementById('scales'), {
+      label: name,
+      detail: `${formatNotes(scale.notes)} · tritonos ${formatPairs(scale.tritones)}`,
+      play: () => playSequence(scale.notes)
+    });
+  }
+
+  for (const name of ['WHITE', 'BLUE']) {
+    for (const choice of SEMITONE_CHOICES) {
+      const view = buildSemitoneView(name, choice.sides);
+      addButton(document.getElementById('hidden'), {
+        label: `${name} · ${choice.label}`,
+        detail: `oculta {${view.hidden.join(',')}} · ${formatNotes(view.notes)} · tritonos ${formatPairs(view.tritones)}`,
+        play: () => playSequence(view.notes)
+      });
+    }
+  }
+
+  for (const modulation of MODULATIONS) {
+    const sourceNotes = SCALES[modulation.source].notes;
+    const targetNotes = SCALES[modulation.target].notes
+      .map(note => (note + modulation.key) % 12)
+      .sort((left, right) => left - right);
+    const sequence = [...sourceNotes, ...targetNotes];
+
+    addButton(document.getElementById('modulations'), {
+      label: modulation.label,
+      detail: `${modulation.source} key=${modulation.key} · fixed ${formatPairs(modulation.fixed)} · +${formatPairs(modulation.added)} · −${formatPairs(modulation.removed)}`,
+      play: () => playNotes(sequence, `${modulation.label} (${modulation.source} y destino transpuesto)`)
+    });
+  }
+</script>
+</body>
+</html>
