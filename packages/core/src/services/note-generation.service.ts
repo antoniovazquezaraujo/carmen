@@ -2,7 +2,7 @@ import { Melody } from '../content';
 import { Player } from '../player';
 import { NoteData } from '../note';
 // Import necessary classes for scale degree calculation
-import { Scale, ScaleTypes } from '../scale';
+import { ScaleTypes } from '../scale';
 import { OctavedGrade } from '../octaved-grade';
 import { PlayMode, arpeggiate } from '../play.mode'; 
 // VariableContext might be needed if substituting variables here, keep for now
@@ -193,10 +193,9 @@ export class NoteGenerationService {
       if (!pattern || pattern.length === 0) {
           return [new NoteData({ type: 'note', note: baseGrade, duration, velocity: sourceVelocity })];
       }
-      const scaleName = ScaleTypes[player.scale];
-      const currentScale = Scale.getScaleByName(scaleName);
+      const currentScale = player.getCurrentScale();
       if (!currentScale) {
-          console.error(`[NoteGenSvc] PATTERN Error: Invalid scale ${scaleName}. Skipping pattern application.`);
+          console.error(`[NoteGenSvc] PATTERN Error: Invalid scale ${ScaleTypes[player.scale]}. Skipping pattern application.`);
           return [new NoteData({ type: 'rest', duration })];
       }
 
@@ -426,7 +425,7 @@ export class NoteGenerationService {
   /** Nota suelta (playmode SINGLE): grado → MIDI con escala/octava/tonalidad. */
   private gradeToSingleNote(grade: number, duration: string, player: Player): NoteData {
       try {
-          const currentScale = Scale.getScaleByName(ScaleTypes[player.scale]);
+          const currentScale = player.getCurrentScale();
           const octavedGrade = new OctavedGrade(currentScale, grade, player.octave);
           const midiNote = octavedGrade.toNote() + player.tonality;
           return new NoteData({ type: 'note', duration, note: midiNote });

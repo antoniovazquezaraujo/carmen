@@ -1,6 +1,7 @@
 import { NoteData } from "./note";
 import { PlayMode } from "./play.mode";
 import { Scale, ScaleTypes, Tonality } from "./scale";
+import { canApplyCollapse, collapseView, CollapseMode } from "./scale-view";
 import { Block } from "./block";
 import { Preset } from "./content";
 import { InstrumentType } from "./instrument-type";
@@ -19,6 +20,7 @@ const MAX_BPM = 240;
 /** Instantánea de los ajustes que puede cambiar un preset/override. */
 export interface PlayerPresetState {
     scale: ScaleTypes;
+    collapse: CollapseMode;
     tonality: number;
     timbre: number;
     density: number;
@@ -47,6 +49,7 @@ interface PlayerAudioEngine {
 export class Player {
     channel: number;
     scale: ScaleTypes = ScaleTypes.WHITE;
+    collapse: CollapseMode = 'NONE';
     tonality: number = Tonality.D;
     timbre: number = 0;
     noteDatas: NoteData[] = [];
@@ -128,6 +131,7 @@ export class Player {
     snapshotPresetState(): PlayerPresetState {
         return {
             scale: this.scale,
+            collapse: this.collapse,
             tonality: this.tonality,
             timbre: this.timbre,
             density: this.density,
@@ -149,6 +153,7 @@ export class Player {
 
     restorePresetState(state: PlayerPresetState): void {
         this.scale = state.scale;
+        this.collapse = state.collapse;
         this.tonality = state.tonality;
         this.timbre = state.timbre;
         this.density = state.density;
@@ -245,17 +250,32 @@ export class Player {
     }
 
     /**
+     * Escala efectiva del player: el padre de `SCALE` con la vista `COLLAPSE`
+     * aplicada (ADR-006). La vista se define en el espacio relativo, antes de
+     * `KEY`; la tonalidad se suma después, como siempre.
+     */
+    getCurrentScale(): Scale {
+        const parent = Scale.getScaleByType(this.scale);
+        if (this.collapse === 'NONE') {
+            return parent;
+        }
+        if (!canApplyCollapse(parent.notes, this.collapse)) {
+            console.warn(
+                `[Player] COLLAPSE ${this.collapse} is not compatible with ${ScaleTypes[this.scale]}; using COLLAPSE NONE.`
+            );
+            return parent;
+        }
+        const view = collapseView(parent.notes, this.collapse);
+        return new Scale([...view.notes]);
+    }
+
+    /**
      * Grados finales del acorde (density/gap → INV → SHIFT) en la escala y
      * octava del player, sin convertir todavía a MIDI. `DECORATION` los usa
      * para sumar sus offsets en grados de escala.
      */
     getSelectedOctavedGrades(): OctavedGrade[] {
-        const scaleName = ScaleTypes[this.scale];
-        const scale = Scale.getScaleByName(scaleName);
-        if (!scale) {
-            console.error(`[Player] Invalid scale type. Enum value: ${this.scale}, Derived name: '${scaleName}'`);
-            return [];
-        }
+        const scale = this.getCurrentScale();
 
         const notesToGenerate = this.density + 1;
         let grades: number[] = [];
@@ -344,6 +364,13 @@ export class Player {
 
     selectScale(scale: ScaleTypes) {
         this.scale = scale;
+        if (this.collapse !== 'NONE' && !canApplyCollapse(Scale.getScaleByType(scale).notes, this.collapse)) {
+            const previous = this.collapse;
+            this.collapse = 'NONE';
+            console.warn(
+                `[Player] COLLAPSE ${previous} is not compatible with ${ScaleTypes[scale]}; using COLLAPSE NONE.`
+            );
+        }
     }
 
     getScale(): ScaleTypes {

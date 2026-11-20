@@ -36,6 +36,10 @@ export class Scale {
         return selectedScale;
     }
 
+    static getScaleByType(type: ScaleTypes): Scale {
+        return Scale.SCALES[type];
+    }
+
     static getScaleNames(): string[] {
         return ['WHITE', 'BLUE', 'RED', 'BLACK', 'PENTA', 'TONES', 'FULL'];
     }
