@@ -8,7 +8,7 @@ All notable changes to **Carmen**. Format based on
 
 ### Added
 
-- **Scale views**: presets accept `COLLAPSE BOTH_HIGH|BOTH_LOW|LOW_HIGH|HIGH_LOW|NONE`. A view projects the active scale (defined on relative notes, before `KEY`), keeps the parent scale's tonic/key/center and reindexes the visible degrees. WHITE and BLUE expose four semitone-free views each.
+- **Scale views**: presets accept `COLLAPSE BOTH_HIGH|BOTH_LOW|LOW_HIGH|HIGH_LOW|NONE`. A view projects the active scale (defined on relative notes, before `KEY`), keeps the parent scale's tonic/key/center and reindexes the visible degrees. WHITE and BLUE expose four semitone-free views each. The preset editor lists the modes with a scale preview: parent degrees are hollow circles and the notes kept by the view are filled.
 
 ### Changed
 

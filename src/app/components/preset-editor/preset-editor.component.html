@@ -74,14 +74,13 @@
                   }
                 </select>
               } @else {
-                <select class="command-type"
-                  [ngModel]="collapseMode(command)"
-                  (ngModelChange)="handleCollapseSelected($event, command)"
-                  [attr.aria-label]="'Collapse view'">
-                  @for (mode of collapseModeNames; track mode) {
-                    <option [value]="mode">{{ mode }}</option>
-                  }
-                </select>
+                <app-scale-select
+                  [value]="collapseMode(command)"
+                  [options]="collapseModeNames"
+                  kind="collapse"
+                  [parentScale]="collapseParentScale(command)"
+                  (valueChange)="handleCollapseSelected($event, command)">
+                </app-scale-select>
               }
             }
             @case (commandTypes.PATTERN) {

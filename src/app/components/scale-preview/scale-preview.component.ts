@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Scale } from 'src/app/model/scale';
+import { collapseView, CollapseMode, ScaleView } from 'src/app/model/scale-view';
 
 /**
  * Semitono -> celda del anillo de 12 posiciones.
@@ -38,9 +39,39 @@ const SEMITONE_CELLS: ReadonlyArray<readonly [number, number]> = [
 })
 export class ScalePreviewComponent {
     @Input() scale = 'WHITE';
+    /** Collapse view shown on top of the parent scale; empty = full scale. */
+    @Input() collapseMode = '';
 
     get scaleName(): string {
         return this.scale || 'WHITE';
+    }
+
+    get previewTitle(): string {
+        return this.collapseMode ? `${this.scaleName} · ${this.collapseMode}` : this.scaleName;
+    }
+
+    private get view(): ScaleView | null {
+        if (!this.collapseMode || this.collapseMode === 'NONE') {
+            return null;
+        }
+        try {
+            return collapseView(Scale.getScaleByName(this.scaleName).notes, this.collapseMode as CollapseMode);
+        } catch {
+            return null;
+        }
+    }
+
+    get hiddenNotes(): readonly number[] {
+        return this.view?.hiddenNotes ?? [];
+    }
+
+    /** `true` when the parent degree is removed by the active collapse view. */
+    isHidden(cell: number | null): boolean {
+        if (cell === null || this.hiddenNotes.length === 0) {
+            return false;
+        }
+        const semitone = Scale.getScaleByName(this.scaleName).notes[cell - 1];
+        return semitone !== undefined && this.hiddenNotes.includes(semitone);
     }
 
     get cells(): ReadonlyArray<ReadonlyArray<number | null>> {
@@ -61,6 +92,10 @@ export class ScalePreviewComponent {
             .flat()
             .filter((value): value is number => value !== null)
             .join(', ');
-        return `${this.scaleName} scale: degrees ${degrees}`;
+        const suffix = this.collapseMode ? ` (${this.collapseMode})` : '';
+        const hidden = this.hiddenNotes.length > 0
+            ? `; hidden semitones ${this.hiddenNotes.join(', ')}`
+            : '';
+        return `${this.scaleName}${suffix} scale: degrees ${degrees}${hidden}`;
     }
 }

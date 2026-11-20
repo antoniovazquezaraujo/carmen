@@ -18,7 +18,18 @@ import { ScalePreviewComponent } from '../scale-preview/scale-preview.component'
 export class ScaleSelectComponent {
     @Input() value = 'WHITE';
     @Input() options: readonly string[] = [];
+    /** `scale` renders a scale preview; `collapse` renders the view on a parent. */
+    @Input() kind: 'scale' | 'collapse' = 'scale';
+    @Input() parentScale = 'WHITE';
     @Output() valueChange = new EventEmitter<string>();
+
+    get triggerAriaLabel(): string {
+        return this.kind === 'collapse' ? `Collapse view: ${this.value}` : `Scale: ${this.value}`;
+    }
+
+    get listAriaLabel(): string {
+        return this.kind === 'collapse' ? 'Collapse views' : 'Scales';
+    }
 
     readonly overlayPositions: ConnectedPosition[] = [
         {

@@ -29,6 +29,28 @@ describe('ScalePreviewComponent', () => {
     expect(degrees('FULL')).toEqual([6, 7, 8, 5, 9, 4, 10, 3, 11, 2, 1, 12]);
   });
 
+  it('marca los grados ocultos de una vista COLLAPSE', () => {
+    const component = new ScalePreviewComponent();
+    component.scale = 'WHITE';
+    component.collapseMode = 'LOW_HIGH';
+
+    expect(component.hiddenNotes).toEqual([3, 9]);
+    expect(component.isHidden(3)).toBe(true); // Eb
+    expect(component.isHidden(6)).toBe(true); // A
+    expect(component.isHidden(1)).toBe(false); // C
+    expect(component.previewTitle).toBe('WHITE · LOW_HIGH');
+    expect(component.ariaLabel).toContain('hidden semitones 3, 9');
+  });
+
+  it('no marca grados ocultos con COLLAPSE NONE', () => {
+    const component = new ScalePreviewComponent();
+    component.scale = 'WHITE';
+    component.collapseMode = 'NONE';
+
+    expect(component.hiddenNotes).toEqual([]);
+    expect(component.isHidden(3)).toBe(false);
+  });
+
   it('expone una etiqueta accesible con la escala y sus grados', () => {
     const component = new ScalePreviewComponent();
     component.scale = 'BLUE';

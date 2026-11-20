@@ -314,6 +314,22 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         return String(command.value ?? 'NONE');
     }
 
+    /** Parent scale effective at the COLLAPSE command, for the preview. */
+    collapseParentScale(command: Command): string {
+        const index = this.preset.settings.indexOf(command);
+        for (let i = index - 1; i >= 0; i -= 1) {
+            const setting = this.preset.settings[i];
+            if (setting.type !== CommandType.SCALE) {
+                continue;
+            }
+            const value = setting.value;
+            if (typeof value === 'string' && this.scaleNames.includes(value)) {
+                return value;
+            }
+        }
+        return this.scaleNames[0] || 'WHITE';
+    }
+
     handleCollapseSelected(mode: string, command: Command): void {
         if (command.type === CommandType.COLLAPSE) {
             command.setValue(mode);
