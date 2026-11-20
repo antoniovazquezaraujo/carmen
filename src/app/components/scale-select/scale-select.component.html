@@ -7,7 +7,7 @@
     [attr.aria-expanded]="open"
     [attr.aria-label]="triggerAriaLabel"
     (click)="toggle($event)">
-    <span>{{ value }}</span>
+    <span>{{ labelFor(value) }}</span>
     <i class="pi pi-chevron-down" aria-hidden="true"></i>
   </button>
 
@@ -32,7 +32,7 @@
             (mouseenter)="hovered = scale"
             (focus)="hovered = scale"
             (click)="select(scale, $event)">
-            {{ scale }}
+            {{ labelFor(scale) }}
           </button>
         }
       </div>

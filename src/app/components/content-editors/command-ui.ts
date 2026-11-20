@@ -46,6 +46,15 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     SHIFT: 'Octave-shift window: Start, Size and Value together.'
 };
 
+/** Human labels for the COLLAPSE modes in the GUI. */
+export const COLLAPSE_MODE_LABELS: Readonly<Record<string, string>> = {
+    BOTH_HIGH: 'Both high',
+    BOTH_LOW: 'Both low',
+    LOW_HIGH: 'Low / high',
+    HIGH_LOW: 'High / low',
+    NONE: 'None'
+};
+
 /** Descripción corta de un tipo de ajuste (incluye el grupo sintético SHIFT). */
 export function commandTypeDescription(type: string): string {
     return COMMAND_DESCRIPTIONS[type] ?? 'Playback setting.';

@@ -45,6 +45,10 @@
   color: var(--mr-ink-soft);
 }
 
+.scale-preview--collapse .scale-preview-title {
+  display: none;
+}
+
 .scale-preview--collapse .scale-cell--visible {
   background-color: var(--mr-ink);
   box-shadow: none;

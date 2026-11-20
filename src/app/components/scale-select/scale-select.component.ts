@@ -21,10 +21,18 @@ export class ScaleSelectComponent {
     /** `scale` renders a scale preview; `collapse` renders the view on a parent. */
     @Input() kind: 'scale' | 'collapse' = 'scale';
     @Input() parentScale = 'WHITE';
+    /** Optional display labels keyed by option value. */
+    @Input() labels: Readonly<Record<string, string>> = {};
     @Output() valueChange = new EventEmitter<string>();
 
+    labelFor(value: string): string {
+        return this.labels[value] ?? value;
+    }
+
     get triggerAriaLabel(): string {
-        return this.kind === 'collapse' ? `Collapse view: ${this.value}` : `Scale: ${this.value}`;
+        return this.kind === 'collapse'
+            ? `Collapse view: ${this.labelFor(this.value)}`
+            : `Scale: ${this.labelFor(this.value)}`;
     }
 
     get listAriaLabel(): string {

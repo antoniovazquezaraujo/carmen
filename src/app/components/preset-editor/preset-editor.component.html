@@ -77,6 +77,7 @@
                 <app-scale-select
                   [value]="collapseMode(command)"
                   [options]="collapseModeNames"
+                  [labels]="collapseModeLabels"
                   kind="collapse"
                   [parentScale]="collapseParentScale(command)"
                   (valueChange)="handleCollapseSelected($event, command)">

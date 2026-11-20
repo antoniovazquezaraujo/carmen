@@ -31,6 +31,7 @@ import {
     buildAvailableVariables,
     buildStringVariables,
     canonicalDecorationValueOrRaw,
+    COLLAPSE_MODE_LABELS,
     commandTypeDescription,
     commandTypeLabel,
     createShiftCommands,
@@ -67,6 +68,7 @@ export class PresetEditorComponent implements OnInit, OnChanges, OnDestroy {
         .filter(type => !SHIFT_COMMAND_TYPES.includes(type as CommandType));
     playModeNames: string[] = [];
     collapseModeNames: string[] = [];
+    readonly collapseModeLabels = COLLAPSE_MODE_LABELS;
     playModeOptions: PlayModeOption[] = [];
     scaleNames: string[] = [];
     availableVariables: VariableOption[] = [];
