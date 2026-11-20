@@ -10,14 +10,25 @@
  * - hiding collapses the semitones that touch a tritone: one note of each
  *   semitone survives, which yields four semitone-free views in WHITE and BLUE.
  *
+ * The pure collapse model lives in `../scale-view` (ADR-006); this lab adapts
+ * it to the tritone-reporting shape used by the prototype.
+ *
  * Run its tests with:
  *
  *   npm test -- tritone-lab
  */
 
+import {
+    collapseView,
+    CollapseMode,
+    NotePair,
+    SemitoneSide,
+    semitonesOf,
+    tritonesOf
+} from '../scale-view';
+
 export type TritoneScaleName = 'WHITE' | 'BLUE' | 'RED' | 'TONES' | 'BLACK';
 
-export type NotePair = readonly [number, number];
 export type TritonePair = NotePair;
 
 export interface TritoneScale {
@@ -25,9 +36,6 @@ export interface TritoneScale {
     readonly notes: readonly number[];
     readonly tritones: readonly TritonePair[];
 }
-
-/** Which note of a semitone survives: the lower or the upper one. */
-export type SemitoneSide = 'LOW' | 'HIGH';
 
 /** One side per semitone, in ascending semitone order. */
 export type SemitoneSelection = readonly SemitoneSide[];
@@ -84,43 +92,9 @@ function sortedPairs(pairs: readonly TritonePair[]): TritonePair[] {
     return [...pairs].sort((left, right) => left[0] - right[0] || left[1] - right[1]);
 }
 
-function findTritones(notes: readonly number[]): TritonePair[] {
-    const noteSet = new Set(notes);
-    const pairs: TritonePair[] = [];
-
-    for (const start of notes) {
-        const end = modulo(start + 6, 12);
-        if (noteSet.has(end) && start < end) {
-            pairs.push([start, end]);
-        }
-    }
-
-    return sortedPairs(pairs);
-}
-
-/**
- * Adjacent pitch classes a semitone apart, as `[lower, upper]`.
- *
- * The MVP only uses WHITE and BLUE, whose semitones never wrap around 11..0,
- * so the simple ascending scan is enough.
- */
-function findSemitones(notes: readonly number[]): NotePair[] {
-    const pairs: NotePair[] = [];
-
-    for (let index = 0; index < notes.length - 1; index += 1) {
-        const note = notes[index];
-        const next = notes[index + 1];
-        if (next - note === 1) {
-            pairs.push([note, next]);
-        }
-    }
-
-    return pairs;
-}
-
 function buildScale(name: TritoneScaleName): TritoneScale {
     const notes = SCALE_NOTES[name];
-    return { name, notes, tritones: findTritones(notes) };
+    return { name, notes, tritones: tritonesOf(notes) };
 }
 
 export const TRITONE_SCALES: Readonly<Record<TritoneScaleName, TritoneScale>> = {
@@ -185,6 +159,13 @@ export function modulate(
     };
 }
 
+const MODE_BY_SELECTION: Readonly<Record<string, CollapseMode>> = {
+    'HIGH/HIGH': 'BOTH_HIGH',
+    'LOW/LOW': 'BOTH_LOW',
+    'LOW/HIGH': 'LOW_HIGH',
+    'HIGH/LOW': 'HIGH_LOW'
+};
+
 /**
  * Collapse the semitones that touch a tritone into pentatonic views.
  *
@@ -205,27 +186,26 @@ export function hideSemitones(
     }
 
     const scale = TRITONE_SCALES[name];
-    const semitones = findSemitones(scale.notes);
+    const semitones = semitonesOf(scale.notes);
     if (selection.length !== semitones.length) {
         throw new RangeError(
             `${name} needs ${semitones.length} semitone choices, got ${selection.length}`
         );
     }
 
-    const hiddenNotes: number[] = [];
-    semitones.forEach(([low, high], index) => {
-        hiddenNotes.push(selection[index] === 'LOW' ? high : low);
-    });
-    const hidden = new Set(hiddenNotes);
+    const mode = MODE_BY_SELECTION[selection.join('/')];
+    if (!mode) {
+        throw new RangeError(`unsupported semitone selection ${selection.join('/')}`);
+    }
 
-    const notes = scale.notes.filter(note => !hidden.has(note));
+    const view = collapseView(scale.notes, mode);
     return {
         name,
         selection,
-        hiddenNotes: [...hiddenNotes].sort((left, right) => left - right),
-        notes,
-        semitones: findSemitones(notes),
-        tritones: findTritones(notes)
+        hiddenNotes: view.hiddenNotes,
+        notes: view.notes,
+        semitones: view.semitones,
+        tritones: view.tritones
     };
 }
 
