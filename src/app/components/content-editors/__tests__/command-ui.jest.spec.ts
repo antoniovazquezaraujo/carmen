@@ -23,7 +23,7 @@ describe('command-ui · descripciones y grupo Shift', () => {
 
   it('etiqueta los modos COLLAPSE para la GUI', () => {
     expect(COLLAPSE_MODE_LABELS['BOTH_HIGH']).toBe('Both high');
-    expect(COLLAPSE_MODE_LABELS['LOW_HIGH']).toBe('Low / high');
+    expect(COLLAPSE_MODE_LABELS['LOW_HIGH']).toBe('Low high');
     expect(COLLAPSE_MODE_LABELS['NONE']).toBe('None');
   });
 

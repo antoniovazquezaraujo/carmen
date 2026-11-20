@@ -50,8 +50,8 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
 export const COLLAPSE_MODE_LABELS: Readonly<Record<string, string>> = {
     BOTH_HIGH: 'Both high',
     BOTH_LOW: 'Both low',
-    LOW_HIGH: 'Low / high',
-    HIGH_LOW: 'High / low',
+    LOW_HIGH: 'Low high',
+    HIGH_LOW: 'High low',
     NONE: 'None'
 };
 
