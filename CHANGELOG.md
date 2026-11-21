@@ -10,6 +10,7 @@ All notable changes to **Carmen**. Format based on
 
 - **Scale views**: presets accept `COLLAPSE BOTH_HIGH|BOTH_LOW|LOW_HIGH|HIGH_LOW|NONE`. A view projects the active scale (defined on relative notes, before `KEY`), keeps the parent scale's tonic/key/center and reindexes the visible degrees. WHITE, BLUE, RED and BLACK expose four views each (two tritone groups); TONES and FULL are no-ops by design. The preset editor lists the modes with a scale preview: parent degrees are hollow circles and the notes kept by the view are filled.
 - **MODULATE**: procedures accept `MODULATE <target> FROM <from> TO <to>`. It anchors the current scale's tritone to the target scale's tritone, derives the exact `KEY` (the user writes the anchor, not the key) and changes both scale and key for the rest of the song. The change survives block overrides and is applied by playback and the MIDI compiler.
+- **Examples**: added **Shop Pen**, a four-pass modulation study that combines a decorated pattern with three anchored `MODULATE` procedures.
 
 ### Changed
 
