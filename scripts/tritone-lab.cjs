@@ -8,16 +8,44 @@
 
 const {
   TRITONE_SCALES,
-  formatModulation,
   formatSemitoneView,
   hideSemitones,
-  modulate,
   SEMITONE_VIEW_SELECTIONS
 } = require('../packages/core/dist/experimental/tritone-lab.js');
+const { modulate } = require('../packages/core/dist/tritone-modulation.js');
+const { ScaleTypes } = require('../packages/core/dist/scale.js');
 
 const pairList = pairs => pairs.length === 0
   ? '∅'
   : pairs.map(([start, end]) => `(${start},${end})`).join(' ');
+
+const SCALE_ENUM = {
+  WHITE: ScaleTypes.WHITE,
+  BLUE: ScaleTypes.BLUE,
+  RED: ScaleTypes.RED,
+  BLACK: ScaleTypes.BLACK,
+  TONES: ScaleTypes.TONES,
+  FULL: ScaleTypes.FULL
+};
+
+const formatAnchored = result => [
+  `${ScaleTypes[result.source]} -> ${ScaleTypes[result.target]} (${result.fromOrdinal}->${result.toOrdinal})`,
+  `key=${result.key}`,
+  `fixed=${pairList(result.fixed)}`,
+  `added=${pairList(result.added)}`,
+  `removed=${pairList(result.removed)}`
+].join(' | ');
+
+const printAnchor = (source, target, fromOrdinal, toOrdinal, sourceKey = 0) => {
+  const result = modulate(
+    SCALE_ENUM[source],
+    SCALE_ENUM[target],
+    fromOrdinal,
+    toOrdinal,
+    sourceKey
+  );
+  console.log(`sourceKey=${sourceKey} | ${formatAnchored(result)}`);
+};
 
 const VIEW_LABELS = {
   'HIGH/HIGH': 'subir/subir',
@@ -33,8 +61,12 @@ for (const name of Object.keys(TRITONE_SCALES)) {
 }
 
 console.log('\nAnchored modulation\n');
-console.log(formatModulation(modulate('WHITE', 'BLUE', 1, 2)));
-console.log(formatModulation(modulate('BLUE', 'WHITE', 1, 1)));
+printAnchor('WHITE', 'BLUE', 1, 2);
+printAnchor('BLUE', 'WHITE', 1, 1);
+printAnchor('WHITE', 'BLUE', 1, 1, 5);
+printAnchor('RED', 'BLACK', 1, 1);
+printAnchor('TONES', 'WHITE', 1, 1);
+printAnchor('FULL', 'WHITE', 1, 1);
 
 console.log('\nSemitone views (WHITE/BLUE/RED/BLACK)\n');
 for (const name of ['WHITE', 'BLUE', 'RED', 'BLACK']) {

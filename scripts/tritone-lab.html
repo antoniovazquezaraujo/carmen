@@ -57,6 +57,37 @@
     }
     .note { color: var(--muted); font-size: .85rem; }
     .legend { border-top: 1px solid var(--border); margin-top: 38px; padding-top: 16px; }
+    .modulation-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+    .modulation-controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+    .modulation-controls select,
+    .modulation-controls input {
+      min-height: 30px;
+      padding: 4px 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    #mod-result {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    #mod-result .mod-line { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -66,9 +97,8 @@
     Demo auditiva del modelo experimental de <strong>ADR-005</strong>. Las notas se
     representan por clases de altura <code>0–11</code> y se reproducen desde C4.
     La ocultación colapsa los semitonos que tocan los tritonos: de cada semitono
-    sobrevive una sola nota. WHITE y BLUE tienen dos semitonos, así que hay cuatro
-    vistas por escala. No es una integración en Carmen: solo sirve para comprobar
-    de oído que el anclaje y las vistas sin semitonos se comportan como esperamos.
+    sobrevive una sola nota. Las vistas se muestran para WHITE y BLUE; la
+    modulación anclada funciona con todas las escalas.
   </p>
 
   <h2>Escalas completas</h2>
@@ -77,8 +107,16 @@
   <h2>Vistas sin semitonos</h2>
   <div class="grid" id="hidden"></div>
 
-  <h2>Modulaciones ancladas</h2>
-  <div class="grid" id="modulations"></div>
+  <h2>Modulación anclada</h2>
+  <div class="modulation-controls">
+    <label>Source scale <select id="mod-source"></select></label>
+    <label>Source KEY <input id="mod-key" type="number" min="0" max="11" step="1" value="0"></label>
+    <label>From tritone <input id="mod-from" type="number" min="1" step="1" value="1"></label>
+    <label>Target scale <select id="mod-target"></select></label>
+    <label>To tritone <input id="mod-to" type="number" min="1" step="1" value="1"></label>
+    <button id="mod-play" type="button"><strong>Play modulation</strong><small>source then target, both transposed</small></button>
+  </div>
+  <div id="mod-result" role="status" aria-live="polite"></div>
 
   <div id="status" role="status" aria-live="polite"></div>
 
@@ -96,7 +134,8 @@
     BLUE:  { notes: [0, 2, 4, 5, 7, 8, 10], tritones: [[2, 8], [4, 10]] },
     RED:   { notes: [0, 1, 4, 5, 7, 8, 11], tritones: [[1, 7], [5, 11]] },
     TONES: { notes: [0, 2, 4, 6, 8, 10], tritones: [[0, 6], [2, 8], [4, 10]] },
-    BLACK: { notes: [1, 2, 4, 5, 7, 8, 10, 11], tritones: [[1, 7], [2, 8], [4, 10], [5, 11]] }
+    BLACK: { notes: [1, 2, 4, 5, 7, 8, 10, 11], tritones: [[1, 7], [2, 8], [4, 10], [5, 11]] },
+    FULL:  { notes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], tritones: [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11]] }
   };
 
   const SEMITONE_CHOICES = [
@@ -127,26 +166,43 @@
     return { hidden, notes, tritones: tritonesOf(notes) };
   }
 
-  const MODULATIONS = [
-    {
-      label: 'WHITE → BLUE · FROM 1 TO 2',
-      source: 'WHITE',
-      target: 'BLUE',
-      key: 11,
-      fixed: [[3, 9]],
-      added: [[1, 7]],
-      removed: []
-    },
-    {
-      label: 'BLUE → WHITE · FROM 1 TO 1',
-      source: 'BLUE',
-      target: 'WHITE',
-      key: 11,
-      fixed: [[2, 8]],
-      added: [],
-      removed: [[4, 10]]
-    }
-  ];
+  const modulo = value => ((value % 12) + 12) % 12;
+  const normalizePair = (a, b) => {
+    const start = modulo(a);
+    const end = modulo(b);
+    return start < end ? [start, end] : [end, start];
+  };
+  const pairKey = ([start, end]) => `${start}:${end}`;
+  const sortedPairs = pairs => [...pairs].sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+
+  function computeAnchoredModulation(source, target, fromOrdinal, toOrdinal, sourceKey) {
+    const sourceTritones = SCALES[source].tritones;
+    const targetTritonesBase = SCALES[target].tritones;
+    const sourceStart = modulo(sourceTritones[fromOrdinal - 1][0] + sourceKey);
+    const targetStart = targetTritonesBase[toOrdinal - 1][0];
+    const key = modulo(sourceStart - targetStart);
+    const actualSource = sortedPairs(
+      sourceTritones.map(([start, end]) => normalizePair(start + sourceKey, end + sourceKey))
+    );
+    const targetTritones = sortedPairs(
+      targetTritonesBase.map(([start, end]) => normalizePair(start + key, end + key))
+    );
+    const sourceKeys = new Set(actualSource.map(pairKey));
+    const targetKeys = new Set(targetTritones.map(pairKey));
+
+    return {
+      source,
+      target,
+      fromOrdinal,
+      toOrdinal,
+      sourceKey,
+      key,
+      targetTritones,
+      fixed: actualSource.filter(pair => targetKeys.has(pairKey(pair))),
+      added: targetTritones.filter(pair => !sourceKeys.has(pairKey(pair))),
+      removed: actualSource.filter(pair => !targetKeys.has(pairKey(pair)))
+    };
+  }
 
   const formatPairs = pairs => pairs.length === 0
     ? '∅'
@@ -181,7 +237,7 @@
     activeOscillators = [];
   }
 
-  function playNotes(notes, label) {
+  function playNotes(notes, label, pause = null) {
     const context = getAudioContext();
     context.resume();
     stopActive();
@@ -196,7 +252,8 @@
     notes.forEach((pitchClass, index) => {
       const oscillator = context.createOscillator();
       const envelope = context.createGain();
-      const noteStart = startAt + index * (noteDuration + gap);
+      const pauseBefore = pause && index >= pause.index ? pause.duration : 0;
+      const noteStart = startAt + index * (noteDuration + gap) + pauseBefore;
       const noteEnd = noteStart + noteDuration;
       const midi = 60 + pitchClass;
       const frequency = 440 * Math.pow(2, (midi - 69) / 12);
@@ -240,19 +297,75 @@
     }
   }
 
-  for (const modulation of MODULATIONS) {
-    const sourceNotes = SCALES[modulation.source].notes;
-    const targetNotes = SCALES[modulation.target].notes
-      .map(note => (note + modulation.key) % 12)
-      .sort((left, right) => left - right);
-    const sequence = [...sourceNotes, ...targetNotes];
+  const sourceSelect = document.getElementById('mod-source');
+  const targetSelect = document.getElementById('mod-target');
+  const keyInput = document.getElementById('mod-key');
+  const fromInput = document.getElementById('mod-from');
+  const toInput = document.getElementById('mod-to');
+  const modResult = document.getElementById('mod-result');
+  let currentModulation = null;
 
-    addButton(document.getElementById('modulations'), {
-      label: modulation.label,
-      detail: `${modulation.source} key=${modulation.key} · fixed ${formatPairs(modulation.fixed)} · +${formatPairs(modulation.added)} · −${formatPairs(modulation.removed)}`,
-      play: () => playNotes(sequence, `${modulation.label} (${modulation.source} y destino transpuesto)`)
-    });
+  for (const name of Object.keys(SCALES)) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    sourceSelect.append(option);
+    targetSelect.append(option.cloneNode(true));
   }
+  targetSelect.value = 'BLUE';
+
+  const clampInteger = (input, min, max) => {
+    let value = Number(input.value);
+    if (!Number.isInteger(value)) {
+      value = min;
+    }
+    value = Math.max(min, Math.min(max, value));
+    input.value = String(value);
+    return value;
+  };
+
+  function refreshModulation() {
+    const source = sourceSelect.value;
+    const target = targetSelect.value;
+    const sourceTritones = SCALES[source].tritones.length;
+    const targetTritones = SCALES[target].tritones.length;
+    fromInput.max = String(sourceTritones);
+    toInput.max = String(targetTritones);
+
+    const sourceKey = clampInteger(keyInput, 0, 11);
+    const from = clampInteger(fromInput, 1, sourceTritones);
+    const to = clampInteger(toInput, 1, targetTritones);
+    const result = computeAnchoredModulation(source, target, from, to, sourceKey);
+    const sourceNotes = SCALES[source].notes
+      .map(note => (note + sourceKey) % 12)
+      .sort((left, right) => left - right);
+    const targetNotes = SCALES[target].notes
+      .map(note => (note + result.key) % 12)
+      .sort((left, right) => left - right);
+
+    currentModulation = { ...result, sourceNotes, targetNotes };
+    modResult.innerHTML = `
+      <span class="mod-line">MODULATE ${target} FROM ${from} TO ${to}</span>
+      <span>${source} key=${sourceKey} ${formatNotes(sourceNotes)} → ${target} key=${result.key} ${formatNotes(targetNotes)}</span>
+      <span>fixed ${formatPairs(result.fixed)} · added ${formatPairs(result.added)} · removed ${formatPairs(result.removed)}</span>
+    `;
+    return currentModulation;
+  }
+
+  function playCurrentModulation() {
+    const result = refreshModulation();
+    playNotes(
+      [...result.sourceNotes, ...result.targetNotes],
+      `${result.source} → ${result.target} (key ${result.key})`,
+      { index: result.sourceNotes.length, duration: 0.28 }
+    );
+  }
+
+  sourceSelect.addEventListener('change', refreshModulation);
+  targetSelect.addEventListener('change', refreshModulation);
+  [keyInput, fromInput, toInput].forEach(input => input.addEventListener('input', refreshModulation));
+  document.getElementById('mod-play').addEventListener('click', playCurrentModulation);
+  refreshModulation();
 </script>
 </body>
 </html>

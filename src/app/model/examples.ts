@@ -1063,6 +1063,58 @@ part
         preset B
         melody C
 `
+    },
+    {
+        id: 'shop-pen',
+        title: 'Shop Pen',
+        description: 'A four-pass modulation study with a decorated pattern and three anchored changes.',
+        tags: ['Modulate', 'Pattern', 'Decoration'],
+        bpm: 120,
+        mr: `song "Shop Pen"
+version 3
+repeats 4
+
+melodies
+  melody "Melody 1"
+    notes default 2m
+      0
+
+presets
+  preset "Preset 1"
+    OCT 1
+    PLAYMODE ODD_DESC_EVEN_DESC
+    WIDTH 3
+    PATTERN 4n:0 4n:1 4n:2 4n:3 4n:4 4n:5 4n:6
+    SCALE WHITE
+    COLLAPSE BOTH_LOW
+    GAP 4
+    DECORATION 4n:1 4n:0
+
+procedures
+  procedure A
+    MODULATE RED FROM 1 TO 1
+
+  procedure B
+    MODULATE BLUE FROM 2 TO 1
+
+  procedure C
+    MODULATE WHITE FROM 1 TO 1
+
+part
+  block
+    preset "Preset 1"
+    procedure A
+    melody "Melody 1"
+
+  block
+    procedure B
+    melody "Melody 1"
+
+  block
+    preset "Preset 1"
+    procedure C
+    melody "Melody 1"
+`
     }
 ];
 

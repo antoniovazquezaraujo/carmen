@@ -14,10 +14,10 @@ import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
 import { isVelocity, parseVelocityPattern, parseVelocityRamp, printVelocityPattern, printVelocityRamp } from '../velocity';
 import { parseOctavePattern, printOctavePattern } from '../octave-pattern';
-import { AssignOperation, BaseOperation, VaryOperation } from '../operation';
+import { AssignOperation, BaseOperation, ModulateOperation, VaryOperation } from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames, PlayMode } from '../play.mode';
-import { Scale } from '../scale';
+import { Scale, ScaleTypes } from '../scale';
 import { COLLAPSE_MODE_NAMES, isCollapseMode } from '../scale-view';
 import { DEFAULT_BPM, DEFAULT_REPEATS, MAX_BPM, MIN_BPM, MIN_REPEATS, Song } from '../song';
 import { MrParseError, MrSerializeError } from './mr.errors';
@@ -370,6 +370,19 @@ function formatCommand(command: Command, context: string): string {
 }
 
 function formatOperation(operation: BaseOperation, context: string): string {
+  if (operation instanceof ModulateOperation) {
+    const target = ScaleTypes[operation.targetScale];
+    if (!target || !Scale.getScaleNames().includes(target)) {
+      throw new MrSerializeError(`MODULATE con escala destino inválida en ${context}: ${String(operation.targetScale)}`);
+    }
+    if (!Number.isInteger(operation.fromOrdinal) || operation.fromOrdinal < 1) {
+      throw new MrSerializeError(`MODULATE FROM requiere un ordinal entero >= 1 en ${context}`);
+    }
+    if (!Number.isInteger(operation.toOrdinal) || operation.toOrdinal < 1) {
+      throw new MrSerializeError(`MODULATE TO requiere un ordinal entero >= 1 en ${context}`);
+    }
+    return `MODULATE ${target} FROM ${operation.fromOrdinal} TO ${operation.toOrdinal}`;
+  }
   if (!IDENTIFIER_PATTERN.test(operation.variableName)) {
     throw new MrSerializeError(`operación con nombre de variable inválido '${operation.variableName}' en ${context}`);
   }

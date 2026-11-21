@@ -1,10 +1,19 @@
 import { VariableContext } from './variable.context';
 import { getPlayModeNames } from './play.mode';
-import { Scale } from './scale';
+import { Scale, ScaleTypes } from './scale';
 
 export enum OperationType {
     VARY = 'VARY',
-    ASSIGN = 'ASSIGN'
+    ASSIGN = 'ASSIGN',
+    MODULATE = 'MODULATE'
+}
+
+/** Minimal player surface needed by procedure operations. */
+export interface OperationPlayer {
+    scale: ScaleTypes;
+    tonality: number;
+    selectScale(scale: ScaleTypes): void;
+    modulate(target: ScaleTypes, fromOrdinal: number, toOrdinal: number): void;
 }
 
 export abstract class BaseOperation {
@@ -16,7 +25,7 @@ export abstract class BaseOperation {
         this.value = value;
     }
 
-    abstract execute(): void;
+    abstract execute(player?: OperationPlayer): void;
 }
 
 export class VaryOperation extends BaseOperation {
@@ -25,7 +34,7 @@ export class VaryOperation extends BaseOperation {
         super(variableName, step);
     }
     
-    execute(): void {
+    execute(_player?: OperationPlayer): void {
         const currentValue = VariableContext.getValue(this.variableName);
         const playModeNames = getPlayModeNames();
         const scaleNames = Scale.getScaleNames();
@@ -66,8 +75,29 @@ export class VaryOperation extends BaseOperation {
 }
 
 export class AssignOperation extends BaseOperation {
-    execute(): void {
+    execute(_player?: OperationPlayer): void {
         VariableContext.setValue(this.variableName, this.value);
+    }
+}
+
+export class ModulateOperation extends BaseOperation {
+    readonly targetScale: ScaleTypes;
+    readonly fromOrdinal: number;
+    readonly toOrdinal: number;
+
+    constructor(targetScale: ScaleTypes, fromOrdinal: number, toOrdinal: number) {
+        super('', 0);
+        this.targetScale = targetScale;
+        this.fromOrdinal = fromOrdinal;
+        this.toOrdinal = toOrdinal;
+    }
+
+    execute(player?: OperationPlayer): void {
+        if (!player) {
+            console.warn('[MODULATE] no player available; operation skipped.');
+            return;
+        }
+        player.modulate(this.targetScale, this.fromOrdinal, this.toOrdinal);
     }
 }
 
@@ -85,6 +115,9 @@ export function cloneOperation(operation: BaseOperation): BaseOperation {
     }
     if (operation instanceof AssignOperation) {
         return new AssignOperation(operation.variableName, operation.value);
+    }
+    if (operation instanceof ModulateOperation) {
+        return new ModulateOperation(operation.targetScale, operation.fromOrdinal, operation.toOrdinal);
     }
     console.error(`Cloning Error: Unknown operation type: ${operation.constructor.name}. Defaulting to Assign.`);
     return new AssignOperation(operation.variableName, operation.value);

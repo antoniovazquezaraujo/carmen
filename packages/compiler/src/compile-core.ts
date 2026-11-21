@@ -3,11 +3,13 @@ import {
     Block,
     Command,
     durationToSeconds,
+    ModulateOperation,
     NoteData,
     NoteGenerationService,
     NoteGenerationUnifiedService,
     Part,
     Player,
+    PlayerModulationState,
     Song,
     VariableContext
 } from 'carmen-core';
@@ -63,9 +65,19 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
         try {
             unit.settings.forEach(setting => setting.execute(player));
             const overrideScope = unit.overrides.length > 0 ? player.snapshotPresetState() : null;
+            let modulationState: PlayerModulationState | null = null;
             try {
                 unit.overrides.forEach(setting => setting.execute(player));
-                unit.operations.forEach(operation => operation.execute());
+                let modulated = false;
+                unit.operations.forEach(operation => {
+                    if (operation instanceof ModulateOperation) {
+                        modulated = true;
+                    }
+                    operation.execute(player);
+                });
+                if (modulated) {
+                    modulationState = player.snapshotModulationState();
+                }
                 const melody = unit.block.melody;
                 if (unit.includeNotes && melody && melody.notes.trim()) {
                     noteDatas.push(...noteGenerator.generateNotesForMelody(melody, player));
@@ -73,6 +85,9 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
             } finally {
                 if (overrideScope) {
                     player.restorePresetState(overrideScope);
+                }
+                if (overrideScope && modulationState) {
+                    player.restoreModulationState(modulationState);
                 }
             }
         } finally {

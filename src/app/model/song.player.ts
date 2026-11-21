@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Player } from "./player";
+import { Player, PlayerModulationState } from "./player";
 import { Song } from "./song";
 import { NoteData } from "./note";
 import { Part } from "./part";
@@ -11,7 +11,7 @@ import { AudioEngineService } from "../services/audio-engine.service";
 import { InstrumentType } from "./instrument-type";
 import { NoteGenerationService } from '../services/note-generation.service';
 import { VariableContext, VariableValue } from './variable.context';
-import { BaseOperation, VaryOperation, AssignOperation } from './operation';
+import { BaseOperation, ModulateOperation } from './operation';
 import { Command } from './command';
 import { NoteDuration } from './melody';
 import { clampVelocity, DEFAULT_VELOCITY } from './velocity';
@@ -433,9 +433,13 @@ export class SongPlayer {
                     const overrideScope = unit.overrides.length > 0
                         ? state.player.snapshotPresetState()
                         : null;
+                    let modulationState: PlayerModulationState | null = null;
                     try {
                         unit.overrides.forEach((command: Command) => command.execute(state.player));
-                        this._executeOperations(unit.operations);
+                        const modulated = this._executeOperations(unit.operations, state.player);
+                        if (modulated) {
+                            modulationState = state.player.snapshotModulationState();
+                        }
 
                         if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
                             const blockNotes = this.noteGenerationService.generateNotesForMelody(
@@ -450,6 +454,9 @@ export class SongPlayer {
                     } finally {
                         if (overrideScope) {
                             state.player.restorePresetState(overrideScope);
+                        }
+                        if (overrideScope && modulationState) {
+                            state.player.restoreModulationState(modulationState);
                         }
                     }
                 } finally {
@@ -563,14 +570,19 @@ export class SongPlayer {
         return units;
     }
 
-    private _executeOperations(operations: readonly BaseOperation[]): void {
+    private _executeOperations(operations: readonly BaseOperation[], player: Player): boolean {
+        let modulated = false;
         operations.forEach(operation => {
             try {
-                operation.execute();
+                if (operation instanceof ModulateOperation) {
+                    modulated = true;
+                }
+                operation.execute(player);
             } catch (error) {
                 console.error(`Error executing operation:`, error);
             }
         });
+        return modulated;
     }
 
     private async _buildPartExecutionStates(song: Song): Promise<PartExecutionState[]> {
@@ -608,9 +620,13 @@ export class SongPlayer {
                         const overrideScope = unit.overrides.length > 0
                             ? state.player.snapshotPresetState()
                             : null;
+                        let modulationState: PlayerModulationState | null = null;
                         try {
                             unit.overrides.forEach((command: Command) => command.execute(state.player));
-                            this._executeOperations(unit.operations);
+                            const modulated = this._executeOperations(unit.operations, state.player);
+                            if (modulated) {
+                                modulationState = state.player.snapshotModulationState();
+                            }
 
                             // Check if notes exist before calling generation
                             if (unit.includeNotes && block.melody && block.melody.notes.trim() !== '') {
@@ -626,6 +642,9 @@ export class SongPlayer {
                         } finally {
                             if (overrideScope) {
                                 state.player.restorePresetState(overrideScope);
+                            }
+                            if (overrideScope && modulationState) {
+                                state.player.restoreModulationState(modulationState);
                             }
                         }
                     } finally {
