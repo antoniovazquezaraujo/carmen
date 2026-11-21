@@ -32,24 +32,25 @@
                 <option [value]="scale">{{scale}}</option>
               }
             </select>
-            <label class="command-value">
-              From
-              <input type="number"
-                class="number-input"
-                [(ngModel)]="operation.fromOrdinal"
-                (ngModelChange)="onModulateChange()"
-                min="1"
-                step="1">
-            </label>
-            <label class="command-value">
-              To
-              <input type="number"
-                class="number-input"
-                [(ngModel)]="operation.toOrdinal"
-                (ngModelChange)="onModulateChange()"
-                min="1"
-                step="1">
-            </label>
+            <input type="number"
+              class="number-input"
+              [(ngModel)]="operation.fromOrdinal"
+              (ngModelChange)="onModulateChange()"
+              min="1"
+              step="1"
+              pTooltip="From tritone"
+              tooltipPosition="top"
+              aria-label="From tritone">
+            <span class="modulate-arrow" aria-hidden="true">→</span>
+            <input type="number"
+              class="number-input"
+              [(ngModel)]="operation.toOrdinal"
+              (ngModelChange)="onModulateChange()"
+              min="1"
+              step="1"
+              pTooltip="To tritone"
+              tooltipPosition="top"
+              aria-label="To tritone">
           }
           @if (operation.type === 'ASSIGN') {
             @if (isVariableOfType(operation.variableName, 'scale')) {
