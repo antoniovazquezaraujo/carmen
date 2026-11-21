@@ -88,6 +88,46 @@
       line-height: 1.5;
     }
     #mod-result .mod-line { color: var(--accent); }
+    #count-result {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    #count-result .count-line { color: var(--accent); }
+    #count-result .count-warning { color: #fbbf24; }
+    #count-result .count-muted { color: var(--muted); }
+    .candidate-scroll {
+      max-height: 360px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .candidate-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .78rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .candidate-table th,
+    .candidate-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .candidate-table th {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .candidate-table tr.best { background: rgba(94, 234, 212, .08); }
+    .candidate-table .clean { color: var(--accent); }
+    .candidate-table .swap { color: #fbbf24; }
   </style>
 </head>
 <body>
@@ -98,7 +138,8 @@
     representan por clases de altura <code>0–11</code> y se reproducen desde C4.
     La ocultación colapsa los semitonos que tocan los tritonos: de cada semitono
     sobrevive una sola nota. Las vistas se muestran para WHITE y BLUE; la
-    modulación anclada funciona con todas las escalas.
+    modulación anclada funciona con todas las escalas. La última sección
+    explora la modulación por número de tritonos y la inversión separada.
   </p>
 
   <h2>Escalas completas</h2>
@@ -117,6 +158,36 @@
     <button id="mod-play" type="button"><strong>Play modulation</strong><small>source then target, both transposed</small></button>
   </div>
   <div id="mod-result" role="status" aria-live="polite"></div>
+
+  <h2>Modulación por número de tritonos</h2>
+  <p class="note">
+    Busca una escala padre con un tritono más o menos, conservando la
+    orientación del tritono (F–B no es lo mismo que B–F). La posición indica
+    dónde debe quedar el tritono conservado: en el destino al añadir, en el
+    origen al quitar. <code>INVERT TRITONE</code> es la operación separada
+    <code>KEY + 6</code>.
+  </p>
+  <div class="modulation-controls">
+    <label>Source scale <select id="count-source"></select></label>
+    <label>Source KEY <input id="count-key" type="number" min="0" max="11" step="1" value="2"></label>
+    <label>Action
+      <select id="count-action">
+        <option value="ADD">ADD TRITONE</option>
+        <option value="REMOVE">REMOVE TRITONE</option>
+        <option value="INVERT">INVERT TRITONE</option>
+      </select>
+    </label>
+    <label>Keep position
+      <select id="count-keep">
+        <option value="1">1 (first)</option>
+        <option value="2">2 (second)</option>
+      </select>
+    </label>
+    <button id="count-refresh" type="button"><strong>Search</strong><small>target scale/key</small></button>
+    <button id="count-play" type="button"><strong>Play result</strong><small>source then result</small></button>
+  </div>
+  <div id="count-result" role="status" aria-live="polite"></div>
+  <div id="count-candidates"></div>
 
   <div id="status" role="status" aria-live="polite"></div>
 
@@ -366,6 +437,380 @@
   [keyInput, fromInput, toInput].forEach(input => input.addEventListener('input', refreshModulation));
   document.getElementById('mod-play').addEventListener('click', playCurrentModulation);
   refreshModulation();
+
+  // --- Modulación por número de tritonos ---------------------------------
+
+  const COUNT_SCALE_NAMES = ['WHITE', 'BLUE', 'RED', 'TONES', 'BLACK', 'FULL'];
+  const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+  const countModulo = value => ((value % 12) + 12) % 12;
+  const countNoteName = note => NOTE_NAMES[countModulo(note)];
+  const countFormatPair = ([start, end]) => `${countNoteName(start)}–${countNoteName(end)}`;
+  const countFormatPairs = pairs => pairs.length === 0
+    ? '∅'
+    : pairs.map(countFormatPair).join(' ');
+  const countFormatNotes = notes => notes.map(countNoteName).join(' ');
+  const countSamePair = (left, right) => left[0] === right[0] && left[1] === right[1];
+
+  const countSource = document.getElementById('count-source');
+  const countKey = document.getElementById('count-key');
+  const countAction = document.getElementById('count-action');
+  const countKeep = document.getElementById('count-keep');
+  const countResult = document.getElementById('count-result');
+  const countCandidates = document.getElementById('count-candidates');
+  let currentCountResult = null;
+
+  for (const name of COUNT_SCALE_NAMES) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    countSource.append(option);
+  }
+  countSource.value = 'WHITE';
+
+  function countOrderedNotes(scale, key) {
+    const notes = [...new Set(SCALES[scale].notes.map(note => countModulo(note + key)))];
+    return notes.sort(
+      (left, right) => countModulo(left - key) - countModulo(right - key)
+    );
+  }
+
+  function countOrderedTritones(scale, key) {
+    const notes = countOrderedNotes(scale, key);
+    const indexes = new Map(notes.map((note, index) => [note, index]));
+    const pairs = [];
+
+    for (const note of notes) {
+      const partner = countModulo(note + 6);
+      const partnerIndex = indexes.get(partner);
+      if (partnerIndex !== undefined && indexes.get(note) < partnerIndex) {
+        pairs.push([note, partner]);
+      }
+    }
+
+    return pairs;
+  }
+
+  function countKeyDistance(left, right) {
+    const distance = Math.abs(left - right);
+    return Math.min(distance, 12 - distance);
+  }
+
+  function countCandidate(sourceNotes, sourceTritones, scale, key, delta, keepPosition) {
+    const notes = countOrderedNotes(scale, key);
+    const tritones = countOrderedTritones(scale, key);
+    const preserved = sourceTritones.filter(pair =>
+      tritones.some(candidate => countSamePair(candidate, pair))
+    );
+    const added = tritones.filter(pair =>
+      !sourceTritones.some(candidate => countSamePair(candidate, pair))
+    );
+    const removed = sourceTritones.filter(pair =>
+      !tritones.some(candidate => countSamePair(candidate, pair))
+    );
+    let keptPair = null;
+    let keptSourcePosition = null;
+    let keptTargetPosition = null;
+
+    if (keepPosition !== null) {
+      if (delta > 0) {
+        keptPair = tritones[keepPosition - 1] || null;
+        if (!keptPair || !preserved.some(pair => countSamePair(pair, keptPair))) {
+          return null;
+        }
+        keptTargetPosition = keepPosition;
+        const sourceIndex = sourceTritones.findIndex(pair =>
+          countSamePair(pair, keptPair)
+        );
+        keptSourcePosition = sourceIndex >= 0 ? sourceIndex + 1 : null;
+      } else {
+        keptPair = sourceTritones[keepPosition - 1] || null;
+        if (!keptPair || !preserved.some(pair => countSamePair(pair, keptPair))) {
+          return null;
+        }
+        keptSourcePosition = keepPosition;
+        const targetIndex = tritones.findIndex(pair =>
+          countSamePair(pair, keptPair)
+        );
+        keptTargetPosition = targetIndex >= 0 ? targetIndex + 1 : null;
+      }
+    }
+
+    const sharedNotes = sourceNotes.filter(note => notes.includes(note)).length;
+    const outNotes = sourceNotes.filter(note => !notes.includes(note));
+    const inNotes = notes.filter(note => !sourceNotes.includes(note));
+    const preservesAll = preserved.length === sourceTritones.length;
+    const isClean = delta > 0
+      ? preservesAll
+      : removed.length === 1 && preserved.length === sourceTritones.length - 1;
+
+    return {
+      scale,
+      key,
+      notes,
+      tritones,
+      preserved,
+      added,
+      removed,
+      outNotes,
+      inNotes,
+      sharedNotes,
+      changedNotes: outNotes.length + inNotes.length,
+      keptPair,
+      keptSourcePosition,
+      keptTargetPosition,
+      preservesAll,
+      isClean
+    };
+  }
+
+  function countSearch(source, sourceKey, delta, keepPosition) {
+    const key = countModulo(sourceKey);
+    const sourceNotes = countOrderedNotes(source, key);
+    const sourceTritones = countOrderedTritones(source, key);
+    const targetTritoneCount = sourceTritones.length + delta;
+    const availableCounts = new Set(
+      COUNT_SCALE_NAMES.map(name => countOrderedTritones(name, 0).length)
+    );
+    const base = {
+      source,
+      sourceKey: key,
+      sourceNotes,
+      sourceTritones,
+      delta,
+      targetTritoneCount,
+      keepPosition
+    };
+
+    if (
+      targetTritoneCount < 0 ||
+      targetTritoneCount > 6 ||
+      !availableCounts.has(targetTritoneCount)
+    ) {
+      return { ...base, best: null, ties: [], candidates: [], reason: 'NO_TARGET_COUNT' };
+    }
+
+    if (keepPosition !== null) {
+      const maxPosition = delta > 0 ? targetTritoneCount : sourceTritones.length;
+      if (
+        !Number.isInteger(keepPosition) ||
+        keepPosition < 1 ||
+        keepPosition > maxPosition
+      ) {
+        return { ...base, best: null, ties: [], candidates: [], reason: 'KEEP_POSITION_OUT_OF_RANGE' };
+      }
+    }
+
+    const candidates = [];
+    for (const scale of COUNT_SCALE_NAMES) {
+      for (let candidateKey = 0; candidateKey < 12; candidateKey += 1) {
+        if (countOrderedTritones(scale, candidateKey).length !== targetTritoneCount) {
+          continue;
+        }
+        const candidate = countCandidate(
+          sourceNotes,
+          sourceTritones,
+          scale,
+          candidateKey,
+          delta,
+          keepPosition
+        );
+        if (candidate) {
+          candidates.push(candidate);
+        }
+      }
+    }
+
+    if (candidates.length === 0) {
+      return { ...base, best: null, ties: [], candidates: [], reason: 'NO_CANDIDATE' };
+    }
+
+    candidates.sort(
+      (left, right) =>
+        right.preserved.length - left.preserved.length ||
+        left.changedNotes - right.changedNotes ||
+        countKeyDistance(left.key, key) - countKeyDistance(right.key, key) ||
+        COUNT_SCALE_NAMES.indexOf(left.scale) - COUNT_SCALE_NAMES.indexOf(right.scale) ||
+        left.key - right.key
+    );
+
+    const best = candidates[0];
+    const ties = candidates.filter(
+      candidate =>
+        candidate.preserved.length === best.preserved.length &&
+        candidate.changedNotes === best.changedNotes
+    );
+
+    return { ...base, best, ties, candidates, reason: 'OK' };
+  }
+
+  function countReasonMessage(result) {
+    if (result.reason === 'NO_TARGET_COUNT') {
+      if (result.source === 'WHITE' && result.delta < 0) {
+        return 'WHITE tiene un solo tritono. Para 0 tritonos usa COLLAPSE (PENTA).';
+      }
+      return `No hay ninguna escala padre con ${result.targetTritoneCount} tritonos.`;
+    }
+    if (result.reason === 'KEEP_POSITION_OUT_OF_RANGE') {
+      return `La posición ${result.keepPosition} no existe en esta operación.`;
+    }
+    if (result.reason === 'NO_CANDIDATE') {
+      return 'No hay ninguna escala que conserve el tritono en esa posición con la orientación actual. Prueba INVERT TRITONE.';
+    }
+    return 'Sin resultado.';
+  }
+
+  function renderCandidateTable(result) {
+    if (result.candidates.length === 0) {
+      return '';
+    }
+
+    const rows = result.candidates.map(candidate => {
+      const bestClass = result.best === candidate ? ' class="best"' : '';
+      const position = candidate.keptPair
+        ? `${candidate.keptSourcePosition ?? '—'}→${candidate.keptTargetPosition ?? '—'}`
+        : '—';
+      return `<tr${bestClass}>
+        <td>${candidate.scale}</td>
+        <td>${candidate.key}</td>
+        <td>${countFormatPairs(candidate.tritones)}</td>
+        <td>${candidate.preserved.length}/${result.sourceTritones.length}</td>
+        <td>${position}</td>
+        <td>${candidate.outNotes.map(countNoteName).join(',') || '∅'}</td>
+        <td>${candidate.inNotes.map(countNoteName).join(',') || '∅'}</td>
+        <td>${candidate.changedNotes}</td>
+        <td class="${candidate.isClean ? 'clean' : 'swap'}">${candidate.isClean ? 'clean' : 'swap'}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="candidate-scroll">
+      <table class="candidate-table">
+        <thead><tr>
+          <th>Escala</th><th>Key</th><th>Tritonos</th><th>Conservados</th>
+          <th>Pos.</th><th>Salen</th><th>Entran</th><th>Dif.</th><th>Tipo</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  function renderCount(result) {
+    const sourceTritones = result.sourceTritones.length === 0
+      ? '∅'
+      : result.sourceTritones
+        .map((pair, index) => `${index + 1}. ${countFormatPair(pair)}`)
+        .join(' · ');
+    const lines = [
+      `<span class="count-line">${result.source} key=${result.sourceKey} · ${countFormatNotes(result.sourceNotes)}</span>`,
+      `<span class="count-muted">tritonos: ${sourceTritones}</span>`
+    ];
+
+    if (result.reason !== 'OK' || !result.best) {
+      lines.push(`<span class="count-warning">${countReasonMessage(result)}</span>`);
+      countResult.innerHTML = lines.join('');
+      countCandidates.innerHTML = '';
+      currentCountResult = result;
+      return;
+    }
+
+    const best = result.best;
+    const kept = best.keptPair
+      ? `conservado ${countFormatPair(best.keptPair)} (origen ${best.keptSourcePosition ?? '—'} → destino ${best.keptTargetPosition ?? '—'})`
+      : 'sin restricción de posición';
+    const targetTritones = best.tritones.length === 0
+      ? '∅'
+      : best.tritones
+        .map((pair, index) => `${index + 1}. ${countFormatPair(pair)}`)
+        .join(' · ');
+
+    lines.push(`<span class="count-line">→ ${best.scale} key=${best.key} · ${countFormatNotes(best.notes)}</span>`);
+    lines.push(`<span class="count-muted">tritonos: ${targetTritones}</span>`);
+    lines.push(`<span>${kept}</span>`);
+    lines.push(`<span>conservados ${countFormatPairs(best.preserved)} · añadidos ${countFormatPairs(best.added)} · quitados ${countFormatPairs(best.removed)}</span>`);
+    lines.push(`<span>salen {${best.outNotes.map(countNoteName).join(',')}} · entran {${best.inNotes.map(countNoteName).join(',')}} · ${best.changedNotes} diferencias</span>`);
+    lines.push(`<span class="${best.isClean ? 'count-line' : 'count-warning'}">${best.isClean ? 'cambio limpio' : 'intercambio de tritonos (no conserva todos)'}</span>`);
+    lines.push(`<span class="count-muted">Equivalente: SCALE ${best.scale} · KEY ${best.key}</span>`);
+
+    if (result.ties.length > 1) {
+      lines.push(`<span class="count-warning">Empate: ${result.ties.map(candidate => `${candidate.scale} key=${candidate.key}`).join(' · ')}</span>`);
+    }
+
+    countResult.innerHTML = lines.join('');
+    countCandidates.innerHTML = renderCandidateTable(result);
+    currentCountResult = result;
+  }
+
+  function renderInversion(source, sourceKey) {
+    const key = countModulo(sourceKey + 6);
+    const notes = countOrderedNotes(source, key);
+    const tritones = countOrderedTritones(source, key);
+    const tritoneList = tritones.length === 0
+      ? '∅'
+      : tritones.map((pair, index) => `${index + 1}. ${countFormatPair(pair)}`).join(' · ');
+
+    countResult.innerHTML = `
+      <span class="count-line">INVERT TRITONE · ${source} key=${sourceKey} → key=${key}</span>
+      <span>${countFormatNotes(notes)}</span>
+      <span>tritonos: ${tritoneList}</span>
+      <span class="count-muted">Misma escala y misma vista; las notas del tritono quedan fijas y la orientación se invierte.</span>
+    `;
+    countCandidates.innerHTML = '';
+    currentCountResult = { kind: 'invert', source, sourceKey, key, notes, tritones };
+  }
+
+  function refreshCount() {
+    const source = countSource.value;
+    const sourceKey = clampInteger(countKey, 0, 11);
+    const action = countAction.value;
+    countKeep.disabled = action === 'INVERT';
+
+    if (action === 'INVERT') {
+      renderInversion(source, sourceKey);
+      return;
+    }
+
+    const delta = action === 'ADD' ? 1 : -1;
+    const keepPosition = Number(countKeep.value);
+    renderCount(countSearch(source, sourceKey, delta, keepPosition));
+  }
+
+  function playCount() {
+    if (!currentCountResult) {
+      refreshCount();
+      return;
+    }
+
+    if (currentCountResult.kind === 'invert') {
+      const sourceNotes = countOrderedNotes(
+        currentCountResult.source,
+        currentCountResult.sourceKey
+      );
+      playNotes(
+        [...sourceNotes, ...currentCountResult.notes],
+        `INVERT ${currentCountResult.source}`,
+        { index: sourceNotes.length, duration: 0.28 }
+      );
+      return;
+    }
+
+    if (!currentCountResult.best) {
+      playNotes(currentCountResult.sourceNotes, `${currentCountResult.source} (sin resultado)`);
+      return;
+    }
+
+    playNotes(
+      [...currentCountResult.sourceNotes, ...currentCountResult.best.notes],
+      `${currentCountResult.source} → ${currentCountResult.best.scale}`,
+      { index: currentCountResult.sourceNotes.length, duration: 0.28 }
+    );
+  }
+
+  [countSource, countAction, countKeep].forEach(select =>
+    select.addEventListener('change', refreshCount)
+  );
+  countKey.addEventListener('input', refreshCount);
+  document.getElementById('count-refresh').addEventListener('click', refreshCount);
+  document.getElementById('count-play').addEventListener('click', playCount);
+  refreshCount();
 </script>
 </body>
 </html>
