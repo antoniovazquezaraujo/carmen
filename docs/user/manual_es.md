@@ -536,8 +536,15 @@ Un `procedure` es una colección ordenada y reutilizable de operaciones. Su cuer
 | `VARY $variable paso` | Suma `paso` a la variable | entero (puede ser negativo) | `VARY $oct 1` |
 | `ASSIGN $variable valor` | Asigna un valor | número, escala, playmode o string entre comillas | `ASSIGN $mode RANDOM` |
 | `MODULATE <destino> FROM <origen> TO <destino>` | Ancla el tritono actual al tritono destino y cambia escala + `KEY` | nombre de escala y dos ordinales 1-based | `MODULATE BLUE FROM 1 TO 2` |
+| `ADD TRITONE KEEP <posición>` | Añade un tritono conservando la orientación actual | posición 1-based en el destino | `ADD TRITONE KEEP 1` |
+| `REMOVE TRITONE KEEP <posición>` | Quita un tritono conservando el tritono elegido del origen | posición 1-based en el origen | `REMOVE TRITONE KEEP 2` |
+| `INVERT TRITONE` | Conserva escala y vista, mueve `KEY` seis semitonos e invierte cada tritono | — | `INVERT TRITONE` |
 
 `MODULATE` cambia la escala y la `KEY` actuales para el resto de la canción (o hasta el siguiente cambio de escala). Se escribe el ancla, no la key: `FROM` es el ordinal del tritono actual y `TO` el del tritono destino, contados de grave a agudo. La key exacta se deriva de las clases de altura reales; ver ADR-005.
+
+`ADD TRITONE`, `REMOVE TRITONE` e `INVERT TRITONE` también cambian escala/key para el resto de la canción y sobreviven a los overrides de bloque como `MODULATE`. Los tritonos están **orientados por su primera aparición en la escala**: `F–B` y `B–F` no son el mismo objeto. `ADD TRITONE KEEP n` conserva el tritono actual como n-ésimo tritono del destino; `REMOVE TRITONE KEEP n` conserva el n-ésimo tritono del origen. La búsqueda maximiza los tritonos orientados conservados y después minimiza las notas que salen/entran. Ejemplos desde `WHITE` en `D`: `ADD TRITONE KEEP 1` → `RED` en `E`, `ADD TRITONE KEEP 2` → `RED` en `C`, `INVERT TRITONE` → `WHITE` en `G#`.
+
+`REMOVE TRITONE` desde `WHITE` no tiene efecto: llegar a cero tritonos es una vista, así que usa `COLLAPSE` (por ejemplo `COLLAPSE LOW_HIGH` para PENTA). No hay escala padre con cinco tritonos, así que `ADD TRITONE` desde `BLACK`/`FULL` y `REMOVE TRITONE` desde `FULL` tampoco tienen efecto. `TONES` ↔ `BLACK` cambia el número de tritonos en uno pero solo conserva dos; es un intercambio, no un add/remove limpio.
 
 Azúcar de entrada (cómoda para escribir a mano, **nunca** se guarda así):
 

@@ -536,8 +536,15 @@ A `procedure` is an ordered, reusable collection of operations. Its body has one
 | `VARY $variable step` | Adds `step` to the variable | integer (can be negative) | `VARY $oct 1` |
 | `ASSIGN $variable value` | Assigns a value | number, scale, playmode or quoted string | `ASSIGN $mode RANDOM` |
 | `MODULATE <target> FROM <from> TO <to>` | Anchors the current scale's tritone to a target tritone and changes scale + `KEY` | scale name and two 1-based ordinals | `MODULATE BLUE FROM 1 TO 2` |
+| `ADD TRITONE KEEP <position>` | Adds one tritone while preserving the current tritone orientation | 1-based position in the target | `ADD TRITONE KEEP 1` |
+| `REMOVE TRITONE KEEP <position>` | Removes one tritone while preserving the chosen source tritone | 1-based position in the source | `REMOVE TRITONE KEEP 2` |
+| `INVERT TRITONE` | Keeps scale and view, moves `KEY` six semitones and flips every tritone | — | `INVERT TRITONE` |
 
 `MODULATE` changes the current scale and `KEY` for the rest of the song (or until another scale change). You write the anchor, not the key: `FROM` is the current scale's tritone ordinal and `TO` is the target scale's tritone ordinal, both counted from low to high. The exact key is derived from the real pitch classes; see ADR-005.
+
+`ADD TRITONE`, `REMOVE TRITONE` and `INVERT TRITONE` also change the current scale/key for the rest of the song, and survive block overrides like `MODULATE`. Tritones are **oriented by their first appearance in the scale**: `F–B` and `B–F` are not the same object. `ADD TRITONE KEEP n` keeps the current tritone as the n-th tritone of the target; `REMOVE TRITONE KEEP n` keeps the n-th source tritone. The search maximises preserved oriented tritones and then minimises notes that leave/enter. Examples from `WHITE` in `D`: `ADD TRITONE KEEP 1` → `RED` in `E`, `ADD TRITONE KEEP 2` → `RED` in `C`, `INVERT TRITONE` → `WHITE` in `G#`.
+
+`REMOVE TRITONE` from `WHITE` has no effect: reaching zero tritones is a view, so use `COLLAPSE` (for example `COLLAPSE LOW_HIGH` for PENTA). There is no parent scale with five tritones, so `ADD TRITONE` from `BLACK`/`FULL` and `REMOVE TRITONE` from `FULL` also have no effect. `TONES` ↔ `BLACK` changes the tritone count by one but only preserves two tritones; it is a swap, not a clean add/remove.
 
 Input sugar (handy for writing by hand, **never** stored like this):
 
