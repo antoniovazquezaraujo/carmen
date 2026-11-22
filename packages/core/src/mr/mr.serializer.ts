@@ -14,7 +14,15 @@ import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
 import { isVelocity, parseVelocityPattern, parseVelocityRamp, printVelocityPattern, printVelocityRamp } from '../velocity';
 import { parseOctavePattern, printOctavePattern } from '../octave-pattern';
-import { AssignOperation, BaseOperation, ModulateOperation, VaryOperation } from '../operation';
+import {
+  AddTritoneOperation,
+  AssignOperation,
+  BaseOperation,
+  InvertTritoneOperation,
+  ModulateOperation,
+  RemoveTritoneOperation,
+  VaryOperation
+} from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames, PlayMode } from '../play.mode';
 import { Scale, ScaleTypes } from '../scale';
@@ -382,6 +390,21 @@ function formatOperation(operation: BaseOperation, context: string): string {
       throw new MrSerializeError(`MODULATE TO requiere un ordinal entero >= 1 en ${context}`);
     }
     return `MODULATE ${target} FROM ${operation.fromOrdinal} TO ${operation.toOrdinal}`;
+  }
+  if (operation instanceof AddTritoneOperation) {
+    if (!Number.isInteger(operation.keepPosition) || operation.keepPosition < 1) {
+      throw new MrSerializeError(`ADD TRITONE KEEP requiere una posición entera >= 1 en ${context}`);
+    }
+    return `ADD TRITONE KEEP ${operation.keepPosition}`;
+  }
+  if (operation instanceof RemoveTritoneOperation) {
+    if (!Number.isInteger(operation.keepPosition) || operation.keepPosition < 1) {
+      throw new MrSerializeError(`REMOVE TRITONE KEEP requiere una posición entera >= 1 en ${context}`);
+    }
+    return `REMOVE TRITONE KEEP ${operation.keepPosition}`;
+  }
+  if (operation instanceof InvertTritoneOperation) {
+    return 'INVERT TRITONE';
   }
   if (!IDENTIFIER_PATTERN.test(operation.variableName)) {
     throw new MrSerializeError(`operación con nombre de variable inválido '${operation.variableName}' en ${context}`);

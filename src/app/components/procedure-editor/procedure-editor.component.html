@@ -9,7 +9,7 @@
               <option [value]="type">{{typeLabel(type)}}</option>
             }
           </select>
-          @if (operation.type !== 'MODULATE') {
+          @if (showsVariable(operation.type)) {
             @if (showOperationColon(operation)) {
               <span class="command-label-sep" aria-hidden="true">:</span>
             }
@@ -51,6 +51,20 @@
               pTooltip="To tritone"
               tooltipPosition="top"
               aria-label="To tritone">
+          }
+          @if (operation.type === 'ADD_TRITONE' || operation.type === 'REMOVE_TRITONE') {
+            <input type="number"
+              class="number-input"
+              [(ngModel)]="operation.keepPosition"
+              (ngModelChange)="onTritoneChange()"
+              min="1"
+              step="1"
+              pTooltip="Keep position (1 = first tritone)"
+              tooltipPosition="top"
+              aria-label="Keep position">
+          }
+          @if (operation.type === 'INVERT_TRITONE') {
+            <span class="modulate-arrow" pTooltip="Same scale and view, KEY + 6" tooltipPosition="top">+6</span>
           }
           @if (operation.type === 'ASSIGN') {
             @if (isVariableOfType(operation.variableName, 'scale')) {

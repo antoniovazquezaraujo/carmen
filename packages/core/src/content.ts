@@ -8,7 +8,15 @@
  */
 import { BlockContent } from './block.content';
 import { cloneCommand, Command } from './command';
-import { BaseOperation, cloneOperation, ModulateOperation, VaryOperation } from './operation';
+import {
+    AddTritoneOperation,
+    BaseOperation,
+    cloneOperation,
+    InvertTritoneOperation,
+    ModulateOperation,
+    RemoveTritoneOperation,
+    VaryOperation
+} from './operation';
 
 /** Alias de dominio para una entrada de `Preset` (antes `Command`). */
 export type Setting = Command;
@@ -125,6 +133,21 @@ export class Procedure {
                         fromOrdinal: operation.fromOrdinal,
                         toOrdinal: operation.toOrdinal
                     };
+                }
+                if (operation instanceof AddTritoneOperation) {
+                    return {
+                        type: 'ADD_TRITONE',
+                        keepPosition: operation.keepPosition
+                    };
+                }
+                if (operation instanceof RemoveTritoneOperation) {
+                    return {
+                        type: 'REMOVE_TRITONE',
+                        keepPosition: operation.keepPosition
+                    };
+                }
+                if (operation instanceof InvertTritoneOperation) {
+                    return { type: 'INVERT_TRITONE' };
                 }
                 return {
                     type: operation instanceof VaryOperation ? 'VARY' : 'ASSIGN',

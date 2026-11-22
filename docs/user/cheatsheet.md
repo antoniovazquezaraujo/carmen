@@ -130,6 +130,9 @@ Numeric settings accept `$variable`.
 - `VARY $variable step` — increment/decrement (numbers) or cycle (scales/playmodes).
 - `ASSIGN $variable value` — assign.
 - `MODULATE <target> FROM <from> TO <to>` — anchor the current tritone to a target tritone; sets scale and `KEY` (the key is derived, not written).
+- `ADD TRITONE KEEP <n>` — add one tritone; `n` is its position in the target. `ADD TRITONE KEEP 1` from WHITE D goes to RED E.
+- `REMOVE TRITONE KEEP <n>` — remove one tritone; `n` is the preserved source position. `REMOVE TRITONE` from WHITE is a no-op; use `COLLAPSE` for PENTA.
+- `INVERT TRITONE` — keep scale/view, `KEY + 6`; the tritone pair stays and its orientation flips.
 - Input sugar: `+=`, `-=`, `++`, `--`, `=` (never emitted).
 
 ## Melody editor shortcuts

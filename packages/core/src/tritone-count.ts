@@ -1,5 +1,5 @@
-import { Scale, ScaleTypes } from '../scale';
-import { NotePair } from '../scale-view';
+import { Scale, ScaleTypes } from './scale';
+import { NotePair } from './scale-view';
 
 /**
  * Experimental tritone-count modulation (not wired into `.mr` yet).

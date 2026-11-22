@@ -3,7 +3,7 @@ import {
     Block,
     Command,
     durationToSeconds,
-    ModulateOperation,
+    isModulationOperation,
     NoteData,
     NoteGenerationService,
     NoteGenerationUnifiedService,
@@ -70,7 +70,7 @@ export function compilePart(part: Part, song: Song, index: number): RawPart {
                 unit.overrides.forEach(setting => setting.execute(player));
                 let modulated = false;
                 unit.operations.forEach(operation => {
-                    if (operation instanceof ModulateOperation) {
+                    if (isModulationOperation(operation)) {
                         modulated = true;
                     }
                     operation.execute(player);

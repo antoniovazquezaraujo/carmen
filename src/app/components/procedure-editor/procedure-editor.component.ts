@@ -13,10 +13,13 @@ import { Tooltip } from 'primeng/tooltip';
 import { Subscription } from 'rxjs';
 import { Procedure } from 'src/app/model/content';
 import {
+    AddTritoneOperation,
     AssignOperation,
     BaseOperation,
+    InvertTritoneOperation,
     ModulateOperation,
     OperationType,
+    RemoveTritoneOperation,
     VaryOperation
 } from 'src/app/model/operation';
 import { ScaleTypes } from 'src/app/model/scale';
@@ -42,6 +45,7 @@ interface OperationView {
     targetScale?: string;
     fromOrdinal?: number;
     toOrdinal?: number;
+    keepPosition?: number;
 }
 
 /**
@@ -188,6 +192,16 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
                 operation.toOrdinal = Number.isInteger(operation.toOrdinal)
                     ? operation.toOrdinal
                     : 1;
+            } else if (
+                operation.type === OperationType.ADD_TRITONE ||
+                operation.type === OperationType.REMOVE_TRITONE
+            ) {
+                operation.variableName = '';
+                operation.keepPosition = Number.isInteger(operation.keepPosition) && operation.keepPosition! >= 1
+                    ? operation.keepPosition
+                    : 1;
+            } else if (operation.type === OperationType.INVERT_TRITONE) {
+                operation.variableName = '';
             }
         });
         this.updateProcedureOperations();
@@ -202,6 +216,20 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
     onModulateChange(): void {
         this.updateProcedureOperations();
         this.cdr.detectChanges();
+    }
+
+    onTritoneChange(): void {
+        this.updateProcedureOperations();
+        this.cdr.detectChanges();
+    }
+
+    showsVariable(type: OperationType): boolean {
+        return (
+            type !== OperationType.MODULATE &&
+            type !== OperationType.ADD_TRITONE &&
+            type !== OperationType.REMOVE_TRITONE &&
+            type !== OperationType.INVERT_TRITONE
+        );
     }
 
     trackByVariable(_index: number, variable: VariableOption): string {
@@ -258,6 +286,29 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
                     toOrdinal: operation.toOrdinal
                 };
             }
+            if (operation instanceof AddTritoneOperation) {
+                return {
+                    type: OperationType.ADD_TRITONE,
+                    variableName: '',
+                    value: 0,
+                    keepPosition: operation.keepPosition
+                };
+            }
+            if (operation instanceof RemoveTritoneOperation) {
+                return {
+                    type: OperationType.REMOVE_TRITONE,
+                    variableName: '',
+                    value: 0,
+                    keepPosition: operation.keepPosition
+                };
+            }
+            if (operation instanceof InvertTritoneOperation) {
+                return {
+                    type: OperationType.INVERT_TRITONE,
+                    variableName: '',
+                    value: 0
+                };
+            }
             let type: OperationType = OperationType.ASSIGN;
             if (operation instanceof VaryOperation) {
                 type = OperationType.VARY;
@@ -291,6 +342,24 @@ export class ProcedureEditorComponent implements OnInit, OnChanges, OnDestroy {
                 const fromOrdinal = Number.isInteger(operation.fromOrdinal) ? operation.fromOrdinal! : 1;
                 const toOrdinal = Number.isInteger(operation.toOrdinal) ? operation.toOrdinal! : 1;
                 return new ModulateOperation(targetScale, fromOrdinal, toOrdinal);
+            }
+
+            if (operation.type === OperationType.ADD_TRITONE) {
+                const keepPosition = Number.isInteger(operation.keepPosition) && operation.keepPosition! >= 1
+                    ? operation.keepPosition!
+                    : 1;
+                return new AddTritoneOperation(keepPosition);
+            }
+
+            if (operation.type === OperationType.REMOVE_TRITONE) {
+                const keepPosition = Number.isInteger(operation.keepPosition) && operation.keepPosition! >= 1
+                    ? operation.keepPosition!
+                    : 1;
+                return new RemoveTritoneOperation(keepPosition);
+            }
+
+            if (operation.type === OperationType.INVERT_TRITONE) {
+                return new InvertTritoneOperation();
             }
 
             if (this.isVariableOfType(variableName, 'scale')) {

@@ -20,7 +20,7 @@ const {
   formatPairs,
   invertTritone,
   orderedTritones
-} = require('../packages/core/dist/experimental/tritone-count.js');
+} = require('../packages/core/dist/tritone-count.js');
 const { ScaleTypes } = require('../packages/core/dist/scale.js');
 
 const pairList = pairs => pairs.length === 0
