@@ -390,7 +390,8 @@
     const notesByCell = new Map();
 
     for (const note of actual) {
-      const [row, column] = RING_CELLS[modulo(note)];
+      // Each ring is rooted at its own key: degree 1 is always bottom centre.
+      const [row, column] = RING_CELLS[modulo(note - key)];
       notesByCell.set(`${row}:${column}`, note);
     }
 
@@ -423,7 +424,7 @@
 
     return `<div class="scale-ring">
       <div class="scale-ring-title">${scale} · ${noteName(key)} (key ${key})</div>
-      <div class="scale-ring-grid" role="img" aria-label="${scale} scale, key ${key}, notes ${actual.map(noteName).join(', ')}">
+      <div class="scale-ring-grid" role="img" aria-label="${scale} scale, key ${key}, degree 1 at bottom centre, notes ${actual.map(noteName).join(', ')}">
         ${rows.join('')}
       </div>
     </div>`;
@@ -443,7 +444,7 @@
       <span><i class="legend-swatch legend-swatch--shared"></i>común</span>
       <span><i class="legend-swatch legend-swatch--removed"></i>sale</span>
       <span><i class="legend-swatch legend-swatch--added"></i>entra</span>
-      <span>El número pequeño es el grado de la escala.</span>
+      <span>Grado 1 abajo, centro; una nota común puede cambiar de celda si cambia la tónica.</span>
     </div>`;
   }
 
