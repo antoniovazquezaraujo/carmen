@@ -12,6 +12,7 @@ All notable changes to **Carmen**. Format based on
 - **MODULATE**: procedures accept `MODULATE <target> FROM <from> TO <to>`. It anchors the current scale's tritone to the target scale's tritone, derives the exact `KEY` (the user writes the anchor, not the key) and changes both scale and key for the rest of the song. The change survives block overrides and is applied by playback and the MIDI compiler.
 - **Tritone-count commands**: procedures accept `ADD TRITONE KEEP <n>`, `REMOVE TRITONE KEEP <n>` and `INVERT TRITONE`. Tritones are oriented by their first appearance in the scale (`F–B` ≠ `B–F`); the search preserves the requested position and then maximises preserved oriented tritones and shared notes. `INVERT TRITONE` is `KEY + 6`. The change survives block overrides and is applied by playback and the MIDI compiler. `REMOVE TRITONE` from WHITE is a no-op (use `COLLAPSE` for PENTA).
 - **Examples**: added **Shop Pen**, a four-pass modulation study that combines a decorated pattern with three anchored `MODULATE` procedures.
+- **Examples**: added **Allariz**, a five-cycle, two-part study with collapsed WHITE chords, decorated patterns and a BLUE key change.
 
 ### Changed
 
