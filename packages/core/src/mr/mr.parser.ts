@@ -13,7 +13,15 @@ import { InstrumentType } from '../instrument-type';
 import { Block } from '../block';
 import { Melody, Preset, Procedure } from '../content';
 import { Command, CommandType } from '../command';
-import { AssignOperation, BaseOperation, ModulateOperation, VaryOperation } from '../operation';
+import {
+  AddTritoneOperation,
+  AssignOperation,
+  BaseOperation,
+  InvertTritoneOperation,
+  ModulateOperation,
+  RemoveTritoneOperation,
+  VaryOperation
+} from '../operation';
 import { Part } from '../part';
 import { getPlayModeNames } from '../play.mode';
 import { Scale, ScaleTypes } from '../scale';
@@ -1140,11 +1148,20 @@ class MrDocumentParser {
     if (keyword === 'MODULATE') {
       return this.parseModulateOperation(line, (match![2] ?? '').trim());
     }
+    if (keyword === 'ADD') {
+      return this.parseAddTritoneOperation(line, (match![2] ?? '').trim());
+    }
+    if (keyword === 'REMOVE') {
+      return this.parseRemoveTritoneOperation(line, (match![2] ?? '').trim());
+    }
+    if (keyword === 'INVERT') {
+      return this.parseInvertTritoneOperation(line, (match![2] ?? '').trim());
+    }
     if (keyword !== 'VARY' && keyword !== 'ASSIGN') {
       throw errorAt(
         line,
         line.indent + 1,
-        `operación desconocida '${firstWord(line.code)}'; se esperaba VARY, ASSIGN, MODULATE o el azúcar $var += 1 / $var-- / $var = valor`
+        `operación desconocida '${firstWord(line.code)}'; se esperaba VARY, ASSIGN, MODULATE, ADD TRITONE, REMOVE TRITONE, INVERT TRITONE o el azúcar $var += 1 / $var-- / $var = valor`
       );
     }
     const rest = (match![2] ?? '').trim();
@@ -1219,6 +1236,67 @@ class MrDocumentParser {
       );
     }
     return new ModulateOperation(targetScale, fromOrdinal, toOrdinal);
+  }
+
+  private parseAddTritoneOperation(line: SourceLine, rest: string): AddTritoneOperation {
+    const restColumn = line.indent + line.code.length - rest.length + 1;
+    const words = splitLineWords(rest, line.number, restColumn - 1);
+    if (words.length !== 3 || words[0].text !== 'TRITONE' || words[1].text !== 'KEEP') {
+      throw errorAt(
+        line,
+        restColumn,
+        'ADD requiere TRITONE KEEP <posición> (p. ej. ADD TRITONE KEEP 1)'
+      );
+    }
+    if (words[0].quoted || words[1].quoted) {
+      throw errorAt(line, words[0].column, 'ADD TRITONE no admite palabras entre comillas');
+    }
+    const keepPosition = words[2].quoted ? null : parseCanonicalInteger(words[2].text);
+    if (keepPosition === null || keepPosition < 1) {
+      throw errorAt(
+        line,
+        words[2].column,
+        `ADD TRITONE KEEP requiere una posición entera >= 1 (recibido '${words[2].text}')`
+      );
+    }
+    return new AddTritoneOperation(keepPosition);
+  }
+
+  private parseRemoveTritoneOperation(line: SourceLine, rest: string): RemoveTritoneOperation {
+    const restColumn = line.indent + line.code.length - rest.length + 1;
+    const words = splitLineWords(rest, line.number, restColumn - 1);
+    if (words.length !== 3 || words[0].text !== 'TRITONE' || words[1].text !== 'KEEP') {
+      throw errorAt(
+        line,
+        restColumn,
+        'REMOVE requiere TRITONE KEEP <posición> (p. ej. REMOVE TRITONE KEEP 1)'
+      );
+    }
+    if (words[0].quoted || words[1].quoted) {
+      throw errorAt(line, words[0].column, 'REMOVE TRITONE no admite palabras entre comillas');
+    }
+    const keepPosition = words[2].quoted ? null : parseCanonicalInteger(words[2].text);
+    if (keepPosition === null || keepPosition < 1) {
+      throw errorAt(
+        line,
+        words[2].column,
+        `REMOVE TRITONE KEEP requiere una posición entera >= 1 (recibido '${words[2].text}')`
+      );
+    }
+    return new RemoveTritoneOperation(keepPosition);
+  }
+
+  private parseInvertTritoneOperation(line: SourceLine, rest: string): InvertTritoneOperation {
+    const restColumn = line.indent + line.code.length - rest.length + 1;
+    const words = splitLineWords(rest, line.number, restColumn - 1);
+    if (words.length !== 1 || words[0].text !== 'TRITONE' || words[0].quoted) {
+      throw errorAt(
+        line,
+        restColumn,
+        'INVERT requiere exactamente TRITONE (p. ej. INVERT TRITONE)'
+      );
+    }
+    return new InvertTritoneOperation();
   }
 
   private parseSugarOperation(line: SourceLine): BaseOperation {

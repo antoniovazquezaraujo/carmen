@@ -2,7 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Block } from '../../block';
 import { Melody, Preset, Procedure } from '../../content';
-import { AssignOperation, ModulateOperation, VaryOperation } from '../../operation';
+import {
+  AddTritoneOperation,
+  AssignOperation,
+  InvertTritoneOperation,
+  ModulateOperation,
+  RemoveTritoneOperation,
+  VaryOperation
+} from '../../operation';
 import { Part } from '../../part';
 import { Song } from '../../song';
 import { parseSong } from '../mr.parser';
@@ -61,6 +68,15 @@ function procedureSnapshot(procedure: Procedure): unknown {
           fromOrdinal: operation.fromOrdinal,
           toOrdinal: operation.toOrdinal
         };
+      }
+      if (operation instanceof AddTritoneOperation) {
+        return { type: 'ADD_TRITONE', keepPosition: operation.keepPosition };
+      }
+      if (operation instanceof RemoveTritoneOperation) {
+        return { type: 'REMOVE_TRITONE', keepPosition: operation.keepPosition };
+      }
+      if (operation instanceof InvertTritoneOperation) {
+        return { type: 'INVERT_TRITONE' };
       }
       return { type: operation.constructor.name };
     })

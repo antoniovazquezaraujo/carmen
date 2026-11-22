@@ -127,6 +127,59 @@ part Piano
         expect(song.parts[0].notes.map(note => note.midi)).toEqual([83, 71]);
     });
 
+    it('aplica ADD TRITONE y conserva la nueva escala/key tras restaurar overrides', async () => {
+        const song = await compileSongText(`song AddTritone
+version 3
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+procedures
+  procedure Cambio
+    ADD TRITONE KEEP 1
+
+part Piano
+  block A
+    overrides
+      OCT 3
+    procedure Cambio
+    melody Tema
+  block B
+    melody Tema
+`);
+
+        // WHITE C + ADD KEEP 1 -> RED key 2. A adds OCT 3; B restores OCT 2
+        // but keeps the RED/key 2 modulation.
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([74, 62]);
+    });
+
+    it('aplica INVERT TRITONE y lo conserva en el siguiente bloque', async () => {
+        const song = await compileSongText(`song InvertTritone
+version 3
+
+melodies
+  melody Tema
+    notes
+      4n:0
+
+procedures
+  procedure Cambio
+    INVERT TRITONE
+
+part Piano
+  block A
+    procedure Cambio
+    melody Tema
+  block B
+    melody Tema
+`);
+
+        // WHITE key 0 -> WHITE key 6; both blocks use the new key.
+        expect(song.parts[0].notes.map(note => note.midi)).toEqual([66, 66]);
+    });
+
     it('aplica overrides solo al bloque propio y los restaura para hijos y hermanos', async () => {
         const song = await compileSongText(`song Overrides
 version 3

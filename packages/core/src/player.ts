@@ -2,6 +2,13 @@ import { NoteData } from "./note";
 import { PlayMode } from "./play.mode";
 import { Scale, ScaleTypes, Tonality } from "./scale";
 import { canApplyCollapse, collapseView, CollapseMode } from "./scale-view";
+import {
+    findTritoneCountModulation,
+    invertTritone as computeTritoneInversion,
+    TritoneCountScaleName,
+    TritoneCountSearch,
+    TritoneInversion
+} from "./tritone-count";
 import { modulate as computeModulation, ModulationResult } from "./tritone-modulation";
 import { Block } from "./block";
 import { Preset } from "./content";
@@ -407,6 +414,47 @@ export class Player {
     modulate(target: ScaleTypes, fromOrdinal: number, toOrdinal: number): ModulationResult {
         const result = computeModulation(this.scale, target, fromOrdinal, toOrdinal, this.tonality);
         this.selectScale(target);
+        this.tonality = result.key;
+        return result;
+    }
+
+    private tritoneScaleName(): TritoneCountScaleName {
+        return ScaleTypes[this.scale] as TritoneCountScaleName;
+    }
+
+    /** Add one tritone, keeping the preserved pair at `keepPosition` in the target. */
+    addTritone(keepPosition: number): TritoneCountSearch {
+        const result = findTritoneCountModulation(
+            this.tritoneScaleName(),
+            this.tonality,
+            1,
+            keepPosition
+        );
+        if (result.best) {
+            this.selectScale(ScaleTypes[result.best.scale as keyof typeof ScaleTypes]);
+            this.tonality = result.best.key;
+        }
+        return result;
+    }
+
+    /** Remove one tritone, keeping the source pair at `keepPosition`. */
+    removeTritone(keepPosition: number): TritoneCountSearch {
+        const result = findTritoneCountModulation(
+            this.tritoneScaleName(),
+            this.tonality,
+            -1,
+            keepPosition
+        );
+        if (result.best) {
+            this.selectScale(ScaleTypes[result.best.scale as keyof typeof ScaleTypes]);
+            this.tonality = result.best.key;
+        }
+        return result;
+    }
+
+    /** `INVERT TRITONE`: same scale and view, key + 6. */
+    invertTritone(): TritoneInversion {
+        const result = computeTritoneInversion(this.tritoneScaleName(), this.tonality);
         this.tonality = result.key;
         return result;
     }

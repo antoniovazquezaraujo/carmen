@@ -11,7 +11,7 @@ import { AudioEngineService } from "../services/audio-engine.service";
 import { InstrumentType } from "./instrument-type";
 import { NoteGenerationService } from '../services/note-generation.service';
 import { VariableContext, VariableValue } from './variable.context';
-import { BaseOperation, ModulateOperation } from './operation';
+import { BaseOperation, isModulationOperation } from './operation';
 import { Command } from './command';
 import { NoteDuration } from './melody';
 import { clampVelocity, DEFAULT_VELOCITY } from './velocity';
@@ -574,7 +574,7 @@ export class SongPlayer {
         let modulated = false;
         operations.forEach(operation => {
             try {
-                if (operation instanceof ModulateOperation) {
+                if (isModulationOperation(operation)) {
                     modulated = true;
                 }
                 operation.execute(player);

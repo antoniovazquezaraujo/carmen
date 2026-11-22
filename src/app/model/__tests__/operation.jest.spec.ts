@@ -4,10 +4,13 @@ import { getPlayModeNames } from '../play.mode';
 import { Scale } from '../scale';
 
 describe('OperationType (regresión post-merge)', () => {
-  it('expone VARY, ASSIGN y MODULATE: INCREMENT/DECREMENT se unificaron en VARY', () => {
+  it('expone VARY, ASSIGN, MODULATE y las operaciones de tritonos', () => {
     expect(OperationType.VARY).toBe('VARY');
     expect(OperationType.ASSIGN).toBe('ASSIGN');
     expect(OperationType.MODULATE).toBe('MODULATE');
+    expect(OperationType.ADD_TRITONE).toBe('ADD_TRITONE');
+    expect(OperationType.REMOVE_TRITONE).toBe('REMOVE_TRITONE');
+    expect(OperationType.INVERT_TRITONE).toBe('INVERT_TRITONE');
     expect((OperationType as Record<string, unknown>)['INCREMENT']).toBeUndefined();
     expect((OperationType as Record<string, unknown>)['DECREMENT']).toBeUndefined();
   });

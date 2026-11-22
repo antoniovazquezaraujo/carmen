@@ -1,3 +1,4 @@
+import type { TritoneCountSearch, TritoneInversion } from './tritone-count';
 import { VariableContext } from './variable.context';
 import { getPlayModeNames } from './play.mode';
 import { Scale, ScaleTypes } from './scale';
@@ -5,7 +6,10 @@ import { Scale, ScaleTypes } from './scale';
 export enum OperationType {
     VARY = 'VARY',
     ASSIGN = 'ASSIGN',
-    MODULATE = 'MODULATE'
+    MODULATE = 'MODULATE',
+    ADD_TRITONE = 'ADD_TRITONE',
+    REMOVE_TRITONE = 'REMOVE_TRITONE',
+    INVERT_TRITONE = 'INVERT_TRITONE'
 }
 
 /** Minimal player surface needed by procedure operations. */
@@ -14,6 +18,9 @@ export interface OperationPlayer {
     tonality: number;
     selectScale(scale: ScaleTypes): void;
     modulate(target: ScaleTypes, fromOrdinal: number, toOrdinal: number): void;
+    addTritone(keepPosition: number): TritoneCountSearch;
+    removeTritone(keepPosition: number): TritoneCountSearch;
+    invertTritone(): TritoneInversion;
 }
 
 export abstract class BaseOperation {
@@ -101,6 +108,84 @@ export class ModulateOperation extends BaseOperation {
     }
 }
 
+function warnTritoneNoEffect(command: string, result: TritoneCountSearch): void {
+    if (
+        result.reason === 'NO_TARGET_COUNT' &&
+        result.source === 'WHITE' &&
+        result.delta < 0
+    ) {
+        console.warn(
+            `[${command}] no effect: WHITE has one tritone; use COLLAPSE to reach PENTA.`
+        );
+        return;
+    }
+    console.warn(`[${command}] no effect (${result.reason}).`);
+}
+
+export class AddTritoneOperation extends BaseOperation {
+    readonly keepPosition: number;
+
+    constructor(keepPosition: number) {
+        super('', 0);
+        this.keepPosition = keepPosition;
+    }
+
+    execute(player?: OperationPlayer): void {
+        if (!player) {
+            console.warn('[ADD TRITONE] no player available; operation skipped.');
+            return;
+        }
+        const result = player.addTritone(this.keepPosition);
+        if (!result.best) {
+            warnTritoneNoEffect('ADD TRITONE', result);
+        }
+    }
+}
+
+export class RemoveTritoneOperation extends BaseOperation {
+    readonly keepPosition: number;
+
+    constructor(keepPosition: number) {
+        super('', 0);
+        this.keepPosition = keepPosition;
+    }
+
+    execute(player?: OperationPlayer): void {
+        if (!player) {
+            console.warn('[REMOVE TRITONE] no player available; operation skipped.');
+            return;
+        }
+        const result = player.removeTritone(this.keepPosition);
+        if (!result.best) {
+            warnTritoneNoEffect('REMOVE TRITONE', result);
+        }
+    }
+}
+
+export class InvertTritoneOperation extends BaseOperation {
+    constructor() {
+        super('', 0);
+    }
+
+    execute(player?: OperationPlayer): void {
+        if (!player) {
+            console.warn('[INVERT TRITONE] no player available; operation skipped.');
+            return;
+        }
+        player.invertTritone();
+    }
+}
+
+/** `true` for operations that change scale/key and must survive override restoration. */
+export function isModulationOperation(operation: BaseOperation): boolean {
+    return (
+        operation instanceof ModulateOperation ||
+        operation instanceof AddTritoneOperation ||
+        operation instanceof RemoveTritoneOperation ||
+        operation instanceof InvertTritoneOperation
+    );
+}
+
 /**
  * Copia independiente de una operación. Compartido por `Block.clone` y
  * los clones de bibliotecas de contenido; ante un tipo desconocido cae a `ASSIGN` (mismo
@@ -118,6 +203,15 @@ export function cloneOperation(operation: BaseOperation): BaseOperation {
     }
     if (operation instanceof ModulateOperation) {
         return new ModulateOperation(operation.targetScale, operation.fromOrdinal, operation.toOrdinal);
+    }
+    if (operation instanceof AddTritoneOperation) {
+        return new AddTritoneOperation(operation.keepPosition);
+    }
+    if (operation instanceof RemoveTritoneOperation) {
+        return new RemoveTritoneOperation(operation.keepPosition);
+    }
+    if (operation instanceof InvertTritoneOperation) {
+        return new InvertTritoneOperation();
     }
     console.error(`Cloning Error: Unknown operation type: ${operation.constructor.name}. Defaulting to Assign.`);
     return new AssignOperation(operation.variableName, operation.value);
