@@ -128,6 +128,82 @@
     .candidate-table tr.best { background: rgba(94, 234, 212, .08); }
     .candidate-table .clean { color: var(--accent); }
     .candidate-table .swap { color: #fbbf24; }
+    .scale-compare {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 12px 0 4px;
+    }
+    .scale-compare-arrow {
+      align-self: center;
+      color: var(--muted);
+      font-size: 1.4rem;
+    }
+    .scale-ring {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scale-ring-title {
+      color: var(--ink);
+      font-size: .8rem;
+      font-weight: 700;
+    }
+    .scale-ring-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      width: max-content;
+      padding: 1px;
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
+    .ring-row {
+      display: flex;
+      gap: 1px;
+    }
+    .ring-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      width: 36px;
+      height: 36px;
+      background: var(--surface-2);
+      color: var(--ink);
+      font-size: .72rem;
+      line-height: 1;
+    }
+    .ring-cell--empty { background: var(--surface); }
+    .ring-cell--shared { background: rgba(94, 234, 212, .18); }
+    .ring-cell--removed { background: rgba(251, 113, 133, .24); }
+    .ring-cell--added { background: rgba(74, 222, 128, .24); }
+    .ring-note { font-weight: 700; }
+    .ring-degree {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: .55rem;
+    }
+    .scale-compare-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+    .legend-swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 4px;
+      border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .legend-swatch--shared { background: rgba(94, 234, 212, .18); }
+    .legend-swatch--removed { background: rgba(251, 113, 133, .24); }
+    .legend-swatch--added { background: rgba(74, 222, 128, .24); }
   </style>
 </head>
 <body>
@@ -209,6 +285,22 @@
     FULL:  { notes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], tritones: [[0, 6], [1, 7], [2, 8], [3, 9], [4, 10], [5, 11]] }
   };
 
+  const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+  const RING_CELLS = [
+    [4, 1], // 0
+    [4, 0], // 1
+    [3, 0], // 2
+    [2, 0], // 3
+    [1, 0], // 4
+    [0, 0], // 5
+    [0, 1], // 6
+    [0, 2], // 7
+    [1, 2], // 8
+    [2, 2], // 9
+    [3, 2], // 10
+    [4, 2]  // 11
+  ];
+
   const SEMITONE_CHOICES = [
     { label: 'subir/subir', sides: ['HIGH', 'HIGH'] },
     { label: 'bajar/bajar', sides: ['LOW', 'LOW'] },
@@ -280,6 +372,80 @@
     : pairs.map(([start, end]) => `(${start},${end})`).join(' ');
 
   const formatNotes = notes => `{${notes.join(',')}}`;
+  const noteName = note => NOTE_NAMES[modulo(note)];
+
+  /**
+   * 3x5 ring with the twelve pitch classes, same layout as the GUI scale
+   * tooltip. Cells are labelled with the note name and the scale degree.
+   * When `compareNotes` is present, notes are coloured as shared, removed
+   * (source ring) or added (target ring).
+   */
+  function renderScaleRing(scale, key, notes, compareNotes = null, compareMode = 'source') {
+    const actual = [...new Set(notes.map(note => modulo(note)))];
+    const other = compareNotes ? new Set(compareNotes.map(note => modulo(note))) : null;
+    const ordered = [...actual].sort(
+      (left, right) => modulo(left - key) - modulo(right - key)
+    );
+    const degrees = new Map(ordered.map((note, index) => [note, index + 1]));
+    const notesByCell = new Map();
+
+    for (const note of actual) {
+      const [row, column] = RING_CELLS[modulo(note)];
+      notesByCell.set(`${row}:${column}`, note);
+    }
+
+    const rows = [];
+    for (let row = 0; row < 5; row += 1) {
+      const cells = [];
+      for (let column = 0; column < 3; column += 1) {
+        const note = notesByCell.get(`${row}:${column}`);
+        if (note === undefined) {
+          cells.push('<span class="ring-cell ring-cell--empty"></span>');
+          continue;
+        }
+
+        let state = 'present';
+        if (other) {
+          if (other.has(note)) {
+            state = 'shared';
+          } else {
+            state = compareMode === 'target' ? 'added' : 'removed';
+          }
+        }
+
+        cells.push(`<span class="ring-cell ring-cell--${state}" title="${noteName(note)} (${note})">
+          <span class="ring-note">${noteName(note)}</span>
+          <span class="ring-degree">${degrees.get(note)}</span>
+        </span>`);
+      }
+      rows.push(`<div class="ring-row">${cells.join('')}</div>`);
+    }
+
+    return `<div class="scale-ring">
+      <div class="scale-ring-title">${scale} · ${noteName(key)} (key ${key})</div>
+      <div class="scale-ring-grid" role="img" aria-label="${scale} scale, key ${key}, notes ${actual.map(noteName).join(', ')}">
+        ${rows.join('')}
+      </div>
+    </div>`;
+  }
+
+  function renderScaleCompare(sourceScale, sourceKey, sourceNotes, targetScale, targetKey, targetNotes) {
+    if (!targetScale) {
+      return `<div class="scale-compare">${renderScaleRing(sourceScale, sourceKey, sourceNotes)}</div>`;
+    }
+
+    return `<div class="scale-compare">
+      ${renderScaleRing(sourceScale, sourceKey, sourceNotes, targetNotes, 'source')}
+      <div class="scale-compare-arrow" aria-hidden="true">→</div>
+      ${renderScaleRing(targetScale, targetKey, targetNotes, sourceNotes, 'target')}
+    </div>
+    <div class="scale-compare-legend">
+      <span><i class="legend-swatch legend-swatch--shared"></i>común</span>
+      <span><i class="legend-swatch legend-swatch--removed"></i>sale</span>
+      <span><i class="legend-swatch legend-swatch--added"></i>entra</span>
+      <span>El número pequeño es el grado de la escala.</span>
+    </div>`;
+  }
 
   function addButton(container, { label, detail, play }) {
     const button = document.createElement('button');
@@ -308,7 +474,7 @@
     activeOscillators = [];
   }
 
-  function playNotes(notes, label, pause = null) {
+  function playNotes(notes, label, pause = null, statusText = null) {
     const context = getAudioContext();
     context.resume();
     stopActive();
@@ -342,7 +508,7 @@
       activeOscillators.push(oscillator);
     });
 
-    document.getElementById('status').textContent = `${label} → ${formatNotes(notes)}`;
+    document.getElementById('status').textContent = statusText || `${label} → ${formatNotes(notes)}`;
   }
 
   function playSequence(notes) {
@@ -414,11 +580,18 @@
       .map(note => (note + result.key) % 12)
       .sort((left, right) => left - right);
 
+    const sourceSet = new Set(sourceNotes);
+    const targetSet = new Set(targetNotes);
+    const outNotes = sourceNotes.filter(note => !targetSet.has(note));
+    const inNotes = targetNotes.filter(note => !sourceSet.has(note));
+
     currentModulation = { ...result, sourceNotes, targetNotes };
     modResult.innerHTML = `
       <span class="mod-line">MODULATE ${target} FROM ${from} TO ${to}</span>
       <span>${source} key=${sourceKey} ${formatNotes(sourceNotes)} → ${target} key=${result.key} ${formatNotes(targetNotes)}</span>
       <span>fixed ${formatPairs(result.fixed)} · added ${formatPairs(result.added)} · removed ${formatPairs(result.removed)}</span>
+      <span>salen {${outNotes.map(noteName).join(',')}} · entran {${inNotes.map(noteName).join(',')}}</span>
+      ${renderScaleCompare(source, sourceKey, sourceNotes, target, result.key, targetNotes)}
     `;
     return currentModulation;
   }
@@ -428,7 +601,8 @@
     playNotes(
       [...result.sourceNotes, ...result.targetNotes],
       `${result.source} → ${result.target} (key ${result.key})`,
-      { index: result.sourceNotes.length, duration: 0.28 }
+      { index: result.sourceNotes.length, duration: 0.28 },
+      `${result.source} key=${result.sourceKey} → ${result.target} key=${result.key} (primero origen, después destino)`
     );
   }
 
@@ -441,7 +615,6 @@
   // --- Modulación por número de tritonos ---------------------------------
 
   const COUNT_SCALE_NAMES = ['WHITE', 'BLUE', 'RED', 'TONES', 'BLACK', 'FULL'];
-  const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
   const countModulo = value => ((value % 12) + 12) % 12;
   const countNoteName = note => NOTE_NAMES[countModulo(note)];
   const countFormatPair = ([start, end]) => `${countNoteName(start)}–${countNoteName(end)}`;
@@ -706,6 +879,7 @@
 
     if (result.reason !== 'OK' || !result.best) {
       lines.push(`<span class="count-warning">${countReasonMessage(result)}</span>`);
+      lines.push(renderScaleRing(result.source, result.sourceKey, result.sourceNotes));
       countResult.innerHTML = lines.join('');
       countCandidates.innerHTML = '';
       currentCountResult = result;
@@ -734,6 +908,15 @@
       lines.push(`<span class="count-warning">Empate: ${result.ties.map(candidate => `${candidate.scale} key=${candidate.key}`).join(' · ')}</span>`);
     }
 
+    lines.push(renderScaleCompare(
+      result.source,
+      result.sourceKey,
+      result.sourceNotes,
+      best.scale,
+      best.key,
+      best.notes
+    ));
+
     countResult.innerHTML = lines.join('');
     countCandidates.innerHTML = renderCandidateTable(result);
     currentCountResult = result;
@@ -752,6 +935,14 @@
       <span>${countFormatNotes(notes)}</span>
       <span>tritonos: ${tritoneList}</span>
       <span class="count-muted">Misma escala y misma vista; las notas del tritono quedan fijas y la orientación se invierte.</span>
+      ${renderScaleCompare(
+        source,
+        sourceKey,
+        countOrderedNotes(source, sourceKey),
+        source,
+        key,
+        notes
+      )}
     `;
     countCandidates.innerHTML = '';
     currentCountResult = { kind: 'invert', source, sourceKey, key, notes, tritones };
@@ -787,7 +978,8 @@
       playNotes(
         [...sourceNotes, ...currentCountResult.notes],
         `INVERT ${currentCountResult.source}`,
-        { index: sourceNotes.length, duration: 0.28 }
+        { index: sourceNotes.length, duration: 0.28 },
+        `INVERT TRITONE: ${currentCountResult.source} key=${currentCountResult.sourceKey} → key=${currentCountResult.key} (primero origen, después invertida)`
       );
       return;
     }
@@ -800,7 +992,8 @@
     playNotes(
       [...currentCountResult.sourceNotes, ...currentCountResult.best.notes],
       `${currentCountResult.source} → ${currentCountResult.best.scale}`,
-      { index: currentCountResult.sourceNotes.length, duration: 0.28 }
+      { index: currentCountResult.sourceNotes.length, duration: 0.28 },
+      `${currentCountResult.source} key=${currentCountResult.sourceKey} → ${currentCountResult.best.scale} key=${currentCountResult.best.key} (primero origen, después destino)`
     );
   }
 
