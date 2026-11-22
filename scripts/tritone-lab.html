@@ -475,7 +475,7 @@
     activeOscillators = [];
   }
 
-  function playNotes(notes, label, pause = null, statusText = null) {
+  function playMidiNotes(midiNotes, label, pause = null, statusText = null) {
     const context = getAudioContext();
     context.resume();
     stopActive();
@@ -487,13 +487,12 @@
     master.gain.value = 0.16;
     master.connect(context.destination);
 
-    notes.forEach((pitchClass, index) => {
+    midiNotes.forEach((midi, index) => {
       const oscillator = context.createOscillator();
       const envelope = context.createGain();
       const pauseBefore = pause && index >= pause.index ? pause.duration : 0;
       const noteStart = startAt + index * (noteDuration + gap) + pauseBefore;
       const noteEnd = noteStart + noteDuration;
-      const midi = 60 + pitchClass;
       const frequency = 440 * Math.pow(2, (midi - 69) / 12);
 
       oscillator.type = 'triangle';
@@ -509,7 +508,45 @@
       activeOscillators.push(oscillator);
     });
 
-    document.getElementById('status').textContent = statusText || `${label} → ${formatNotes(notes)}`;
+    document.getElementById('status').textContent = statusText || label;
+  }
+
+  function playNotes(notes, label, pause = null, statusText = null) {
+    playMidiNotes(
+      notes.map(note => 60 + note),
+      label,
+      pause,
+      statusText || `${label} → ${formatNotes(notes)}`
+    );
+  }
+
+  /**
+   * Unwrap a scale in scale order so it never drops an octave mid-scale.
+   * Example: WHITE D [2,4,5,7,9,11,0] becomes [2,4,5,7,9,11,12].
+   */
+  function unwrapPitchClasses(pitchClasses) {
+    let octave = 0;
+    let previous = null;
+
+    return pitchClasses.map((pitchClass, index) => {
+      if (index === 0) {
+        previous = pitchClass;
+        return pitchClass;
+      }
+      if (pitchClass < previous) {
+        octave += 12;
+      }
+      previous = pitchClass;
+      return pitchClass + octave;
+    });
+  }
+
+  /** Play one or more scales, each one contained in its own octave. */
+  function playScaleGroups(groups, label, pause = null, statusText = null) {
+    const midiNotes = groups.flatMap(group =>
+      unwrapPitchClasses(group).map(pitch => 60 + pitch)
+    );
+    playMidiNotes(midiNotes, label, pause, statusText || label);
   }
 
   function playSequence(notes) {
@@ -599,8 +636,8 @@
 
   function playCurrentModulation() {
     const result = refreshModulation();
-    playNotes(
-      [...result.sourceNotes, ...result.targetNotes],
+    playScaleGroups(
+      [result.sourceNotes, result.targetNotes],
       `${result.source} → ${result.target} (key ${result.key})`,
       { index: result.sourceNotes.length, duration: 0.28 },
       `${result.source} key=${result.sourceKey} → ${result.target} key=${result.key} (primero origen, después destino)`
@@ -976,8 +1013,8 @@
         currentCountResult.source,
         currentCountResult.sourceKey
       );
-      playNotes(
-        [...sourceNotes, ...currentCountResult.notes],
+      playScaleGroups(
+        [sourceNotes, currentCountResult.notes],
         `INVERT ${currentCountResult.source}`,
         { index: sourceNotes.length, duration: 0.28 },
         `INVERT TRITONE: ${currentCountResult.source} key=${currentCountResult.sourceKey} → key=${currentCountResult.key} (primero origen, después invertida)`
@@ -986,12 +1023,15 @@
     }
 
     if (!currentCountResult.best) {
-      playNotes(currentCountResult.sourceNotes, `${currentCountResult.source} (sin resultado)`);
+      playScaleGroups(
+        [currentCountResult.sourceNotes],
+        `${currentCountResult.source} (sin resultado)`
+      );
       return;
     }
 
-    playNotes(
-      [...currentCountResult.sourceNotes, ...currentCountResult.best.notes],
+    playScaleGroups(
+      [currentCountResult.sourceNotes, currentCountResult.best.notes],
       `${currentCountResult.source} → ${currentCountResult.best.scale}`,
       { index: currentCountResult.sourceNotes.length, duration: 0.28 },
       `${currentCountResult.source} key=${currentCountResult.sourceKey} → ${currentCountResult.best.scale} key=${currentCountResult.best.key} (primero origen, después destino)`
