@@ -2,7 +2,8 @@
 'use strict';
 
 /**
- * Small executable report for the experimental tritone model (ADR-005).
+ * Small executable report for the experimental tritone model (ADR-005) and
+ * the tritone-count search prototype.
  * Run with: npm run lab:tritones
  */
 
@@ -13,6 +14,13 @@ const {
   SEMITONE_VIEW_SELECTIONS
 } = require('../packages/core/dist/experimental/tritone-lab.js');
 const { modulate } = require('../packages/core/dist/tritone-modulation.js');
+const {
+  findTritoneCountModulation,
+  formatCandidate,
+  formatPairs,
+  invertTritone,
+  orderedTritones
+} = require('../packages/core/dist/experimental/tritone-count.js');
 const { ScaleTypes } = require('../packages/core/dist/scale.js');
 
 const pairList = pairs => pairs.length === 0
@@ -67,6 +75,48 @@ printAnchor('WHITE', 'BLUE', 1, 1, 5);
 printAnchor('RED', 'BLACK', 1, 1);
 printAnchor('TONES', 'WHITE', 1, 1);
 printAnchor('FULL', 'WHITE', 1, 1);
+
+const printCount = (source, sourceKey, delta, keepPosition) => {
+  const result = findTritoneCountModulation(
+    source,
+    sourceKey,
+    delta,
+    keepPosition
+  );
+  const sourceTritones = orderedTritones(source, sourceKey);
+  const label = `${source} key=${sourceKey} tritones=${formatPairs(sourceTritones)}`;
+  const keep = keepPosition === undefined ? '-' : keepPosition;
+
+  if (result.reason !== 'OK' || !result.best) {
+    console.log(`${label} | delta=${delta} keep=${keep} | ${result.reason}`);
+    return;
+  }
+
+  console.log(
+    `${label} | delta=${delta} keep=${keep} | ${formatCandidate(result.best)} | ties=${result.ties.length}`
+  );
+};
+
+console.log('\nTritone-count modulation\n');
+printCount('WHITE', 2, 1, 1);
+printCount('WHITE', 2, 1, 2);
+printCount('WHITE', 2, -1, 1);
+printCount('BLUE', 7, -1, 1);
+printCount('BLUE', 7, -1, 2);
+printCount('TONES', 1, 1);
+printCount('BLACK', 0, -1);
+printCount('BLACK', 0, 1);
+
+console.log('\nINVERT TRITONE\n');
+for (const [scale, key] of [
+  ['WHITE', 2],
+  ['BLUE', 7]
+]) {
+  const inverted = invertTritone(scale, key);
+  console.log(
+    `${scale} key=${key} -> key=${inverted.key} tritones=${formatPairs(inverted.tritones)}`
+  );
+}
 
 console.log('\nSemitone views (WHITE/BLUE/RED/BLACK)\n');
 for (const name of ['WHITE', 'BLUE', 'RED', 'BLACK']) {
