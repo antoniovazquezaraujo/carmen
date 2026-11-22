@@ -23,10 +23,10 @@ import { ExampleLibraryComponent } from '../example-library.component';
 const template = fs.readFileSync(path.resolve(__dirname, '../example-library.component.html'), 'utf8');
 
 describe('ExampleLibraryComponent', () => {
-    it('es un panel simple con los trece títulos clicables', () => {
+    it('es un panel simple con los catorce títulos clicables', () => {
         const component = new ExampleLibraryComponent();
 
-        expect(component.examples).toHaveLength(13);
+        expect(component.examples).toHaveLength(14);
         expect(template).toContain('@for (example of examples; track trackByExample($index, example))');
         expect(template).toContain('(click)="select(example)"');
         expect(template).toContain('{{ example.title }}');

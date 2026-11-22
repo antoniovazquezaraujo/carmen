@@ -1115,6 +1115,77 @@ part
     procedure C
     melody "Melody 1"
 `
+    },
+    {
+        id: 'allariz',
+        title: 'Allariz',
+        description: 'A five-cycle, two-part study with collapsed WHITE chords, decorated patterns and a BLUE key change.',
+        tags: ['Five cycles', 'Collapse', 'Modulate', 'Two parts'],
+        bpm: 120,
+        mr: `song Allariz
+version 3
+repeats 5
+
+melodies
+  melody "Melody 1"
+    notes default 1n
+      -1
+      0
+
+  melody "Melody 2"
+    notes default 1n
+      0
+      1
+      2
+      3
+
+presets
+  preset "Preset 1"
+    SCALE WHITE
+    WIDTH 5
+    PLAYMODE CHORD
+    PATTERN 4n:0 4n:-1
+    DECORATION 4n:0 4n:4
+    COLLAPSE BOTH_HIGH
+    GAP 3
+    OCT 1
+    INV 1
+    INTENSITY_PATTERN 30 60 100 10 120 50 90 30
+
+procedures
+  procedure "Procedure 1"
+    MODULATE BLUE FROM 1 TO 1
+
+part
+  block repeats 2
+    preset "Preset 1"
+    melody "Melody 1"
+
+  block repeats 2
+    preset "Preset 1"
+    procedure "Procedure 1"
+    melody "Melody 2"
+
+part
+  block repeats 2
+    preset "Preset 1"
+    overrides
+      PLAYMODE EVEN_ASC_ODD_DESC
+      WIDTH 2
+      OCT 0
+      INV 0
+    melody "Melody 1"
+
+  block repeats 2
+    preset "Preset 1"
+    overrides
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 2
+      OCT 0
+      INV 2
+    procedure "Procedure 1"
+    melody "Melody 2"
+`
     }
 ];
 
