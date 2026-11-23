@@ -1119,8 +1119,8 @@ part
     {
         id: 'allariz',
         title: 'Allariz',
-        description: 'A five-cycle, two-part study with collapsed WHITE chords, decorated patterns and a BLUE key change.',
-        tags: ['Five cycles', 'Collapse', 'Modulate', 'Two parts'],
+        description: 'A five-cycle, two-part study with collapsed WHITE chords, decorated patterns and four tritone procedures.',
+        tags: ['Five cycles', 'Collapse', 'Modulate', 'Tritone', 'Two parts'],
         bpm: 120,
         mr: `song Allariz
 version 3
@@ -1156,6 +1156,15 @@ procedures
   procedure "Procedure 1"
     MODULATE BLUE FROM 1 TO 1
 
+  procedure "Procedure 2"
+    MODULATE BLACK FROM 1 TO 1
+
+  procedure "Procedure 3"
+    REMOVE TRITONE KEEP 2
+
+  procedure "Procedure 4"
+    INVERT TRITONE
+
 part
   block repeats 2
     preset "Preset 1"
@@ -1164,6 +1173,21 @@ part
   block repeats 2
     preset "Preset 1"
     procedure "Procedure 1"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    procedure "Procedure 2"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    procedure "Procedure 3"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    procedure "Procedure 4"
     melody "Melody 2"
 
 part
@@ -1184,6 +1208,36 @@ part
       OCT 0
       INV 2
     procedure "Procedure 1"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    overrides
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 2
+      OCT 0
+      INV 2
+    procedure "Procedure 2"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    overrides
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 2
+      OCT 0
+      INV 2
+    procedure "Procedure 3"
+    melody "Melody 2"
+
+  block repeats 2
+    preset "Preset 1"
+    overrides
+      PLAYMODE ODD_DESC_EVEN_ASC
+      WIDTH 2
+      OCT 0
+      INV 2
+    procedure "Procedure 4"
     melody "Melody 2"
 `
     }
