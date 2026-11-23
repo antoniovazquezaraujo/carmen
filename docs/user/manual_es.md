@@ -4,6 +4,7 @@
 - **Dirigida a:** usuarios que escriben y editan canciones, no a implementadores.
 - **Qué cubre:** la sintaxis completa del fichero `.mr`, cómo suena, cómo se guarda/carga y los límites actuales.
 - **Referencias técnicas:** [ADR-001](../developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md) · [ADR-004](../developer/adr/ADR-004-bibliotecas-contenido.md) · [propuesta de bibliotecas de contenido](../developer/design/propuesta-bibliotecas-contenido.md) · [propuesta de sintaxis](../developer/design/propuesta-sintaxis-mr.md) · [sintaxis implementada](../developer/analysis/sintaxis-mr-implementada.md).
+- **Teoría:** [Música de Partículas](https://github.com/antoniovazquezaraujo/particle-music/releases/latest) — el marco teórico en el que se basa Carmen (PDF en español e inglés).
 
 > **Convención de esta guía.** Los bloques marcados como `mr` son **canciones completas y válidas**: se extraen y se pasan por el parser en cada `npm test` (`src/app/model/mr/__tests__/mr.docs-guia.jest.spec.ts`). Los fragmentos y los ejemplos incorrectos van en bloques `text`.
 
@@ -24,6 +25,8 @@ Consecuencias prácticas:
 - **Diffs limpios en git.** Una unidad musical por línea, sin identificadores volátiles: mover un bloque es mover líneas; añadir una nota es añadir una línea.
 - **Una sola forma canónica.** Para cada canción hay un único texto: el formateador normaliza espacios, comillas, líneas en blanco, azúcar de operaciones y orden de secciones. Si dos ficheros son iguales musicalmente, la app los guarda iguales.
 - **Editable con cualquier editor.** El resaltado de NeoVim está en [`editors/nvim/`](../../editors/nvim/README.md) (plugin opt-in).
+
+> **Base teórica.** El modelo armónico en el que se basa Carmen es **Música de Partículas**. La app es una implementación posible de ese marco; el [PDF](https://github.com/antoniovazquezaraujo/particle-music/releases/latest) desarrolla el argumento completo, los diagramas de escalas y el análisis de partículas.
 
 ---
 

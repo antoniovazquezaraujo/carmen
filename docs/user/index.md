@@ -24,6 +24,7 @@
 - **[Manual del lenguaje `.mr` (español)](manual_es.md)** — la versión en español del manual.
 - **[Syntax cheatsheet](cheatsheet.md)** — tokens, settings, operations and editor shortcuts at a glance.
 - **[MIDI compiler (experimental)](midi.md)** — compile a `.mr` song to a `.mid` file without the browser (`carmen compile`).
+- **[Música de Partículas](https://github.com/antoniovazquezaraujo/particle-music/releases/latest)** — the theoretical framework behind Carmen (PDF, Spanish and English).
 
 ## Links
 

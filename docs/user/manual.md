@@ -4,6 +4,7 @@
 - **Audience:** users who write and edit songs, not implementers.
 - **Scope:** the full syntax of a `.mr` file, how it sounds, how it is saved/loaded and the current limits.
 - **Technical references:** [ADR-001](../developer/adr/ADR-001-texto-canonico-y-sintaxis-mr.md) · [ADR-004](../developer/adr/ADR-004-bibliotecas-contenido.md) · [content libraries proposal](../developer/design/propuesta-bibliotecas-contenido.md) · [syntax proposal](../developer/design/propuesta-sintaxis-mr.md) · [implemented syntax](../developer/analysis/sintaxis-mr-implementada.md).
+- **Theory:** [Música de Partículas](https://github.com/antoniovazquezaraujo/particle-music/releases/latest) — the framework behind Carmen (PDF, Spanish and English).
 
 > **Convention in this manual.** Blocks tagged `mr` are **complete, valid songs**: they are extracted and parsed on every `npm test` (`src/app/model/mr/__tests__/mr.docs-guia.jest.spec.ts`). Fragments and invalid examples use `text` blocks.
 
@@ -24,6 +25,8 @@ Practical consequences:
 - **Clean git diffs.** One musical unit per line, no volatile identifiers: moving a block is moving lines; adding a note is adding a line.
 - **A single canonical form.** Every song has exactly one text: the formatter normalizes spaces, quotes, blank lines, operation sugar and section order. If two files are musically equal, the app saves them equally.
 - **Editable with any editor.** NeoVim highlighting lives in [`editors/nvim/`](../../editors/nvim/README.md) (opt-in plugin).
+
+> **Theoretical background.** The harmonic model behind Carmen is **Música de Partículas**. The app is one possible implementation of that framework; the [PDF](https://github.com/antoniovazquezaraujo/particle-music/releases/latest) develops the full argument, the scale diagrams and the particle analysis.
 
 ---
 
