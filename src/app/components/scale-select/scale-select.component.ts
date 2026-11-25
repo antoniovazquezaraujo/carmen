@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
+import { Scale } from 'src/app/model/scale';
+import { canApplyCollapse, CollapseMode } from 'src/app/model/scale-view';
 import { ScalePreviewComponent } from '../scale-preview/scale-preview.component';
 
 /**
@@ -29,9 +31,23 @@ export class ScaleSelectComponent {
         return this.labels[value] ?? value;
     }
 
+    /** Collapse options are filtered by the parent scale; scale options are not. */
+    get availableOptions(): readonly string[] {
+        if (this.kind !== 'collapse') {
+            return this.options;
+        }
+        const parentNotes = Scale.getScaleByName(this.parentScale).notes;
+        return this.options.filter(option =>
+            option === 'NONE' ||
+            canApplyCollapse(parentNotes, option as CollapseMode)
+        );
+    }
+
     /** Keeps the trigger valid when the current value is not available for the parent. */
     get displayValue(): string {
-        return this.options.includes(this.value) ? this.value : (this.options[0] ?? this.value);
+        return this.availableOptions.includes(this.value)
+            ? this.value
+            : (this.availableOptions[0] ?? this.value);
     }
 
     get triggerAriaLabel(): string {
@@ -105,9 +121,9 @@ export class ScaleSelectComponent {
                 event.preventDefault();
                 return;
             }
-            const index = this.hovered ? this.options.indexOf(this.hovered) : -1;
+            const index = this.hovered ? this.availableOptions.indexOf(this.hovered) : -1;
             const direction = event.key === 'ArrowDown' ? 1 : -1;
-            const next = (index + direction + this.options.length) % this.options.length;
+            const next = (index + direction + this.availableOptions.length) % this.availableOptions.length;
             this.hovered = this.options[next] ?? this.displayValue;
             event.preventDefault();
         }

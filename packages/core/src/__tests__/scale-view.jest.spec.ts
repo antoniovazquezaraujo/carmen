@@ -4,6 +4,7 @@ import {
     collapseView,
     COLLAPSE_MODE_NAMES,
     COLLAPSE_MODES,
+    PER_SEMITONE_COLLAPSE_MODES,
     isCollapseMode,
     semitonesOf,
     tritonesOf
@@ -12,6 +13,8 @@ import {
 const WHITE = [0, 2, 3, 5, 7, 9, 10];
 const BLUE = [0, 2, 4, 5, 7, 8, 10];
 const RED = [0, 1, 4, 5, 7, 8, 11];
+const GREEN = [0, 2, 3, 6, 7, 9, 10];
+const PINK = [0, 2, 3, 5, 6, 9, 10];
 const TONES = [0, 2, 4, 6, 8, 10];
 const BLACK = [1, 2, 4, 5, 7, 8, 10, 11];
 const FULL = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -171,9 +174,40 @@ describe('scale views', () => {
         expect(full.groups).toEqual([]);
     });
 
+    it('derives the eight GREEN and PINK per-semitone views', () => {
+        expect(PER_SEMITONE_COLLAPSE_MODES).toHaveLength(8);
+        expect(collapseView(GREEN, 'DDD').notes).toEqual([0, 2, 6, 9]);
+        expect(collapseView(GREEN, 'DDD').tritones).toEqual([[0, 6]]);
+        expect(collapseView(GREEN, 'UDD').notes).toEqual([0, 3, 6, 9]);
+        expect(collapseView(GREEN, 'UDD').tritones).toEqual([
+            [0, 6],
+            [3, 9]
+        ]);
+        expect(collapseView(PINK, 'DDD').notes).toEqual([0, 2, 5, 9]);
+        expect(collapseView(PINK, 'UUD').notes).toEqual([0, 3, 6, 9]);
+        expect(collapseView(PINK, 'UUD').tritones).toEqual([
+            [0, 6],
+            [3, 9]
+        ]);
+    });
+
+    it('accepts per-semitone modes only on three-semitone scales', () => {
+        expect(canApplyCollapse(GREEN, 'DDD')).toBe(true);
+        expect(canApplyCollapse(PINK, 'DDD')).toBe(true);
+        expect(canApplyCollapse(WHITE, 'DDD')).toBe(false);
+        expect(canApplyCollapse(BLUE, 'DDD')).toBe(false);
+        expect(canApplyCollapse(RED, 'DDD')).toBe(false);
+        expect(canApplyCollapse(BLACK, 'DDD')).toBe(false);
+    });
+
     it('validates collapse mode names', () => {
-        expect(COLLAPSE_MODE_NAMES).toEqual([...COLLAPSE_MODES, 'NONE']);
+        expect(COLLAPSE_MODE_NAMES).toEqual([
+            ...COLLAPSE_MODES,
+            ...PER_SEMITONE_COLLAPSE_MODES,
+            'NONE'
+        ]);
         expect(isCollapseMode('BOTH_HIGH')).toBe(true);
+        expect(isCollapseMode('DDD')).toBe(true);
         expect(isCollapseMode('NONE')).toBe(true);
         expect(isCollapseMode('MIXED')).toBe(false);
     });

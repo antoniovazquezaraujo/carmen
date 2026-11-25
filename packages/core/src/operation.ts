@@ -115,7 +115,7 @@ function warnTritoneNoEffect(command: string, result: TritoneCountSearch): void 
         result.delta < 0
     ) {
         console.warn(
-            `[${command}] no effect: WHITE has one tritone; use COLLAPSE to reach PENTA.`
+            `[${command}] no effect: WHITE has one tritone; use COLLAPSE to reach a view without tritones.`
         );
         return;
     }

@@ -6,6 +6,8 @@ const whiteScale = Scale.getScaleByName('WHITE');
 describe('Scale.getScaleByName', () => {
   it('devuelve las notas de la escala pedida', () => {
     expect(Scale.getScaleByName('WHITE').notes).toEqual([0, 2, 3, 5, 7, 9, 10]);
+    expect(Scale.getScaleByName('GREEN').notes).toEqual([0, 2, 3, 6, 7, 9, 10]);
+    expect(Scale.getScaleByName('PINK').notes).toEqual([0, 2, 3, 5, 6, 9, 10]);
     expect(Scale.getScaleByName('BLACK').notes).toEqual([1, 2, 4, 5, 7, 8, 10, 11]);
     expect(Scale.getScaleByName('FULL').getNumNotes()).toBe(12);
   });
@@ -22,8 +24,8 @@ describe('Scale.getScaleByName', () => {
 });
 
 describe('Scale.getScaleNames / getNumNotes', () => {
-  it('conserva el orden de ScaleTypes', () => {
-    expect(Scale.getScaleNames()).toEqual(['WHITE', 'BLUE', 'RED', 'BLACK', 'TONES', 'FULL']);
+  it('devuelve el orden del catálogo', () => {
+    expect(Scale.getScaleNames()).toEqual(['WHITE', 'BLUE', 'RED', 'GREEN', 'PINK', 'TONES', 'BLACK', 'FULL']);
   });
 
   it('getNumNotes devuelve el tamaño de la escala (0-based)', () => {

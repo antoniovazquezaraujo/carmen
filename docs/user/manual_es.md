@@ -459,8 +459,8 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 |---|---|---|---|
 | `OCT` | Octava base de las notas | entero o `$variable` | `OCT 2` |
 | `OCTAVE_PATTERN` | Repite la melodía propia del bloque en distintos desplazamientos de octava relativos a `OCT` | lista de enteros (pueden ser negativos) o `$variable` | `OCTAVE_PATTERN 1 0 -1 2` |
-| `SCALE` | Escala activa | `WHITE`, `BLUE`, `RED`, `BLACK`, `TONES`, `FULL` o `$variable` | `SCALE BLACK` |
-| `COLLAPSE` | Vista de la escala activa, antes de `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `NONE` o `$variable` | `COLLAPSE LOW_HIGH` |
+| `SCALE` | Escala activa | `WHITE`, `BLUE`, `RED`, `GREEN`, `PINK`, `TONES`, `BLACK`, `FULL` o `$variable` | `SCALE GREEN` |
+| `COLLAPSE` | Vista de la escala activa, antes de `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `DDD`, `DDU`, `DUD`, `DUU`, `UDD`, `UDU`, `UUD`, `UUU`, `NONE` o `$variable` | `COLLAPSE UDD` |
 | `GAP` | Salto (en grados de la escala) entre las notas del acorde | entero o `$variable` | `GAP 2` |
 | `PLAYMODE` | Cómo se tocan los grados: acorde, arpegios, aleatorio, nota suelta… | `CHORD`, `ASCENDING`, `DESCENDING`, `ASC_DESC`, `DESC_ASC`, `EVEN_ASC_ODD_ASC`, `EVEN_ASC_ODD_DESC`, `EVEN_DESC_ODD_DESC`, `EVEN_DESC_ODD_ASC`, `ODD_ASC_EVEN_ASC`, `ODD_ASC_EVEN_DESC`, `ODD_DESC_EVEN_DESC`, `ODD_DESC_EVEN_ASC`, `RANDOM`, `SINGLE` o `$variable` | `PLAYMODE ASCENDING` |
 | `WIDTH` | Notas añadidas al acorde a partir de la raíz (además de ella) | entero o `$variable` | `WIDTH 3` |
@@ -478,7 +478,7 @@ Un `preset` es una colección ordenada y reutilizable de ajustes de reproducció
 Notas:
 
 - `INVERSION` se acepta al leer como alias de `INV`, pero la forma canónica (la que se guarda) es siempre `INV`.
-- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota. `NONE` recupera el padre completo. WHITE, BLUE, RED y BLACK exponen cuatro vistas cada una (los dos grupos de tritonos se mueven juntos). TONES y FULL son no-op por diseño. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
+- `COLLAPSE` proyecta la escala activa: cada semitono que toca un tritono conserva una sola nota. `NONE` recupera el padre completo. WHITE, BLUE, RED y BLACK exponen cuatro vistas de dos letras cada una (los dos grupos de tritonos se mueven juntos). GREEN y PINK tienen tres semitonos, así que exponen ocho vistas de tres letras: una letra por semitono, en orden ascendente. TONES y FULL son no-op por diseño. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (o `SCALE BLUE` + `COLLAPSE HIGH_LOW`) sustituye a la eliminada `PENTA`.
 - `PLAYMODE SINGLE` toca cada nota suelta, sin acorde ni arpegio (útil con `PATTERN`).
 - En el editor, los playmodes se muestran con símbolos compactos: `○` marca las posiciones pares (0, 2, 4…), `●` las impares (1, 3, 5…) y las flechas indican la dirección de cada grupo. Pasa el ratón por el selector para ver la descripción completa; el `.mr` conserva los nombres canónicos.
 - `PATTERN` es **independiente del playmode**: si existe, expande cada nota antes de que el playmode genere su sonido (acorde, arpegio, aleatorio…). Si no hay `PATTERN`, nada cambia. Su melodía se escribe en una línea (duraciones, silencios y grupos admitidos).
@@ -542,9 +542,9 @@ Un `procedure` es una colección ordenada y reutilizable de operaciones. Su cuer
 
 `MODULATE` cambia la escala y la `KEY` actuales para el resto de la canción (o hasta el siguiente cambio de escala). Se escribe el ancla, no la key: `FROM` es el ordinal del tritono actual y `TO` el del tritono destino, contados de grave a agudo. La key exacta se deriva de las clases de altura reales; ver ADR-005.
 
-`ADD TRITONE`, `REMOVE TRITONE` e `INVERT TRITONE` también cambian escala/key para el resto de la canción y sobreviven a los overrides de bloque como `MODULATE`. Los tritonos están **orientados por su primera aparición en la escala**: `F–B` y `B–F` no son el mismo objeto. `ADD TRITONE KEEP n` conserva el tritono actual como n-ésimo tritono del destino; `REMOVE TRITONE KEEP n` conserva el n-ésimo tritono del origen. La búsqueda maximiza los tritonos orientados conservados y después minimiza las notas que salen/entran. Ejemplos desde `WHITE` en `D`: `ADD TRITONE KEEP 1` → `RED` en `E`, `ADD TRITONE KEEP 2` → `RED` en `C`, `INVERT TRITONE` → `WHITE` en `G#`.
+`ADD TRITONE`, `REMOVE TRITONE` e `INVERT TRITONE` también cambian escala/key para el resto de la canción y sobreviven a los overrides de bloque como `MODULATE`. Los tritonos están **orientados por su primera aparición en la escala**: `F–B` y `B–F` no son el mismo objeto. `ADD TRITONE KEEP n` conserva el tritono actual como n-ésimo tritono del destino; `REMOVE TRITONE KEEP n` conserva el n-ésimo tritono del origen. La búsqueda maximiza los tritonos orientados conservados y después minimiza las notas que salen/entran. Ejemplos desde `WHITE` en `D`: `ADD TRITONE KEEP 1` → `RED` en `E`, `ADD TRITONE KEEP 2` → `GREEN` (cambian menos notas que con `RED`), `INVERT TRITONE` → `WHITE` en `G#`.
 
-`REMOVE TRITONE` desde `WHITE` no tiene efecto: llegar a cero tritonos es una vista, así que usa `COLLAPSE` (por ejemplo `COLLAPSE LOW_HIGH` para PENTA). No hay escala padre con cinco tritonos, así que `ADD TRITONE` desde `BLACK`/`FULL` y `REMOVE TRITONE` desde `FULL` tampoco tienen efecto. `TONES` ↔ `BLACK` cambia el número de tritonos en uno pero solo conserva dos; es un intercambio, no un add/remove limpio.
+`REMOVE TRITONE` desde `WHITE` no tiene efecto: llegar a cero tritonos es una vista, así que usa `COLLAPSE` (por ejemplo `COLLAPSE LOW_HIGH` para llegar a una vista de cinco notas sin tritonos). No hay escala padre con cinco tritonos, así que `ADD TRITONE` desde `BLACK`/`FULL` y `REMOVE TRITONE` desde `FULL` tampoco tienen efecto. `TONES` ↔ `BLACK` cambia el número de tritonos en uno pero solo conserva dos; es un intercambio, no un add/remove limpio.
 
 Azúcar de entrada (cómoda para escribir a mano, **nunca** se guarda así):
 
@@ -675,7 +675,7 @@ Formato de presentación: `fichero.mr:línea:columna  error: mensaje`. Ejemplos:
 | 3 espacios de indentación | indentación impar |
 | `4n:( 0 2` | falta `)` para cerrar el grupo abierto en línea:columna |
 | `PLAYMODE` sin valor | PLAYMODE requiere un valor o una variable `$válida` |
-| `SCALE FUCSIA` | escala desconocida; valores válidos: WHITE, BLUE, RED, BLACK, TONES, FULL |
+| `SCALE FUCSIA` | escala desconocida; valores válidos: WHITE, BLUE, RED, GREEN, PINK, TONES, BLACK, FULL |
 | `VARY $oct` sin paso | VARY requiere `$variable` y un valor |
 | `$x *= 2` | la operación `*=` no existe en el modelo; usa `VARY $x <paso>` |
 | `$x` declarada dos veces | la variable `$x` ya está declarada |

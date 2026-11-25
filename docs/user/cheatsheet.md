@@ -103,8 +103,8 @@ block Verse
 |---|---|---|
 | `OCT` | Base octave | `OCT 2` |
 | `OCTAVE_PATTERN` | Repeat the block's own melody at octave offsets | `OCTAVE_PATTERN 1 0 -1 2` |
-| `SCALE` | Active scale | `SCALE BLACK` |
-| `COLLAPSE` | Scale view applied before `KEY` | `COLLAPSE LOW_HIGH` |
+| `SCALE` | Active scale | `SCALE GREEN` |
+| `COLLAPSE` | Scale view applied before `KEY` | `COLLAPSE UDD` |
 | `GAP` | Gap between chord notes | `GAP 2` |
 | `PLAYMODE` | How grades sound | `PLAYMODE ASCENDING` |
 | `WIDTH` | Extra chord notes | `WIDTH 3` |
@@ -121,7 +121,7 @@ The intensity profile (`INTENSITY`/`INTENSITY_PATTERN`/`INTENSITY_RAMP`) applies
 
 Numeric settings accept `$variable`.
 
-`COLLAPSE` accepts `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW` and `NONE`. It projects the active scale: semitones around each tritone keep one note, grouped by tritone. WHITE, BLUE, RED and BLACK expose four views each; TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` replaces the removed `PENTA`.
+`COLLAPSE` accepts the two-letter modes `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW` and the three-letter modes `DDD`, `DDU`, `DUD`, `DUU`, `UDD`, `UDU`, `UUD`, `UUU`, plus `NONE`. It projects the active scale: semitones around each tritone keep one note. WHITE, BLUE, RED and BLACK expose four two-letter views each. GREEN and PINK have three semitones and expose eight three-letter views each. TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` replaces the removed `PENTA`.
 
 `OCTAVE_PATTERN` is relative to `OCT` and applies only to the block's own melody: `OCT 2` + `OCTAVE_PATTERN 1 0 -1 2` plays the sequence in octaves 3, 2, 1, 4. Child blocks keep their own octave/pattern.
 
@@ -130,8 +130,8 @@ Numeric settings accept `$variable`.
 - `VARY $variable step` — increment/decrement (numbers) or cycle (scales/playmodes).
 - `ASSIGN $variable value` — assign.
 - `MODULATE <target> FROM <from> TO <to>` — anchor the current tritone to a target tritone; sets scale and `KEY` (the key is derived, not written).
-- `ADD TRITONE KEEP <n>` — add one tritone; `n` is its position in the target. `ADD TRITONE KEEP 1` from WHITE D goes to RED E.
-- `REMOVE TRITONE KEEP <n>` — remove one tritone; `n` is the preserved source position. `REMOVE TRITONE` from WHITE is a no-op; use `COLLAPSE` for PENTA.
+- `ADD TRITONE KEEP <n>` — add one tritone; `n` is its position in the target. `ADD TRITONE KEEP 1` from WHITE D goes to RED E; `KEEP 2` goes to GREEN.
+- `REMOVE TRITONE KEEP <n>` — remove one tritone; `n` is the preserved source position. `REMOVE TRITONE` from WHITE is a no-op; use `COLLAPSE` for a view without tritones.
 - `INVERT TRITONE` — keep scale/view, `KEY + 6`; the tritone pair stays and its orientation flips.
 - Input sugar: `+=`, `-=`, `++`, `--`, `=` (never emitted).
 

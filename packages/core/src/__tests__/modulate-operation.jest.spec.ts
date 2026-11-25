@@ -41,6 +41,14 @@ describe('MODULATE operation', () => {
         expect(serializeSong(document)).toContain('MODULATE BLUE FROM 1 TO 2');
     });
 
+    it('accepts GREEN and PINK as modulation targets', () => {
+        const document = parseSong(SONG.replace('MODULATE BLUE FROM 1 TO 2', 'MODULATE GREEN FROM 1 TO 1'));
+        const operation = document.song.procedures[0].operations[0] as ModulateOperation;
+
+        expect(operation.targetScale).toBe(ScaleTypes.GREEN);
+        expect(serializeSong(document)).toContain('MODULATE GREEN FROM 1 TO 1');
+    });
+
     it('changes the player scale and key from the anchor', () => {
         const player = createPlayer();
         player.scale = ScaleTypes.WHITE;

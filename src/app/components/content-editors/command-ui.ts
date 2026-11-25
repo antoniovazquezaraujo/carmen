@@ -29,7 +29,7 @@ const COMMAND_DESCRIPTIONS: Record<string, string> = {
     OCT: 'Base octave used to interpret melody degrees.',
     OCTAVE_PATTERN: 'Repeats the block melody at octave offsets relative to OCT (e.g. 1 0 -1 2).',
     SCALE: 'Scale used to turn degrees into notes.',
-    COLLAPSE: 'Scale view applied before KEY: collapses the semitones around tritones (TONES/FULL are no-ops).',
+    COLLAPSE: 'Scale view applied before KEY: two-letter modes for WHITE/BLUE/RED/BLACK, three-letter modes for GREEN/PINK (TONES/FULL are no-ops).',
     GAP: 'Distance between generated chord notes.',
     PLAYMODE: 'How notes are generated: single note, chord, arpeggio…',
     INV: 'Chord inversion: moves the first notes up an octave.',
