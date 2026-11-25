@@ -14,9 +14,26 @@
 export type NotePair = readonly [number, number];
 
 export const COLLAPSE_MODES = ['BOTH_HIGH', 'BOTH_LOW', 'LOW_HIGH', 'HIGH_LOW'] as const;
-export type CollapseMode = (typeof COLLAPSE_MODES)[number] | 'NONE';
+export const PER_SEMITONE_COLLAPSE_MODES = [
+    'DDD',
+    'DDU',
+    'DUD',
+    'DUU',
+    'UDD',
+    'UDU',
+    'UUD',
+    'UUU'
+] as const;
 
-export const COLLAPSE_MODE_NAMES: readonly CollapseMode[] = [...COLLAPSE_MODES, 'NONE'];
+export type LegacyCollapseMode = (typeof COLLAPSE_MODES)[number];
+export type PerSemitoneCollapseMode = (typeof PER_SEMITONE_COLLAPSE_MODES)[number];
+export type CollapseMode = LegacyCollapseMode | PerSemitoneCollapseMode | 'NONE';
+
+export const COLLAPSE_MODE_NAMES: readonly CollapseMode[] = [
+    ...COLLAPSE_MODES,
+    ...PER_SEMITONE_COLLAPSE_MODES,
+    'NONE'
+];
 
 export type SemitoneSide = 'LOW' | 'HIGH';
 
@@ -35,7 +52,7 @@ export interface ScaleView {
     readonly groups: readonly (readonly NotePair[])[];
 }
 
-const MODE_SIDES: Readonly<Record<Exclude<CollapseMode, 'NONE'>, readonly [SemitoneSide, SemitoneSide]>> = {
+const MODE_SIDES: Readonly<Record<LegacyCollapseMode, readonly [SemitoneSide, SemitoneSide]>> = {
     BOTH_HIGH: ['HIGH', 'HIGH'],
     BOTH_LOW: ['LOW', 'LOW'],
     LOW_HIGH: ['LOW', 'HIGH'],
@@ -46,10 +63,18 @@ export function isCollapseMode(value: string): value is CollapseMode {
     return COLLAPSE_MODE_NAMES.includes(value as CollapseMode);
 }
 
+export function isPerSemitoneCollapseMode(value: string): value is PerSemitoneCollapseMode {
+    return (PER_SEMITONE_COLLAPSE_MODES as readonly string[]).includes(value);
+}
+
 /** `true` when the collapse family can project this parent (identity included). */
 export function canApplyCollapse(parentNotes: readonly number[], mode: CollapseMode): boolean {
     if (mode === 'NONE') {
         return true;
+    }
+    if (isPerSemitoneCollapseMode(mode)) {
+        // One letter per semitone: only scales with exactly three semitones.
+        return semitonesOf(parentNotes).length === 3;
     }
     const groups = collapseGroups(parentNotes);
     // TONES and FULL have no supported groups for now: every mode is a no-op.
@@ -181,6 +206,31 @@ export function collapseView(parentNotes: readonly number[], mode: CollapseMode)
             semitones: semitonesOf(parent),
             tritones: tritonesOf(parent),
             groups: []
+        };
+    }
+
+    if (isPerSemitoneCollapseMode(mode)) {
+        const semitones = semitonesOf(parent);
+        if (semitones.length !== 3) {
+            throw new RangeError(`COLLAPSE ${mode} needs exactly three semitones; got ${semitones.length}`);
+        }
+        const selected = new Set<number>();
+        semitones.forEach(([low, high], index) => {
+            const side = mode[index] === 'U' ? 'HIGH' : 'LOW';
+            selected.add(side === 'LOW' ? low : high);
+        });
+        const semitoneNotes = new Set(semitones.flatMap(([low, high]) => [low, high]));
+        const notes = parent.filter(note => selected.has(note) || !semitoneNotes.has(note));
+        const hiddenNotes = parent.filter(note => !notes.includes(note));
+
+        return {
+            family: 'SEMITONE_COLLAPSE',
+            mode,
+            notes,
+            hiddenNotes,
+            semitones: semitonesOf(notes),
+            tritones: tritonesOf(notes),
+            groups: semitones.map(semitone => [semitone])
         };
     }
 

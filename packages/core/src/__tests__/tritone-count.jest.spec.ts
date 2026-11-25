@@ -46,14 +46,14 @@ describe('tritone-count lab', () => {
     const result = findTritoneCountModulation('WHITE', 2, 1, 2);
 
     expect(result.reason).toBe('OK');
-    expect(result.best?.scale).toBe('RED');
-    expect(result.best?.key).toBe(0);
+    expect(result.best?.scale).toBe('GREEN');
+    expect(result.best?.key).toBe(2);
     expect(result.best?.preserved).toEqual([[5, 11]]);
     expect(result.best?.keptSourcePosition).toBe(1);
     expect(result.best?.keptTargetPosition).toBe(2);
-    expect(result.best?.outNotes).toEqual([2, 9]);
-    expect(result.best?.inNotes).toEqual([1, 8]);
-    expect(result.best?.changedNotes).toBe(4);
+    expect(result.best?.outNotes).toEqual([7]);
+    expect(result.best?.inNotes).toEqual([8]);
+    expect(result.best?.changedNotes).toBe(2);
   });
 
   it('rejects removing the last tritone from WHITE', () => {

@@ -26,7 +26,9 @@ export const TRITONE_COUNT_SCALE_NAMES = [
   'RED',
   'TONES',
   'BLACK',
-  'FULL'
+  'FULL',
+  'GREEN',
+  'PINK'
 ] as const;
 
 export type TritoneCountScaleName = (typeof TRITONE_COUNT_SCALE_NAMES)[number];

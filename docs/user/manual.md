@@ -459,8 +459,8 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 |---|---|---|---|
 | `OCT` | Base octave of the notes | integer or `$variable` | `OCT 2` |
 | `OCTAVE_PATTERN` | Repeats the block's own generated melody at octave offsets relative to `OCT` | integer list (can be negative) or `$variable` | `OCTAVE_PATTERN 1 0 -1 2` |
-| `SCALE` | Active scale | `WHITE`, `BLUE`, `RED`, `BLACK`, `TONES`, `FULL` or `$variable` | `SCALE BLACK` |
-| `COLLAPSE` | Scale view applied to the active scale, before `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `NONE` or `$variable` | `COLLAPSE LOW_HIGH` |
+| `SCALE` | Active scale | `WHITE`, `BLUE`, `RED`, `GREEN`, `PINK`, `TONES`, `BLACK`, `FULL` or `$variable` | `SCALE GREEN` |
+| `COLLAPSE` | Scale view applied to the active scale, before `KEY` | `BOTH_HIGH`, `BOTH_LOW`, `LOW_HIGH`, `HIGH_LOW`, `DDD`, `DDU`, `DUD`, `DUU`, `UDD`, `UDU`, `UUD`, `UUU`, `NONE` or `$variable` | `COLLAPSE UDD` |
 | `GAP` | Gap (in scale degrees) between chord notes | integer or `$variable` | `GAP 2` |
 | `PLAYMODE` | How grades are played: chord, arpeggios, random, single note... | `CHORD`, `ASCENDING`, `DESCENDING`, `ASC_DESC`, `DESC_ASC`, `EVEN_ASC_ODD_ASC`, `EVEN_ASC_ODD_DESC`, `EVEN_DESC_ODD_DESC`, `EVEN_DESC_ODD_ASC`, `ODD_ASC_EVEN_ASC`, `ODD_ASC_EVEN_DESC`, `ODD_DESC_EVEN_DESC`, `ODD_DESC_EVEN_ASC`, `RANDOM`, `SINGLE` or `$variable` | `PLAYMODE ASCENDING` |
 | `WIDTH` | Notes added to the chord from the root (besides it) | integer or `$variable` | `WIDTH 3` |
@@ -478,7 +478,7 @@ A `preset` is an ordered, reusable collection of playback settings. Its body has
 Notes:
 
 - `INVERSION` is accepted when reading as an alias of `INV`, but the canonical form (what is saved) is always `INV`.
-- `COLLAPSE` projects the active scale: each semitone that touches a tritone keeps one note. `NONE` restores the full parent. WHITE, BLUE, RED and BLACK expose four views each (the two tritone groups move together). TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) replaces the removed `PENTA`.
+- `COLLAPSE` projects the active scale: each semitone that touches a tritone keeps one note. `NONE` restores the full parent. WHITE, BLUE, RED and BLACK expose four two-letter views each (the two tritone groups move together). GREEN and PINK have three semitones, so they expose eight three-letter views: one letter per semitone, in ascending order. TONES and FULL are no-ops by design. `SCALE WHITE` + `COLLAPSE LOW_HIGH` (or `SCALE BLUE` + `COLLAPSE HIGH_LOW`) replaces the removed `PENTA`.
 - `PLAYMODE SINGLE` plays each note on its own, without chord or arpeggio (useful with `PATTERN`).
 - In the editor, play modes are shown with compact symbols: `○` marks even positions (0, 2, 4...), `●` marks odd positions (1, 3, 5...) and the arrows show each group's direction. Hover the selector for the full description; `.mr` keeps the canonical names.
 - `PATTERN` is **independent from the playmode**: when present, it expands every note before the playmode generates its sound (chord, arpeggio, random...). Without `PATTERN`, nothing changes. Its melody is written on one line (durations, rests and groups allowed).
@@ -542,9 +542,9 @@ A `procedure` is an ordered, reusable collection of operations. Its body has one
 
 `MODULATE` changes the current scale and `KEY` for the rest of the song (or until another scale change). You write the anchor, not the key: `FROM` is the current scale's tritone ordinal and `TO` is the target scale's tritone ordinal, both counted from low to high. The exact key is derived from the real pitch classes; see ADR-005.
 
-`ADD TRITONE`, `REMOVE TRITONE` and `INVERT TRITONE` also change the current scale/key for the rest of the song, and survive block overrides like `MODULATE`. Tritones are **oriented by their first appearance in the scale**: `F–B` and `B–F` are not the same object. `ADD TRITONE KEEP n` keeps the current tritone as the n-th tritone of the target; `REMOVE TRITONE KEEP n` keeps the n-th source tritone. The search maximises preserved oriented tritones and then minimises notes that leave/enter. Examples from `WHITE` in `D`: `ADD TRITONE KEEP 1` → `RED` in `E`, `ADD TRITONE KEEP 2` → `RED` in `C`, `INVERT TRITONE` → `WHITE` in `G#`.
+`ADD TRITONE`, `REMOVE TRITONE` and `INVERT TRITONE` also change the current scale/key for the rest of the song, and survive block overrides like `MODULATE`. Tritones are **oriented by their first appearance in the scale**: `F–B` and `B–F` are not the same object. `ADD TRITONE KEEP n` keeps the current tritone as the n-th tritone of the target; `REMOVE TRITONE KEEP n` keeps the n-th source tritone. The search maximises preserved oriented tritones and then minimises notes that leave/enter. Examples from `WHITE` in `D`: `ADD TRITONE KEEP 1` → `RED` in `E`, `ADD TRITONE KEEP 2` → `GREEN` (fewer notes change than with `RED`), `INVERT TRITONE` → `WHITE` in `G#`.
 
-`REMOVE TRITONE` from `WHITE` has no effect: reaching zero tritones is a view, so use `COLLAPSE` (for example `COLLAPSE LOW_HIGH` for PENTA). There is no parent scale with five tritones, so `ADD TRITONE` from `BLACK`/`FULL` and `REMOVE TRITONE` from `FULL` also have no effect. `TONES` ↔ `BLACK` changes the tritone count by one but only preserves two tritones; it is a swap, not a clean add/remove.
+`REMOVE TRITONE` from `WHITE` has no effect: reaching zero tritones is a view, so use `COLLAPSE` (for example `COLLAPSE LOW_HIGH` to reach a five-note view without tritones). There is no parent scale with five tritones, so `ADD TRITONE` from `BLACK`/`FULL` and `REMOVE TRITONE` from `FULL` also have no effect. `TONES` ↔ `BLACK` changes the tritone count by one but only preserves two tritones; it is a swap, not a clean add/remove.
 
 Input sugar (handy for writing by hand, **never** stored like this):
 

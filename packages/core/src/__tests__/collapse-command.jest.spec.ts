@@ -32,6 +32,19 @@ describe('COLLAPSE command', () => {
         expect(serializeSong(document)).toContain('COLLAPSE BOTH_HIGH');
     });
 
+    it('accepts GREEN with a per-semitone view', () => {
+        const green = SONG
+            .replace('SCALE WHITE', 'SCALE GREEN')
+            .replace('BOTH_HIGH', 'UDD');
+        const document = parseSong(green);
+        const overrides = document.song.parts[0].items[0].overrides;
+
+        expect(overrides[0].value).toBe('GREEN');
+        expect(overrides[1].value).toBe('UDD');
+        expect(serializeSong(document)).toContain('SCALE GREEN');
+        expect(serializeSong(document)).toContain('COLLAPSE UDD');
+    });
+
     it('rejects unknown collapse modes', () => {
         const invalid = SONG.replace('BOTH_HIGH', 'MIXED');
 

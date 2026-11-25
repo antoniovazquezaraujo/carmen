@@ -77,8 +77,8 @@ describe('ADD/REMOVE/INVERT TRITONE commands', () => {
 
     player.addTritone(2);
 
-    expect(player.scale).toBe(ScaleTypes.RED);
-    expect(player.tonality).toBe(0);
+    expect(player.scale).toBe(ScaleTypes.GREEN);
+    expect(player.tonality).toBe(2);
   });
 
   it('does not change WHITE when removing its only tritone', () => {
@@ -150,7 +150,7 @@ describe('ADD/REMOVE/INVERT TRITONE commands', () => {
     new RemoveTritoneOperation(1).execute(player);
 
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('use COLLAPSE to reach PENTA')
+      expect.stringContaining('use COLLAPSE to reach a view without tritones')
     );
     expect(player.scale).toBe(ScaleTypes.WHITE);
     expect(player.tonality).toBe(2);

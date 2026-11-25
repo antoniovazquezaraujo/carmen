@@ -1,6 +1,6 @@
 import { Subject } from 'rxjs';
 
-export type ScaleType = 'WHITE' | 'BLUE' | 'RED' | 'BLACK' | 'TONES' | 'FULL';
+export type ScaleType = 'WHITE' | 'BLUE' | 'RED' | 'GREEN' | 'PINK' | 'TONES' | 'BLACK' | 'FULL';
 export type VariableValue = number | string | ScaleType;
 
 export class VariableContext {

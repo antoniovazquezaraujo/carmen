@@ -23,7 +23,7 @@
     (detach)="close()">
     <div class="scale-select-dropdown" (keydown)="onKeydown($event)">
       <div class="scale-select-menu" role="listbox" [attr.aria-label]="listAriaLabel">
-        @for (scale of options; track scale) {
+        @for (scale of availableOptions; track scale) {
           <button type="button"
             class="scale-option"
             role="option"

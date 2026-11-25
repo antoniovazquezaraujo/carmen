@@ -38,6 +38,28 @@ describe('Player scale views', () => {
         expect(player.getCurrentScale().notes).toEqual([0, 4, 7, 11]);
     });
 
+    it('applies a per-semitone view to GREEN', () => {
+        const player = createPlayer();
+        player.scale = ScaleTypes.GREEN;
+        player.collapse = 'UDD';
+
+        expect(player.getCurrentScale().notes).toEqual([0, 3, 6, 9]);
+    });
+
+    it('clears an incompatible per-semitone view when selecting WHITE', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        const player = createPlayer();
+        player.scale = ScaleTypes.GREEN;
+        player.collapse = 'UDD';
+
+        player.selectScale(ScaleTypes.WHITE);
+
+        expect(player.collapse).toBe('NONE');
+        expect(player.getCurrentScale().notes).toEqual([0, 2, 3, 5, 7, 9, 10]);
+        expect(warn).toHaveBeenCalled();
+        warn.mockRestore();
+    });
+
     it('keeps the view when selectScale changes to a compatible parent', () => {
         const player = createPlayer();
         player.collapse = 'BOTH_HIGH';

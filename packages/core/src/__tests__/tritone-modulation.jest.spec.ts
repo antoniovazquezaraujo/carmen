@@ -38,6 +38,27 @@ describe('tritone modulation', () => {
         expect(() => modulate(ScaleTypes.WHITE, ScaleTypes.BLUE, 1, 3)).toThrow(RangeError);
     });
 
+    it('keeps both tritones between GREEN and PINK', () => {
+        const result = modulate(ScaleTypes.GREEN, ScaleTypes.PINK, 1, 1);
+
+        expect(result.key).toBe(0);
+        expect(result.fixed).toEqual([
+            [0, 6],
+            [3, 9]
+        ]);
+        expect(result.added).toEqual([]);
+        expect(result.removed).toEqual([]);
+    });
+
+    it('anchors WHITE to GREEN and derives the exact key', () => {
+        const result = modulate(ScaleTypes.WHITE, ScaleTypes.GREEN, 1, 1);
+
+        expect(result.key).toBe(3);
+        expect(result.fixed).toEqual([[3, 9]]);
+        expect(result.added).toEqual([[0, 6]]);
+        expect(result.removed).toEqual([]);
+    });
+
     it('works with TONES and FULL tritone sets', () => {
         const tones = modulate(ScaleTypes.TONES, ScaleTypes.WHITE, 1, 1);
         expect(tones.key).toBe(9);
